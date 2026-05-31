@@ -1,0 +1,62 @@
+package cmd
+
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+)
+
+var tasksRewardsCmd = &cobra.Command{
+	Use:   "tasksRewards [code]",
+	Short: "Get All Tasks Rewards",
+	Long: `Get All Tasks Rewards
+
+Arguments:
+  code   The code of the tasks reward.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		case 0:
+			return nil
+		case 1:
+			return nil
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		var path string
+		argCount := len(args)
+
+		switch argCount {
+		case 0:
+			path = "/tasks/rewards"
+		case 1:
+			path = fmt.Sprintf("/tasks/rewards/%s", args[0])
+		}
+
+		params := make(map[string]string)
+		localFlags := cmd.LocalFlags()
+		cmd.Flags().Visit(func(f *pflag.Flag) {
+			if localFlags.Lookup(f.Name) == nil {
+				return
+			}
+			params[f.Name] = f.Value.String()
+		})
+
+		resp, err := apiGet(path, params)
+		if err != nil {
+			return err
+		}
+		return output(resp)
+	},
+}
+
+func init() {
+	apiCmd.AddCommand(tasksRewardsCmd)
+	tasksRewardsCmd.Flags().Int("page", 0,
+		"Page number")
+	tasksRewardsCmd.Flags().Int("size", 0,
+		"Page size")
+}

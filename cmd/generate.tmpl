@@ -1,0 +1,82 @@
+package cmd
+
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+	{{if .Flags}}"github.com/spf13/pflag"{{end}}
+)
+
+var {{.CommandName}}Cmd = &cobra.Command{
+	Use:   "{{.CommandName}}{{if .ArgUse}} {{.ArgUse}}{{end}}",
+	Short: "{{.Summary}}",
+	{{- if .Long}}
+	Long: `{{.Long}}`,
+	{{- end}}
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		{{- range $count, $route := .Routes}}
+		case {{$count}}:
+			return nil
+		{{- end}}
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		var path string
+		argCount := len(args)
+
+		switch argCount {
+		{{- range $count, $route := .Routes}}
+		case {{$count}}:
+			{{- if eq $count 0}}
+			path = "{{$route.GoPathFormat}}"
+			{{- else}}
+			path = fmt.Sprintf("{{$route.GoPathFormat}}", {{range $k, $arg := $route.PathArgs}}{{if $k}}, {{end}}args[{{$k}}]{{end}})
+			{{- end}}
+		{{- end}}
+		}
+
+		params := make(map[string]string)
+		{{- if .Flags}}
+		localFlags := cmd.LocalFlags()
+		cmd.Flags().Visit(func(f *pflag.Flag) {
+			if localFlags.Lookup(f.Name) == nil {
+				return
+			}
+			params[f.Name] = f.Value.String()
+		})
+		{{- end}}
+
+		{{if eq .Method "GET"}}resp, err := apiGet(path, params)
+		{{- else}}
+		{{- if .IsBodyArray}}
+		resp, err := apiPost(path, []map[string]string{params})
+		{{- else}}
+		resp, err := apiPost(path, params)
+		{{- end}}
+		{{- end}}
+		if err != nil {
+			return err
+		}
+		return output(resp)
+	},
+}
+
+func init() {
+	apiCmd.AddCommand({{$.CommandName}}Cmd)
+	{{- range .Flags}}
+	{{- if eq .GoType "Int"}}
+	{{$.CommandName}}Cmd.Flags().Int("{{.Name}}", 0,
+		"{{.Description}}")
+	{{- else if eq .GoType "Bool"}}
+	{{$.CommandName}}Cmd.Flags().Bool("{{.Name}}", false,
+		"{{.Description}}")
+	{{- else}}
+	{{$.CommandName}}Cmd.Flags().String("{{.Name}}", "",
+		"{{.Description}}")
+	{{- end}}
+	{{- end}}
+}
