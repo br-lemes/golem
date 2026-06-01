@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	. "github.com/br-lemes/golem/pkg/schemas"
 	"github.com/tidwall/gjson"
 )
 
@@ -164,4 +165,16 @@ func apiActionFight(name string, participants []string) (CharacterFightDataSchem
 		return CharacterFightDataSchema{}, err
 	}
 	return data.Data, nil
+}
+
+func apiAccountAchievements(name string, page int) (DataPageAccountAchievementSchema, error) {
+	resp, err := apiGet(fmt.Sprintf("/accounts/%s/achievements?page=%d", name, page), nil)
+	if err != nil {
+		return DataPageAccountAchievementSchema{}, err
+	}
+	var data DataPageAccountAchievementSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return DataPageAccountAchievementSchema{}, err
+	}
+	return data, nil
 }

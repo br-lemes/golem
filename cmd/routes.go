@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/br-lemes/golem/pkg/database"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/spf13/cobra"
 )
@@ -52,7 +53,7 @@ Arguments:
 
 func getRoute(targetPath string) (RouteData, error) {
 	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromData([]byte(openapi))
+	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +172,7 @@ func getRoute(targetPath string) (RouteData, error) {
 
 func getRoutes() ([]map[string]string, error) {
 	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromData([]byte(openapi))
+	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
 		return nil, err
 	}

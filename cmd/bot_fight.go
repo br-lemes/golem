@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	. "github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
 

@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"time"
+
+	. "github.com/br-lemes/golem/pkg/schemas"
 )
 
 const bankX = 4
