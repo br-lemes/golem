@@ -88,3 +88,80 @@ func apiRequest(method, path string, body []byte) ([]byte, error) {
 
 	return respBytes, nil
 }
+
+func apiCharacters(name string) (CharacterSchema, error) {
+	resp, err := apiGet("/characters/"+name, nil)
+	if err != nil {
+		return CharacterSchema{}, err
+	}
+	var data CharacterResponseSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return CharacterSchema{}, err
+	}
+	return data.Data, nil
+}
+
+func apiActionMove(name string, x, y int) (CharacterMovementDataSchema, error) {
+	resp, err := apiPost("/my/"+name+"/action/move", map[string]int{
+		"x": x,
+		"y": y,
+	})
+	if err != nil {
+		return CharacterMovementDataSchema{}, err
+	}
+	var data CharacterMovementResponseSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return CharacterMovementDataSchema{}, err
+	}
+	return data.Data, nil
+}
+
+func apiActionBankDepositItem(name string, items []SimpleItemSchema) (BankItemTransactionSchema, error) {
+	resp, err := apiPost("/my/"+name+"/action/bank/deposit/item", items)
+	if err != nil {
+		return BankItemTransactionSchema{}, err
+	}
+	var data BankItemTransactionResponseSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return BankItemTransactionSchema{}, err
+	}
+	return data.Data, nil
+}
+
+func apiActionGathering(name string) (SkillDataSchema, error) {
+	resp, err := apiPost("/my/"+name+"/action/gathering", nil)
+	if err != nil {
+		return SkillDataSchema{}, err
+	}
+	var data SkillResponseSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return SkillDataSchema{}, err
+	}
+	return data.Data, nil
+}
+
+func apiActionRest(name string) (CharacterRestDataSchema, error) {
+	resp, err := apiPost("/my/"+name+"/action/rest", nil)
+	if err != nil {
+		return CharacterRestDataSchema{}, err
+	}
+	var data CharacterRestResponseSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return CharacterRestDataSchema{}, err
+	}
+	return data.Data, nil
+}
+
+func apiActionFight(name string, participants []string) (CharacterFightDataSchema, error) {
+	resp, err := apiPost("/my/"+name+"/action/fight", FightRequestSchema{
+		Participants: &participants,
+	})
+	if err != nil {
+		return CharacterFightDataSchema{}, err
+	}
+	var data CharacterFightResponseSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return CharacterFightDataSchema{}, err
+	}
+	return data.Data, nil
+}
