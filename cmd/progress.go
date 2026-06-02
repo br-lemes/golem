@@ -53,13 +53,15 @@ func init() {
 	rootCmd.AddCommand(progressCmd)
 }
 
-func progressFormat(achievements []AccountAchievementSchema) map[string][]string {
-	result := map[string][]string{}
+func progressFormat(achievements []AccountAchievementSchema) map[string][]map[AchievementType]string {
+	result := map[string][]map[AchievementType]string{}
 	for _, achievement := range achievements {
 		name := fmt.Sprintf("%s (%s)", achievement.Name, achievement.Code)
 		for _, objective := range achievement.Objectives {
-			result[name] = append(result[name], fmt.Sprintf("%s (%d/%d)",
-				objective.Type, *objective.Progress, objective.Total))
+			result[name] = append(result[name], map[AchievementType]string{
+				objective.Type: fmt.Sprintf("%s (%d/%d)",
+					*objective.Target, *objective.Progress, objective.Total),
+			})
 		}
 	}
 	return result
