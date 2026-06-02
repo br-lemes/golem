@@ -180,13 +180,25 @@ func apiAccountAchievements(name string, page int) (DataPageAccountAchievementSc
 }
 
 func apiResources(page int) (StaticDataPageResourceSchema, error) {
-	resp, err := apiGet("/resources", nil)
+	resp, err := apiGet(fmt.Sprintf("/resources?page=%d", page), nil)
 	if err != nil {
 		return StaticDataPageResourceSchema{}, err
 	}
 	var data StaticDataPageResourceSchema
 	if err := json.Unmarshal(resp, &data); err != nil {
 		return StaticDataPageResourceSchema{}, err
+	}
+	return data, nil
+}
+
+func apiMaps(page int) (StaticDataPageMapSchema, error) {
+	resp, err := apiGet(fmt.Sprintf("/maps?page=%d", page), nil)
+	if err != nil {
+		return StaticDataPageMapSchema{}, err
+	}
+	var data StaticDataPageMapSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return StaticDataPageMapSchema{}, err
 	}
 	return data, nil
 }

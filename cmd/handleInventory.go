@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/br-lemes/golem/pkg/database"
 	. "github.com/br-lemes/golem/pkg/schemas"
 )
-
-const bankX = 4
-const bankY = 1
 
 func handleInventory(character CharacterSchema) (CharacterSchema, error) {
 	totalItems := _totalItems(character)
@@ -17,14 +15,15 @@ func handleInventory(character CharacterSchema) (CharacterSchema, error) {
 	}
 	initialX := character.X
 	initialY := character.Y
+	bank := database.FindClosest(character, "bank")
 	fmt.Fprintf(writer, "[%s] Inventory full (%d/%d)...\n",
 		time.Now().Format("15:04:05"), totalItems, character.InventoryMaxItems)
 
 	fmt.Fprintf(writer, "[%s] Moving to bank (%d, %d)...\n",
-		time.Now().Format("15:04:05"), bankX, bankY)
-	moveData, err := apiActionMove(character.Name, bankX, bankY)
+		time.Now().Format("15:04:05"), bank.X, bank.Y)
+	moveData, err := apiActionMove(character.Name, bank.X, bank.Y)
 	if err != nil {
-		return CharacterSchema{}, err
+		return character, err
 	}
 	character = moveData.Character
 
@@ -32,7 +31,7 @@ func handleInventory(character CharacterSchema) (CharacterSchema, error) {
 		time.Now().Format("15:04:05"))
 	transactionData, err := apiActionBankDepositItem(character.Name, _getItems(character))
 	if err != nil {
-		return CharacterSchema{}, err
+		return character, err
 	}
 	character = transactionData.Character
 
@@ -40,7 +39,7 @@ func handleInventory(character CharacterSchema) (CharacterSchema, error) {
 		time.Now().Format("15:04:05"), initialX, initialY)
 	moveData, err = apiActionMove(character.Name, initialX, initialY)
 	if err != nil {
-		return CharacterSchema{}, err
+		return character, err
 	}
 	character = moveData.Character
 

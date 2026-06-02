@@ -8,16 +8,23 @@ import (
 )
 
 var botGatheringCmd = &cobra.Command{
-	Use:   "gathering <name>",
+	Use:   "gathering <name> <code>",
 	Short: "Gather resources continuously",
 	Long: `Gather resources continuously
 
 Arguments:
-  name   Name of your character.`,
-	Args: cobra.ExactArgs(1),
+  name   Name of your character.
+  code   The code of the resource.`,
+	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
+		code := args[1]
 		character, err := apiCharacters(name)
+		if err != nil {
+			return err
+		}
+
+		character, err = handleMap(character, code)
 		if err != nil {
 			return err
 		}

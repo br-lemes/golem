@@ -2,14 +2,18 @@ package cmd
 
 import (
 	"fmt"
+	"path"
 	"regexp"
+	"strings"
 
+	"github.com/br-lemes/golem/pkg/database"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 	"github.com/spf13/cobra"
 )
 
 var commandsCmd = &cobra.Command{
-	Use:   "commands <command>",
+	Use:   "commands [command]",
 	Short: "List available commands mapped from the game's OpenAPI spec",
 	Long: `List available commands mapped from the game's OpenAPI spec
 
@@ -42,7 +46,7 @@ Arguments:
 			if command == nil {
 				return nil
 			}
-			return output(command)
+			return output(buildCompactMap(command))
 		}
 		return output(commands)
 	},
@@ -70,4 +74,66 @@ func getCommands() (map[string][]map[string]string, error) {
 	}
 
 	return result, nil
+}
+
+func buildCompactMap(routes []map[string]string) map[string]map[string]string {
+	result := make(map[string]map[string]string)
+	for _, route := range routes {
+		for method, path := range route {
+			returnType := fetchReturnTypeFromSpec(method, path)
+
+			_, exists := result[method]
+			if !exists {
+				result[method] = make(map[string]string)
+			}
+
+			result[method][path] = returnType
+		}
+	}
+	return result
+}
+
+func fetchReturnTypeFromSpec(method string, targetPath string) string {
+	loader := openapi3.NewLoader()
+	doc, err := loader.LoadFromData(database.OpenAPI())
+	if err != nil {
+		return ""
+	}
+
+	pathItem := doc.Paths.Find(targetPath)
+	if pathItem == nil {
+		return ""
+	}
+
+	upperMethod := strings.ToUpper(method)
+	operation := pathItem.GetOperation(upperMethod)
+	if operation == nil {
+		return ""
+	}
+
+	responseRef := operation.Responses.Status(200)
+	if responseRef == nil {
+		return "void"
+	}
+
+	response := responseRef.Value
+	if response == nil {
+		return "void"
+	}
+
+	jsonContent := response.Content.Get("application/json")
+	if jsonContent == nil {
+		return "void"
+	}
+
+	if jsonContent.Schema == nil {
+		return "void"
+	}
+
+	schemaRef := jsonContent.Schema
+	if schemaRef.Ref != "" {
+		return path.Base(schemaRef.Ref)
+	}
+
+	return "void"
 }

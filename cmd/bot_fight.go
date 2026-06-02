@@ -4,33 +4,29 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
 
 var botFightCmd = &cobra.Command{
-	Use:   "fight <name>",
+	Use:   "fight <name> <code>",
 	Short: "Fight continuously",
 	Long: `Fight continuously
 
 Arguments:
-  name   Name of your character.`,
-	Args: cobra.ExactArgs(1),
+  name   Name of your character.
+  code   The code of the monster.`,
+	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
+		code := args[1]
 
 		character, err := apiCharacters(name)
 		if err != nil {
 			return err
 		}
 
-		initialX := character.X
-		initialY := character.Y
-
 		fmt.Fprintf(writer, "[%s] Starting fight bot for %s\n",
 			time.Now().Format("15:04:05"), name)
-		fmt.Fprintf(writer, "Initial position: (%d, %d)\n\n",
-			initialX, initialY)
 
 		for {
 			character, err = handleHp(character)
@@ -46,14 +42,9 @@ Arguments:
 			fmt.Fprintf(writer, "[%s] Current position: (%d, %d)\n",
 				time.Now().Format("15:04:05"), character.X, character.Y)
 
-			if character.X != initialX || character.Y != initialY {
-				fmt.Fprintf(writer, "[%s] Moving back to initial position (%d, %d)...\n",
-					time.Now().Format("15:04:05"), initialX, initialY)
-				moveData, err := apiActionMove(name, initialX, initialY)
-				if err != nil {
-					return err
-				}
-				character = moveData.Character
+			character, err = handleMap(character, code)
+			if err != nil {
+				return err
 			}
 
 			fmt.Fprintf(writer, "[%s] Starting fight...\n",
@@ -90,33 +81,4 @@ Arguments:
 
 func init() {
 	botCmd.AddCommand(botFightCmd)
-}
-
-func totalInventoryItems(character CharacterSchema) int {
-	if character.Inventory == nil {
-		return 0
-	}
-	total := 0
-	for _, item := range *character.Inventory {
-		total += item.Quantity
-	}
-	return total
-}
-
-func getInventoryItemsList(character CharacterSchema) []SimpleItemSchema {
-	items := []SimpleItemSchema{}
-	if character.Inventory == nil {
-		return items
-	}
-	for _, item := range *character.Inventory {
-		if item.Code == "" || item.Quantity == 0 {
-			continue
-		}
-		simpleItem := SimpleItemSchema{
-			Code:     item.Code,
-			Quantity: item.Quantity,
-		}
-		items = append(items, simpleItem)
-	}
-	return items
 }
