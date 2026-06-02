@@ -1,0 +1,560 @@
+[
+    {
+        "code": "ash_tree",
+        "drops": [
+            {
+                "code": "ash_wood",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            { "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+            {
+                "code": "apple",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 20
+            }
+        ],
+        "level": 1,
+        "name": "Ash Tree",
+        "skill": "woodcutting"
+    },
+    {
+        "code": "gudgeon_spot",
+        "drops": [
+            {
+                "code": "gudgeon",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "algae",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "shell",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "level": 1,
+        "name": "Gudgeon Spot",
+        "skill": "fishing"
+    },
+    {
+        "code": "copper_rocks",
+        "drops": [
+            {
+                "code": "copper_ore",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "topaz_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "emerald_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "ruby_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "sapphire_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            }
+        ],
+        "level": 1,
+        "name": "Copper Rocks",
+        "skill": "mining"
+    },
+    {
+        "code": "sunflower_field",
+        "drops": [
+            {
+                "code": "sunflower",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            }
+        ],
+        "level": 1,
+        "name": "Sunflower Field",
+        "skill": "alchemy"
+    },
+    {
+        "code": "shrimp_spot",
+        "drops": [
+            {
+                "code": "shrimp",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "golden_shrimp",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1000
+            },
+            {
+                "code": "algae",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "shell",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "level": 10,
+        "name": "Shrimp Spot",
+        "skill": "fishing"
+    },
+    {
+        "code": "iron_rocks",
+        "drops": [
+            {
+                "code": "iron_ore",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "topaz_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "emerald_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "ruby_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "sapphire_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            }
+        ],
+        "level": 10,
+        "name": "Iron Rocks",
+        "skill": "mining"
+    },
+    {
+        "code": "spruce_tree",
+        "drops": [
+            {
+                "code": "spruce_wood",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            { "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
+        ],
+        "level": 10,
+        "name": "Spruce Tree",
+        "skill": "woodcutting"
+    },
+    {
+        "code": "coal_rocks",
+        "drops": [
+            { "code": "coal", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+            {
+                "code": "topaz_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "emerald_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "ruby_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            },
+            {
+                "code": "sapphire_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            }
+        ],
+        "level": 20,
+        "name": "Coal Rocks",
+        "skill": "mining"
+    },
+    {
+        "code": "trout_spot",
+        "drops": [
+            {
+                "code": "trout",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "algae",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "small_pearls",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 300
+            }
+        ],
+        "level": 20,
+        "name": "Trout Spot",
+        "skill": "fishing"
+    },
+    {
+        "code": "birch_tree",
+        "drops": [
+            {
+                "code": "birch_wood",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            { "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
+        ],
+        "level": 20,
+        "name": "Birch Tree",
+        "skill": "woodcutting"
+    },
+    {
+        "code": "nettle",
+        "drops": [
+            {
+                "code": "nettle_leaf",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            }
+        ],
+        "level": 20,
+        "name": "Nettle",
+        "skill": "alchemy"
+    },
+    {
+        "code": "bass_spot",
+        "drops": [
+            { "code": "bass", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+            {
+                "code": "algae",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "small_pearls",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 300
+            }
+        ],
+        "level": 30,
+        "name": "Bass Spot",
+        "skill": "fishing"
+    },
+    {
+        "code": "gold_rocks",
+        "drops": [
+            {
+                "code": "gold_ore",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "topaz_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            },
+            {
+                "code": "emerald_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            },
+            {
+                "code": "ruby_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            },
+            {
+                "code": "sapphire_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "level": 30,
+        "name": "Gold Rocks",
+        "skill": "mining"
+    },
+    {
+        "code": "dead_tree",
+        "drops": [
+            {
+                "code": "dead_wood",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            { "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
+        ],
+        "level": 30,
+        "name": "Dead Tree",
+        "skill": "woodcutting"
+    },
+    {
+        "code": "strange_rocks",
+        "drops": [
+            {
+                "code": "strange_ore",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "diamond_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "level": 35,
+        "name": "Strange Rocks",
+        "skill": "mining"
+    },
+    {
+        "code": "magic_tree",
+        "drops": [
+            {
+                "code": "magic_wood",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "magic_sap",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            }
+        ],
+        "level": 35,
+        "name": "Magic Tree",
+        "skill": "woodcutting"
+    },
+    {
+        "code": "salmon_spot",
+        "drops": [
+            {
+                "code": "salmon",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "algae",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "small_pearls",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "level": 40,
+        "name": "Salmon Spot",
+        "skill": "fishing"
+    },
+    {
+        "code": "glowstem",
+        "drops": [
+            {
+                "code": "glowstem_leaf",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            }
+        ],
+        "level": 40,
+        "name": "Glowstem",
+        "skill": "alchemy"
+    },
+    {
+        "code": "mithril_rocks",
+        "drops": [
+            {
+                "code": "mithril_ore",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "topaz_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            },
+            {
+                "code": "emerald_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            },
+            {
+                "code": "ruby_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            },
+            {
+                "code": "sapphire_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "level": 40,
+        "name": "Mithril Rocks",
+        "skill": "mining"
+    },
+    {
+        "code": "maple_tree",
+        "drops": [
+            {
+                "code": "maple_wood",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "maple_sap",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            }
+        ],
+        "level": 40,
+        "name": "Maple Tree",
+        "skill": "woodcutting"
+    },
+    {
+        "code": "adamantite_rocks",
+        "drops": [
+            {
+                "code": "adamantite_ore",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "alexandrite_stone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            }
+        ],
+        "level": 50,
+        "name": "Adamantite Rocks",
+        "skill": "mining"
+    },
+    {
+        "code": "palm_tree",
+        "drops": [
+            {
+                "code": "palm_wood",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "coconut",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 20
+            }
+        ],
+        "level": 50,
+        "name": "Palm Tree",
+        "skill": "woodcutting"
+    },
+    {
+        "code": "torch_cactus",
+        "drops": [
+            {
+                "code": "torch_cactus_flower",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            }
+        ],
+        "level": 50,
+        "name": "Torch Cactus",
+        "skill": "alchemy"
+    },
+    {
+        "code": "swordfish_spot",
+        "drops": [
+            {
+                "code": "swordfish",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "holey_boot",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "level": 50,
+        "name": "Swordfish Spot",
+        "skill": "fishing"
+    }
+]

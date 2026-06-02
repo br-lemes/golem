@@ -178,3 +178,15 @@ func apiAccountAchievements(name string, page int) (DataPageAccountAchievementSc
 	}
 	return data, nil
 }
+
+func apiResources(page int) (StaticDataPageResourceSchema, error) {
+	resp, err := apiGet("/resources", nil)
+	if err != nil {
+		return StaticDataPageResourceSchema{}, err
+	}
+	var data StaticDataPageResourceSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return StaticDataPageResourceSchema{}, err
+	}
+	return data, nil
+}

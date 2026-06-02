@@ -7,23 +7,23 @@ endif
 
 export CGO_ENABLED=0
 
-build: cmd/schemas.go
+build: pkg/schemas/schemas.go
 	@go build -ldflags "-s -w"
 
 clean:
 	$(RM) $(TARGET) $(TARGET)-linux-amd64 $(TARGET)-linux-arm64 $(TARGET).exe
 
-cmd/schemas.go: cmd/openapi.json
+pkg/schemas/schemas.go: pkg/database/openapi.json
 	@oapi-codegen -package cmd -generate models $< > $@
 	@sd '\n\n\t//[^\n]*' '' $@
 	@sd '^\t*//[^\n]*\n' '' $@
 	@sd 'Path\s+\[\]\[\]interface\{\}' 'Path [][2]int' $@
 	@gofmt -w $@
 
-linux-amd64: cmd/schemas.go
+linux-amd64: pkg/schema/schemas.go
 	@GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o $(TARGET)-linux-amd64
 
-linux-arm64: cmd/schemas.go
+linux-arm64: pkg/schema/schemas.go
 	@GOOS=linux GOARCH=arm64 go build -ldflags "-s -w" -o $(TARGET)-linux-arm64
 
 release: version linux-amd64 linux-arm64 windows
