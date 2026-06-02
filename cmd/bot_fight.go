@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
 )
 
@@ -20,9 +21,28 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
+		monster, found := database.GetMonster(code)
+		if !found {
+			return fmt.Errorf("monster %s not found", code)
+		}
+
+		if !confirmSkill(name, "fighting") {
+			cmd.SilenceUsage = true
+			return fmt.Errorf("operation cancelled")
+		}
+
 		character, err := apiCharacters(name)
 		if err != nil {
 			return err
+		}
+
+		if character.Level < monster.Level {
+			fmt.Fprintf(writer, "Your level %d < monster level %d\n",
+				character.Level, monster.Level)
+			if !confirm("Do you want to continue?") {
+				cmd.SilenceUsage = true
+				return fmt.Errorf("operation cancelled")
+			}
 		}
 
 		fmt.Fprintf(writer, "[%s] Starting fight bot for %s\n",

@@ -13,7 +13,7 @@ var resources []byte
 
 var resourcesCache map[string]ResourceSchema
 
-func GetResources(code string) (ResourceSchema, bool) {
+func GetResource(code string) (ResourceSchema, bool) {
 	sync.OnceFunc(initResourcesCache)()
 	resource, exists := resourcesCache[code]
 	return resource, exists

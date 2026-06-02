@@ -191,6 +191,30 @@ func apiResources(page int) (StaticDataPageResourceSchema, error) {
 	return data, nil
 }
 
+func apiEffects(page int) (StaticDataPageEffectSchema, error) {
+	resp, err := apiGet(fmt.Sprintf("/effects?page=%d", page), nil)
+	if err != nil {
+		return StaticDataPageEffectSchema{}, err
+	}
+	var data StaticDataPageEffectSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return StaticDataPageEffectSchema{}, err
+	}
+	return data, nil
+}
+
+func apiMonsters(page int) (StaticDataPageMonsterSchema, error) {
+	resp, err := apiGet(fmt.Sprintf("/monsters?page=%d", page), nil)
+	if err != nil {
+		return StaticDataPageMonsterSchema{}, err
+	}
+	var data StaticDataPageMonsterSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return StaticDataPageMonsterSchema{}, err
+	}
+	return data, nil
+}
+
 func apiMaps(page int) (StaticDataPageMapSchema, error) {
 	resp, err := apiGet(fmt.Sprintf("/maps?page=%d", page), nil)
 	if err != nil {
@@ -199,6 +223,47 @@ func apiMaps(page int) (StaticDataPageMapSchema, error) {
 	var data StaticDataPageMapSchema
 	if err := json.Unmarshal(resp, &data); err != nil {
 		return StaticDataPageMapSchema{}, err
+	}
+	return data, nil
+}
+
+func apiCraft(name string, code string, qty int) (SkillDataSchema, error) {
+	resp, err := apiPost("/my/"+name+"/action/crafting", SimpleItemSchema{
+		Code:     code,
+		Quantity: qty,
+	})
+	if err != nil {
+		return SkillDataSchema{}, err
+	}
+	var data SkillResponseSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return SkillDataSchema{}, err
+	}
+	return data.Data, nil
+}
+
+func apiActionBankWithdrawItem(name string, items []SimpleItemSchema) (BankItemTransactionSchema, error) {
+	resp, err := apiPost("/my/"+name+"/action/bank/withdraw/item", items)
+	if err != nil {
+		return BankItemTransactionSchema{}, err
+	}
+	var data BankItemTransactionResponseSchema
+	err = json.Unmarshal(resp, &data)
+	if err != nil {
+		return BankItemTransactionSchema{}, err
+	}
+	return data.Data, nil
+}
+
+func apiBankItems(name string, page int) (DataPageSimpleItemSchema, error) {
+	resp, err := apiGet(fmt.Sprintf("/my/%s/bank/items?page=%d", name, page), nil)
+	if err != nil {
+		return DataPageSimpleItemSchema{}, err
+	}
+	var data DataPageSimpleItemSchema
+	err = json.Unmarshal(resp, &data)
+	if err != nil {
+		return DataPageSimpleItemSchema{}, err
 	}
 	return data, nil
 }

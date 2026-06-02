@@ -1,13 +1,27 @@
 package cmd
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/goccy/go-yaml"
 	"golang.org/x/term"
 )
+
+func confirm(message string) bool {
+	fmt.Fprintf(writer, "%s (y/N): ", message)
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return false
+	}
+	input = strings.TrimSpace(strings.ToLower(input))
+	return input == "y" || input == "yes"
+}
 
 func output(data any) error {
 	osFile, isFile := writer.(*os.File)

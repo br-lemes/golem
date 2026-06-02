@@ -18,7 +18,7 @@ var testCmd = &cobra.Command{
 		if exists {
 			fmt.Printf("Item: %s (%s)\n", name, item.Type)
 		}
-		resource, exists := database.GetResources(name)
+		resource, exists := database.GetResource(name)
 		if exists {
 			fmt.Printf("Resource: %s (%s)\n", name, resource.Skill)
 		}

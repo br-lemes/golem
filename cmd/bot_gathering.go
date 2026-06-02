@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +20,17 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+
+		resource, found := database.GetResource(code)
+		if !found {
+			return fmt.Errorf("resource %s not found", code)
+		}
+
+		if !confirmSkill(name, string(resource.Skill)) {
+			cmd.SilenceUsage = true
+			return fmt.Errorf("operation cancelled")
+		}
+
 		character, err := apiCharacters(name)
 		if err != nil {
 			return err
