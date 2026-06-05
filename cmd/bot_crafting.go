@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
+	"math"
 
 	"github.com/br-lemes/golem/pkg/database"
 	. "github.com/br-lemes/golem/pkg/schemas"
@@ -42,38 +42,274 @@ func StartCraftingBot(name string, code string, qty int) error {
 		return fmt.Errorf("item is not craftable: %s", code)
 	}
 	if !confirmSkill(name, string(*item.Craft.Skill)) {
-		return fmt.Errorf("operation cancelled")
+		return fmt.Errorf("operation cancelled by user")
 	}
+
 	character, err := apiCharacters(name)
 	if err != nil {
 		return err
 	}
-	characterSkillLevel := getCraftSkill(character, *item.Craft.Skill)
-	if characterSkillLevel < *item.Craft.Level {
-		return fmt.Errorf("character level in %s is %d, but requires %d",
-			*item.Craft.Skill, characterSkillLevel, *item.Craft.Level)
+
+	skillLevel := getCraftSkill(character, *item.Craft.Skill)
+	if skillLevel < *item.Craft.Level {
+		return fmt.Errorf("character %s does not have the required level for %s. Required: %d, Current: %d", name, item.Code, *item.Craft.Level, skillLevel)
 	}
 
-	maxPossible, err := EvaluateCraftingFeasibility(character, item)
+	bankInventory, err := fetchAllBankItems(name)
 	if err != nil {
 		return err
 	}
 
-	if qty == 0 {
-		qty = maxPossible
+	totalInventory := make(map[string]int)
+	for _, invItem := range *character.Inventory {
+		if invItem.Code != "" {
+			totalInventory[invItem.Code] = totalInventory[invItem.Code] + invItem.Quantity
+		}
+	}
+	for code, amount := range bankInventory {
+		totalInventory[code] = totalInventory[code] + amount
 	}
 
-	if qty > maxPossible {
-		return fmt.Errorf("requested to craft %d, but you only have materials for %d", qty, maxPossible)
+	maxPossible := math.MaxInt32
+	for _, req := range *item.Craft.Items {
+		available := totalInventory[req.Code]
+		possibleWithThisIngredient := available / req.Quantity
+		if possibleWithThisIngredient < maxPossible {
+			maxPossible = possibleWithThisIngredient
+		}
 	}
 
-	fmt.Printf("Starting crafting loop for %d units of %s\n", qty, code)
-	handleMap(character, string(*item.Craft.Skill))
-	_, err = apiCraft(name, code, qty)
+	if maxPossible == 0 {
+		return fmt.Errorf("insufficient materials in inventory and bank to craft even 1 %s", item.Code)
+	}
+
+	targetQty := qty
+	if targetQty == 0 {
+		targetQty = maxPossible
+	}
+
+	if targetQty > maxPossible {
+		return fmt.Errorf("requested %d items, but combined inventory and bank can only produce %d", targetQty, maxPossible)
+	}
+
+	craftedSoFar := 0
+	for craftedSoFar < targetQty {
+		character, err = apiCharacters(name)
+		if err != nil {
+			return err
+		}
+
+		currentInventory := make(map[string]int)
+		for _, invItem := range *character.Inventory {
+			if invItem.Code != "" {
+				currentInventory[invItem.Code] = invItem.Quantity
+			}
+		}
+
+		neededInInventory := targetQty - craftedSoFar
+		batchPossible := math.MaxInt32
+		for _, req := range *item.Craft.Items {
+			currentHas := currentInventory[req.Code]
+			possibleBatchWithThis := currentHas / req.Quantity
+			if possibleBatchWithThis < batchPossible {
+				batchPossible = possibleBatchWithThis
+			}
+		}
+
+		if batchPossible > neededInInventory {
+			batchPossible = neededInInventory
+		}
+
+		if batchPossible > 0 {
+			character, err = handleMap(character, string(*item.Craft.Skill))
+			if err != nil {
+				return err
+			}
+
+			_, err = apiCraft(name, item.Code, batchPossible)
+			if err != nil {
+				return err
+			}
+
+			craftedSoFar = craftedSoFar + batchPossible
+			continue
+		}
+
+		character, err = handleMap(character, "bank")
+		if err != nil {
+			return err
+		}
+
+		var depositList []SimpleItemSchema
+		for _, invItem := range *character.Inventory {
+			if invItem.Code == "" {
+				continue
+			}
+			isIngredient := false
+			for _, req := range *item.Craft.Items {
+				if req.Code == invItem.Code {
+					isIngredient = true
+					break
+				}
+			}
+			if !isIngredient {
+				depositList = append(depositList, SimpleItemSchema{
+					Code:     invItem.Code,
+					Quantity: invItem.Quantity,
+				})
+			}
+		}
+
+		if len(depositList) > 0 {
+			_, err = apiActionBankDepositItem(name, depositList)
+			if err != nil {
+				return err
+			}
+			character, err = apiCharacters(name)
+			if err != nil {
+				return err
+			}
+		}
+
+		currentInventory = make(map[string]int)
+		totalItemsInInventory := 0
+		slotsUsed := 0
+		for _, invItem := range *character.Inventory {
+			if invItem.Code != "" {
+				currentInventory[invItem.Code] = invItem.Quantity
+				totalItemsInInventory = totalItemsInInventory + invItem.Quantity
+				slotsUsed = slotsUsed + 1
+			}
+		}
+
+		bankInventory, err = fetchAllBankItems(name)
+		if err != nil {
+			return err
+		}
+
+		remainingToCraft := targetQty - craftedSoFar
+		freeSpace := character.InventoryMaxItems - totalItemsInInventory
+		freeSlots := 20 - slotsUsed
+
+		neededIngredientsCount := 0
+		for _, req := range *item.Craft.Items {
+			alreadyHas := currentInventory[req.Code]
+			if alreadyHas == 0 {
+				neededIngredientsCount = neededIngredientsCount + 1
+			}
+		}
+
+		if neededIngredientsCount > freeSlots {
+			if freeSlots == 0 {
+				return fmt.Errorf("inventory is completely full of other items")
+			}
+		}
+
+		currentBatchSize := remainingToCraft
+		for _, req := range *item.Craft.Items {
+			alreadyHas := currentInventory[req.Code]
+			totalNeededForBatch := req.Quantity * currentBatchSize
+			stillNeeds := totalNeededForBatch - alreadyHas
+			if stillNeeds > 0 {
+				bankAvailable := bankInventory[req.Code]
+				if bankAvailable < stillNeeds {
+					currentBatchSize = (bankAvailable + alreadyHas) / req.Quantity
+				}
+			}
+		}
+
+		for {
+			totalUnitsToWithdraw := 0
+			for _, req := range *item.Craft.Items {
+				totalNeededForBatch := req.Quantity * currentBatchSize
+				alreadyHas := currentInventory[req.Code]
+				stillNeeds := totalNeededForBatch - alreadyHas
+				if stillNeeds > 0 {
+					totalUnitsToWithdraw = totalUnitsToWithdraw + stillNeeds
+				}
+			}
+
+			if totalUnitsToWithdraw <= freeSpace {
+				break
+			}
+
+			currentBatchSize = currentBatchSize - 1
+			if currentBatchSize == 0 {
+				return fmt.Errorf("not enough inventory weight capacity to withdraw ingredients for even 1 item")
+			}
+		}
+
+		if currentBatchSize == 0 {
+			return fmt.Errorf("unexpected calculation error or missing materials in bank")
+		}
+
+		var withdrawList []SimpleItemSchema
+		for _, req := range *item.Craft.Items {
+			totalNeededForBatch := req.Quantity * currentBatchSize
+			alreadyHas := currentInventory[req.Code]
+			stillNeeds := totalNeededForBatch - alreadyHas
+			if stillNeeds > 0 {
+				withdrawList = append(withdrawList, SimpleItemSchema{
+					Code:     req.Code,
+					Quantity: stillNeeds,
+				})
+			}
+		}
+
+		if len(withdrawList) > 0 {
+			_, err = apiActionBankWithdrawItem(name, withdrawList)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	character, err = apiCharacters(name)
 	if err != nil {
 		return err
 	}
+	character, err = handleMap(character, "bank")
+	if err != nil {
+		return err
+	}
+
+	var finalDepositList []SimpleItemSchema
+	for _, invItem := range *character.Inventory {
+		if invItem.Code == item.Code {
+			finalDepositList = append(finalDepositList, SimpleItemSchema{
+				Code:     invItem.Code,
+				Quantity: invItem.Quantity,
+			})
+		}
+	}
+
+	if len(finalDepositList) > 0 {
+		_, err = apiActionBankDepositItem(name, finalDepositList)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
+}
+
+func fetchAllBankItems(name string) (map[string]int, error) {
+	bankMap := make(map[string]int)
+	page := 1
+	for {
+		dataPage, err := apiBankItems(page)
+		if err != nil {
+			return nil, err
+		}
+		if len(dataPage.Data) == 0 {
+			break
+		}
+		for _, item := range dataPage.Data {
+			bankMap[item.Code] = item.Quantity
+		}
+		page = page + 1
+	}
+	return bankMap, nil
 }
 
 func getCraftSkill(character CharacterSchema, skill CraftSkill) int {
@@ -99,19 +335,6 @@ func getCraftSkill(character CharacterSchema, skill CraftSkill) int {
 	}
 }
 
-func getInventory(character CharacterSchema) map[string]int {
-	inventoryMap := make(map[string]int)
-	if character.Inventory == nil {
-		return inventoryMap
-	}
-	for _, slot := range *character.Inventory {
-		if slot.Quantity > 0 {
-			inventoryMap[slot.Code] = inventoryMap[slot.Code] + slot.Quantity
-		}
-	}
-	return inventoryMap
-}
-
 func isCraftable(item ItemSchema) bool {
 	return item.Craft != nil &&
 		item.Craft.Items != nil &&
@@ -119,32 +342,4 @@ func isCraftable(item ItemSchema) bool {
 		item.Craft.Level != nil &&
 		*item.Craft.Quantity == 1 &&
 		item.Craft.Skill != nil
-}
-
-func EvaluateCraftingFeasibility(character CharacterSchema, item ItemSchema) (int, error) {
-	inventoryMap := getInventory(character)
-
-	maxPossible := -1
-	for _, reqItem := range *item.Craft.Items {
-		available := inventoryMap[reqItem.Code]
-		if available == 0 {
-			maxPossible = 0
-			break
-		}
-
-		possibleWithThisIngredient := available / reqItem.Quantity
-		if maxPossible == -1 {
-			maxPossible = possibleWithThisIngredient
-		}
-
-		if possibleWithThisIngredient < maxPossible {
-			maxPossible = possibleWithThisIngredient
-		}
-	}
-
-	if maxPossible == 0 {
-		return 0, errors.New("insufficient materials in inventory to craft this item")
-	}
-
-	return maxPossible, nil
 }

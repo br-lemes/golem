@@ -255,8 +255,8 @@ func apiActionBankWithdrawItem(name string, items []SimpleItemSchema) (BankItemT
 	return data.Data, nil
 }
 
-func apiBankItems(name string, page int) (DataPageSimpleItemSchema, error) {
-	resp, err := apiGet(fmt.Sprintf("/my/%s/bank/items?page=%d", name, page), nil)
+func apiBankItems(page int) (DataPageSimpleItemSchema, error) {
+	resp, err := apiGet(fmt.Sprintf("/my/bank/items?page=%d", page), nil)
 	if err != nil {
 		return DataPageSimpleItemSchema{}, err
 	}

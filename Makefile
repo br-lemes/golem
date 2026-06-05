@@ -20,10 +20,10 @@ pkg/schemas/schemas.go: pkg/database/openapi.json
 	@sd 'Path\s+\[\]\[\]interface\{\}' 'Path [][2]int' $@
 	@gofmt -w $@
 
-linux-amd64: pkg/schema/schemas.go
+linux-amd64: pkg/schemas/schemas.go
 	@GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o $(TARGET)-linux-amd64
 
-linux-arm64: pkg/schema/schemas.go
+linux-arm64: pkg/schemas/schemas.go
 	@GOOS=linux GOARCH=arm64 go build -ldflags "-s -w" -o $(TARGET)-linux-arm64
 
 release: version linux-amd64 linux-arm64 windows

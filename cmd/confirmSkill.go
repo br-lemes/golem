@@ -3,7 +3,7 @@ package cmd
 import "fmt"
 
 var characterMap = map[string][]string{
-	"br_lemes": {"fighting"},
+	"br_lemes": {"fighting", "woodcutting"},
 	"fb_lemes": {"weaponcrafting", "woodcutting"},
 	"bf_lemes": {"gearcrafting", "mining"},
 	"mr_lemes": {"cooking", "fishing"},
