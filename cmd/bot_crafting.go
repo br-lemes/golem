@@ -56,7 +56,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 		return fmt.Errorf("character %s does not have the required level for %s. Required: %d, Current: %d", name, item.Code, *item.Craft.Level, skillLevel)
 	}
 
-	bankInventory, err := fetchAllBankItems(name)
+	bankInventory, err := fetchAllBankItems()
 	if err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 			}
 		}
 
-		bankInventory, err = fetchAllBankItems(name)
+		bankInventory, err = fetchAllBankItems()
 		if err != nil {
 			return err
 		}
@@ -294,23 +294,16 @@ func StartCraftingBot(name string, code string, qty int) error {
 	return nil
 }
 
-func fetchAllBankItems(name string) (map[string]int, error) {
-	bankMap := make(map[string]int)
-	page := 1
-	for {
-		dataPage, err := apiBankItems(page)
-		if err != nil {
-			return nil, err
-		}
-		if len(dataPage.Data) == 0 {
-			break
-		}
-		for _, item := range dataPage.Data {
-			bankMap[item.Code] = item.Quantity
-		}
-		page = page + 1
+func fetchAllBankItems() (map[string]int, error) {
+	result := make(map[string]int)
+	items, err := apiBankItems()
+	if err != nil {
+		return result, err
 	}
-	return bankMap, nil
+	for _, item := range items {
+		result[item.Code] = result[item.Code] + item.Quantity
+	}
+	return result, nil
 }
 
 func getCraftSkill(character CharacterSchema, skill CraftSkill) int {

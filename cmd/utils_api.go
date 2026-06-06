@@ -261,15 +261,40 @@ func apiActionBankWithdrawItem(name string, items []SimpleItemSchema) (BankItemT
 	return data.Data, nil
 }
 
-func apiBankItems(page int) (DataPageSimpleItemSchema, error) {
-	resp, err := apiGet(fmt.Sprintf("/my/bank/items?page=%d", page), nil)
-	if err != nil {
-		return DataPageSimpleItemSchema{}, err
+func apiBankItems() ([]SimpleItemSchema, error) {
+	result := make([]SimpleItemSchema, 0)
+	page := 1
+	for {
+		resp, err := apiGet(fmt.Sprintf("/my/bank/items?page=%d", page), nil)
+		if err != nil {
+			return result, err
+		}
+		var data DataPageSimpleItemSchema
+		err = json.Unmarshal(resp, &data)
+		if err != nil {
+			return result, err
+		}
+		result = append(result, data.Data...)
+		pages := 0
+		if data.Pages != nil {
+			pages = *data.Pages
+		}
+		if page >= pages {
+			break
+		}
+		page++
 	}
-	var data DataPageSimpleItemSchema
-	err = json.Unmarshal(resp, &data)
+	return result, nil
+}
+
+func apiAccountsCharacters(account string) ([]CharacterSchema, error) {
+	resp, err := apiGet(fmt.Sprintf("/accounts/%s/characters", account), nil)
 	if err != nil {
-		return DataPageSimpleItemSchema{}, err
+		return []CharacterSchema{}, err
 	}
-	return data, nil
+	var data CharactersListSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return []CharacterSchema{}, err
+	}
+	return data.Data, nil
 }

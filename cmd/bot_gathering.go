@@ -37,13 +37,13 @@ Arguments:
 		}
 		handleCooldown(character)
 
-		character, err = handleMap(character, code)
-		if err != nil {
-			return err
-		}
-
 		for {
 			character, err = handleInventory(character)
+			if err != nil {
+				return err
+			}
+
+			character, err = handleMap(character, code)
 			if err != nil {
 				return err
 			}

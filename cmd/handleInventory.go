@@ -13,8 +13,6 @@ func handleInventory(character CharacterSchema) (CharacterSchema, error) {
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil
 	}
-	initialX := character.X
-	initialY := character.Y
 	bank := database.FindClosest(character, "bank")
 	fmt.Fprintf(writer, "[%s] Inventory full (%d/%d)...\n",
 		time.Now().Format("15:04:05"), totalItems, character.InventoryMaxItems)
@@ -34,14 +32,6 @@ func handleInventory(character CharacterSchema) (CharacterSchema, error) {
 		return character, err
 	}
 	character = transactionData.Character
-
-	fmt.Fprintf(writer, "[%s] Moving back to initial position (%d, %d)...\n",
-		time.Now().Format("15:04:05"), initialX, initialY)
-	moveData, err = apiActionMove(character.Name, initialX, initialY)
-	if err != nil {
-		return character, err
-	}
-	character = moveData.Character
 
 	return character, nil
 }

@@ -5,11 +5,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var startX int
-var startY int
-var startLayer string
-var targetCode string
-
 var findCmd = &cobra.Command{
 	Use:   "find <name> <code>",
 	Short: "Find the closest coordinates containing a specific code",
