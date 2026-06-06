@@ -24,6 +24,9 @@ Arguments:
 			}
 			for _, achievement := range achievements.Data {
 				if len(achievement.Objectives) == 1 {
+					if achievement.Objectives[0].Progress == nil {
+						continue
+					}
 					progress := *achievement.Objectives[0].Progress
 					total := achievement.Objectives[0].Total
 					if progress == 0 || progress == total {
@@ -32,12 +35,26 @@ Arguments:
 					result = append(result, achievement)
 					continue
 				}
+				hasProgress := false
+				allCompleted := true
 				for _, objective := range achievement.Objectives {
+					if objective.Progress == nil {
+						allCompleted = false
+						continue
+					}
 					if *objective.Progress > 0 {
-						result = append(result, achievement)
-						break
+						hasProgress = true
+					}
+					if *objective.Progress < objective.Total {
+						allCompleted = false
 					}
 				}
+				if hasProgress && !allCompleted {
+					result = append(result, achievement)
+				}
+			}
+			if achievements.Pages == nil {
+				break
 			}
 			if page >= *achievements.Pages {
 				break
@@ -58,9 +75,17 @@ func progressFormat(achievements []AccountAchievementSchema) map[string][]map[Ac
 	for _, achievement := range achievements {
 		name := fmt.Sprintf("%s (%s)", achievement.Name, achievement.Code)
 		for _, objective := range achievement.Objectives {
+			targetVal := ""
+			if objective.Target != nil {
+				targetVal = *objective.Target
+			}
+			progressVal := 0
+			if objective.Progress != nil {
+				progressVal = *objective.Progress
+			}
 			result[name] = append(result[name], map[AchievementType]string{
 				objective.Type: fmt.Sprintf("%s (%d/%d)",
-					*objective.Target, *objective.Progress, objective.Total),
+					targetVal, progressVal, objective.Total),
 			})
 		}
 	}
