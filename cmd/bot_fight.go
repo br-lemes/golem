@@ -35,6 +35,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		handleCooldown(character)
 
 		if character.Level < monster.Level {
 			fmt.Fprintf(writer, "Your level %d < monster level %d\n",

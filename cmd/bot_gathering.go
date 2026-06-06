@@ -35,6 +35,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		handleCooldown(character)
 
 		character, err = handleMap(character, code)
 		if err != nil {

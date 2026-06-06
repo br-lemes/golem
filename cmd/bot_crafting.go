@@ -49,6 +49,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
+	handleCooldown(character)
 
 	skillLevel := getCraftSkill(character, *item.Craft.Skill)
 	if skillLevel < *item.Craft.Level {
