@@ -47,47 +47,53 @@ func apiPost(path string, data any) ([]byte, error) {
 }
 
 func apiRequest(method, path string, body []byte) ([]byte, error) {
-	req, err := http.NewRequest(method, baseURL+path, bytes.NewReader(body))
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+userToken)
-
-	if debugFlag {
-		fmt.Fprintf(os.Stderr, "→ %s %s\n", method, path)
-		if len(body) > 0 {
-			fmt.Fprintf(os.Stderr, "  Body: %s\n", string(body))
+	for {
+		req, err := http.NewRequest(method, baseURL+path, bytes.NewReader(body))
+		if err != nil {
+			return nil, err
 		}
+
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+userToken)
+
+		if debugFlag {
+			fmt.Fprintf(os.Stderr, "→ %s %s\n", method, path)
+			if len(body) > 0 {
+				fmt.Fprintf(os.Stderr, "  Body: %s\n", string(body))
+			}
+		}
+
+		resp, err := httpClient.Do(req)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Network error detected: %v. Retrying in 5 seconds...\n", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		respBytes, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Read error detected: %v. Retrying in 5 seconds...\n", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		errMsg := gjson.GetBytes(respBytes, "error.message")
+		if errMsg.Exists() {
+			return nil, fmt.Errorf("%s", errMsg.String())
+		}
+
+		cdResult := gjson.GetBytes(respBytes, "data.cooldown.total_seconds")
+		cd := int(cdResult.Int())
+
+		if cd > 0 {
+			fmt.Fprintf(os.Stderr, "⏳ Cooldown started: %d seconds\n", cd)
+			time.Sleep(time.Duration(cd) * time.Second)
+		}
+
+		return respBytes, nil
 	}
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	respBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	errMsg := gjson.GetBytes(respBytes, "error.message")
-	if errMsg.Exists() {
-		return nil, fmt.Errorf("%s", errMsg.String())
-	}
-
-	cdResult := gjson.GetBytes(respBytes, "data.cooldown.total_seconds")
-	cd := int(cdResult.Int())
-
-	if cd > 0 {
-		fmt.Fprintf(os.Stderr, "⏳ Cooldown started: %d seconds\n", cd)
-		time.Sleep(time.Duration(cd) * time.Second)
-	}
-
-	return respBytes, nil
 }
 
 func apiCharacters(name string) (CharacterSchema, error) {
