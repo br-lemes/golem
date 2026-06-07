@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"time"
+	"strings"
 
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
@@ -46,11 +46,12 @@ Arguments:
 			}
 		}
 
-		fmt.Fprintf(writer, "[%s] Starting fight bot for %s\n",
-			time.Now().Format("15:04:05"), name)
-
+		minHp := monster.Hp + (monster.Hp * 20 / 100)
+		if minHp > character.MaxHp {
+			minHp = character.MaxHp
+		}
 		for {
-			character, err = handleHp(character)
+			character, err = handleHp(character, minHp)
 			if err != nil {
 				return err
 			}
@@ -60,42 +61,34 @@ Arguments:
 				return err
 			}
 
-			fmt.Fprintf(writer, "[%s] Current position: (%d, %d)\n",
-				time.Now().Format("15:04:05"), character.X, character.Y)
-
 			character, err = handleMap(character, code)
 			if err != nil {
 				return err
 			}
 
-			fmt.Fprintf(writer, "[%s] Starting fight...\n",
-				time.Now().Format("15:04:05"))
 			fightResult, err := apiActionFight(name, []string{})
 			if err != nil {
 				return fmt.Errorf("error during fight: %w", err)
 			}
 			character = fightResult.Characters[0]
-			fight := fightResult.Fight
-			fightStats := fight.Characters[0]
-			var result string
-			if fight.Result == "win" {
-				result = "🏆 Fight won!"
-			} else {
-				result = "💀 Fight lost!"
-			}
-			fmt.Fprintln(writer, result)
-			fmt.Fprintf(writer, "⚔️  XP gained: %d | HP remaining: %d\n",
-				fightStats.Xp, character.Hp)
 
-			if len(fightStats.Drops) > 0 {
-				dropsStr := ""
-				for _, drop := range fightStats.Drops {
-					dropsStr += fmt.Sprintf("%dx %s, ", drop.Quantity, drop.Code)
+			drops := []string{}
+			for _, item := range fightResult.Fight.Characters[0].Drops {
+				dropStr := fmt.Sprintf("%dx %s", item.Quantity, item.Code)
+				drops = append(drops, dropStr)
+			}
+
+			if fightResult.Fight.Result == "win" {
+				fmt.Fprintf(writer, "  XP gained: %d",
+					fightResult.Fight.Characters[0].Xp)
+				if len(drops) > 0 {
+					dropsStr := strings.Join(drops, ", ")
+					fmt.Fprintf(writer, ", Drops: %s", dropsStr)
 				}
-				fmt.Fprintf(writer, "🎁 Loot dropped: %s\n", dropsStr)
+				fmt.Fprintln(writer)
+			} else {
+				fmt.Fprintf(writer, "  💀 Fight lost!\n")
 			}
-
-			fmt.Fprintln(writer)
 		}
 	},
 }

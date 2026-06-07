@@ -298,3 +298,15 @@ func apiAccountsCharacters(account string) ([]CharacterSchema, error) {
 	}
 	return data.Data, nil
 }
+
+func apiActionUse(name string, item SimpleItemSchema) (UseItemSchema, error) {
+	resp, err := apiPost("/my/"+name+"/action/use", item)
+	if err != nil {
+		return UseItemSchema{}, err
+	}
+	var data UseItemResponseSchema
+	if err := json.Unmarshal(resp, &data); err != nil {
+		return UseItemSchema{}, err
+	}
+	return data.Data, nil
+}

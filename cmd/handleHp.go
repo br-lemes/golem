@@ -1,21 +1,115 @@
 package cmd
 
 import (
-	"fmt"
-	"time"
+	"sort"
 
+	"github.com/br-lemes/golem/pkg/database"
 	. "github.com/br-lemes/golem/pkg/schemas"
 )
 
-func handleHp(character CharacterSchema) (CharacterSchema, error) {
-	threshold := character.MaxHp - ((character.MaxHp * 3) / 100)
-	fmt.Fprintf(writer, "[%s] HP: %d/%d (threshold: %d)\n",
-		time.Now().Format("15:04:05"), character.Hp, character.MaxHp, threshold)
-	if character.Hp > threshold {
+type FoodItem struct {
+	Code     string
+	Heal     int
+	Quantity int
+}
+
+func handleHp(character CharacterSchema, minHp int) (CharacterSchema, error) {
+	if character.Hp > minHp {
 		return character, nil
 	}
-	fmt.Fprintf(writer, "[%s] Starting rest...\n",
-		time.Now().Format("15:04:05"))
+	if character.Inventory == nil {
+		return handleRest(character)
+	}
+	foods := []FoodItem{}
+	for _, slot := range *character.Inventory {
+		if slot.Quantity <= 0 {
+			continue
+		}
+
+		item, found := database.GetItem(slot.Code)
+		if !found ||
+			item.Type != "consumable" ||
+			item.Subtype != "food" ||
+			item.Level > character.Level ||
+			item.Effects == nil {
+			continue
+		}
+
+		healValue := 0
+		for _, effect := range *item.Effects {
+			if effect.Code == "heal" {
+				healValue += effect.Value
+				break
+			}
+		}
+
+		if healValue <= 0 {
+			continue
+		}
+		foods = append(foods, FoodItem{
+			Code:     slot.Code,
+			Heal:     healValue,
+			Quantity: slot.Quantity,
+		})
+	}
+	sort.Slice(foods, func(i, j int) bool {
+		return foods[i].Heal > foods[j].Heal
+	})
+
+	for i, food := range foods {
+		neededHp := character.MaxHp - character.Hp
+		if neededHp <= 0 {
+			break
+		}
+
+		qtyToUse := neededHp / food.Heal
+		if qtyToUse > food.Quantity {
+			qtyToUse = food.Quantity
+		}
+
+		if qtyToUse <= 0 {
+			continue
+		}
+		useData, err := apiActionUse(character.Name, SimpleItemSchema{
+			Code:     food.Code,
+			Quantity: qtyToUse,
+		})
+		if err != nil {
+			return CharacterSchema{}, err
+		}
+		character = useData.Character
+		foods[i].Quantity = foods[i].Quantity - qtyToUse
+	}
+
+	if character.Hp > minHp {
+		return character, nil
+	}
+
+	for i := len(foods) - 1; i >= 0; i-- {
+		food := foods[i]
+		if food.Quantity <= 0 {
+			continue
+		}
+
+		useData, err := apiActionUse(character.Name, SimpleItemSchema{
+			Code:     food.Code,
+			Quantity: 1,
+		})
+		if err != nil {
+			return CharacterSchema{}, err
+		}
+		character = useData.Character
+		break
+	}
+
+	if character.Hp > minHp {
+		return character, nil
+	}
+
+	return handleRest(character)
+}
+
+func handleRest(character CharacterSchema) (CharacterSchema, error) {
 	data, err := apiActionRest(character.Name)
 	if err != nil {
 		return CharacterSchema{}, err
