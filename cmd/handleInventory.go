@@ -1,33 +1,22 @@
 package cmd
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/br-lemes/golem/pkg/database"
 	. "github.com/br-lemes/golem/pkg/schemas"
 )
 
-func handleInventory(character CharacterSchema) (CharacterSchema, error) {
+func handleInventory(character CharacterSchema, keepFood bool) (CharacterSchema, error) {
 	totalItems := _totalItems(character)
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil
 	}
 	bank := database.FindClosest(character, "bank")
-	fmt.Fprintf(writer, "[%s] Inventory full (%d/%d)...\n",
-		time.Now().Format("15:04:05"), totalItems, character.InventoryMaxItems)
-
-	fmt.Fprintf(writer, "[%s] Moving to bank (%d, %d)...\n",
-		time.Now().Format("15:04:05"), bank.X, bank.Y)
 	moveData, err := apiActionMove(character.Name, bank.X, bank.Y)
 	if err != nil {
 		return character, err
 	}
 	character = moveData.Character
-
-	fmt.Fprintf(writer, "[%s] Depositing items...\n",
-		time.Now().Format("15:04:05"))
-	transactionData, err := apiActionBankDepositItem(character.Name, _getItems(character))
+	transactionData, err := apiActionBankDepositItem(character.Name, _getItems(character, keepFood))
 	if err != nil {
 		return character, err
 	}
@@ -47,13 +36,16 @@ func _totalItems(character CharacterSchema) int {
 	return total
 }
 
-func _getItems(character CharacterSchema) []SimpleItemSchema {
+func _getItems(character CharacterSchema, keepFood bool) []SimpleItemSchema {
 	items := []SimpleItemSchema{}
 	if character.Inventory == nil {
 		return items
 	}
 	for _, item := range *character.Inventory {
 		if item.Code == "" || item.Quantity == 0 {
+			continue
+		}
+		if keepFood && _isFood(item.Code) {
 			continue
 		}
 		simpleItem := SimpleItemSchema{
@@ -63,4 +55,12 @@ func _getItems(character CharacterSchema) []SimpleItemSchema {
 		items = append(items, simpleItem)
 	}
 	return items
+}
+
+func _isFood(code string) bool {
+	item, found := database.GetItem(code)
+	if !found {
+		return false
+	}
+	return item.Type == "consumable" && item.Subtype == "food"
 }

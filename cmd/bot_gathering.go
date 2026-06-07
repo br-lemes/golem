@@ -38,7 +38,7 @@ Arguments:
 		handleCooldown(character)
 
 		for {
-			character, err = handleInventory(character)
+			character, err = handleInventory(character, false)
 			if err != nil {
 				return err
 			}

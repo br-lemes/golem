@@ -56,7 +56,7 @@ Arguments:
 				return err
 			}
 
-			character, err = handleInventory(character)
+			character, err = handleInventory(character, true)
 			if err != nil {
 				return err
 			}
