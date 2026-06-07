@@ -8,10 +8,18 @@ import (
 	. "github.com/br-lemes/golem/pkg/schemas"
 )
 
-//go:embed items.json
-var items []byte
+var (
+	//go:embed items.json
+	items []byte
 
-var itemsCache map[string]ItemSchema
+	itemsList  []ItemSchema
+	itemsCache map[string]ItemSchema
+)
+
+func GetItems() []ItemSchema {
+	initItemsCache()
+	return itemsList
+}
 
 func GetItem(code string) (ItemSchema, bool) {
 	initItemsCache()
@@ -21,12 +29,11 @@ func GetItem(code string) (ItemSchema, bool) {
 
 var initItemsCache = sync.OnceFunc(func() {
 	itemsCache = make(map[string]ItemSchema)
-	var result []ItemSchema
-	err := json.Unmarshal(items, &result)
+	err := json.Unmarshal(items, &itemsList)
 	if err != nil {
-		return
+		panic("failed to unmarshal items: " + err.Error())
 	}
-	for _, item := range result {
+	for _, item := range itemsList {
 		itemsCache[item.Code] = item
 	}
 })

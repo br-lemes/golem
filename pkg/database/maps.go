@@ -8,19 +8,33 @@ import (
 	. "github.com/br-lemes/golem/pkg/schemas"
 )
 
-//go:embed maps.json
-var maps []byte
-
 type Point struct {
 	X     int
 	Y     int
 	Layer MapLayer
 }
 
-var tilesCache map[Point]MapSchema
+var (
+	//go:embed maps.json
+	maps []byte
+
+	mapsList  []MapSchema
+	mapsCache map[Point]MapSchema
+)
+
+func GetMaps() []MapSchema {
+	initMapsCache()
+	return mapsList
+}
+
+func GetMap(x, y int, layer MapLayer) (MapSchema, bool) {
+	initMapsCache()
+	tile, exists := mapsCache[Point{X: x, Y: y, Layer: layer}]
+	return tile, exists
+}
 
 func FindClosest(character CharacterSchema, code string) *MapSchema {
-	initTilesCache()
+	initMapsCache()
 
 	startPoint := Point{X: character.X, Y: character.Y, Layer: character.Layer}
 	queue := []Point{startPoint}
@@ -35,7 +49,7 @@ func FindClosest(character CharacterSchema, code string) *MapSchema {
 		current := queue[0]
 		queue = queue[1:]
 
-		currentTile, exists := tilesCache[current]
+		currentTile, exists := mapsCache[current]
 		if exists {
 			if currentTile.Interactions.Content != nil {
 				if currentTile.Interactions.Content.Code == code {
@@ -48,7 +62,7 @@ func FindClosest(character CharacterSchema, code string) *MapSchema {
 		for i := 0; i < 4; i++ {
 			nextPoint := Point{X: current.X + dx[i], Y: current.Y + dy[i], Layer: current.Layer}
 			if !visited[nextPoint] {
-				nextTile, tileExists := tilesCache[nextPoint]
+				nextTile, tileExists := mapsCache[nextPoint]
 				if tileExists {
 					if nextTile.Access.Type != "blocked" {
 						visited[nextPoint] = true
@@ -62,15 +76,14 @@ func FindClosest(character CharacterSchema, code string) *MapSchema {
 	return foundTile
 }
 
-var initTilesCache = sync.OnceFunc(func() {
-	tilesCache = make(map[Point]MapSchema)
-	var tiles []MapSchema
-	err := json.Unmarshal(maps, &tiles)
+var initMapsCache = sync.OnceFunc(func() {
+	mapsCache = make(map[Point]MapSchema)
+	err := json.Unmarshal(maps, &mapsList)
 	if err != nil {
-		return
+		panic("failed to unmarshal maps: " + err.Error())
 	}
-	for _, tile := range tiles {
+	for _, tile := range mapsList {
 		p := Point{X: tile.X, Y: tile.Y, Layer: tile.Layer}
-		tilesCache[p] = tile
+		mapsCache[p] = tile
 	}
 })

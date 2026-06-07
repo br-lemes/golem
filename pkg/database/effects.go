@@ -8,10 +8,18 @@ import (
 	. "github.com/br-lemes/golem/pkg/schemas"
 )
 
-//go:embed effects.json
-var effects []byte
+var (
+	//go:embed effects.json
+	effects []byte
 
-var effectsCache map[string]EffectSchema
+	effectsList  []EffectSchema
+	effectsCache map[string]EffectSchema
+)
+
+func GetEffects() []EffectSchema {
+	initEffectsCache()
+	return effectsList
+}
 
 func GetEffect(code string) (EffectSchema, bool) {
 	initEffectsCache()
@@ -21,12 +29,11 @@ func GetEffect(code string) (EffectSchema, bool) {
 
 var initEffectsCache = sync.OnceFunc(func() {
 	effectsCache = make(map[string]EffectSchema)
-	var result []EffectSchema
-	err := json.Unmarshal(effects, &result)
+	err := json.Unmarshal(effects, &effectsList)
 	if err != nil {
-		return
+		panic("failed to unmarshal effects: " + err.Error())
 	}
-	for _, effect := range result {
+	for _, effect := range effectsList {
 		effectsCache[effect.Code] = effect
 	}
 })

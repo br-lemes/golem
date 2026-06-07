@@ -8,10 +8,18 @@ import (
 	. "github.com/br-lemes/golem/pkg/schemas"
 )
 
-//go:embed monsters.json
-var monsters []byte
+var (
+	//go:embed monsters.json
+	monsters []byte
 
-var monstersCache map[string]MonsterSchema
+	monstersList  []MonsterSchema
+	monstersCache map[string]MonsterSchema
+)
+
+func GetMonsters() []MonsterSchema {
+	initMonstersCache()
+	return monstersList
+}
 
 func GetMonster(code string) (MonsterSchema, bool) {
 	initMonstersCache()
@@ -21,12 +29,11 @@ func GetMonster(code string) (MonsterSchema, bool) {
 
 var initMonstersCache = sync.OnceFunc(func() {
 	monstersCache = make(map[string]MonsterSchema)
-	var result []MonsterSchema
-	err := json.Unmarshal(monsters, &result)
+	err := json.Unmarshal(monsters, &monstersList)
 	if err != nil {
-		return
+		panic("failed to unmarshal monsters: " + err.Error())
 	}
-	for _, monster := range result {
+	for _, monster := range monstersList {
 		monstersCache[monster.Code] = monster
 	}
 })
