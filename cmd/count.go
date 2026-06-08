@@ -12,8 +12,7 @@ import (
 
 var countCmd = &cobra.Command{
 	Use:   "count",
-	Short: "Count items in the database",
-	Long:  `Count items in the database`,
+	Short: "Show the total quantity of an item in the account",
 	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		account := args[0]
