@@ -8,9 +8,10 @@ import (
 )
 
 var progressCmd = &cobra.Command{
-	Use:   "progress [account]",
+	Use:   "progress <account>",
 	Short: "Show in-progress achievements for an account",
 	Long: `Show in-progress achievements for an account
+
 Arguments:
   account   The name of the account.`,
 	Args: cobra.ExactArgs(1),
