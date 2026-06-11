@@ -27,6 +27,15 @@ func GetResource(code string) (ResourceSchema, bool) {
 	return resource, exists
 }
 
+func GetResourceCodes() []string {
+	initResourcesCache()
+	codes := make([]string, 0, len(resourcesCache))
+	for code := range resourcesCache {
+		codes = append(codes, code)
+	}
+	return codes
+}
+
 func initResourcesCache() {
 	if resourcesCache != nil {
 		return

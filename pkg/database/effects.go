@@ -27,6 +27,15 @@ func GetEffect(code string) (EffectSchema, bool) {
 	return effect, exists
 }
 
+func GetEffectCodes() []string {
+	initEffectsCache()
+	var codes []string
+	for code := range effectsCache {
+		codes = append(codes, code)
+	}
+	return codes
+}
+
 var initEffectsCache = sync.OnceFunc(func() {
 	effectsCache = make(map[string]EffectSchema)
 	err := json.Unmarshal(effects, &effectsList)

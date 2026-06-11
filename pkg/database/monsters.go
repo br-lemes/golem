@@ -27,6 +27,15 @@ func GetMonster(code string) (MonsterSchema, bool) {
 	return monster, exists
 }
 
+func GetMonsterCodes() []string {
+	initMonstersCache()
+	codes := make([]string, 0, len(monstersCache))
+	for code := range monstersCache {
+		codes = append(codes, code)
+	}
+	return codes
+}
+
 var initMonstersCache = sync.OnceFunc(func() {
 	monstersCache = make(map[string]MonsterSchema)
 	err := json.Unmarshal(monsters, &monstersList)

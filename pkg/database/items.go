@@ -27,6 +27,15 @@ func GetItem(code string) (ItemSchema, bool) {
 	return item, exists
 }
 
+func GetItemCodes() []string {
+	initItemsCache()
+	codes := make([]string, 0, len(itemsCache))
+	for code := range itemsCache {
+		codes = append(codes, code)
+	}
+	return codes
+}
+
 var initItemsCache = sync.OnceFunc(func() {
 	itemsCache = make(map[string]ItemSchema)
 	err := json.Unmarshal(items, &itemsList)

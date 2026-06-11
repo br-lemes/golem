@@ -33,6 +33,22 @@ func GetMap(x, y int, layer MapLayer) (MapSchema, bool) {
 	return tile, exists
 }
 
+func GetMapCodes() []string {
+	initMapsCache()
+	var codes []string
+	seen := make(map[string]bool)
+	for _, tile := range mapsList {
+		if tile.Interactions.Content != nil {
+			code := tile.Interactions.Content.Code
+			if !seen[code] {
+				seen[code] = true
+				codes = append(codes, code)
+			}
+		}
+	}
+	return codes
+}
+
 func FindClosest(character CharacterSchema, code string) *MapSchema {
 	initMapsCache()
 
