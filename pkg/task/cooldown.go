@@ -1,4 +1,4 @@
-package cmd
+package task
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func handleCooldown(character schemas.CharacterSchema) {
+func Cooldown(character schemas.CharacterSchema) {
 	if character.CooldownExpiration == nil {
 		return
 	}

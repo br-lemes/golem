@@ -7,6 +7,7 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/task"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +38,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		handleCooldown(character)
+		task.Cooldown(character)
 
 		if character.Level < monster.Level {
 			console.Printf("Your level %d < monster level %d\n",
@@ -53,17 +54,17 @@ Arguments:
 			minHp = character.MaxHp
 		}
 		for {
-			character, err = handleHp(character, minHp)
+			character, err = task.Hp(character, minHp)
 			if err != nil {
 				return err
 			}
 
-			character, err = handleInventory(character, true)
+			character, err = task.Inventory(character, true)
 			if err != nil {
 				return err
 			}
 
-			character, err = handleMap(character, code)
+			character, err = task.Move(character, code)
 			if err != nil {
 				return err
 			}

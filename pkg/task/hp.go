@@ -1,4 +1,4 @@
-package cmd
+package task
 
 import (
 	"sort"
@@ -14,7 +14,7 @@ type FoodItem struct {
 	Quantity int
 }
 
-func handleHp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
+func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
 	if character.Hp > minHp {
 		return character, nil
 	}

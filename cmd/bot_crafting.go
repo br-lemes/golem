@@ -7,6 +7,7 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/task"
 	"github.com/spf13/cobra"
 )
 
@@ -50,7 +51,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
-	handleCooldown(character)
+	task.Cooldown(character)
 
 	skillLevel := getCraftSkill(character, *item.Craft.Skill)
 	if skillLevel < *item.Craft.Level {
@@ -123,7 +124,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 		}
 
 		if batchPossible > 0 {
-			character, err = handleMap(character, string(*item.Craft.Skill))
+			character, err = task.Move(character, string(*item.Craft.Skill))
 			if err != nil {
 				return err
 			}
@@ -140,7 +141,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 			continue
 		}
 
-		character, err = handleMap(character, "bank")
+		character, err = task.Move(character, "bank")
 		if err != nil {
 			return err
 		}
@@ -273,7 +274,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
-	character, err = handleMap(character, "bank")
+	character, err = task.Move(character, "bank")
 	if err != nil {
 		return err
 	}

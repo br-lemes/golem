@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/task"
 	"github.com/spf13/cobra"
 )
 
@@ -34,8 +35,8 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		handleCooldown(character)
-		_, err = handleMap(character, code)
+		task.Cooldown(character)
+		_, err = task.Move(character, code)
 		if err != nil {
 			return err
 		}

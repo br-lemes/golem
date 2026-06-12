@@ -1,4 +1,4 @@
-package cmd
+package task
 
 import (
 	"github.com/br-lemes/golem/pkg/api"
@@ -6,7 +6,7 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func handleInventory(character schemas.CharacterSchema, keepFood bool) (schemas.CharacterSchema, error) {
+func Inventory(character schemas.CharacterSchema, keepFood bool) (schemas.CharacterSchema, error) {
 	totalItems := _totalItems(character)
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil

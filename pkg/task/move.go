@@ -1,4 +1,4 @@
-package cmd
+package task
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func handleMap(character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
+func Move(character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
 	target := database.FindClosest(character, code)
 	if target == nil {
 		return character, fmt.Errorf("no coordinates found for code %s", code)
