@@ -4,10 +4,10 @@ import (
 	"time"
 
 	"github.com/br-lemes/golem/pkg/console"
-	. "github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func handleCooldown(character CharacterSchema) {
+func handleCooldown(character schemas.CharacterSchema) {
 	if character.CooldownExpiration == nil {
 		return
 	}

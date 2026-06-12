@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
-	. "github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +46,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 		return fmt.Errorf("operation cancelled by user")
 	}
 
-	character, err := apiCharacters(name)
+	character, err := api.Characters(name)
 	if err != nil {
 		return err
 	}
@@ -95,7 +96,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 
 	craftedSoFar := 0
 	for craftedSoFar < targetQty {
-		character, err = apiCharacters(name)
+		character, err = api.Characters(name)
 		if err != nil {
 			return err
 		}
@@ -127,7 +128,10 @@ func StartCraftingBot(name string, code string, qty int) error {
 				return err
 			}
 
-			_, err = apiCraft(name, item.Code, batchPossible)
+			_, err = api.MyActionCrafting(name, schemas.SimpleItemSchema{
+				Code:     item.Code,
+				Quantity: batchPossible,
+			})
 			if err != nil {
 				return err
 			}
@@ -141,7 +145,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 			return err
 		}
 
-		var depositList []SimpleItemSchema
+		var depositList []schemas.SimpleItemSchema
 		for _, invItem := range *character.Inventory {
 			if invItem.Code == "" {
 				continue
@@ -154,7 +158,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 				}
 			}
 			if !isIngredient {
-				depositList = append(depositList, SimpleItemSchema{
+				depositList = append(depositList, schemas.SimpleItemSchema{
 					Code:     invItem.Code,
 					Quantity: invItem.Quantity,
 				})
@@ -162,11 +166,11 @@ func StartCraftingBot(name string, code string, qty int) error {
 		}
 
 		if len(depositList) > 0 {
-			_, err = apiActionBankDepositItem(name, depositList)
+			_, err = api.MyActionBankDepositItem(name, depositList)
 			if err != nil {
 				return err
 			}
-			character, err = apiCharacters(name)
+			character, err = api.Characters(name)
 			if err != nil {
 				return err
 			}
@@ -244,13 +248,13 @@ func StartCraftingBot(name string, code string, qty int) error {
 			return fmt.Errorf("unexpected calculation error or missing materials in bank")
 		}
 
-		var withdrawList []SimpleItemSchema
+		var withdrawList []schemas.SimpleItemSchema
 		for _, req := range *item.Craft.Items {
 			totalNeededForBatch := req.Quantity * currentBatchSize
 			alreadyHas := currentInventory[req.Code]
 			stillNeeds := totalNeededForBatch - alreadyHas
 			if stillNeeds > 0 {
-				withdrawList = append(withdrawList, SimpleItemSchema{
+				withdrawList = append(withdrawList, schemas.SimpleItemSchema{
 					Code:     req.Code,
 					Quantity: stillNeeds,
 				})
@@ -258,14 +262,14 @@ func StartCraftingBot(name string, code string, qty int) error {
 		}
 
 		if len(withdrawList) > 0 {
-			_, err = apiActionBankWithdrawItem(name, withdrawList)
+			_, err = api.MyActionBankWithdrawItem(name, withdrawList)
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	character, err = apiCharacters(name)
+	character, err = api.Characters(name)
 	if err != nil {
 		return err
 	}
@@ -274,10 +278,10 @@ func StartCraftingBot(name string, code string, qty int) error {
 		return err
 	}
 
-	var finalDepositList []SimpleItemSchema
+	var finalDepositList []schemas.SimpleItemSchema
 	for _, invItem := range *character.Inventory {
 		if invItem.Code == item.Code {
-			finalDepositList = append(finalDepositList, SimpleItemSchema{
+			finalDepositList = append(finalDepositList, schemas.SimpleItemSchema{
 				Code:     invItem.Code,
 				Quantity: invItem.Quantity,
 			})
@@ -285,7 +289,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	}
 
 	if len(finalDepositList) > 0 {
-		_, err = apiActionBankDepositItem(name, finalDepositList)
+		_, err = api.MyActionBankDepositItem(name, finalDepositList)
 		if err != nil {
 			return err
 		}
@@ -296,7 +300,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 
 func fetchAllBankItems() (map[string]int, error) {
 	result := make(map[string]int)
-	items, err := apiBankItems()
+	items, err := api.MyBankItems()
 	if err != nil {
 		return result, err
 	}
@@ -306,30 +310,30 @@ func fetchAllBankItems() (map[string]int, error) {
 	return result, nil
 }
 
-func getCraftSkill(character CharacterSchema, skill CraftSkill) int {
+func getCraftSkill(character schemas.CharacterSchema, skill schemas.CraftSkill) int {
 	switch skill {
-	case CraftSkill("alchemy"):
+	case schemas.CraftSkill("alchemy"):
 		return character.AlchemyLevel
-	case CraftSkill("cooking"):
+	case schemas.CraftSkill("cooking"):
 		return character.CookingLevel
-	case CraftSkill("gearcrafting"):
+	case schemas.CraftSkill("gearcrafting"):
 		return character.GearcraftingLevel
-	case CraftSkill("jewelrycrafting"):
+	case schemas.CraftSkill("jewelrycrafting"):
 		return character.JewelrycraftingLevel
-	case CraftSkill("weaponcrafting"):
+	case schemas.CraftSkill("weaponcrafting"):
 		return character.WeaponcraftingLevel
-	case CraftSkill("woodcutting"):
+	case schemas.CraftSkill("woodcutting"):
 		return character.WoodcuttingLevel
-	case CraftSkill("mining"):
+	case schemas.CraftSkill("mining"):
 		return character.MiningLevel
-	case CraftSkill("fishing"):
+	case schemas.CraftSkill("fishing"):
 		return character.FishingLevel
 	default:
 		return 0
 	}
 }
 
-func isCraftable(item ItemSchema) bool {
+func isCraftable(item schemas.ItemSchema) bool {
 	return item.Craft != nil &&
 		item.Craft.Items != nil &&
 		len(*item.Craft.Items) > 0 &&

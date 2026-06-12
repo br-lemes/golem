@@ -3,11 +3,12 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
-	. "github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func handleMap(character CharacterSchema, code string) (CharacterSchema, error) {
+func handleMap(character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
 	target := database.FindClosest(character, code)
 	if target == nil {
 		return character, fmt.Errorf("no coordinates found for code %s", code)
@@ -17,7 +18,7 @@ func handleMap(character CharacterSchema, code string) (CharacterSchema, error) 
 		target.Layer == character.Layer {
 		return character, nil
 	}
-	moveData, err := apiActionMove(character.Name, target.X, target.Y)
+	moveData, err := api.MyActionMove(character.Name, target.X, target.Y)
 	if err != nil {
 		return character, err
 	}

@@ -5,23 +5,23 @@ import (
 	"encoding/json"
 	"sync"
 
-	. "github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 var (
 	//go:embed resources.json
 	resources []byte
 
-	resourcesList  []ResourceSchema
-	resourcesCache map[string]ResourceSchema
+	resourcesList  []schemas.ResourceSchema
+	resourcesCache map[string]schemas.ResourceSchema
 )
 
-func GetResources() []ResourceSchema {
+func GetResources() []schemas.ResourceSchema {
 	initResourcesCache()
 	return resourcesList
 }
 
-func GetResource(code string) (ResourceSchema, bool) {
+func GetResource(code string) (schemas.ResourceSchema, bool) {
 	sync.OnceFunc(initResourcesCache)()
 	resource, exists := resourcesCache[code]
 	return resource, exists
@@ -40,7 +40,7 @@ func initResourcesCache() {
 	if resourcesCache != nil {
 		return
 	}
-	resourcesCache = make(map[string]ResourceSchema)
+	resourcesCache = make(map[string]schemas.ResourceSchema)
 	err := json.Unmarshal(resources, &resourcesList)
 	if err != nil {
 		panic("failed to unmarshal resources: " + err.Error())

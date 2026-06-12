@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 )
@@ -46,7 +47,7 @@ Arguments:
 			},
 		}
 
-		resp, err := apiPost(path, params)
+		resp, err := api.Post(path, params)
 		if err != nil {
 			return err
 		}

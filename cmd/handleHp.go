@@ -3,8 +3,9 @@ package cmd
 import (
 	"sort"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
-	. "github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 type FoodItem struct {
@@ -13,7 +14,7 @@ type FoodItem struct {
 	Quantity int
 }
 
-func handleHp(character CharacterSchema, minHp int) (CharacterSchema, error) {
+func handleHp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
 	if character.Hp > minHp {
 		return character, nil
 	}
@@ -70,12 +71,12 @@ func handleHp(character CharacterSchema, minHp int) (CharacterSchema, error) {
 		if qtyToUse <= 0 {
 			continue
 		}
-		useData, err := apiActionUse(character.Name, SimpleItemSchema{
+		useData, err := api.MyActionUse(character.Name, schemas.SimpleItemSchema{
 			Code:     food.Code,
 			Quantity: qtyToUse,
 		})
 		if err != nil {
-			return CharacterSchema{}, err
+			return schemas.CharacterSchema{}, err
 		}
 		character = useData.Character
 		foods[i].Quantity = foods[i].Quantity - qtyToUse
@@ -91,12 +92,12 @@ func handleHp(character CharacterSchema, minHp int) (CharacterSchema, error) {
 			continue
 		}
 
-		useData, err := apiActionUse(character.Name, SimpleItemSchema{
+		useData, err := api.MyActionUse(character.Name, schemas.SimpleItemSchema{
 			Code:     food.Code,
 			Quantity: 1,
 		})
 		if err != nil {
-			return CharacterSchema{}, err
+			return schemas.CharacterSchema{}, err
 		}
 		character = useData.Character
 		break
@@ -109,10 +110,10 @@ func handleHp(character CharacterSchema, minHp int) (CharacterSchema, error) {
 	return handleRest(character)
 }
 
-func handleRest(character CharacterSchema) (CharacterSchema, error) {
-	data, err := apiActionRest(character.Name)
+func handleRest(character schemas.CharacterSchema) (schemas.CharacterSchema, error) {
+	data, err := api.MyActionRest(character.Name)
 	if err != nil {
-		return CharacterSchema{}, err
+		return schemas.CharacterSchema{}, err
 	}
 	return data.Character, nil
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
@@ -32,7 +33,7 @@ Arguments:
 			return fmt.Errorf("operation cancelled")
 		}
 
-		character, err := apiCharacters(name)
+		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}
@@ -51,7 +52,7 @@ Arguments:
 
 			console.Printf("[%s] Gathering resources...\n",
 				time.Now().Format("15:04:05"))
-			skill, err := apiActionGathering(name)
+			skill, err := api.MyActionGathering(name)
 			if err != nil {
 				return err
 			}

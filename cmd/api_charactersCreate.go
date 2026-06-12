@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -38,7 +39,7 @@ var charactersCreateCmd = &cobra.Command{
 			params[f.Name] = f.Value.String()
 		})
 
-		resp, err := apiPost(path, params)
+		resp, err := api.Post(path, params)
 		if err != nil {
 			return err
 		}

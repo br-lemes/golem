@@ -5,9 +5,10 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
-	. "github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +30,7 @@ Arguments:
 			return fmt.Errorf("item %s not found", code)
 		}
 
-		items, err := apiBankItems()
+		items, err := api.MyBankItems()
 		if err != nil {
 			return err
 		}
@@ -38,12 +39,12 @@ Arguments:
 				result = append(result, map[string]int{"bank": item.Quantity})
 			}
 		}
-		characters, err := apiAccountsCharacters(account)
+		characters, err := api.AccountsCharacters(account)
 		if err != nil {
 			return err
 		}
 		for _, character := range characters {
-			inventory := []InventorySlot{}
+			inventory := []schemas.InventorySlot{}
 			if character.Inventory != nil {
 				inventory = *character.Inventory
 			}
@@ -73,7 +74,7 @@ func init() {
 	rootCmd.AddCommand(countCmd)
 }
 
-func countInSlots(character CharacterSchema, code string) int {
+func countInSlots(character schemas.CharacterSchema, code string) int {
 	total := 0
 	v := reflect.ValueOf(character)
 	t := v.Type()

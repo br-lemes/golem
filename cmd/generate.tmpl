@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 	{{if .Flags}}"github.com/spf13/pflag"{{end}}
@@ -51,12 +52,12 @@ var {{.CommandName}}Cmd = &cobra.Command{
 		})
 		{{- end}}
 
-		{{if eq .Method "GET"}}resp, err := apiGet(path, params)
+		{{if eq .Method "GET"}}resp, err := api.Get(path, params)
 		{{- else}}
 		{{- if .IsBodyArray}}
-		resp, err := apiPost(path, []map[string]string{params})
+		resp, err := api.Post(path, []map[string]string{params})
 		{{- else}}
-		resp, err := apiPost(path, params)
+		resp, err := api.Post(path, params)
 		{{- end}}
 		{{- end}}
 		if err != nil {

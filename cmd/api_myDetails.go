@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +16,7 @@ var myDetailsCmd = &cobra.Command{
 
 		params := make(map[string]string)
 
-		resp, err := apiGet(path, params)
+		resp, err := api.Get(path, params)
 		if err != nil {
 			return err
 		}

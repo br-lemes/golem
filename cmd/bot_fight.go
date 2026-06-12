@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
@@ -32,7 +33,7 @@ Arguments:
 			return fmt.Errorf("operation cancelled")
 		}
 
-		character, err := apiCharacters(name)
+		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}
@@ -67,7 +68,7 @@ Arguments:
 				return err
 			}
 
-			fightResult, err := apiActionFight(name, []string{})
+			fightResult, err := api.MyActionFight(name, []string{})
 			if err != nil {
 				return fmt.Errorf("error during fight: %w", err)
 			}

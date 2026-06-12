@@ -1,22 +1,23 @@
 package cmd
 
 import (
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
-	. "github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func handleInventory(character CharacterSchema, keepFood bool) (CharacterSchema, error) {
+func handleInventory(character schemas.CharacterSchema, keepFood bool) (schemas.CharacterSchema, error) {
 	totalItems := _totalItems(character)
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil
 	}
 	bank := database.FindClosest(character, "bank")
-	moveData, err := apiActionMove(character.Name, bank.X, bank.Y)
+	moveData, err := api.MyActionMove(character.Name, bank.X, bank.Y)
 	if err != nil {
 		return character, err
 	}
 	character = moveData.Character
-	transactionData, err := apiActionBankDepositItem(character.Name, _getItems(character, keepFood))
+	transactionData, err := api.MyActionBankDepositItem(character.Name, _getItems(character, keepFood))
 	if err != nil {
 		return character, err
 	}
@@ -25,7 +26,7 @@ func handleInventory(character CharacterSchema, keepFood bool) (CharacterSchema,
 	return character, nil
 }
 
-func _totalItems(character CharacterSchema) int {
+func _totalItems(character schemas.CharacterSchema) int {
 	if character.Inventory == nil {
 		return 0
 	}
@@ -36,8 +37,8 @@ func _totalItems(character CharacterSchema) int {
 	return total
 }
 
-func _getItems(character CharacterSchema, keepFood bool) []SimpleItemSchema {
-	items := []SimpleItemSchema{}
+func _getItems(character schemas.CharacterSchema, keepFood bool) []schemas.SimpleItemSchema {
+	items := []schemas.SimpleItemSchema{}
 	if character.Inventory == nil {
 		return items
 	}
@@ -48,11 +49,10 @@ func _getItems(character CharacterSchema, keepFood bool) []SimpleItemSchema {
 		if keepFood && _isFood(item.Code) {
 			continue
 		}
-		simpleItem := SimpleItemSchema{
+		items = append(items, schemas.SimpleItemSchema{
 			Code:     item.Code,
 			Quantity: item.Quantity,
-		}
-		items = append(items, simpleItem)
+		})
 	}
 	return items
 }

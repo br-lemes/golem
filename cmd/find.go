@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
@@ -32,7 +33,7 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		character, err := apiCharacters(name)
+		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}
