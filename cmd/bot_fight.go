@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
 )
@@ -38,9 +39,9 @@ Arguments:
 		handleCooldown(character)
 
 		if character.Level < monster.Level {
-			fmt.Fprintf(writer, "Your level %d < monster level %d\n",
+			console.Printf("Your level %d < monster level %d\n",
 				character.Level, monster.Level)
-			if !confirm("Do you want to continue?") {
+			if !console.Confirm("Do you want to continue?") {
 				cmd.SilenceUsage = true
 				return fmt.Errorf("operation cancelled")
 			}
@@ -79,15 +80,15 @@ Arguments:
 			}
 
 			if fightResult.Fight.Result == "win" {
-				fmt.Fprintf(writer, "  XP gained: %d",
+				console.Printf("  XP gained: %d",
 					fightResult.Fight.Characters[0].Xp)
 				if len(drops) > 0 {
 					dropsStr := strings.Join(drops, ", ")
-					fmt.Fprintf(writer, ", Drops: %s", dropsStr)
+					console.Printf(", Drops: %s", dropsStr)
 				}
-				fmt.Fprintln(writer)
+				console.Printf("\n")
 			} else {
-				fmt.Fprintf(writer, "  💀 Fight lost!\n")
+				console.Printf("  💀 Fight lost!\n")
 			}
 		}
 	},

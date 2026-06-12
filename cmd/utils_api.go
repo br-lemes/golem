@@ -7,9 +7,9 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 
+	"github.com/br-lemes/golem/pkg/console"
 	. "github.com/br-lemes/golem/pkg/schemas"
 	"github.com/tidwall/gjson"
 )
@@ -57,16 +57,14 @@ func apiRequest(method, path string, body []byte) ([]byte, error) {
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Authorization", "Bearer "+userToken)
 
-		if debugFlag {
-			fmt.Fprintf(os.Stderr, "→ %s %s\n", method, path)
-			if len(body) > 0 {
-				fmt.Fprintf(os.Stderr, "  Body: %s\n", string(body))
-			}
+		console.Debugf("%s %s\n", method, path)
+		if len(body) > 0 {
+			console.Debugf("  Body: %s\n", string(body))
 		}
 
 		resp, err := httpClient.Do(req)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Network error detected: %v. Retrying in 5 seconds...\n", err)
+			console.Errorf("Network error: %v. Retrying in 5 seconds...\n", err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -74,7 +72,7 @@ func apiRequest(method, path string, body []byte) ([]byte, error) {
 		respBytes, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Read error detected: %v. Retrying in 5 seconds...\n", err)
+			console.Errorf("Read error: %v. Retrying in 5 seconds...\n", err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
@@ -88,7 +86,7 @@ func apiRequest(method, path string, body []byte) ([]byte, error) {
 		cd := int(cdResult.Int())
 
 		if cd > 0 {
-			fmt.Fprintf(os.Stderr, "⏳ Cooldown started: %d seconds\n", cd)
+			console.Errorf("⏳ Cooldown started: %d seconds\n", cd)
 			time.Sleep(time.Duration(cd) * time.Second)
 		}
 

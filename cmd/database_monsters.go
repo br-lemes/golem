@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/br-lemes/golem/pkg/console"
 	. "github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
@@ -22,8 +23,7 @@ var dbMonstersCmd = &cobra.Command{
 			}
 			page++
 		}
-		output(result)
-		return nil
+		return console.Auto(result)
 	},
 }
 

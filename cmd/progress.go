@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/console"
 	. "github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
@@ -62,8 +63,7 @@ Arguments:
 			}
 			page++
 		}
-		output(progressFormat(result))
-		return nil
+		return console.Auto(progressFormat(result))
 	},
 }
 

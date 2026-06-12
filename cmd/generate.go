@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 )
 
@@ -70,7 +71,7 @@ Arguments:
 			return err
 		}
 
-		_, err = writer.Write(formattedCode)
+		_, err = console.Stdout.Write(formattedCode)
 		if err != nil {
 			return fmt.Errorf("failed to write generated code: %w", err)
 		}

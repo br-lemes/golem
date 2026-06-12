@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
 )
@@ -40,8 +41,7 @@ Arguments:
 		if tile == nil {
 			return fmt.Errorf("no coordinates found for code %s", code)
 		}
-		output(tile)
-		return nil
+		return console.Auto(tile)
 	},
 }
 

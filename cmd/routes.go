@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/spf13/cobra"
@@ -39,7 +40,7 @@ Arguments:
 			if err != nil {
 				return fmt.Errorf("failed to process route: %w", err)
 			}
-			return output(res)
+			return console.Auto(res)
 		}
 
 		routes, err := getRoutes()
@@ -47,7 +48,7 @@ Arguments:
 			return fmt.Errorf("failed to extract routes: %w", err)
 		}
 
-		return output(routes)
+		return console.Auto(routes)
 	},
 }
 

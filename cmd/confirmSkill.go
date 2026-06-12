@@ -1,6 +1,6 @@
 package cmd
 
-import "fmt"
+import "github.com/br-lemes/golem/pkg/console"
 
 var characterMap = map[string][]string{
 	"br_lemes": {"fighting", "woodcutting"},
@@ -29,7 +29,7 @@ func confirmSkill(character string, skill string) bool {
 			return true
 		}
 	}
-	fmt.Fprintf(writer, "Skill %s is not configured for %s\n", skill, character)
-	fmt.Fprintf(writer, "Available skills: %v\n", skills)
-	return confirm("Do you want to continue?")
+	console.Printf("Skill %s is not configured for %s\n", skill, character)
+	console.Printf("Available skills: %v\n", skills)
+	return console.Confirm("Do you want to continue?")
 }

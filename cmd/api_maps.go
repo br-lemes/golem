@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -55,7 +56,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		return output(resp)
+		return console.Auto(resp)
 	},
 }
 

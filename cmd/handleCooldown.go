@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"time"
 
+	"github.com/br-lemes/golem/pkg/console"
 	. "github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -17,7 +16,7 @@ func handleCooldown(character CharacterSchema) {
 		return
 	}
 	duration := character.CooldownExpiration.Sub(now)
-	fmt.Fprintf(os.Stderr, "⏳ Cooldown active: %.0f seconds\n",
+	console.Errorf("⏳ Cooldown active: %.0f seconds\n",
 		duration.Round(time.Second).Seconds())
 	time.Sleep(duration)
 }

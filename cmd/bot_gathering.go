@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/spf13/cobra"
 )
@@ -48,7 +49,7 @@ Arguments:
 				return err
 			}
 
-			fmt.Fprintf(writer, "[%s] Gathering resources...\n",
+			console.Printf("[%s] Gathering resources...\n",
 				time.Now().Format("15:04:05"))
 			skill, err := apiActionGathering(name)
 			if err != nil {
@@ -58,7 +59,7 @@ Arguments:
 			for _, item := range skill.Details.Items {
 				dropsStr += fmt.Sprintf("%dx %s, ", item.Quantity, item.Code)
 			}
-			fmt.Fprintf(writer, "[%s] Gathered %s\n",
+			console.Printf("[%s] Gathered %s\n",
 				time.Now().Format("15:04:05"), dropsStr)
 
 			character = skill.Character

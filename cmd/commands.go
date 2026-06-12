@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
@@ -46,9 +47,9 @@ Arguments:
 			if command == nil {
 				return nil
 			}
-			return output(buildCompactMap(command))
+			return console.Auto(buildCompactMap(command))
 		}
-		return output(commands)
+		return console.Auto(commands)
 	},
 }
 

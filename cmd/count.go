@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	. "github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
@@ -64,8 +65,7 @@ Arguments:
 			}
 		}
 		result = append(result, map[string]int{"total": total})
-		output(result)
-		return nil
+		return console.Auto(result)
 	},
 }
 

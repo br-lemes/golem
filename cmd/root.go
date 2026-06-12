@@ -7,17 +7,14 @@ import (
 	"path/filepath"
 
 	"github.com/br-lemes/golem/internal/version"
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	debugFlag  bool
-	formatFlag string
 	outputFlag string
-	styleFlag  string
 	userToken  string
-	writer     io.Writer
 )
 
 var rootCmd = &cobra.Command{
@@ -30,10 +27,13 @@ var rootCmd = &cobra.Command{
 			if err != nil {
 				return fmt.Errorf("failed to create output file: %w", err)
 			}
-			writer = file
+			console.Stdout = file
+			cmd.SetOut(file)
 		} else {
-			writer = cmd.OutOrStdout()
+			console.Stdout = cmd.OutOrStdout()
 		}
+		console.Stderr = cmd.ErrOrStderr()
+		console.Stdin = cmd.InOrStdin()
 
 		err := validateFlags()
 		if err != nil {
@@ -48,30 +48,30 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&debugFlag, "debug", "d", false,
+	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false,
 		"Enable debug mode")
-	rootCmd.PersistentFlags().StringVarP(&formatFlag, "format", "f", "auto",
+	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto",
 		"Formato da saída: auto, json ou yaml")
 	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "",
 		"Output file path (default: stdout)")
-	rootCmd.PersistentFlags().StringVarP(&styleFlag, "style", "s", "monokai",
+	rootCmd.PersistentFlags().StringVarP(&console.Style, "style", "s", "monokai",
 		"The style to use for syntax highlighting")
 }
 
 func Execute() error {
 	err := rootCmd.Execute()
-	closer, ok := writer.(io.Closer)
-	if ok && writer != os.Stdout {
+	closer, ok := console.Stdout.(io.Closer)
+	if ok && console.Stdout != os.Stdout {
 		closer.Close()
 	}
 	return err
 }
 
 func validateFlags() error {
-	switch formatFlag {
+	switch console.Format {
 	case "auto", "json", "yaml":
 	default:
-		return fmt.Errorf("invalid format: %s", formatFlag)
+		return fmt.Errorf("invalid format: %s", console.Format)
 	}
 	return nil
 }
@@ -107,11 +107,7 @@ func loadConfig() error {
 
 	userToken = viper.GetString("token")
 	if userToken == "" {
-		fmt.Fprintf(os.Stdout, "Enter your token: ")
-		_, err := fmt.Scan(&userToken)
-		if err != nil {
-			return err
-		}
+		userToken = console.Input("Enter your token")
 		viper.Set("token", userToken)
 		err = viper.WriteConfig()
 		if err != nil {

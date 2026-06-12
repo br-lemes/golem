@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +19,7 @@ var myCharactersCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return output(resp)
+		return console.Auto(resp)
 	},
 }
 
