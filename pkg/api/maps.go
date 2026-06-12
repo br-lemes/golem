@@ -16,7 +16,8 @@ func Maps() ([]schemas.MapSchema, error) {
 			return nil, err
 		}
 		var data schemas.StaticDataPageMapSchema
-		if err := json.Unmarshal(resp, &data); err != nil {
+		err = json.Unmarshal(resp, &data)
+		if err != nil {
 			return nil, err
 		}
 		result = append(result, data.Data...)

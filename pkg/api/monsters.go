@@ -16,7 +16,8 @@ func Monsters() ([]schemas.MonsterSchema, error) {
 			return nil, err
 		}
 		var data schemas.StaticDataPageMonsterSchema
-		if err := json.Unmarshal(resp, &data); err != nil {
+		err = json.Unmarshal(resp, &data)
+		if err != nil {
 			return nil, err
 		}
 		result = append(result, data.Data...)

@@ -13,7 +13,8 @@ func MyActionRest(name string) (schemas.CharacterRestDataSchema, error) {
 		return schemas.CharacterRestDataSchema{}, err
 	}
 	var data schemas.CharacterRestResponseSchema
-	if err := json.Unmarshal(resp, &data); err != nil {
+	err = json.Unmarshal(resp, &data)
+	if err != nil {
 		return schemas.CharacterRestDataSchema{}, err
 	}
 	return data.Data, nil
