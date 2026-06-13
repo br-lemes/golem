@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"slices"
+
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/task"
@@ -31,6 +34,9 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
+		if !slices.Contains(database.GetMapCodes(), code) {
+			return fmt.Errorf("code '%s' not found", code)
+		}
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
