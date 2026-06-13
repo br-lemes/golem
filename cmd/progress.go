@@ -4,22 +4,27 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
 
 var progressCmd = &cobra.Command{
-	Use:   "progress <account>",
+	Use:   "progress [account]",
 	Short: "Show in-progress achievements for an account",
 	Long: `Show in-progress achievements for an account
 
 Arguments:
-  account   The name of the account.`,
-	Args: cobra.ExactArgs(1),
+  account   The name of the account (optional).`,
+	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		account := config.Account
+		if len(args) > 0 {
+			account = args[0]
+		}
 		result := []schemas.AccountAchievementSchema{}
-		achievements, err := api.AccountsAchievements(args[0])
+		achievements, err := api.AccountsAchievements(account)
 		if err != nil {
 			return err
 		}

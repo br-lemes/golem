@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -13,17 +14,21 @@ import (
 )
 
 var countCmd = &cobra.Command{
-	Use:   "count <account> <code>",
+	Use:   "count <code>",
 	Short: "Show the total quantity of an item in the account",
 	Long: `Show the total quantity of an item in the account
 
 Arguments:
-  account   The name of the account.
   code      The code of the item.`,
-	Args: cobra.ExactArgs(2),
+	Args: cobra.ExactArgs(1),
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return database.GetItemCodes(), cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		account := args[0]
-		code := args[1]
+		code := args[0]
 		result := []map[string]int{}
 		_, found := database.GetItem(code)
 		if !found {
@@ -39,7 +44,7 @@ Arguments:
 				result = append(result, map[string]int{"bank": item.Quantity})
 			}
 		}
-		characters, err := api.AccountsCharacters(account)
+		characters, err := api.AccountsCharacters(config.Account)
 		if err != nil {
 			return err
 		}
