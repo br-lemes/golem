@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,8 +20,9 @@ var configDir string
 
 func GetCharacters() []string {
 	characters := make([]string, 0, len(Characters))
-	for character := range Characters {
-		characters = append(characters, character)
+	for character, value := range Characters {
+		v := fmt.Sprintf("%s\t%s", character, strings.Join(value, ", "))
+		characters = append(characters, v)
 	}
 	return characters
 }
