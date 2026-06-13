@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/task"
@@ -29,7 +30,7 @@ Arguments:
 			return fmt.Errorf("resource %s not found", code)
 		}
 
-		if !confirmSkill(name, string(resource.Skill)) {
+		if !config.ConfirmSkill(name, string(resource.Skill)) {
 			cmd.SilenceUsage = true
 			return fmt.Errorf("operation cancelled")
 		}

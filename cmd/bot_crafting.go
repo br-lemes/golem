@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/task"
@@ -43,7 +44,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if !isCraftable(item) {
 		return fmt.Errorf("item is not craftable: %s", code)
 	}
-	if !confirmSkill(name, string(*item.Craft.Skill)) {
+	if !config.ConfirmSkill(name, string(*item.Craft.Skill)) {
 		return fmt.Errorf("operation cancelled by user")
 	}
 

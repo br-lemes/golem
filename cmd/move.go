@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/task"
 	"github.com/spf13/cobra"
@@ -21,7 +22,7 @@ Arguments:
 	Args: cobra.ExactArgs(2),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
-			characters := getCharacters()
+			characters := config.GetCharacters()
 			return characters, cobra.ShellCompDirectiveNoFileComp
 		}
 		if len(args) == 1 {

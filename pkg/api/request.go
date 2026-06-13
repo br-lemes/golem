@@ -13,10 +13,9 @@ import (
 
 const baseURL = "https://api.artifactsmmo.com"
 
-var (
-	httpClient = &http.Client{Timeout: 30 * time.Second}
-	userToken  string
-)
+var Token string
+
+var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 func Request(method, path string, body []byte) ([]byte, error) {
 	for {
@@ -27,7 +26,7 @@ func Request(method, path string, body []byte) ([]byte, error) {
 
 		req.Header.Set("Accept", "application/json")
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer "+userToken)
+		req.Header.Set("Authorization", "Bearer "+Token)
 
 		console.Debugf("%s %s\n", method, path)
 		if len(body) > 0 {

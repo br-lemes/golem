@@ -10,12 +10,12 @@ import (
 func AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
 	resp, err := Get(fmt.Sprintf("/accounts/%s/characters", account), nil)
 	if err != nil {
-		return []schemas.CharacterSchema{}, err
+		return nil, err
 	}
 	var data schemas.CharactersListSchema
 	err = json.Unmarshal(resp, &data)
 	if err != nil {
-		return []schemas.CharacterSchema{}, err
+		return nil, err
 	}
 	return data.Data, nil
 }

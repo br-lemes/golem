@@ -29,11 +29,6 @@ Arguments:
 			return fmt.Errorf("monster %s not found", code)
 		}
 
-		if !confirmSkill(name, "fighting") {
-			cmd.SilenceUsage = true
-			return fmt.Errorf("operation cancelled")
-		}
-
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
