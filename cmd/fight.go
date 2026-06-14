@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var botFightCmd = &cobra.Command{
+var fightCmd = &cobra.Command{
 	Use:   "fight <name> <code>",
 	Short: "Fight continuously",
 	Long: `Fight continuously
@@ -104,5 +104,5 @@ Arguments:
 }
 
 func init() {
-	botCmd.AddCommand(botFightCmd)
+	rootCmd.AddCommand(fightCmd)
 }

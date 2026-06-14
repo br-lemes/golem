@@ -49,7 +49,7 @@ Arguments:
 
 func init() {
 	craftingCmd.Flags().IntP("quantity", "q", 0, "Amount of items to craft (0 for infinite/max available)")
-	botCmd.AddCommand(craftingCmd)
+	rootCmd.AddCommand(craftingCmd)
 }
 
 func StartCraftingBot(name string, code string, qty int) error {

@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var botGatheringCmd = &cobra.Command{
+var gatheringCmd = &cobra.Command{
 	Use:   "gathering <name> <code>",
 	Short: "Gather resources continuously",
 	Long: `Gather resources continuously
@@ -82,5 +82,5 @@ Arguments:
 }
 
 func init() {
-	botCmd.AddCommand(botGatheringCmd)
+	rootCmd.AddCommand(gatheringCmd)
 }
