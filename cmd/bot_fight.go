@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/task"
@@ -20,6 +21,17 @@ Arguments:
   name   Name of your character.
   code   The code of the monster.`,
 	Args: cobra.ExactArgs(2),
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			characters := config.GetCharacters()
+			return characters, cobra.ShellCompDirectiveNoFileComp
+		}
+		if len(args) == 1 {
+			codes := database.GetMonsterCodes()
+			return codes, cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]

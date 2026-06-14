@@ -11,18 +11,15 @@ func Inventory(character schemas.CharacterSchema, keepFood bool) (schemas.Charac
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil
 	}
-	bank := database.FindClosest(character, "bank")
-	moveData, err := api.MyActionMove(character.Name, bank.X, bank.Y)
+	character, err := Move(character, "bank")
 	if err != nil {
 		return character, err
 	}
-	character = moveData.Character
 	transactionData, err := api.MyActionBankDepositItem(character.Name, _getItems(character, keepFood))
 	if err != nil {
 		return character, err
 	}
 	character = transactionData.Character
-
 	return character, nil
 }
 

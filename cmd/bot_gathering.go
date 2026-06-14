@@ -21,6 +21,17 @@ Arguments:
   name   Name of your character.
   code   The code of the resource.`,
 	Args: cobra.ExactArgs(2),
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			characters := config.GetCharacters()
+			return characters, cobra.ShellCompDirectiveNoFileComp
+		}
+		if len(args) == 1 {
+			codes := database.GetResourceCodes()
+			return codes, cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]

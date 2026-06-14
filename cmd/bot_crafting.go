@@ -13,9 +13,25 @@ import (
 )
 
 var craftingCmd = &cobra.Command{
-	Use:   "crafting [name] [code]",
+	Use:   "crafting <name> <code>",
 	Short: "Start the crafting bot loop",
-	Args:  cobra.ExactArgs(2),
+	Long: `Start the crafting bot loop
+
+Arguments:
+  name   Name of your character.
+  code   The code of the item.`,
+	Args: cobra.ExactArgs(2),
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			characters := config.GetCharacters()
+			return characters, cobra.ShellCompDirectiveNoFileComp
+		}
+		if len(args) == 1 {
+			codes := database.GetItemCodes()
+			return codes, cobra.ShellCompDirectiveNoFileComp
+		}
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
