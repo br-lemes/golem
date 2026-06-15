@@ -66,7 +66,7 @@ Arguments:
 				return err
 			}
 
-			character, err = task.Inventory(character, true)
+			character, err = task.Inventory(character, []string{"food"})
 			if err != nil {
 				return err
 			}

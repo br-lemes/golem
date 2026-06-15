@@ -53,7 +53,7 @@ Arguments:
 		task.Cooldown(character)
 
 		for {
-			character, err = task.Inventory(character, false)
+			character, err = task.Inventory(character, []string{})
 			if err != nil {
 				return err
 			}

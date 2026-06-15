@@ -6,7 +6,7 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func Inventory(character schemas.CharacterSchema, keepFood bool) (schemas.CharacterSchema, error) {
+func Inventory(character schemas.CharacterSchema, keepTypes []string) (schemas.CharacterSchema, error) {
 	totalItems := totalItems(character)
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil
@@ -16,7 +16,7 @@ func Inventory(character schemas.CharacterSchema, keepFood bool) (schemas.Charac
 		return character, err
 	}
 	transaction, err := api.MyActionBankDepositItem(character.Name,
-		GetInventoryItems(character, keepFood))
+		GetInventoryItems(character, keepTypes))
 	if err != nil {
 		return character, err
 	}
@@ -35,7 +35,7 @@ func totalItems(character schemas.CharacterSchema) int {
 	return total
 }
 
-func GetInventoryItems(character schemas.CharacterSchema, keepFood bool) []schemas.SimpleItemSchema {
+func GetInventoryItems(character schemas.CharacterSchema, keepTypes []string) []schemas.SimpleItemSchema {
 	items := []schemas.SimpleItemSchema{}
 	if character.Inventory == nil {
 		return items
@@ -44,7 +44,7 @@ func GetInventoryItems(character schemas.CharacterSchema, keepFood bool) []schem
 		if item.Code == "" || item.Quantity == 0 {
 			continue
 		}
-		if keepFood && isFood(item.Code) {
+		if shouldKeepItem(item.Code, keepTypes) {
 			continue
 		}
 		items = append(items, schemas.SimpleItemSchema{
@@ -55,10 +55,18 @@ func GetInventoryItems(character schemas.CharacterSchema, keepFood bool) []schem
 	return items
 }
 
-func isFood(code string) bool {
+func shouldKeepItem(code string, keepTypes []string) bool {
+	if len(keepTypes) == 0 {
+		return false
+	}
 	item, found := database.GetItem(code)
 	if !found {
 		return false
 	}
-	return item.Type == "consumable" && item.Subtype == "food"
+	for _, keepType := range keepTypes {
+		if item.Type == keepType || item.Subtype == keepType {
+			return true
+		}
+	}
+	return false
 }

@@ -33,10 +33,10 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		items := task.GetInventoryItems(character, true)
+		items := task.GetInventoryItems(character, []string{})
 		if len(items) > 0 {
 			_, err = api.MyActionBankDepositItem(character.Name,
-				task.GetInventoryItems(character, false))
+				task.GetInventoryItems(character, []string{}))
 			if err != nil {
 				return err
 			}
