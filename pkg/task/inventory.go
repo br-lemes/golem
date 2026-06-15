@@ -7,7 +7,7 @@ import (
 )
 
 func Inventory(character schemas.CharacterSchema, keepFood bool) (schemas.CharacterSchema, error) {
-	totalItems := _totalItems(character)
+	totalItems := totalItems(character)
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil
 	}
@@ -15,15 +15,16 @@ func Inventory(character schemas.CharacterSchema, keepFood bool) (schemas.Charac
 	if err != nil {
 		return character, err
 	}
-	transactionData, err := api.MyActionBankDepositItem(character.Name, _getItems(character, keepFood))
+	transaction, err := api.MyActionBankDepositItem(character.Name,
+		GetInventoryItems(character, keepFood))
 	if err != nil {
 		return character, err
 	}
-	character = transactionData.Character
+	character = transaction.Character
 	return character, nil
 }
 
-func _totalItems(character schemas.CharacterSchema) int {
+func totalItems(character schemas.CharacterSchema) int {
 	if character.Inventory == nil {
 		return 0
 	}
@@ -34,7 +35,7 @@ func _totalItems(character schemas.CharacterSchema) int {
 	return total
 }
 
-func _getItems(character schemas.CharacterSchema, keepFood bool) []schemas.SimpleItemSchema {
+func GetInventoryItems(character schemas.CharacterSchema, keepFood bool) []schemas.SimpleItemSchema {
 	items := []schemas.SimpleItemSchema{}
 	if character.Inventory == nil {
 		return items
@@ -43,7 +44,7 @@ func _getItems(character schemas.CharacterSchema, keepFood bool) []schemas.Simpl
 		if item.Code == "" || item.Quantity == 0 {
 			continue
 		}
-		if keepFood && _isFood(item.Code) {
+		if keepFood && isFood(item.Code) {
 			continue
 		}
 		items = append(items, schemas.SimpleItemSchema{
@@ -54,7 +55,7 @@ func _getItems(character schemas.CharacterSchema, keepFood bool) []schemas.Simpl
 	return items
 }
 
-func _isFood(code string) bool {
+func isFood(code string) bool {
 	item, found := database.GetItem(code)
 	if !found {
 		return false
