@@ -1,1 +1,394 @@
-[{"code":"boost_hp","description":"Add {value} HP at the start of the fight and for the rest of the fight.","name":"Boost HP","subtype":"buff","type":"combat"},{"code":"boost_dmg_fire","description":"Add {value}% fire damage at the start of the fight and for the rest of the fight.","name":"Boost Damage Fire","subtype":"buff","type":"combat"},{"code":"boost_dmg_water","description":"Add {value}% water damage at the start of the fight and for the rest of the fight.","name":"Boost Damage Water","subtype":"buff","type":"combat"},{"code":"boost_dmg_air","description":"Add {value}% air damage at the start of the fight and for the rest of the fight.","name":"Boost Damage Air","subtype":"buff","type":"combat"},{"code":"boost_dmg_earth","description":"Add {value}% earth damage at the start of the fight and for the rest of the fight.","name":"Boost Damage Earth","subtype":"buff","type":"combat"},{"code":"restore","description":"Restores {value} HP at the start of the turn if the player has lost more than 50% of their health points.","name":"Restore","subtype":"heal","type":"combat"},{"code":"healing","description":"Every 3 played turns, restores {value}% of HP at the start of the turn.\n","name":"healing","subtype":"special","type":"combat"},{"code":"antipoison","description":"At the beginning of the turn, if the character has at least one poison on him, removes {value} poison damage.","name":"Antipoison","subtype":"other","type":"combat"},{"code":"poison","description":"At the start of its first turn, applies a {value} poison to its opponent. Loses {value} HP per turn.","name":"Poison","subtype":"special","type":"combat"},{"code":"lifesteal","description":"Restores {value}% of the total attack of all elements in HP after a critical strike.","name":"Lifesteal","subtype":"special","type":"combat"},{"code":"reconstitution","description":"Every {value} played turns, regains all HP.","name":"Reconstitution","subtype":"special","type":"combat"},{"code":"burn","description":"On his first turn, apply a burn effect of {value}% of your attack of all elements. The damage is applied each turn and decreases by 10% each time.","name":"Burn","subtype":"special","type":"combat"},{"code":"boost_res_air","description":"Gives {value}% air resistance at the start of fight.","name":"Boost Resistance Air","subtype":"buff","type":"combat"},{"code":"boost_res_water","description":"Gives {value}% water resistance at the start of fight.","name":"Boost Resistance Water","subtype":"buff","type":"combat"},{"code":"boost_res_earth","description":"Gives {value}% earth resistance at the start of fight.","name":"Boost Resistance Earth","subtype":"buff","type":"combat"},{"code":"boost_res_fire","description":"Gives {value}% fire resistance at the start of fight.","name":"Boost Resistance Fire","subtype":"buff","type":"combat"},{"code":"corrupted","description":"After every time the bearer of this effect is attacked, their resistance to the attack's element is reduced by {value}%, and can go negative.","name":"Corrupted","subtype":"special","type":"combat"},{"code":"guard","description":"If one or more allies have less than 50% of their HP, protects the ally with the lowest HP percentage, redirecting {value} % of their damage to this character until the start of my next turn. Activates a maximum of 3 times per combat.","name":"Guard","subtype":"special","type":"combat"},{"code":"shell","description":"When they drop below 40% of their HP, they gain {value} % resistance to all elements for 3 turns. Activates once per combat. This effect is only active during boss fights.","name":"Shell","subtype":"special","type":"combat"},{"code":"frenzy","description":"Each time they land a critical hit, they give {value}% damage to themselves and their allies until the end of their next turn.","name":"Frenzy","subtype":"special","type":"combat"},{"code":"void_drain","description":"Every 4 turns, Drains {value}% HP from each enemy to heal themselves.","name":"Void Drain","subtype":"special","type":"combat"},{"code":"berserker_rage","description":"When they drop below 25% HP, they gain {value} % damage permanently. Applies once per combat.","name":"Berserker Rage","subtype":"special","type":"combat"},{"code":"vampiric_strike","description":"After landing a critical hit, they heal the ally with the lowest HP for {value}% of the damage dealt. Can only trigger once every 3 turns. This effect does not heal the caster.","name":"Vampiric Strike","subtype":"buff","type":"combat"},{"code":"healing_aura","description":"Every 2 played turns, they heal all allies for {value}% of their maximum HP. This effect does not heal the caster.","name":"Healing Aura","subtype":"special","type":"combat"},{"code":"barrier","description":"At the start of the fight and every 5 played turns, gain a protective barrier of {value} HP. All attacks are redirected to this barrier until it is destroyed.","name":"Barrier","subtype":"special","type":"combat"},{"code":"splash_restore","description":"Restores {value} HP at the start of the turn to another character who has lost the most health if that character has less than 50% of their health points remaining.","name":"Splash Restore","subtype":"heal","type":"combat"},{"code":"christmas_magic","description":"Each time he is hit by the weapon Christmas cane, his enemies gain {value}% damage for the rest of the fight.","name":"Christmas Magic","subtype":"special","type":"combat"},{"code":"protective_bubble","description":"Grants {value}% resistance to a random element (fire, earth, water, or air). The element changes at the start of each turn and cannot be the same as the previous one.","name":"Protective Bubble","subtype":"special","type":"combat"},{"code":"heal","description":"Heal {value} HP when the item is used.","name":"Heal","subtype":"heal","type":"consumable"},{"code":"gold","description":"Adds {value} gold in your inventory.","name":"Gold","subtype":"gold","type":"consumable"},{"code":"teleport","description":"Teleports to map ID {value} when the item is used.","name":"Teleport","subtype":"teleport","type":"consumable"},{"code":"attack_fire","description":"Adds {value} Fire Attack to its stats when equipped.","name":"Fire Attack","subtype":"stat","type":"equipment"},{"code":"attack_water","description":"Adds {value} Water Attack to its stats when equipped.","name":"Water Attack","subtype":"stat","type":"equipment"},{"code":"attack_air","description":"Adds {value} Air Attack to its stats when equipped.","name":"Air Attack","subtype":"stat","type":"equipment"},{"code":"attack_earth","description":"Adds {value} Earth Attack to its stats when equipped.","name":"Earth Attack","subtype":"stat","type":"equipment"},{"code":"dmg","description":"Adds {value}% Damage to its stats when equipped.","name":"Damage","subtype":"stat","type":"equipment"},{"code":"dmg_fire","description":"Adds {value}% Fire Damage to its stats when equipped.","name":"Fire Damage","subtype":"stat","type":"equipment"},{"code":"dmg_water","description":"Adds {value}% Water Damage to its stats when equipped.","name":"Water Damage","subtype":"stat","type":"equipment"},{"code":"dmg_air","description":"Adds {value}% Air Damage to its stats when equipped.","name":"Air Damage","subtype":"stat","type":"equipment"},{"code":"dmg_earth","description":"Adds {value}% Earth Damage to its stats when equipped.","name":"Earth Damage","subtype":"stat","type":"equipment"},{"code":"res_fire","description":"Adds {value}% Fire Res to its stats when equipped.","name":"Fire Resistance","subtype":"stat","type":"equipment"},{"code":"res_water","description":"Adds {value}% Water Res to its stats when equipped.","name":"Water Resistance","subtype":"stat","type":"equipment"},{"code":"res_air","description":"Adds {value}% Air Res to its stats when equipped.","name":"Air Resistance","subtype":"stat","type":"equipment"},{"code":"res_earth","description":"Adds {value}% Earth Res to its stats when equipped.","name":"Earth Resistance","subtype":"stat","type":"equipment"},{"code":"critical_strike","description":"Adds {value}% Critical Strike to its stats when equipped. Critical strikes adds 50% extra damage to an attack (1.5x). ","name":"Critical Strike","subtype":"stat","type":"equipment"},{"code":"wisdom","description":"Adds {value} Wisdom to its stats when equipped. Each point of wisdom increases your xp in combat and with skills. (1% extra per 10 wisdom)","name":"Wisdom","subtype":"stat","type":"equipment"},{"code":"prospecting","description":"Adds {value} Prospecting to its stats when equipped. Each PP increases your chance of obtaining drops in combat and with skills. (1% extra per 10 PP)","name":"Prospecting","subtype":"stat","type":"equipment"},{"code":"woodcutting","description":"Reduces cooldown by {value}% when a character logs a tree.","name":"Woodcutting","subtype":"gathering","type":"equipment"},{"code":"fishing","description":"Reduces cooldown by {value}% when a character is fishing.","name":"Fishing","subtype":"gathering","type":"equipment"},{"code":"mining","description":"Reduces cooldown by {value}% when a character mines a resource.","name":"Mining","subtype":"gathering","type":"equipment"},{"code":"alchemy","description":"Reduces cooldown by {value}% when a character harvest a plant.","name":"Alchemy","subtype":"gathering","type":"equipment"},{"code":"hp","description":"Adds {value} HP to its stats when equipped.","name":"Hit points","subtype":"stat","type":"equipment"},{"code":"inventory_space","description":"Adds {value} to the maximum number of items in the inventory when equipped.","name":"Inventory Space","subtype":"stat","type":"equipment"},{"code":"haste","description":"Adds {value} Haste to its stats when equipped. The haste reduces the cooldown of a fight. ","name":"Haste","subtype":"stat","type":"equipment"},{"code":"initiative","description":"Adds {value} Initiative to its stats when equipped.","name":"Initiative","subtype":"stat","type":"equipment"},{"code":"threat","description":"Adds {value} Threat to its stats when equipped.","name":"Threat","subtype":"stat","type":"equipment"}]
+[
+    {
+        "code": "boost_hp",
+        "description": "Add {value} HP at the start of the fight and for the rest of the fight.",
+        "name": "Boost HP",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "boost_dmg_fire",
+        "description": "Add {value}% fire damage at the start of the fight and for the rest of the fight.",
+        "name": "Boost Damage Fire",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "boost_dmg_water",
+        "description": "Add {value}% water damage at the start of the fight and for the rest of the fight.",
+        "name": "Boost Damage Water",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "boost_dmg_air",
+        "description": "Add {value}% air damage at the start of the fight and for the rest of the fight.",
+        "name": "Boost Damage Air",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "boost_dmg_earth",
+        "description": "Add {value}% earth damage at the start of the fight and for the rest of the fight.",
+        "name": "Boost Damage Earth",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "restore",
+        "description": "Restores {value} HP at the start of the turn if the player has lost more than 50% of their health points.",
+        "name": "Restore",
+        "subtype": "heal",
+        "type": "combat"
+    },
+    {
+        "code": "healing",
+        "description": "Every 3 played turns, restores {value}% of HP at the start of the turn.\n",
+        "name": "healing",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "antipoison",
+        "description": "At the beginning of the turn, if the character has at least one poison on him, removes {value} poison damage.",
+        "name": "Antipoison",
+        "subtype": "other",
+        "type": "combat"
+    },
+    {
+        "code": "poison",
+        "description": "At the start of its first turn, applies a {value} poison to its opponent. Loses {value} HP per turn.",
+        "name": "Poison",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "lifesteal",
+        "description": "Restores {value}% of the total attack of all elements in HP after a critical strike.",
+        "name": "Lifesteal",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "reconstitution",
+        "description": "Every {value} played turns, regains all HP.",
+        "name": "Reconstitution",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "burn",
+        "description": "On his first turn, apply a burn effect of {value}% of your attack of all elements. The damage is applied each turn and decreases by 10% each time.",
+        "name": "Burn",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "boost_res_air",
+        "description": "Gives {value}% air resistance at the start of fight.",
+        "name": "Boost Resistance Air",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "boost_res_water",
+        "description": "Gives {value}% water resistance at the start of fight.",
+        "name": "Boost Resistance Water",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "boost_res_earth",
+        "description": "Gives {value}% earth resistance at the start of fight.",
+        "name": "Boost Resistance Earth",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "boost_res_fire",
+        "description": "Gives {value}% fire resistance at the start of fight.",
+        "name": "Boost Resistance Fire",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "corrupted",
+        "description": "After every time the bearer of this effect is attacked, their resistance to the attack's element is reduced by {value}%, and can go negative.",
+        "name": "Corrupted",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "guard",
+        "description": "If one or more allies have less than 50% of their HP, protects the ally with the lowest HP percentage, redirecting {value} % of their damage to this character until the start of my next turn. Activates a maximum of 3 times per combat.",
+        "name": "Guard",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "shell",
+        "description": "When they drop below 40% of their HP, they gain {value} % resistance to all elements for 3 turns. Activates once per combat. This effect is only active during boss fights.",
+        "name": "Shell",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "frenzy",
+        "description": "Each time they land a critical hit, they give {value}% damage to themselves and their allies until the end of their next turn.",
+        "name": "Frenzy",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "void_drain",
+        "description": "Every 4 turns, Drains {value}% HP from each enemy to heal themselves.",
+        "name": "Void Drain",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "berserker_rage",
+        "description": "When they drop below 25% HP, they gain {value} % damage permanently. Applies once per combat.",
+        "name": "Berserker Rage",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "vampiric_strike",
+        "description": "After landing a critical hit, they heal the ally with the lowest HP for {value}% of the damage dealt. Can only trigger once every 3 turns. This effect does not heal the caster.",
+        "name": "Vampiric Strike",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "healing_aura",
+        "description": "Every 2 played turns, they heal all allies for {value}% of their maximum HP. This effect does not heal the caster.",
+        "name": "Healing Aura",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "barrier",
+        "description": "At the start of the fight and every 5 played turns, gain a protective barrier of {value} HP. All attacks are redirected to this barrier until it is destroyed.",
+        "name": "Barrier",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "splash_restore",
+        "description": "Restores {value} HP at the start of the turn to another character who has lost the most health if that character has less than 50% of their health points remaining.",
+        "name": "Splash Restore",
+        "subtype": "heal",
+        "type": "combat"
+    },
+    {
+        "code": "christmas_magic",
+        "description": "Each time he is hit by the weapon Christmas cane, his enemies gain {value}% damage for the rest of the fight.",
+        "name": "Christmas Magic",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "protective_bubble",
+        "description": "Grants {value}% resistance to a random element (fire, earth, water, or air). The element changes at the start of each turn and cannot be the same as the previous one.",
+        "name": "Protective Bubble",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
+        "code": "heal",
+        "description": "Heal {value} HP when the item is used.",
+        "name": "Heal",
+        "subtype": "heal",
+        "type": "consumable"
+    },
+    {
+        "code": "gold",
+        "description": "Adds {value} gold in your inventory.",
+        "name": "Gold",
+        "subtype": "gold",
+        "type": "consumable"
+    },
+    {
+        "code": "teleport",
+        "description": "Teleports to map ID {value} when the item is used.",
+        "name": "Teleport",
+        "subtype": "teleport",
+        "type": "consumable"
+    },
+    {
+        "code": "attack_fire",
+        "description": "Adds {value} Fire Attack to its stats when equipped.",
+        "name": "Fire Attack",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "attack_water",
+        "description": "Adds {value} Water Attack to its stats when equipped.",
+        "name": "Water Attack",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "attack_air",
+        "description": "Adds {value} Air Attack to its stats when equipped.",
+        "name": "Air Attack",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "attack_earth",
+        "description": "Adds {value} Earth Attack to its stats when equipped.",
+        "name": "Earth Attack",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "dmg",
+        "description": "Adds {value}% Damage to its stats when equipped.",
+        "name": "Damage",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "dmg_fire",
+        "description": "Adds {value}% Fire Damage to its stats when equipped.",
+        "name": "Fire Damage",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "dmg_water",
+        "description": "Adds {value}% Water Damage to its stats when equipped.",
+        "name": "Water Damage",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "dmg_air",
+        "description": "Adds {value}% Air Damage to its stats when equipped.",
+        "name": "Air Damage",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "dmg_earth",
+        "description": "Adds {value}% Earth Damage to its stats when equipped.",
+        "name": "Earth Damage",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "res_fire",
+        "description": "Adds {value}% Fire Res to its stats when equipped.",
+        "name": "Fire Resistance",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "res_water",
+        "description": "Adds {value}% Water Res to its stats when equipped.",
+        "name": "Water Resistance",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "res_air",
+        "description": "Adds {value}% Air Res to its stats when equipped.",
+        "name": "Air Resistance",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "res_earth",
+        "description": "Adds {value}% Earth Res to its stats when equipped.",
+        "name": "Earth Resistance",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "critical_strike",
+        "description": "Adds {value}% Critical Strike to its stats when equipped. Critical strikes adds 50% extra damage to an attack (1.5x). ",
+        "name": "Critical Strike",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "wisdom",
+        "description": "Adds {value} Wisdom to its stats when equipped. Each point of wisdom increases your xp in combat and with skills. (1% extra per 10 wisdom)",
+        "name": "Wisdom",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "prospecting",
+        "description": "Adds {value} Prospecting to its stats when equipped. Each PP increases your chance of obtaining drops in combat and with skills. (1% extra per 10 PP)",
+        "name": "Prospecting",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "woodcutting",
+        "description": "Reduces cooldown by {value}% when a character logs a tree.",
+        "name": "Woodcutting",
+        "subtype": "gathering",
+        "type": "equipment"
+    },
+    {
+        "code": "fishing",
+        "description": "Reduces cooldown by {value}% when a character is fishing.",
+        "name": "Fishing",
+        "subtype": "gathering",
+        "type": "equipment"
+    },
+    {
+        "code": "mining",
+        "description": "Reduces cooldown by {value}% when a character mines a resource.",
+        "name": "Mining",
+        "subtype": "gathering",
+        "type": "equipment"
+    },
+    {
+        "code": "alchemy",
+        "description": "Reduces cooldown by {value}% when a character harvest a plant.",
+        "name": "Alchemy",
+        "subtype": "gathering",
+        "type": "equipment"
+    },
+    {
+        "code": "hp",
+        "description": "Adds {value} HP to its stats when equipped.",
+        "name": "Hit points",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "inventory_space",
+        "description": "Adds {value} to the maximum number of items in the inventory when equipped.",
+        "name": "Inventory Space",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "haste",
+        "description": "Adds {value} Haste to its stats when equipped. The haste reduces the cooldown of a fight. ",
+        "name": "Haste",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "initiative",
+        "description": "Adds {value} Initiative to its stats when equipped.",
+        "name": "Initiative",
+        "subtype": "stat",
+        "type": "equipment"
+    },
+    {
+        "code": "threat",
+        "description": "Adds {value} Threat to its stats when equipped.",
+        "name": "Threat",
+        "subtype": "stat",
+        "type": "equipment"
+    }
+]
