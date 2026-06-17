@@ -8,11 +8,23 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-type Point struct {
-	X     int
-	Y     int
-	Layer schemas.MapLayer
-}
+type (
+	Point struct {
+		X     int
+		Y     int
+		Layer schemas.MapLayer
+	}
+
+	SearchNode struct {
+		Point           Point
+		FirstTransition *schemas.MapSchema
+	}
+
+	SearchResult struct {
+		Target     schemas.MapSchema
+		Transition *schemas.MapSchema
+	}
+)
 
 var (
 	//go:embed maps.json
@@ -49,15 +61,19 @@ func GetMapCodes() []string {
 	return codes
 }
 
-func FindClosest(character schemas.CharacterSchema, code string) *schemas.MapSchema {
+func FindClosest(character schemas.CharacterSchema, code string) *SearchResult {
 	initMapsCache()
 
 	startPoint := Point{X: character.X, Y: character.Y, Layer: character.Layer}
-	queue := []Point{startPoint}
+	startNode := SearchNode{
+		Point:           startPoint,
+		FirstTransition: nil,
+	}
+
+	queue := []SearchNode{startNode}
 	visited := make(map[Point]bool)
 	visited[startPoint] = true
 
-	var foundTile *schemas.MapSchema
 	dx := []int{0, 0, 1, -1}
 	dy := []int{1, -1, 0, 0}
 
@@ -65,31 +81,69 @@ func FindClosest(character schemas.CharacterSchema, code string) *schemas.MapSch
 		current := queue[0]
 		queue = queue[1:]
 
-		currentTile, exists := mapsCache[current]
+		currentTile, exists := mapsCache[current.Point]
 		if exists {
 			if currentTile.Interactions.Content != nil {
 				if currentTile.Interactions.Content.Code == code {
-					foundTile = &currentTile
-					break
+					result := &SearchResult{
+						Target:     currentTile,
+						Transition: current.FirstTransition,
+					}
+					return result
+				}
+			}
+
+			if currentTile.Interactions.Transition != nil {
+				transition := currentTile.Interactions.Transition
+				nextPoint := Point{
+					X:     transition.X,
+					Y:     transition.Y,
+					Layer: transition.Layer,
+				}
+
+				if !visited[nextPoint] {
+					visited[nextPoint] = true
+
+					var nextFirstTransition *schemas.MapSchema
+					if current.FirstTransition != nil {
+						nextFirstTransition = current.FirstTransition
+					} else {
+						nextFirstTransition = &currentTile
+					}
+
+					nextNode := SearchNode{
+						Point:           nextPoint,
+						FirstTransition: nextFirstTransition,
+					}
+					queue = append(queue, nextNode)
 				}
 			}
 		}
 
 		for i := 0; i < 4; i++ {
-			nextPoint := Point{X: current.X + dx[i], Y: current.Y + dy[i], Layer: current.Layer}
+			nextPoint := Point{
+				X:     current.Point.X + dx[i],
+				Y:     current.Point.Y + dy[i],
+				Layer: current.Point.Layer,
+			}
+
 			if !visited[nextPoint] {
 				nextTile, tileExists := mapsCache[nextPoint]
 				if tileExists {
 					if nextTile.Access.Type != "blocked" {
 						visited[nextPoint] = true
-						queue = append(queue, nextPoint)
+						nextNode := SearchNode{
+							Point:           nextPoint,
+							FirstTransition: current.FirstTransition,
+						}
+						queue = append(queue, nextNode)
 					}
 				}
 			}
 		}
 	}
 
-	return foundTile
+	return nil
 }
 
 var initMapsCache = sync.OnceFunc(func() {
