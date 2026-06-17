@@ -36,6 +36,24 @@ func GetItemCodes() []string {
 	return codes
 }
 
+func GetItemTypes() []string {
+	initItemsCache()
+	uniqueTypes := make(map[string]bool)
+	for _, item := range itemsList {
+		if item.Type != "" {
+			uniqueTypes[item.Type] = true
+		}
+		if item.Subtype != "" {
+			uniqueTypes[item.Subtype] = true
+		}
+	}
+	types := make([]string, 0, len(uniqueTypes))
+	for itemType := range uniqueTypes {
+		types = append(types, itemType)
+	}
+	return types
+}
+
 var initItemsCache = sync.OnceFunc(func() {
 	itemsCache = make(map[string]schemas.ItemSchema)
 	err := json.Unmarshal(items, &itemsList)
