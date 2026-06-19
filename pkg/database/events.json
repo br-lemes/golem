@@ -1,0 +1,363 @@
+[
+    {
+        "code": "attacking_the_island",
+        "content": { "code": "sea_marauder", "type": "monster" },
+        "duration": 120,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 1126,
+                "skin": "desertisland_1_event",
+                "x": -4,
+                "y": 17
+            },
+            {
+                "layer": "overworld",
+                "map_id": 1129,
+                "skin": "desertisland_2_event",
+                "x": -3,
+                "y": 17
+            }
+        ],
+        "name": "Attacking The Island",
+        "rate": 1500
+    },
+    {
+        "code": "bandit_camp",
+        "content": { "code": "bandit_lizard", "type": "monster" },
+        "duration": 120,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 538,
+                "skin": "forest_event_lizard1",
+                "x": 4,
+                "y": 5
+            },
+            {
+                "layer": "overworld",
+                "map_id": 7,
+                "skin": "forest_event_lizard1",
+                "x": -3,
+                "y": -5
+            },
+            {
+                "layer": "overworld",
+                "map_id": 64,
+                "skin": "forest_event_lizard1",
+                "x": -1,
+                "y": -4
+            },
+            {
+                "layer": "overworld",
+                "map_id": 301,
+                "skin": "forest_event_lizard1",
+                "x": 10,
+                "y": 0
+            }
+        ],
+        "name": "Bandit Camp",
+        "rate": 1000
+    },
+    {
+        "code": "corrupted_ogre",
+        "content": { "code": "corrupted_ogre", "type": "monster" },
+        "duration": 120,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 91,
+                "skin": "forest_corruptedogre1",
+                "x": 8,
+                "y": -4
+            },
+            {
+                "layer": "overworld",
+                "map_id": 193,
+                "skin": "forest_corruptedogre2",
+                "x": 8,
+                "y": -2
+            }
+        ],
+        "name": "Corrupted Ogre",
+        "rate": 1000
+    },
+    {
+        "code": "corrupted_owlbear",
+        "content": { "code": "corrupted_owlbear", "type": "monster" },
+        "duration": 120,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 403,
+                "skin": "forest_corruptedowlbear1",
+                "x": 10,
+                "y": 2
+            },
+            {
+                "layer": "overworld",
+                "map_id": 352,
+                "skin": "forest_corruptedowlbear2",
+                "x": 10,
+                "y": 1
+            }
+        ],
+        "name": "Corrupted Owlbear",
+        "rate": 1000
+    },
+    {
+        "code": "corrupted_portal",
+        "content": { "code": "grimlet", "type": "monster" },
+        "duration": 120,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 829,
+                "skin": "forest_portal3",
+                "x": -1,
+                "y": 11
+            },
+            {
+                "layer": "overworld",
+                "map_id": 793,
+                "skin": "forest_portal3",
+                "x": 4,
+                "y": 10
+            }
+        ],
+        "name": "Corrupted Portal",
+        "rate": 2000
+    },
+    {
+        "code": "cult_of_darkness",
+        "content": { "code": "cultist_emperor", "type": "monster" },
+        "duration": 90,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 880,
+                "skin": "forest_cultistemperor1",
+                "x": -1,
+                "y": 12
+            }
+        ],
+        "name": "Cult of Darkness",
+        "rate": 2000
+    },
+    {
+        "code": "fish_merchant",
+        "content": { "code": "fish_merchant", "type": "npc" },
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 532,
+                "skin": "forest_village6_fish_merchant",
+                "x": 2,
+                "y": 5
+            }
+        ],
+        "name": "Fish Merchant",
+        "rate": 1500
+    },
+    {
+        "code": "gemstone_merchant",
+        "content": { "code": "gemstone_merchant", "type": "npc" },
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 238,
+                "skin": "forest_road13_gemstone_merchant",
+                "x": 6,
+                "y": -1
+            }
+        ],
+        "name": "Gemstone Merchant",
+        "rate": 1500
+    },
+    {
+        "code": "herbal_merchant",
+        "content": { "code": "herbal_merchant", "type": "npc" },
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 241,
+                "skin": "forest_road14_herbal_merchant",
+                "x": 7,
+                "y": -1
+            }
+        ],
+        "name": "Herbal Merchant",
+        "rate": 1500
+    },
+    {
+        "code": "magic_apparition",
+        "content": { "code": "magic_tree", "type": "resource" },
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 973,
+                "skin": "forest_magictree1",
+                "x": -4,
+                "y": 14
+            },
+            {
+                "layer": "overworld",
+                "map_id": 841,
+                "skin": "forest_magictree1",
+                "x": 3,
+                "y": 11
+            },
+            {
+                "layer": "overworld",
+                "map_id": 910,
+                "skin": "forest_magictree1",
+                "x": 9,
+                "y": 12
+            }
+        ],
+        "name": "Magic Apparition",
+        "rate": 2000
+    },
+    {
+        "code": "nomadic_merchant",
+        "content": { "code": "nomadic_merchant", "type": "npc" },
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 382,
+                "skin": "forest_village2_nomadic_merchant",
+                "x": 3,
+                "y": 2
+            }
+        ],
+        "name": "Nomadic Merchant",
+        "rate": 1500
+    },
+    {
+        "code": "out_of_the_ground",
+        "content": { "code": "duskworm", "type": "monster" },
+        "duration": 120,
+        "maps": [
+            {
+                "layer": "underground",
+                "map_id": 1238,
+                "skin": "desertmine_6_event",
+                "x": -1,
+                "y": 19
+            }
+        ],
+        "name": "Out Of The Ground",
+        "rate": 2000
+    },
+    {
+        "code": "portal_demon",
+        "content": { "code": "demon", "type": "monster" },
+        "duration": 120,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 523,
+                "skin": "forest_portal",
+                "x": -1,
+                "y": 5
+            },
+            {
+                "layer": "overworld",
+                "map_id": 619,
+                "skin": "forest_portal",
+                "x": -3,
+                "y": 7
+            },
+            {
+                "layer": "overworld",
+                "map_id": 718,
+                "skin": "forest_portal",
+                "x": -4,
+                "y": 9
+            }
+        ],
+        "name": "Portal (Demon)",
+        "rate": 1000
+    },
+    {
+        "code": "portal_efreet_sultan",
+        "content": { "code": "efreet_sultan", "type": "monster" },
+        "duration": 120,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 565,
+                "skin": "forest_portal2",
+                "x": -4,
+                "y": 6
+            },
+            {
+                "layer": "overworld",
+                "map_id": 823,
+                "skin": "forest_portal2",
+                "x": -3,
+                "y": 11
+            },
+            {
+                "layer": "overworld",
+                "map_id": 1000,
+                "skin": "forest_portal2",
+                "x": 5,
+                "y": 14
+            }
+        ],
+        "name": "Portal (Efreet)",
+        "rate": 2000
+    },
+    {
+        "code": "strange_apparition",
+        "content": { "code": "strange_rocks", "type": "resource" },
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 871,
+                "skin": "forest_strangerocks1",
+                "x": -4,
+                "y": 12
+            },
+            {
+                "layer": "overworld",
+                "map_id": 892,
+                "skin": "forest_strangerocks1",
+                "x": 3,
+                "y": 12
+            },
+            {
+                "layer": "overworld",
+                "map_id": 859,
+                "skin": "forest_strangerocks1",
+                "x": 9,
+                "y": 11
+            }
+        ],
+        "name": "Strange Apparition",
+        "rate": 2000
+    },
+    {
+        "code": "timber_merchant",
+        "content": { "code": "timber_merchant", "type": "npc" },
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 481,
+                "skin": "forest_village5_timber_merchant",
+                "x": 2,
+                "y": 4
+            }
+        ],
+        "name": "Timber Merchant",
+        "rate": 1500
+    }
+]
