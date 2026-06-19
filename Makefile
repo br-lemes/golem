@@ -4,11 +4,11 @@ PLATFORMS := linux-amd64 linux-arm64 windows-amd64
 
 TARGET := $(notdir $(shell go list -m 2>/dev/null))
 ifeq ($(TARGET),)
-    TARGET := $(notdir $(CURDIR))
+	TARGET := $(notdir $(CURDIR))
 endif
 
 ARTIFACTS := $(foreach p,$(PLATFORMS),\
-    $(TARGET)-$(p)$(if $(filter windows%,$(p)),.exe))
+	$(TARGET)-$(p)$(if $(filter windows%,$(p)),.exe))
 
 SEMVER := github.com/br-lemes/semver@latest
 
