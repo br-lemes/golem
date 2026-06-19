@@ -14,64 +14,75 @@ import (
 )
 
 var countCmd = &cobra.Command{
-	Use:   "count <code>",
-	Short: "Show the total quantity of an item in the account",
-	Long: `Show the total quantity of an item in the account
+	Use:   "count <code>...",
+	Short: "Show the total quantity of items in the account",
+	Long: `Show the total quantity of items in the account
 
 Arguments:
   code      The code of the item.`,
-	Args: cobra.ExactArgs(1),
+	Args: cobra.MinimumNArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return database.GetItemCodes(), cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
+		return database.GetItemCodes(), cobra.ShellCompDirectiveNoFileComp
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		code := args[0]
-		result := []map[string]int{}
-		_, found := database.GetItem(code)
-		if !found {
-			return fmt.Errorf("item %s not found", code)
+		for _, code := range args {
+			_, found := database.GetItem(code)
+			if !found {
+				return fmt.Errorf("item %s not found", code)
+			}
 		}
 
 		items, err := api.MyBankItems()
 		if err != nil {
 			return err
 		}
-		for _, item := range items {
-			if item.Code == code {
-				result = append(result, map[string]int{"bank": item.Quantity})
-			}
-		}
 		characters, err := api.AccountsCharacters(config.Account)
 		if err != nil {
 			return err
 		}
-		for _, character := range characters {
-			inventory := []schemas.InventorySlot{}
-			if character.Inventory != nil {
-				inventory = *character.Inventory
-			}
-			qty := 0
-			for _, item := range inventory {
+
+		output := map[string][]map[string]int{}
+
+		for _, code := range args {
+			result := []map[string]int{}
+
+			for _, item := range items {
 				if item.Code == code {
-					qty += item.Quantity
+					result = append(result,
+						map[string]int{"bank": item.Quantity})
 				}
 			}
-			qty += countInSlots(character, code)
-			if qty > 0 {
-				result = append(result, map[string]int{character.Name: qty})
+
+			for _, character := range characters {
+				inventory := []schemas.InventorySlot{}
+				if character.Inventory != nil {
+					inventory = *character.Inventory
+				}
+				qty := 0
+				for _, item := range inventory {
+					if item.Code == code {
+						qty += item.Quantity
+					}
+				}
+				qty += countInSlots(character, code)
+				if qty > 0 {
+					result = append(result,
+						map[string]int{character.Name: qty})
+				}
 			}
-		}
-		total := 0
-		for _, entry := range result {
-			for _, qty := range entry {
-				total += qty
+
+			total := 0
+			for _, entry := range result {
+				for _, qty := range entry {
+					total += qty
+				}
 			}
+			result = append(result, map[string]int{"total": total})
+
+			output[code] = result
 		}
-		result = append(result, map[string]int{"total": total})
-		return console.Auto(result)
+
+		return console.Auto(output)
 	},
 }
 
