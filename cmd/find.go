@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/config"
@@ -25,7 +26,8 @@ Arguments:
 			return characters, cobra.ShellCompDirectiveNoFileComp
 		}
 		if len(args) == 1 {
-			codes := database.GetMapCodes()
+			codes := append(database.GetMapCodes(),
+				database.GetEventContentCodes()...)
 			return codes, cobra.ShellCompDirectiveNoFileComp
 		}
 		return nil, cobra.ShellCompDirectiveNoFileComp
@@ -34,6 +36,11 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
+		codes := append(database.GetMapCodes(),
+			database.GetEventContentCodes()...)
+		if !slices.Contains(codes, code) {
+			return fmt.Errorf("code '%s' not found", code)
+		}
 		character, err := api.Characters(name)
 		if err != nil {
 			return err

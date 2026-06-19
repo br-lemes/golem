@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"sync"
 
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -24,14 +25,18 @@ type (
 		Target     schemas.MapSchema
 		Transition *schemas.MapSchema
 	}
+
+	EventPoints map[Point]bool
 )
 
 var (
 	//go:embed maps.json
 	maps []byte
 
-	mapsList  []schemas.MapSchema
-	mapsCache map[Point]schemas.MapSchema
+	mapsList       []schemas.MapSchema
+	mapsCache      map[Point]schemas.MapSchema
+	mapsCodesList  []string
+	mapsCodesCache map[string]bool
 )
 
 func GetMaps() []schemas.MapSchema {
@@ -46,23 +51,14 @@ func GetMap(x, y int, layer schemas.MapLayer) (schemas.MapSchema, bool) {
 }
 
 func GetMapCodes() []string {
-	initMapsCache()
-	var codes []string
-	seen := make(map[string]bool)
-	for _, tile := range mapsList {
-		if tile.Interactions.Content != nil {
-			code := tile.Interactions.Content.Code
-			if !seen[code] {
-				seen[code] = true
-				codes = append(codes, code)
-			}
-		}
-	}
-	return codes
+	initMapsCodesCache()
+	return mapsCodesList
 }
 
 func FindClosest(character schemas.CharacterSchema, code string) *SearchResult {
 	initMapsCache()
+
+	eventPoints := getEventPoints(code)
 
 	startPoint := Point{X: character.X, Y: character.Y, Layer: character.Layer}
 	startNode := SearchNode{
@@ -83,14 +79,26 @@ func FindClosest(character schemas.CharacterSchema, code string) *SearchResult {
 
 		currentTile, exists := mapsCache[current.Point]
 		if exists {
+			var isTarget bool
+
 			if currentTile.Interactions.Content != nil {
 				if currentTile.Interactions.Content.Code == code {
-					result := &SearchResult{
-						Target:     currentTile,
-						Transition: current.FirstTransition,
-					}
-					return result
+					isTarget = true
 				}
+			}
+
+			if !isTarget {
+				if eventPoints[current.Point] {
+					isTarget = true
+				}
+			}
+
+			if isTarget {
+				result := &SearchResult{
+					Target:     currentTile,
+					Transition: current.FirstTransition,
+				}
+				return result
 			}
 
 			if currentTile.Interactions.Transition != nil {
@@ -146,6 +154,34 @@ func FindClosest(character schemas.CharacterSchema, code string) *SearchResult {
 	return nil
 }
 
+func getEventPoints(code string) EventPoints {
+	initMapsCodesCache()
+	initEventsContentCodesCache()
+
+	if mapsCodesCache[code] {
+		return EventPoints{}
+	}
+	if !eventsContentCodesCache[code] {
+		return EventPoints{}
+	}
+	events, err := api.EventsActive()
+	if err != nil {
+		return EventPoints{}
+	}
+	result := EventPoints{}
+	for _, event := range events {
+		if event.Code == code {
+			eventPoint := Point{
+				X:     event.Map.X,
+				Y:     event.Map.Y,
+				Layer: event.Map.Layer,
+			}
+			result[eventPoint] = true
+		}
+	}
+	return result
+}
+
 var initMapsCache = sync.OnceFunc(func() {
 	mapsCache = make(map[Point]schemas.MapSchema)
 	err := json.Unmarshal(maps, &mapsList)
@@ -155,5 +191,21 @@ var initMapsCache = sync.OnceFunc(func() {
 	for _, tile := range mapsList {
 		p := Point{X: tile.X, Y: tile.Y, Layer: tile.Layer}
 		mapsCache[p] = tile
+	}
+})
+
+var initMapsCodesCache = sync.OnceFunc(func() {
+	initMapsCache()
+
+	mapsCodesList = make([]string, 0)
+	mapsCodesCache = make(map[string]bool)
+	for _, tile := range mapsList {
+		if tile.Interactions.Content != nil {
+			code := tile.Interactions.Content.Code
+			if !mapsCodesCache[code] {
+				mapsCodesCache[code] = true
+				mapsCodesList = append(mapsCodesList, code)
+			}
+		}
 	}
 })

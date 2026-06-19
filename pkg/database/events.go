@@ -12,8 +12,10 @@ var (
 	//go:embed events.json
 	events []byte
 
-	eventsList  []schemas.EventSchema
-	eventsCache map[string]schemas.EventSchema
+	eventsList              []schemas.EventSchema
+	eventsCache             map[string]schemas.EventSchema
+	eventsContentCodesList  []string
+	eventsContentCodesCache map[string]bool
 )
 
 func GetEvents() []schemas.EventSchema {
@@ -47,12 +49,8 @@ func GetEventCodes() []string {
 }
 
 func GetEventContentCodes() []string {
-	initEventsCache()
-	var codes []string
-	for _, event := range eventsList {
-		codes = append(codes, event.Content.Code)
-	}
-	return codes
+	initEventsContentCodesCache()
+	return eventsContentCodesList
 }
 
 var initEventsCache = sync.OnceFunc(func() {
@@ -63,5 +61,19 @@ var initEventsCache = sync.OnceFunc(func() {
 	}
 	for _, event := range eventsList {
 		eventsCache[event.Code] = event
+	}
+})
+
+var initEventsContentCodesCache = sync.OnceFunc(func() {
+	initEventsCache()
+
+	eventsContentCodesList = make([]string, 0)
+	eventsContentCodesCache = make(map[string]bool)
+	for _, event := range eventsList {
+		code := event.Content.Code
+		if !eventsContentCodesCache[code] {
+			eventsContentCodesCache[code] = true
+			eventsContentCodesList = append(eventsContentCodesList, code)
+		}
 	}
 })
