@@ -11,7 +11,7 @@ func EventsActive() ([]schemas.ActiveEventSchema, error) {
 	result := []schemas.ActiveEventSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/events?page=%d", page), nil)
+		resp, err := Get(fmt.Sprintf("/events/active?page=%d", page), nil)
 		if err != nil {
 			return nil, err
 		}

@@ -170,7 +170,8 @@ func getEventPoints(code string) EventPoints {
 	}
 	result := EventPoints{}
 	for _, event := range events {
-		if event.Code == code {
+		if event.Map.Interactions.Content != nil &&
+			event.Map.Interactions.Content.Code == code {
 			eventPoint := Point{
 				X:     event.Map.X,
 				Y:     event.Map.Y,
