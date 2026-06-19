@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/br-lemes/golem/internal/version"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 )
@@ -13,9 +12,8 @@ import (
 var outputFlag string
 
 var rootCmd = &cobra.Command{
-	Use:     "golem",
-	Short:   "A Go CLI to play and automate ArtifactsMMO.",
-	Version: version.GetVersion(),
+	Use:   "golem",
+	Short: "A Go CLI to play and automate ArtifactsMMO.",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		if outputFlag != "" {
 			file, err := os.Create(outputFlag)
@@ -49,7 +47,8 @@ func init() {
 		"The style to use for syntax highlighting")
 }
 
-func Execute() error {
+func Execute(version string) error {
+	rootCmd.Version = version
 	err := rootCmd.Execute()
 	closer, ok := console.Stdout.(io.Closer)
 	if ok && console.Stdout != os.Stdout {

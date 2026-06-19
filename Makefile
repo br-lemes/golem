@@ -1,17 +1,22 @@
-.PHONY: build clean linux-amd64 linux-arm64 release version windows
+PLATFORMS := linux-amd64 linux-arm64 windows-amd64
+
+.PHONY: build clean release version $(PLATFORMS)
 
 TARGET := $(notdir $(shell go list -m 2>/dev/null))
 ifeq ($(TARGET),)
     TARGET := $(notdir $(CURDIR))
 endif
 
-export CGO_ENABLED=0
+ARTIFACTS := $(foreach p,$(PLATFORMS),\
+    $(TARGET)-$(p)$(if $(filter windows%,$(p)),.exe))
+
+SEMVER := github.com/br-lemes/semver@latest
 
 build: pkg/schemas/schemas.go
 	@go build -ldflags "-s -w"
 
 clean:
-	$(RM) $(TARGET) $(TARGET)-linux-amd64 $(TARGET)-linux-arm64 $(TARGET).exe
+	$(RM) $(ARTIFACTS)
 
 pkg/schemas/schemas.go: pkg/database/openapi.json
 	@oapi-codegen -package cmd -generate models $< > $@
@@ -20,17 +25,15 @@ pkg/schemas/schemas.go: pkg/database/openapi.json
 	@sd 'Path\s+\[\]\[\]interface\{\}' 'Path [][2]int' $@
 	@gofmt -w $@
 
-linux-amd64: pkg/schemas/schemas.go
-	@GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o $(TARGET)-linux-amd64
+$(PLATFORMS): pkg/schemas/schemas.go
+	@$(eval GOOS := $(word 1,$(subst -, ,$@)))
+	@$(eval GOARCH := $(word 2,$(subst -, ,$@)))
+	@$(eval OUTPUT := $(TARGET)-$@$(if $(filter windows,$(GOOS)),.exe))
+	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) \
+		go build -ldflags "-s -w" -o $(OUTPUT)
 
-linux-arm64: pkg/schemas/schemas.go
-	@GOOS=linux GOARCH=arm64 go build -ldflags "-s -w" -o $(TARGET)-linux-arm64
-
-release: version linux-amd64 linux-arm64 windows
-	@go run ./tools/release/main.go
+release: version $(PLATFORMS)
+	@go run $(SEMVER) release $(ARTIFACTS)
 
 version:
-	@go run ./tools/version/main.go
-
-windows: cmd/schemas.go
-	@GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o $(TARGET).exe
+	@go run $(SEMVER)
