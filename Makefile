@@ -17,6 +17,8 @@ SEMVER := github.com/br-lemes/semver@latest
 build: pkg/schemas/schemas.go
 	@go build -ldflags "-s -w"
 
+all: $(PLATFORMS)
+
 clean:
 	$(RM) $(ARTIFACTS)
 
