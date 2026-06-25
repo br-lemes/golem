@@ -40,7 +40,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false,
 		"Enable debug mode")
 	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto",
-		"Formato da saída: auto, json ou yaml")
+		"Output format: auto, json or yaml")
 	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "",
 		"Output file path (default: stdout)")
 	rootCmd.PersistentFlags().StringVarP(&console.Style, "style", "s", "monokai",

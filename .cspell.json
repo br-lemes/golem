@@ -1,7 +1,6 @@
 {
     "ignorePaths": ["go.mod", "go.sum", "pkg/database/*.json"],
-    "import": ["@cspell/dict-pt-br/cspell-ext.json"],
-    "language": "en,pt-br",
+    "language": "en",
     "overrides": [{ "filename": "**/*.tmpl", "languageId": "go" }],
     "words": [
         "alecthomas",
@@ -22,6 +21,7 @@
         "iancoleman",
         "jewelrycrafting",
         "ldflags",
+        "lemes",
         "linux",
         "monokai",
         "npcs",
