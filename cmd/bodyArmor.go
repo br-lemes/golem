@@ -12,12 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var elements = []string{"fire", "water", "earth", "air"}
-
-var weaponCmd = &cobra.Command{
-	Use:   "weapon <name> <monster>",
-	Short: "Get Best Weapon For Monster",
-	Long: `Get Best Weapon For Monster
+var bodyArmorCmd = &cobra.Command{
+	Use:   "bodyArmor <name> <monster>",
+	Short: "Get Best Body Armor For Monster",
+	Long: `Get Best Body Armor For Monster
 
 Arguments:
   name   Name of your character.
@@ -49,20 +47,20 @@ Arguments:
 		}
 
 		console.Auto(
-			GetBestWeaponForMonster(character, monster, database.GetItems()))
+			GetBestBodyArmorForMonster(character, monster, database.GetItems()))
 		return nil
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(weaponCmd)
+	rootCmd.AddCommand(bodyArmorCmd)
 }
 
-func GetBestWeaponForMonster(character schemas.CharacterSchema, monster schemas.MonsterSchema, items []schemas.ItemSchema) []string {
+func GetBestBodyArmorForMonster(character schemas.CharacterSchema, monster schemas.MonsterSchema, items []schemas.ItemSchema) []string {
 	var filteredItems []schemas.ItemSchema
 
 	for _, item := range items {
-		if item.Type == "weapon" {
+		if item.Type == "body_armor" {
 			if item.Subtype == "" {
 				var canEquip bool
 				canEquip = true
@@ -87,8 +85,8 @@ func GetBestWeaponForMonster(character schemas.CharacterSchema, monster schemas.
 	}
 
 	sort.Slice(filteredItems, func(i, j int) bool {
-		return evaluateWeaponValue(filteredItems[i], monster) >
-			evaluateWeaponValue(filteredItems[j], monster)
+		return evaluateBodyArmorValue(filteredItems[i], monster) >
+			evaluateBodyArmorValue(filteredItems[j], monster)
 	})
 
 	var result []string
@@ -99,7 +97,7 @@ func GetBestWeaponForMonster(character schemas.CharacterSchema, monster schemas.
 	return result
 }
 
-func evaluateWeaponValue(item schemas.ItemSchema, monster schemas.MonsterSchema) float64 {
+func evaluateBodyArmorValue(item schemas.ItemSchema, monster schemas.MonsterSchema) float64 {
 	var score float64
 	score = 0.0
 
@@ -113,25 +111,16 @@ func evaluateWeaponValue(item schemas.ItemSchema, monster schemas.MonsterSchema)
 		}
 
 		for _, element := range elements {
-			if effect.Code == "attack_"+element {
-				var monsterResistance int
-				monsterResistance = getMonsterResistanceValue(monster, element)
-				score = score + (float64(effect.Value) *
-					(1.0 - (float64(monsterResistance) / 100.0)))
+			if effect.Code == "res_"+element {
+				var monsterAttack int
+				monsterAttack = getMonsterAttackValue(monster, element)
+				score = score + (float64(monsterAttack) * (float64(effect.Value) / 100.0))
 			}
 
 			if effect.Code == "dmg_"+element {
 				var monsterResistance int
 				monsterResistance = getMonsterResistanceValue(monster, element)
-				score = score + (float64(effect.Value) *
-					(1.0 - (float64(monsterResistance) / 100.0)))
-			}
-
-			if effect.Code == "res_"+element {
-				var monsterAttack int
-				monsterAttack = getMonsterAttackValue(monster, element)
-				score = score + (float64(monsterAttack) *
-					(float64(effect.Value) / 100.0))
+				score = score + (float64(effect.Value) * (1.0 - (float64(monsterResistance) / 100.0)))
 			}
 		}
 
@@ -145,4 +134,34 @@ func evaluateWeaponValue(item schemas.ItemSchema, monster schemas.MonsterSchema)
 	}
 
 	return score
+}
+
+func getMonsterAttackValue(monster schemas.MonsterSchema, element string) int {
+	switch element {
+	case "fire":
+		return monster.AttackFire
+	case "water":
+		return monster.AttackWater
+	case "earth":
+		return monster.AttackEarth
+	case "air":
+		return monster.AttackAir
+	default:
+		return 0
+	}
+}
+
+func getMonsterResistanceValue(monster schemas.MonsterSchema, element string) int {
+	switch element {
+	case "fire":
+		return monster.ResFire
+	case "water":
+		return monster.ResWater
+	case "earth":
+		return monster.ResEarth
+	case "air":
+		return monster.ResAir
+	default:
+		return 0
+	}
 }
