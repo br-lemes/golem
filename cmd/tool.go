@@ -32,8 +32,8 @@ var toolCmd = &cobra.Command{
 	Long: `Get Best Tools For Skill
 
 Arguments:
-  <name>   The name of the character.
-  <code>   The skill code.`,
+  name   Name of your character.
+  code   The code of the skill.`,
 	Args: cobra.ExactArgs(2),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
