@@ -28,11 +28,8 @@ func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, 
 		}
 
 		item, found := database.GetItem(slot.Code)
-		if !found ||
-			item.Type != "consumable" ||
-			item.Subtype != "food" ||
-			item.Level > character.Level ||
-			item.Effects == nil {
+		if !found || item.Type != "consumable" || item.Subtype != "food" ||
+			item.Level > character.Level || item.Effects == nil {
 			continue
 		}
 
@@ -71,10 +68,8 @@ func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, 
 		if qtyToUse <= 0 {
 			continue
 		}
-		useData, err := api.MyActionUse(character.Name, schemas.SimpleItemSchema{
-			Code:     food.Code,
-			Quantity: qtyToUse,
-		})
+		useData, err := api.MyActionUse(character.Name,
+			schemas.SimpleItemSchema{Code: food.Code, Quantity: qtyToUse})
 		if err != nil {
 			return schemas.CharacterSchema{}, err
 		}
@@ -92,10 +87,8 @@ func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, 
 			continue
 		}
 
-		useData, err := api.MyActionUse(character.Name, schemas.SimpleItemSchema{
-			Code:     food.Code,
-			Quantity: 1,
-		})
+		useData, err := api.MyActionUse(character.Name,
+			schemas.SimpleItemSchema{Code: food.Code, Quantity: 1})
 		if err != nil {
 			return schemas.CharacterSchema{}, err
 		}

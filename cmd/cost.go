@@ -47,7 +47,9 @@ and estimate the total XP gained based on character stats.`,
 
 		skillLevel := getCraftSkill(character, *item.Craft.Skill)
 		if skillLevel < *item.Craft.Level {
-			return fmt.Errorf("character %s level too low for %s. Required: %d, Current: %d", name, item.Code, *item.Craft.Level, skillLevel)
+			return fmt.Errorf(
+				"character %s level too low. Required: %d, Current: %d",
+				name, *item.Craft.Level, skillLevel)
 		}
 
 		bankInventory, err := fetchAllBankItems()
@@ -58,7 +60,8 @@ and estimate the total XP gained based on character stats.`,
 		totalInventory := make(map[string]int)
 		for _, invItem := range *character.Inventory {
 			if invItem.Code != "" {
-				totalInventory[invItem.Code] = totalInventory[invItem.Code] + invItem.Quantity
+				totalInventory[invItem.Code] = totalInventory[invItem.Code] +
+					invItem.Quantity
 			}
 		}
 		for bCode, amount := range bankInventory {
@@ -164,7 +167,9 @@ func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom i
 
 	wisdomBonus := 1.0 + (float64(wisdom) * 0.001)
 
-	calculatedXP := (baseXP + (float64(itemLevel) / float64(playerLevel) * coefficient)) * skillMultiplier * levelPenalty * wisdomBonus
+	calculatedXP :=
+		(baseXP + (float64(itemLevel) / float64(playerLevel) * coefficient)) *
+			skillMultiplier * levelPenalty * wisdomBonus
 	finalXP := math.Round(calculatedXP)
 
 	return int(finalXP)

@@ -61,10 +61,7 @@ func FindClosest(character schemas.CharacterSchema, code string) *SearchResult {
 	eventPoints := getEventPoints(code)
 
 	startPoint := Point{X: character.X, Y: character.Y, Layer: character.Layer}
-	startNode := SearchNode{
-		Point:           startPoint,
-		FirstTransition: nil,
-	}
+	startNode := SearchNode{Point: startPoint, FirstTransition: nil}
 
 	queue := []SearchNode{startNode}
 	visited := make(map[Point]bool)

@@ -28,8 +28,7 @@ func Move(character schemas.CharacterSchema, code string) (schemas.CharacterSche
 }
 
 func makeMove(character schemas.CharacterSchema, target schemas.MapSchema) (schemas.CharacterSchema, error) {
-	if target.X == character.X &&
-		target.Y == character.Y {
+	if target.X == character.X && target.Y == character.Y {
 		return character, nil
 	}
 	moveData, err := api.MyActionMove(character.Name, target.X, target.Y)

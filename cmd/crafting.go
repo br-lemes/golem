@@ -48,7 +48,8 @@ Arguments:
 }
 
 func init() {
-	craftingCmd.Flags().IntP("quantity", "q", 0, "Amount of items to craft (0 for infinite/max available)")
+	craftingCmd.Flags().IntP("quantity", "q", 0,
+		"Amount of items to craft (0 for infinite/max available)")
 	rootCmd.AddCommand(craftingCmd)
 }
 
@@ -72,7 +73,9 @@ func StartCraftingBot(name string, code string, qty int) error {
 
 	skillLevel := getCraftSkill(character, *item.Craft.Skill)
 	if skillLevel < *item.Craft.Level {
-		return fmt.Errorf("character %s does not have the required level for %s. Required: %d, Current: %d", name, item.Code, *item.Craft.Level, skillLevel)
+		return fmt.Errorf(
+			"character %s level too low. Required: %d, Current: %d",
+			name, *item.Craft.Level, skillLevel)
 	}
 
 	bankInventory, err := fetchAllBankItems()
@@ -83,7 +86,8 @@ func StartCraftingBot(name string, code string, qty int) error {
 	totalInventory := make(map[string]int)
 	for _, invItem := range *character.Inventory {
 		if invItem.Code != "" {
-			totalInventory[invItem.Code] = totalInventory[invItem.Code] + invItem.Quantity
+			totalInventory[invItem.Code] =
+				totalInventory[invItem.Code] + invItem.Quantity
 		}
 	}
 	for code, amount := range bankInventory {
@@ -236,7 +240,8 @@ func StartCraftingBot(name string, code string, qty int) error {
 			if stillNeeds > 0 {
 				bankAvailable := bankInventory[req.Code]
 				if bankAvailable < stillNeeds {
-					currentBatchSize = (bankAvailable + alreadyHas) / req.Quantity
+					currentBatchSize =
+						(bankAvailable + alreadyHas) / req.Quantity
 				}
 			}
 		}
@@ -299,10 +304,11 @@ func StartCraftingBot(name string, code string, qty int) error {
 	var finalDepositList []schemas.SimpleItemSchema
 	for _, invItem := range *character.Inventory {
 		if invItem.Code == item.Code {
-			finalDepositList = append(finalDepositList, schemas.SimpleItemSchema{
-				Code:     invItem.Code,
-				Quantity: invItem.Quantity,
-			})
+			finalDepositList = append(finalDepositList,
+				schemas.SimpleItemSchema{
+					Code:     invItem.Code,
+					Quantity: invItem.Quantity,
+				})
 		}
 	}
 
@@ -352,10 +358,7 @@ func getCraftSkill(character schemas.CharacterSchema, skill schemas.CraftSkill) 
 }
 
 func isCraftable(item schemas.ItemSchema) bool {
-	return item.Craft != nil &&
-		item.Craft.Items != nil &&
-		len(*item.Craft.Items) > 0 &&
-		item.Craft.Level != nil &&
-		*item.Craft.Quantity == 1 &&
-		item.Craft.Skill != nil
+	return item.Craft != nil && item.Craft.Items != nil &&
+		len(*item.Craft.Items) > 0 && item.Craft.Level != nil &&
+		*item.Craft.Quantity == 1 && item.Craft.Skill != nil
 }
