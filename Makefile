@@ -1,6 +1,6 @@
 PLATFORMS := linux-amd64 linux-arm64 windows-amd64
 
-.PHONY: build clean release version $(PLATFORMS)
+.PHONY: all build clean coverage release test version $(PLATFORMS)
 
 TARGET := $(notdir $(shell go list -m 2>/dev/null))
 ifeq ($(TARGET),)
@@ -14,13 +14,17 @@ ARTIFACTS := $(foreach p,$(PLATFORMS),\
 
 SEMVER := github.com/br-lemes/semver@latest
 
-build: pkg/schemas/schemas.go
+build: pkg/schemas/schemas.go test
 	@go build -ldflags "-s -w"
 
 all: $(PLATFORMS)
 
 clean:
 	$(RM) $(ARTIFACTS)
+
+coverage:
+	@go test ./... -coverprofile=coverage.out && \
+		go tool cover -html=coverage.out
 
 pkg/schemas/schemas.go: pkg/database/openapi.json
 	@oapi-codegen -package cmd -generate models $< > $@
@@ -29,7 +33,7 @@ pkg/schemas/schemas.go: pkg/database/openapi.json
 	@sd 'Path\s+\[\]\[\]interface\{\}' 'Path [][2]int' $@
 	@gofmt -w $@
 
-$(PLATFORMS): pkg/schemas/schemas.go
+$(PLATFORMS): pkg/schemas/schemas.go test
 	@$(eval GOOS := $(word 1,$(subst -, ,$@)))
 	@$(eval GOARCH := $(word 2,$(subst -, ,$@)))
 	@$(eval OUTPUT := $(TARGET)-$@$(if $(filter windows,$(GOOS)),.exe))
@@ -38,5 +42,8 @@ $(PLATFORMS): pkg/schemas/schemas.go
 release: version $(PLATFORMS)
 	@go run $(SEMVER) release $(ARTIFACTS)
 
-version:
+test:
+	@go test ./...
+
+version: test
 	@go run $(SEMVER)
