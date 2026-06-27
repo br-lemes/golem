@@ -1497,7 +1497,7 @@
     },
     {
         "access": { "conditions": [], "type": "standard" },
-        "interactions": {},
+        "interactions": { "content": { "code": "", "type": "monster" } },
         "layer": "overworld",
         "map_id": 145,
         "name": "Forest",
@@ -2428,7 +2428,7 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 236,
-        "name": "Empty",
+        "name": "Lava Underground",
         "skin": "underground",
         "x": 5,
         "y": -1
@@ -2489,7 +2489,7 @@
         "layer": "underground",
         "map_id": 242,
         "name": "Empty",
-        "skin": "underground",
+        "skin": "lavaunderground_7",
         "x": 7,
         "y": -1
     },
@@ -2519,7 +2519,7 @@
         "layer": "underground",
         "map_id": 245,
         "name": "Empty",
-        "skin": "underground",
+        "skin": "lavaunderground_11",
         "x": 8,
         "y": -1
     },
@@ -2938,12 +2938,12 @@
         "y": 0
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": { "content": { "code": "fennec", "type": "monster" } },
         "layer": "underground",
         "map_id": 287,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_1",
         "x": 5,
         "y": 0
     },
@@ -2968,12 +2968,12 @@
         "y": 0
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 290,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_4",
         "x": 6,
         "y": 0
     },
@@ -2998,12 +2998,14 @@
         "y": 0
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "lava_fish_spot", "type": "resource" }
+        },
         "layer": "underground",
         "map_id": 293,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_8",
         "x": 7,
         "y": 0
     },
@@ -3028,12 +3030,14 @@
         "y": 0
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "lava_fish_spot", "type": "resource" }
+        },
         "layer": "underground",
         "map_id": 296,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_12",
         "x": 8,
         "y": 0
     },
@@ -3058,12 +3062,12 @@
         "y": 0
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 299,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_15",
         "x": 9,
         "y": 0
     },
@@ -3079,21 +3083,23 @@
     },
     {
         "access": { "conditions": [], "type": "standard" },
-        "interactions": {},
+        "interactions": {
+            "content": { "code": "bandit_lizard", "type": "monster" }
+        },
         "layer": "overworld",
         "map_id": 301,
         "name": "Forest",
-        "skin": "forest_2",
+        "skin": "forest_event_lizard1",
         "x": 10,
         "y": 0
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 302,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_18",
         "x": 10,
         "y": 0
     },
@@ -3456,12 +3462,12 @@
         "y": 1
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 338,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_2",
         "x": 5,
         "y": 1
     },
@@ -3488,12 +3494,14 @@
         "y": 1
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "flameche", "type": "monster" }
+        },
         "layer": "underground",
         "map_id": 341,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_5",
         "x": 6,
         "y": 1
     },
@@ -3518,12 +3526,14 @@
         "y": 1
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "god_of_the_sun", "type": "raid" }
+        },
         "layer": "underground",
         "map_id": 344,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_9",
         "x": 7,
         "y": 1
     },
@@ -3548,12 +3558,14 @@
         "y": 1
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "god_of_the_sun", "type": "raid" }
+        },
         "layer": "underground",
         "map_id": 347,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_13",
         "x": 8,
         "y": 1
     },
@@ -3578,12 +3590,14 @@
         "y": 1
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "flameche", "type": "monster" }
+        },
         "layer": "underground",
         "map_id": 350,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_16",
         "x": 9,
         "y": 1
     },
@@ -3608,12 +3622,12 @@
         "y": 1
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": { "content": { "code": "fennec", "type": "monster" } },
         "layer": "underground",
         "map_id": 353,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_19",
         "x": 10,
         "y": 1
     },
@@ -3976,12 +3990,12 @@
         "y": 2
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": { "content": { "code": "fennec", "type": "monster" } },
         "layer": "underground",
         "map_id": 389,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_3",
         "x": 5,
         "y": 2
     },
@@ -4006,12 +4020,20 @@
         "y": 2
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "transition": {
+                "conditions": [],
+                "layer": "underground",
+                "map_id": 446,
+                "x": 7,
+                "y": 3
+            }
+        },
         "layer": "underground",
         "map_id": 392,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_6",
         "x": 6,
         "y": 2
     },
@@ -4041,7 +4063,7 @@
         "layer": "underground",
         "map_id": 395,
         "name": "Empty",
-        "skin": "underground",
+        "skin": "lavaunderground_10",
         "x": 7,
         "y": 2
     },
@@ -4071,7 +4093,7 @@
         "layer": "underground",
         "map_id": 398,
         "name": "Empty",
-        "skin": "underground",
+        "skin": "lavaunderground_14",
         "x": 8,
         "y": 2
     },
@@ -4096,12 +4118,20 @@
         "y": 2
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "transition": {
+                "conditions": [],
+                "layer": "underground",
+                "map_id": 449,
+                "x": 8,
+                "y": 3
+            }
+        },
         "layer": "underground",
         "map_id": 401,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_17",
         "x": 9,
         "y": 2
     },
@@ -4126,12 +4156,12 @@
         "y": 2
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 404,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_20",
         "x": 10,
         "y": 2
     },
@@ -4496,8 +4526,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 440,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_21",
         "x": 5,
         "y": 3
     },
@@ -4526,8 +4556,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 443,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_24",
         "x": 6,
         "y": 3
     },
@@ -4552,12 +4582,22 @@
         "y": 3
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "transition": {
+                "conditions": [
+                    { "code": "sonnengott_key", "operator": "cost", "value": 1 }
+                ],
+                "layer": "underground",
+                "map_id": 392,
+                "x": 6,
+                "y": 2
+            }
+        },
         "layer": "underground",
         "map_id": 446,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_27",
         "x": 7,
         "y": 3
     },
@@ -4582,12 +4622,22 @@
         "y": 3
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "transition": {
+                "conditions": [
+                    { "code": "sonnengott_key", "operator": "cost", "value": 1 }
+                ],
+                "layer": "underground",
+                "map_id": 401,
+                "x": 9,
+                "y": 2
+            }
+        },
         "layer": "underground",
         "map_id": 449,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_30",
         "x": 8,
         "y": 3
     },
@@ -4616,8 +4666,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 452,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_33",
         "x": 9,
         "y": 3
     },
@@ -4646,8 +4696,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 455,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_39",
         "x": 10,
         "y": 3
     },
@@ -4768,7 +4818,7 @@
         },
         "layer": "underground",
         "map_id": 467,
-        "name": "Underground",
+        "name": "Mine",
         "skin": "mine_4",
         "x": -3,
         "y": 4
@@ -4798,7 +4848,7 @@
         "interactions": { "content": { "code": "bat", "type": "monster" } },
         "layer": "underground",
         "map_id": 470,
-        "name": "Underground",
+        "name": "Mine",
         "skin": "mine_3",
         "x": -2,
         "y": 4
@@ -5010,8 +5060,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 491,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_22",
         "x": 5,
         "y": 4
     },
@@ -5038,12 +5088,14 @@
         "y": 4
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "baby_red_dragon", "type": "monster" }
+        },
         "layer": "underground",
         "map_id": 494,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_25",
         "x": 6,
         "y": 4
     },
@@ -5070,12 +5122,12 @@
         "y": 4
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 497,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_28",
         "x": 7,
         "y": 4
     },
@@ -5100,12 +5152,14 @@
         "y": 4
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "baby_red_dragon", "type": "monster" }
+        },
         "layer": "underground",
         "map_id": 500,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_31",
         "x": 8,
         "y": 4
     },
@@ -5130,12 +5184,12 @@
         "y": 4
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 503,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_34",
         "x": 9,
         "y": 4
     },
@@ -5164,8 +5218,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 506,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_22",
         "x": 10,
         "y": 4
     },
@@ -5284,7 +5338,7 @@
         "interactions": { "content": { "code": "bat", "type": "monster" } },
         "layer": "underground",
         "map_id": 518,
-        "name": "Underground",
+        "name": "Mine",
         "skin": "mine_5",
         "x": -3,
         "y": 5
@@ -5316,7 +5370,7 @@
         },
         "layer": "underground",
         "map_id": 521,
-        "name": "Underground",
+        "name": "Mine",
         "skin": "mine_2",
         "x": -2,
         "y": 5
@@ -5528,8 +5582,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 542,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_22",
         "x": 5,
         "y": 5
     },
@@ -5554,12 +5608,21 @@
         "y": 5
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "sorceress", "type": "npc" },
+            "transition": {
+                "conditions": [],
+                "layer": "underground",
+                "map_id": 929,
+                "x": -2,
+                "y": 13
+            }
+        },
         "layer": "underground",
         "map_id": 545,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_26",
         "x": 6,
         "y": 5
     },
@@ -5584,12 +5647,14 @@
         "y": 5
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "baby_red_dragon", "type": "monster" }
+        },
         "layer": "underground",
         "map_id": 548,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_29",
         "x": 7,
         "y": 5
     },
@@ -5614,12 +5679,12 @@
         "y": 5
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 551,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_32",
         "x": 8,
         "y": 5
     },
@@ -5644,12 +5709,12 @@
         "y": 5
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
+        "access": { "conditions": [], "type": "standard" },
         "interactions": {},
         "layer": "underground",
         "map_id": 554,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_35",
         "x": 9,
         "y": 5
     },
@@ -5678,8 +5743,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 557,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_22",
         "x": 10,
         "y": 5
     },
@@ -5844,7 +5909,7 @@
         },
         "layer": "underground",
         "map_id": 572,
-        "name": "Underground",
+        "name": "Mine",
         "skin": "mine_1",
         "x": -2,
         "y": 6
@@ -6060,8 +6125,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 593,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_23",
         "x": 5,
         "y": 6
     },
@@ -6090,8 +6155,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 596,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_36",
         "x": 6,
         "y": 6
     },
@@ -6120,8 +6185,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 599,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_36",
         "x": 7,
         "y": 6
     },
@@ -6152,8 +6217,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 602,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_36",
         "x": 8,
         "y": 6
     },
@@ -6170,7 +6235,7 @@
     {
         "access": { "conditions": [], "type": "standard" },
         "interactions": {
-            "content": { "code": "dead_tree", "type": "resource" }
+            "content": { "code": "cursed_tree", "type": "monster" }
         },
         "layer": "overworld",
         "map_id": 604,
@@ -6184,8 +6249,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 605,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_36",
         "x": 9,
         "y": 6
     },
@@ -6214,8 +6279,8 @@
         "interactions": {},
         "layer": "underground",
         "map_id": 608,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Lava Underground",
+        "skin": "lavaunderground_41",
         "x": 10,
         "y": 6
     },
@@ -6686,6 +6751,7 @@
     {
         "access": { "conditions": [], "type": "standard" },
         "interactions": {
+            "content": { "code": "dead_tree", "type": "resource" },
             "transition": {
                 "conditions": [
                     { "code": "lich_tomb_key", "operator": "cost", "value": 1 }
@@ -6794,12 +6860,12 @@
         "y": 7
     },
     {
-        "access": { "conditions": [], "type": "standard" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "restricted" },
+        "interactions": { "content": { "code": "dryad", "type": "monster" } },
         "layer": "overworld",
         "map_id": 664,
-        "name": "Forest",
-        "skin": "forest_1",
+        "name": "Enchanted Forest",
+        "skin": "enchantedforest_4",
         "x": -5,
         "y": 8
     },
@@ -6824,12 +6890,21 @@
         "y": 8
     },
     {
-        "access": { "conditions": [], "type": "standard" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "restricted" },
+        "interactions": {
+            "content": { "code": "enchanted_mushroom", "type": "resource" },
+            "transition": {
+                "conditions": [],
+                "layer": "overworld",
+                "map_id": 718,
+                "x": -4,
+                "y": 9
+            }
+        },
         "layer": "overworld",
         "map_id": 667,
-        "name": "Forest",
-        "skin": "forest_2",
+        "name": "Enchanted Forest",
+        "skin": "enchantedforest_1",
         "x": -4,
         "y": 8
     },
@@ -7310,12 +7385,14 @@
         "y": 8
     },
     {
-        "access": { "conditions": [], "type": "standard" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "restricted" },
+        "interactions": {
+            "content": { "code": "enchanted_mushroom", "type": "resource" }
+        },
         "layer": "overworld",
         "map_id": 715,
-        "name": "Forest",
-        "skin": "forest_1",
+        "name": "Enchanted Forest",
+        "skin": "enchantedforest_5",
         "x": -5,
         "y": 9
     },
@@ -7341,11 +7418,22 @@
     },
     {
         "access": { "conditions": [], "type": "standard" },
-        "interactions": {},
+        "interactions": {
+            "content": { "code": "beastmaster", "type": "npc" },
+            "transition": {
+                "conditions": [
+                    { "code": "gold", "operator": "cost", "value": 5000 }
+                ],
+                "layer": "overworld",
+                "map_id": 667,
+                "x": -4,
+                "y": 8
+            }
+        },
         "layer": "overworld",
         "map_id": 718,
-        "name": "Forest",
-        "skin": "forest_1",
+        "name": "Enchanted Forest",
+        "skin": "enchantedforest_2",
         "x": -4,
         "y": 9
     },
@@ -7733,13 +7821,11 @@
     },
     {
         "access": { "conditions": [], "type": "standard" },
-        "interactions": {
-            "content": { "code": "cursed_tree", "type": "monster" }
-        },
+        "interactions": {},
         "layer": "overworld",
         "map_id": 757,
         "name": "Forest",
-        "skin": "forest_cursed_tree1",
+        "skin": "forest_3",
         "x": 9,
         "y": 9
     },
@@ -7824,12 +7910,12 @@
         "y": 9
     },
     {
-        "access": { "conditions": [], "type": "standard" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "restricted" },
+        "interactions": { "content": { "code": "dryad", "type": "monster" } },
         "layer": "overworld",
         "map_id": 766,
-        "name": "Forest",
-        "skin": "forest_2",
+        "name": "Enchanted Forest",
+        "skin": "enchantedforest_6",
         "x": -5,
         "y": 10
     },
@@ -7854,12 +7940,14 @@
         "y": 10
     },
     {
-        "access": { "conditions": [], "type": "standard" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "restricted" },
+        "interactions": {
+            "content": { "code": "enchanted_fairy", "type": "raid" }
+        },
         "layer": "overworld",
         "map_id": 769,
-        "name": "Forest",
-        "skin": "forest_1",
+        "name": "Enchanted Forest",
+        "skin": "enchantedforest_3",
         "x": -4,
         "y": 10
     },
@@ -8340,8 +8428,8 @@
         "interactions": {},
         "layer": "overworld",
         "map_id": 817,
-        "name": "Forest",
-        "skin": "forest_3",
+        "name": "Enchanted Forest",
+        "skin": "enchantedforest_7",
         "x": -5,
         "y": 11
     },
@@ -8370,8 +8458,8 @@
         "interactions": {},
         "layer": "overworld",
         "map_id": 820,
-        "name": "Forest",
-        "skin": "forest_4",
+        "name": "Enchanted Forest",
+        "skin": "enchantedforest_8",
         "x": -4,
         "y": 11
     },
@@ -8959,7 +9047,7 @@
         },
         "layer": "interior",
         "map_id": 876,
-        "name": "Abandoned house",
+        "name": "Abandoned House",
         "skin": "abandonedhouse_1",
         "x": -3,
         "y": 12
@@ -8975,22 +9063,39 @@
         "y": 12
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "transition": {
+                "conditions": [],
+                "layer": "interior",
+                "map_id": 879,
+                "x": -2,
+                "y": 12
+            }
+        },
         "layer": "underground",
         "map_id": 878,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Abandoned House",
+        "skin": "abandonedhouse_3",
         "x": -2,
         "y": 12
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "content": { "code": "rat", "type": "monster" },
+            "transition": {
+                "conditions": [],
+                "layer": "underground",
+                "map_id": 878,
+                "x": -2,
+                "y": 12
+            }
+        },
         "layer": "interior",
         "map_id": 879,
-        "name": "Empty",
-        "skin": "interior",
+        "name": "Abandoned House",
+        "skin": "abandonedhouse_2",
         "x": -2,
         "y": 12
     },
@@ -9491,12 +9596,20 @@
         "y": 13
     },
     {
-        "access": { "conditions": [], "type": "blocked" },
-        "interactions": {},
+        "access": { "conditions": [], "type": "standard" },
+        "interactions": {
+            "transition": {
+                "conditions": [],
+                "layer": "underground",
+                "map_id": 545,
+                "x": 6,
+                "y": 5
+            }
+        },
         "layer": "underground",
         "map_id": 929,
-        "name": "Empty",
-        "skin": "underground",
+        "name": "Abandoned House",
+        "skin": "abandonedhouse_4",
         "x": -2,
         "y": 13
     },
@@ -12677,7 +12790,7 @@
                     "value": 1
                 }
             ],
-            "type": "conditional"
+            "type": "standard"
         },
         "interactions": { "content": { "code": "bank", "type": "bank" } },
         "layer": "overworld",

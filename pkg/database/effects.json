@@ -127,7 +127,7 @@
     },
     {
         "code": "shell",
-        "description": "When they drop below 40% of their HP, they gain {value} % resistance to all elements for 3 turns. Activates once per combat. This effect is only active during boss fights.",
+        "description": "When they drop below 40% of their HP, they gain {value} % resistance to all elements for 3 turns. Activates once per combat. This effect is only active during boss or raid boss fights.",
         "name": "Shell",
         "subtype": "special",
         "type": "combat"
@@ -196,6 +196,27 @@
         "type": "combat"
     },
     {
+        "code": "sun_shield",
+        "description": "The first hit the monster takes each turn is reduced by {value}%.",
+        "name": "Sun Shield",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "greed",
+        "description": "Each time the fighter loses 10% max HP, they gain {value}% damage for the rest of the fight.",
+        "name": "Greed",
+        "subtype": "buff",
+        "type": "combat"
+    },
+    {
+        "code": "enchanted_mirror",
+        "description": "When the fighter takes damage, they deal back {value}% of the damage taken. This can trigger once every 3 turns.",
+        "name": "Enchanted Mirror",
+        "subtype": "special",
+        "type": "combat"
+    },
+    {
         "code": "heal",
         "description": "Heal {value} HP when the item is used.",
         "name": "Heal",
@@ -214,6 +235,13 @@
         "description": "Teleports to map ID {value} when the item is used.",
         "name": "Teleport",
         "subtype": "teleport",
+        "type": "consumable"
+    },
+    {
+        "code": "gems",
+        "description": "Adds {value} gems in your account to buy skins, spawn events, purchase a subscription, and more.",
+        "name": "Gems",
+        "subtype": "other",
         "type": "consumable"
     },
     {

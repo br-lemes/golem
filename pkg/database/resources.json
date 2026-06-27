@@ -484,6 +484,20 @@
         "skill": "woodcutting"
     },
     {
+        "code": "enchanted_mushroom",
+        "drops": [
+            {
+                "code": "enchanted_mushroom",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            }
+        ],
+        "level": 40,
+        "name": "Enchanted Mushroom",
+        "skill": "alchemy"
+    },
+    {
         "code": "adamantite_rocks",
         "drops": [
             {
@@ -555,6 +569,20 @@
         ],
         "level": 50,
         "name": "Swordfish Spot",
+        "skill": "fishing"
+    },
+    {
+        "code": "lava_fish_spot",
+        "drops": [
+            {
+                "code": "lava_fish",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "level": 50,
+        "name": "Lava Fish Spot",
         "skill": "fishing"
     }
 ]

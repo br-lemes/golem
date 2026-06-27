@@ -2,7 +2,9 @@
     {
         "code": "attacking_the_island",
         "content": { "code": "sea_marauder", "type": "monster" },
-        "duration": 120,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "overworld",
@@ -20,12 +22,15 @@
             }
         ],
         "name": "Attacking The Island",
+        "price": 50,
         "rate": 1500
     },
     {
         "code": "bandit_camp",
         "content": { "code": "bandit_lizard", "type": "monster" },
-        "duration": 120,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "overworld",
@@ -57,12 +62,15 @@
             }
         ],
         "name": "Bandit Camp",
+        "price": 50,
         "rate": 1000
     },
     {
         "code": "corrupted_ogre",
         "content": { "code": "corrupted_ogre", "type": "monster" },
-        "duration": 120,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "overworld",
@@ -80,12 +88,15 @@
             }
         ],
         "name": "Corrupted Ogre",
+        "price": 50,
         "rate": 1000
     },
     {
         "code": "corrupted_owlbear",
         "content": { "code": "corrupted_owlbear", "type": "monster" },
-        "duration": 120,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "overworld",
@@ -103,12 +114,15 @@
             }
         ],
         "name": "Corrupted Owlbear",
+        "price": 50,
         "rate": 1000
     },
     {
         "code": "corrupted_portal",
         "content": { "code": "grimlet", "type": "monster" },
-        "duration": 120,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "overworld",
@@ -126,12 +140,15 @@
             }
         ],
         "name": "Corrupted Portal",
+        "price": 50,
         "rate": 2000
     },
     {
         "code": "cult_of_darkness",
         "content": { "code": "cultist_emperor", "type": "monster" },
-        "duration": 90,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "overworld",
@@ -142,12 +159,15 @@
             }
         ],
         "name": "Cult of Darkness",
+        "price": 50,
         "rate": 2000
     },
     {
         "code": "fish_merchant",
         "content": { "code": "fish_merchant", "type": "npc" },
-        "duration": 60,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 90,
         "maps": [
             {
                 "layer": "overworld",
@@ -158,12 +178,41 @@
             }
         ],
         "name": "Fish Merchant",
+        "price": null,
+        "rate": 1500
+    },
+    {
+        "code": "full_moon",
+        "content": { "code": "full_moon_vampire", "type": "monster" },
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 607,
+                "skin": "forest_skeleton3_event",
+                "x": 10,
+                "y": 6
+            },
+            {
+                "layer": "overworld",
+                "map_id": 709,
+                "skin": "forest_skeleton9_event",
+                "x": 10,
+                "y": 8
+            }
+        ],
+        "name": "Full Moon",
+        "price": 50,
         "rate": 1500
     },
     {
         "code": "gemstone_merchant",
         "content": { "code": "gemstone_merchant", "type": "npc" },
-        "duration": 60,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 90,
         "maps": [
             {
                 "layer": "overworld",
@@ -174,12 +223,15 @@
             }
         ],
         "name": "Gemstone Merchant",
+        "price": null,
         "rate": 1500
     },
     {
         "code": "herbal_merchant",
         "content": { "code": "herbal_merchant", "type": "npc" },
-        "duration": 60,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 90,
         "maps": [
             {
                 "layer": "overworld",
@@ -190,11 +242,14 @@
             }
         ],
         "name": "Herbal Merchant",
+        "price": null,
         "rate": 1500
     },
     {
         "code": "magic_apparition",
         "content": { "code": "magic_tree", "type": "resource" },
+        "cooldown": 0,
+        "cooldown_expiration": null,
         "duration": 60,
         "maps": [
             {
@@ -220,12 +275,15 @@
             }
         ],
         "name": "Magic Apparition",
+        "price": 50,
         "rate": 2000
     },
     {
         "code": "nomadic_merchant",
         "content": { "code": "nomadic_merchant", "type": "npc" },
-        "duration": 60,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 90,
         "maps": [
             {
                 "layer": "overworld",
@@ -236,12 +294,15 @@
             }
         ],
         "name": "Nomadic Merchant",
+        "price": null,
         "rate": 1500
     },
     {
         "code": "out_of_the_ground",
         "content": { "code": "duskworm", "type": "monster" },
-        "duration": 120,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "underground",
@@ -252,12 +313,15 @@
             }
         ],
         "name": "Out Of The Ground",
+        "price": 50,
         "rate": 2000
     },
     {
         "code": "portal_demon",
         "content": { "code": "demon", "type": "monster" },
-        "duration": 120,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "overworld",
@@ -275,19 +339,22 @@
             },
             {
                 "layer": "overworld",
-                "map_id": 718,
+                "map_id": 721,
                 "skin": "forest_portal",
-                "x": -4,
+                "x": -3,
                 "y": 9
             }
         ],
         "name": "Portal (Demon)",
+        "price": 50,
         "rate": 1000
     },
     {
         "code": "portal_efreet_sultan",
         "content": { "code": "efreet_sultan", "type": "monster" },
-        "duration": 120,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
         "maps": [
             {
                 "layer": "overworld",
@@ -312,11 +379,73 @@
             }
         ],
         "name": "Portal (Efreet)",
+        "price": 50,
         "rate": 2000
+    },
+    {
+        "code": "silent_night",
+        "content": { "code": "echoless_bat", "type": "monster" },
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "underground",
+                "map_id": 470,
+                "skin": "mine_3_event",
+                "x": -2,
+                "y": 4
+            },
+            {
+                "layer": "underground",
+                "map_id": 518,
+                "skin": "mine_5_event",
+                "x": -3,
+                "y": 5
+            }
+        ],
+        "name": "Silent Night",
+        "price": 50,
+        "rate": 1500
+    },
+    {
+        "code": "small_becomes_great",
+        "content": { "code": "red_dragon", "type": "monster" },
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "underground",
+                "map_id": 494,
+                "skin": "lavaunderground_25_event",
+                "x": 6,
+                "y": 4
+            },
+            {
+                "layer": "underground",
+                "map_id": 548,
+                "skin": "lavaunderground_29_event",
+                "x": 7,
+                "y": 5
+            },
+            {
+                "layer": "underground",
+                "map_id": 500,
+                "skin": "lavaunderground_31_event",
+                "x": 8,
+                "y": 4
+            }
+        ],
+        "name": "Small Becomes Great",
+        "price": 50,
+        "rate": 1500
     },
     {
         "code": "strange_apparition",
         "content": { "code": "strange_rocks", "type": "resource" },
+        "cooldown": 0,
+        "cooldown_expiration": null,
         "duration": 60,
         "maps": [
             {
@@ -342,12 +471,41 @@
             }
         ],
         "name": "Strange Apparition",
+        "price": 50,
         "rate": 2000
+    },
+    {
+        "code": "sunsting_awakening",
+        "content": { "code": "solar_desert_scorpion", "type": "monster" },
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 60,
+        "maps": [
+            {
+                "layer": "overworld",
+                "map_id": 1189,
+                "skin": "desertisland_8_event",
+                "x": 0,
+                "y": 18
+            },
+            {
+                "layer": "overworld",
+                "map_id": 1237,
+                "skin": "desertisland_19_event",
+                "x": -1,
+                "y": 19
+            }
+        ],
+        "name": "Sunsting Awakening",
+        "price": 50,
+        "rate": 1500
     },
     {
         "code": "timber_merchant",
         "content": { "code": "timber_merchant", "type": "npc" },
-        "duration": 60,
+        "cooldown": 0,
+        "cooldown_expiration": null,
+        "duration": 90,
         "maps": [
             {
                 "layer": "overworld",
@@ -358,6 +516,7 @@
             }
         ],
         "name": "Timber Merchant",
+        "price": null,
         "rate": 1500
     }
 ]

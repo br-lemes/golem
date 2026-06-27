@@ -294,7 +294,7 @@
                 "rate": 12
             },
             {
-                "code": "forest_ring",
+                "code": "forest_staff",
                 "max_quantity": 1,
                 "min_quantity": 1,
                 "rate": 200
@@ -480,6 +480,12 @@
                 "max_quantity": 2,
                 "min_quantity": 1,
                 "rate": 12
+            },
+            {
+                "code": "raw_porkchop",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 2
             }
         ],
         "effects": [],
@@ -639,7 +645,7 @@
                 "code": "vampire_tooth",
                 "max_quantity": 2,
                 "min_quantity": 1,
-                "rate": 12
+                "rate": 24
             },
             {
                 "code": "lich_tomb_key",
@@ -661,6 +667,52 @@
         "max_gold": 10,
         "min_gold": 0,
         "name": "Vampire",
+        "res_air": 30,
+        "res_earth": -15,
+        "res_fire": 0,
+        "res_water": -15,
+        "type": "normal"
+    },
+    {
+        "attack_air": 0,
+        "attack_earth": 0,
+        "attack_fire": 24,
+        "attack_water": 40,
+        "code": "full_moon_vampire",
+        "critical_strike": 35,
+        "drops": [
+            {
+                "code": "full_moon_vampire_cape",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 12
+            },
+            {
+                "code": "vampire_tooth",
+                "max_quantity": 2,
+                "min_quantity": 1,
+                "rate": 24
+            },
+            {
+                "code": "lich_tomb_key",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 20
+            }
+        ],
+        "effects": [
+            {
+                "code": "lifesteal",
+                "description": "Restores 10% of the total attack of all elements in HP after a critical strike.",
+                "value": 10
+            }
+        ],
+        "hp": 760,
+        "initiative": 150,
+        "level": 24,
+        "max_gold": 10,
+        "min_gold": 0,
+        "name": "Full Moon Vampire",
         "res_air": 30,
         "res_earth": -15,
         "res_fire": 0,
@@ -714,8 +766,8 @@
         "type": "normal"
     },
     {
-        "attack_air": 20,
-        "attack_earth": 90,
+        "attack_air": 25,
+        "attack_earth": 105,
         "attack_fire": 0,
         "attack_water": 0,
         "code": "cyclops",
@@ -729,7 +781,7 @@
             }
         ],
         "effects": [],
-        "hp": 630,
+        "hp": 850,
         "initiative": 175,
         "level": 25,
         "max_gold": 12,
@@ -865,7 +917,7 @@
         "attack_air": 0,
         "attack_earth": 0,
         "attack_fire": 0,
-        "attack_water": 80,
+        "attack_water": 105,
         "code": "owlbear",
         "critical_strike": 5,
         "drops": [
@@ -883,7 +935,7 @@
             }
         ],
         "effects": [],
-        "hp": 1100,
+        "hp": 1450,
         "initiative": 250,
         "level": 30,
         "max_gold": 15,
@@ -898,7 +950,7 @@
     {
         "attack_air": 0,
         "attack_earth": 0,
-        "attack_fire": 90,
+        "attack_fire": 110,
         "attack_water": 0,
         "code": "demon",
         "critical_strike": 5,
@@ -923,7 +975,7 @@
                 "value": 20
             }
         ],
-        "hp": 900,
+        "hp": 1250,
         "initiative": 250,
         "level": 30,
         "max_gold": 20,
@@ -979,7 +1031,7 @@
         "attack_air": 0,
         "attack_earth": 0,
         "attack_fire": 0,
-        "attack_water": 100,
+        "attack_water": 115,
         "code": "corrupted_owlbear",
         "critical_strike": 5,
         "drops": [
@@ -1009,7 +1061,7 @@
                 "value": 6
             }
         ],
-        "hp": 1100,
+        "hp": 1500,
         "initiative": 250,
         "level": 30,
         "max_gold": 15,
@@ -1171,7 +1223,7 @@
     },
     {
         "attack_air": 0,
-        "attack_earth": 120,
+        "attack_earth": 140,
         "attack_fire": 0,
         "attack_water": 0,
         "code": "goblin_guard",
@@ -1203,7 +1255,7 @@
                 "value": 100
             }
         ],
-        "hp": 2000,
+        "hp": 2300,
         "initiative": 250,
         "level": 35,
         "max_gold": 15,
@@ -1258,6 +1310,12 @@
         "critical_strike": 5,
         "drops": [
             {
+                "code": "bat_heart",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 12
+            },
+            {
                 "code": "bat_wing",
                 "max_quantity": 2,
                 "min_quantity": 1,
@@ -1284,9 +1342,9 @@
         "type": "normal"
     },
     {
-        "attack_air": 100,
+        "attack_air": 115,
         "attack_earth": 0,
-        "attack_fire": 100,
+        "attack_fire": 115,
         "attack_water": 0,
         "code": "orc",
         "critical_strike": 10,
@@ -1305,7 +1363,7 @@
             }
         ],
         "effects": [],
-        "hp": 1600,
+        "hp": 2100,
         "initiative": 250,
         "level": 38,
         "max_gold": 17,
@@ -1315,6 +1373,46 @@
         "res_earth": 20,
         "res_fire": -20,
         "res_water": -20,
+        "type": "normal"
+    },
+    {
+        "attack_air": 0,
+        "attack_earth": 0,
+        "attack_fire": 80,
+        "attack_water": 80,
+        "code": "echoless_bat",
+        "critical_strike": 5,
+        "drops": [
+            {
+                "code": "bat_heart",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 12
+            },
+            {
+                "code": "echoless_bat_wing",
+                "max_quantity": 2,
+                "min_quantity": 1,
+                "rate": 12
+            }
+        ],
+        "effects": [
+            {
+                "code": "poison",
+                "description": "At the start of its first turn, applies a 50 poison to its opponent. Loses 50 HP per turn.",
+                "value": 50
+            }
+        ],
+        "hp": 2250,
+        "initiative": 200,
+        "level": 38,
+        "max_gold": 17,
+        "min_gold": 0,
+        "name": "Echoless Bat",
+        "res_air": 5,
+        "res_earth": 5,
+        "res_fire": -20,
+        "res_water": 5,
         "type": "normal"
     },
     {
@@ -1498,6 +1596,72 @@
         "res_earth": -10,
         "res_fire": 5,
         "res_water": 5,
+        "type": "normal"
+    },
+    {
+        "attack_air": 675,
+        "attack_earth": 0,
+        "attack_fire": 0,
+        "attack_water": 0,
+        "code": "pixie",
+        "critical_strike": 5,
+        "drops": [],
+        "effects": [
+            {
+                "code": "lifesteal",
+                "description": "Restores 20% of the total attack of all elements in HP after a critical strike.",
+                "value": 20
+            },
+            {
+                "code": "enchanted_mirror",
+                "description": "When the fighter takes damage, they deal back 50% of the damage taken. This can trigger once every 3 turns.",
+                "value": 50
+            }
+        ],
+        "hp": 600000,
+        "initiative": 800,
+        "level": 40,
+        "max_gold": 0,
+        "min_gold": 0,
+        "name": "Pixie",
+        "res_air": 5,
+        "res_earth": 5,
+        "res_fire": 10,
+        "res_water": 10,
+        "type": "raid_boss"
+    },
+    {
+        "attack_air": 140,
+        "attack_earth": 0,
+        "attack_fire": 0,
+        "attack_water": 0,
+        "code": "dryad",
+        "critical_strike": 15,
+        "drops": [
+            {
+                "code": "dryad_hair",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "enchanted_potion",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 100
+            }
+        ],
+        "effects": [],
+        "hp": 3000,
+        "initiative": 300,
+        "level": 40,
+        "max_gold": 30,
+        "min_gold": 0,
+        "name": "Dryad",
+        "res_air": -10,
+        "res_earth": 10,
+        "res_fire": 10,
+        "res_water": 10,
         "type": "normal"
     },
     {
@@ -1838,6 +2002,218 @@
         "type": "normal"
     },
     {
+        "attack_air": 0,
+        "attack_earth": 0,
+        "attack_fire": 400,
+        "attack_water": 0,
+        "code": "solar_desert_scorpion",
+        "critical_strike": 75,
+        "drops": [
+            {
+                "code": "desert_scorpion_meat",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 1
+            },
+            {
+                "code": "solar_desert_scorpion_tail",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            }
+        ],
+        "effects": [
+            {
+                "code": "lifesteal",
+                "description": "Restores 15% of the total attack of all elements in HP after a critical strike.",
+                "value": 15
+            }
+        ],
+        "hp": 4250,
+        "initiative": 600,
+        "level": 50,
+        "max_gold": 30,
+        "min_gold": 0,
+        "name": "Solar Desert Scorpion",
+        "res_air": -10,
+        "res_earth": -10,
+        "res_fire": 0,
+        "res_water": 0,
+        "type": "normal"
+    },
+    {
+        "attack_air": 0,
+        "attack_earth": 0,
+        "attack_fire": 250,
+        "attack_water": 0,
+        "code": "baby_red_dragon",
+        "critical_strike": 5,
+        "drops": [
+            {
+                "code": "dragon_bone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 20
+            },
+            {
+                "code": "baby_red_dragon_scale",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "sonnengott_key",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 40
+            }
+        ],
+        "effects": [
+            {
+                "code": "greed",
+                "description": "Each time the fighter loses 10% max HP, they gain 10% damage for the rest of the fight.",
+                "value": 10
+            }
+        ],
+        "hp": 4500,
+        "initiative": 600,
+        "level": 50,
+        "max_gold": 35,
+        "min_gold": 0,
+        "name": "Baby Red Dragon",
+        "res_air": 0,
+        "res_earth": 0,
+        "res_fire": 50,
+        "res_water": 0,
+        "type": "normal"
+    },
+    {
+        "attack_air": 0,
+        "attack_earth": 0,
+        "attack_fire": 300,
+        "attack_water": 0,
+        "code": "red_dragon",
+        "critical_strike": 5,
+        "drops": [
+            {
+                "code": "dragon_bone",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "red_dragon_scale",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "sonnengott_key",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 40
+            }
+        ],
+        "effects": [
+            {
+                "code": "greed",
+                "description": "Each time the fighter loses 10% max HP, they gain 20% damage for the rest of the fight.",
+                "value": 20
+            }
+        ],
+        "hp": 5000,
+        "initiative": 600,
+        "level": 51,
+        "max_gold": 35,
+        "min_gold": 0,
+        "name": "Red Dragon",
+        "res_air": 0,
+        "res_earth": 0,
+        "res_fire": 80,
+        "res_water": 0,
+        "type": "normal"
+    },
+    {
+        "attack_air": 0,
+        "attack_earth": 0,
+        "attack_fire": 1250,
+        "attack_water": 0,
+        "code": "flameche",
+        "critical_strike": 5,
+        "drops": [
+            {
+                "code": "fire_dust",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 20
+            },
+            {
+                "code": "sonnengott_key",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 200
+            }
+        ],
+        "effects": [
+            {
+                "code": "burn",
+                "description": "On his first turn, apply a burn effect of 20% of your attack of all elements. The damage is applied each turn and decreases by 10% each time.",
+                "value": 20
+            }
+        ],
+        "hp": 2000,
+        "initiative": 2000,
+        "level": 52,
+        "max_gold": 35,
+        "min_gold": 0,
+        "name": "Flameche",
+        "res_air": -50,
+        "res_earth": 0,
+        "res_fire": 0,
+        "res_water": -50,
+        "type": "normal"
+    },
+    {
+        "attack_air": 0,
+        "attack_earth": 350,
+        "attack_fire": 0,
+        "attack_water": 100,
+        "code": "fennec",
+        "critical_strike": 5,
+        "drops": [
+            {
+                "code": "fennec_tail",
+                "max_quantity": 1,
+                "min_quantity": 1,
+                "rate": 10
+            },
+            {
+                "code": "fennec_ear",
+                "max_quantity": 2,
+                "min_quantity": 1,
+                "rate": 16
+            }
+        ],
+        "effects": [
+            {
+                "code": "berserker_rage",
+                "description": "When they drop below 25% HP, they gain 30 % damage permanently. Applies once per combat.",
+                "value": 30
+            }
+        ],
+        "hp": 5000,
+        "initiative": 600,
+        "level": 52,
+        "max_gold": 35,
+        "min_gold": 0,
+        "name": "Fennec",
+        "res_air": 0,
+        "res_earth": 0,
+        "res_fire": -20,
+        "res_water": 0,
+        "type": "normal"
+    },
+    {
         "attack_air": 400,
         "attack_earth": 0,
         "attack_fire": 400,
@@ -1881,5 +2257,42 @@
         "res_fire": 5,
         "res_water": 10,
         "type": "boss"
+    },
+    {
+        "attack_air": 0,
+        "attack_earth": 0,
+        "attack_fire": 1100,
+        "attack_water": 0,
+        "code": "sonnengott",
+        "critical_strike": 20,
+        "drops": [],
+        "effects": [
+            {
+                "code": "sun_shield",
+                "description": "The first hit the monster takes each turn is reduced by 50%.",
+                "value": 50
+            },
+            {
+                "code": "burn",
+                "description": "On his first turn, apply a burn effect of 20% of your attack of all elements. The damage is applied each turn and decreases by 10% each time.",
+                "value": 20
+            },
+            {
+                "code": "barrier",
+                "description": "At the start of the fight and every 5 played turns, gain a protective barrier of 350 HP. All attacks are redirected to this barrier until it is destroyed.",
+                "value": 350
+            }
+        ],
+        "hp": 1500000,
+        "initiative": 700,
+        "level": 55,
+        "max_gold": 0,
+        "min_gold": 0,
+        "name": "Sonnengott",
+        "res_air": 5,
+        "res_earth": 10,
+        "res_fire": -20,
+        "res_water": -20,
+        "type": "raid_boss"
     }
 ]
