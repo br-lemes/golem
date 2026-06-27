@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var eventsSpawnCmd = &cobra.Command{
-	Use:   "eventsSpawn",
-	Short: "Spawn Event",
+var sandboxClearCooldownCmd = &cobra.Command{
+	Use:   "sandboxClearCooldown",
+	Short: "Clear Cooldown",
 	Args: func(cmd *cobra.Command, args []string) error {
 		argCount := len(args)
 		switch argCount {
@@ -27,7 +27,7 @@ var eventsSpawnCmd = &cobra.Command{
 
 		switch argCount {
 		case 0:
-			path = "/events/spawn"
+			path = "/sandbox/clear_cooldown"
 		}
 
 		params := make(map[string]string)
@@ -48,7 +48,7 @@ var eventsSpawnCmd = &cobra.Command{
 }
 
 func init() {
-	apiCmd.AddCommand(eventsSpawnCmd)
-	eventsSpawnCmd.Flags().String("code", "",
-		"Code of the event to spawn")
+	apiCmd.AddCommand(sandboxClearCooldownCmd)
+	sandboxClearCooldownCmd.Flags().String("character", "",
+		"Character name.")
 }

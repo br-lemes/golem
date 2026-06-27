@@ -31,7 +31,7 @@ Arguments:
 
 		switch argCount {
 		case 1:
-			path = fmt.Sprintf("/my/%s/action/grandexchange/create-buy-order", args[0])
+			path = fmt.Sprintf("/my/%s/action/grandexchange/create_buy_order", args[0])
 		}
 
 		params := make(map[string]string)

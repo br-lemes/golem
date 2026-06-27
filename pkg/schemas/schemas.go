@@ -18,6 +18,7 @@ const (
 
 const (
 	AccountStatusFounder     AccountStatus = "founder"
+	AccountStatusGoblin1     AccountStatus = "goblin1"
 	AccountStatusGoldFounder AccountStatus = "gold_founder"
 	AccountStatusStandard    AccountStatus = "standard"
 	AccountStatusVipFounder  AccountStatus = "vip_founder"
@@ -38,39 +39,43 @@ const (
 )
 
 const (
-	ActionTypeBuyBankExpansion ActionType = "buy_bank_expansion"
-	ActionTypeBuyGe            ActionType = "buy_ge"
-	ActionTypeBuyNpc           ActionType = "buy_npc"
-	ActionTypeCancelGe         ActionType = "cancel_ge"
-	ActionTypeChangeSkin       ActionType = "change_skin"
-	ActionTypeClaimItem        ActionType = "claim_item"
-	ActionTypeCrafting         ActionType = "crafting"
-	ActionTypeCreateBuyOrderGe ActionType = "create_buy_order_ge"
-	ActionTypeDeleteItem       ActionType = "delete_item"
-	ActionTypeDepositGold      ActionType = "deposit_gold"
-	ActionTypeDepositItem      ActionType = "deposit_item"
-	ActionTypeEquip            ActionType = "equip"
-	ActionTypeFight            ActionType = "fight"
-	ActionTypeFillBuyOrderGe   ActionType = "fill_buy_order_ge"
-	ActionTypeGathering        ActionType = "gathering"
-	ActionTypeGiveGold         ActionType = "give_gold"
-	ActionTypeGiveItem         ActionType = "give_item"
-	ActionTypeMovement         ActionType = "movement"
-	ActionTypeMultiFight       ActionType = "multi_fight"
-	ActionTypeRecycling        ActionType = "recycling"
-	ActionTypeRename           ActionType = "rename"
-	ActionTypeRest             ActionType = "rest"
-	ActionTypeSandboxGiveGold  ActionType = "sandbox_give_gold"
-	ActionTypeSandboxGiveItem  ActionType = "sandbox_give_item"
-	ActionTypeSandboxGiveXp    ActionType = "sandbox_give_xp"
-	ActionTypeSellGe           ActionType = "sell_ge"
-	ActionTypeSellNpc          ActionType = "sell_npc"
-	ActionTypeTask             ActionType = "task"
-	ActionTypeTransition       ActionType = "transition"
-	ActionTypeUnequip          ActionType = "unequip"
-	ActionTypeUse              ActionType = "use"
-	ActionTypeWithdrawGold     ActionType = "withdraw_gold"
-	ActionTypeWithdrawItem     ActionType = "withdraw_item"
+	ActionTypeBuyBankExpansion     ActionType = "buy_bank_expansion"
+	ActionTypeBuyGe                ActionType = "buy_ge"
+	ActionTypeBuyNpc               ActionType = "buy_npc"
+	ActionTypeCancelGe             ActionType = "cancel_ge"
+	ActionTypeChangeSkin           ActionType = "change_skin"
+	ActionTypeClaimItem            ActionType = "claim_item"
+	ActionTypeCrafting             ActionType = "crafting"
+	ActionTypeCreateBuyOrderGe     ActionType = "create_buy_order_ge"
+	ActionTypeDeleteItem           ActionType = "delete_item"
+	ActionTypeDepositGold          ActionType = "deposit_gold"
+	ActionTypeDepositItem          ActionType = "deposit_item"
+	ActionTypeEquip                ActionType = "equip"
+	ActionTypeFight                ActionType = "fight"
+	ActionTypeFillBuyOrderGe       ActionType = "fill_buy_order_ge"
+	ActionTypeGathering            ActionType = "gathering"
+	ActionTypeGiveGold             ActionType = "give_gold"
+	ActionTypeGiveItem             ActionType = "give_item"
+	ActionTypeMovement             ActionType = "movement"
+	ActionTypeMultiFight           ActionType = "multi_fight"
+	ActionTypeRaidDeposit          ActionType = "raid_deposit"
+	ActionTypeRaidFight            ActionType = "raid_fight"
+	ActionTypeRecycling            ActionType = "recycling"
+	ActionTypeRename               ActionType = "rename"
+	ActionTypeRest                 ActionType = "rest"
+	ActionTypeSandboxClearCooldown ActionType = "sandbox_clear_cooldown"
+	ActionTypeSandboxGiveGold      ActionType = "sandbox_give_gold"
+	ActionTypeSandboxGiveItem      ActionType = "sandbox_give_item"
+	ActionTypeSandboxGiveXp        ActionType = "sandbox_give_xp"
+	ActionTypeSandboxTeleport      ActionType = "sandbox_teleport"
+	ActionTypeSellGe               ActionType = "sell_ge"
+	ActionTypeSellNpc              ActionType = "sell_npc"
+	ActionTypeTask                 ActionType = "task"
+	ActionTypeTransition           ActionType = "transition"
+	ActionTypeUnequip              ActionType = "unequip"
+	ActionTypeUse                  ActionType = "use"
+	ActionTypeWithdrawGold         ActionType = "withdraw_gold"
+	ActionTypeWithdrawItem         ActionType = "withdraw_item"
 )
 
 const (
@@ -83,19 +88,6 @@ const (
 	CharacterLeaderboardTypeMining          CharacterLeaderboardType = "mining"
 	CharacterLeaderboardTypeWeaponcrafting  CharacterLeaderboardType = "weaponcrafting"
 	CharacterLeaderboardTypeWoodcutting     CharacterLeaderboardType = "woodcutting"
-)
-
-const (
-	Corrupted1 CharacterSkin = "corrupted1"
-	Goblin1    CharacterSkin = "goblin1"
-	Marauder1  CharacterSkin = "marauder1"
-	Men1       CharacterSkin = "men1"
-	Men2       CharacterSkin = "men2"
-	Men3       CharacterSkin = "men3"
-	Women1     CharacterSkin = "women1"
-	Women2     CharacterSkin = "women2"
-	Women3     CharacterSkin = "women3"
-	Zombie1    CharacterSkin = "zombie1"
 )
 
 const (
@@ -154,6 +146,12 @@ const (
 )
 
 const (
+	GemShopCustomDesignCatalogItemSchemaCategoryItem GemShopCustomDesignCatalogItemSchemaCategory = "item"
+	GemShopCustomDesignCatalogItemSchemaCategoryNpc  GemShopCustomDesignCatalogItemSchemaCategory = "npc"
+	GemShopCustomDesignCatalogItemSchemaCategorySkin GemShopCustomDesignCatalogItemSchemaCategory = "skin"
+)
+
+const (
 	Amulet    ItemSlot = "amulet"
 	Artifact1 ItemSlot = "artifact1"
 	Artifact2 ItemSlot = "artifact2"
@@ -191,66 +189,71 @@ const (
 )
 
 const (
-	LogTypeAchievement         LogType = "achievement"
-	LogTypeBuyBankExpansion    LogType = "buy_bank_expansion"
-	LogTypeBuyGe               LogType = "buy_ge"
-	LogTypeBuyNpc              LogType = "buy_npc"
-	LogTypeCancelGe            LogType = "cancel_ge"
-	LogTypeChangeSkin          LogType = "change_skin"
-	LogTypeClaimItem           LogType = "claim_item"
-	LogTypeCrafting            LogType = "crafting"
-	LogTypeCreateBuyOrderGe    LogType = "create_buy_order_ge"
-	LogTypeDeleteCharacter     LogType = "delete_character"
-	LogTypeDeleteItem          LogType = "delete_item"
-	LogTypeDepositGold         LogType = "deposit_gold"
-	LogTypeDepositItem         LogType = "deposit_item"
-	LogTypeEquip               LogType = "equip"
-	LogTypeFight               LogType = "fight"
-	LogTypeFillBuyOrderGe      LogType = "fill_buy_order_ge"
-	LogTypeGathering           LogType = "gathering"
-	LogTypeGiveGold            LogType = "give_gold"
-	LogTypeGiveItem            LogType = "give_item"
-	LogTypeMovement            LogType = "movement"
-	LogTypeMultiFight          LogType = "multi_fight"
-	LogTypeNewTask             LogType = "new_task"
-	LogTypeReceiveGold         LogType = "receive_gold"
-	LogTypeReceiveItem         LogType = "receive_item"
-	LogTypeRecycling           LogType = "recycling"
-	LogTypeRename              LogType = "rename"
-	LogTypeRest                LogType = "rest"
-	LogTypeSandboxGiveGold     LogType = "sandbox_give_gold"
-	LogTypeSandboxGiveItem     LogType = "sandbox_give_item"
-	LogTypeSandboxGiveXp       LogType = "sandbox_give_xp"
-	LogTypeSandboxResetAccount LogType = "sandbox_reset_account"
-	LogTypeSellGe              LogType = "sell_ge"
-	LogTypeSellNpc             LogType = "sell_npc"
-	LogTypeSpawn               LogType = "spawn"
-	LogTypeTaskCancelled       LogType = "task_cancelled"
-	LogTypeTaskCompleted       LogType = "task_completed"
-	LogTypeTaskExchange        LogType = "task_exchange"
-	LogTypeTaskTrade           LogType = "task_trade"
-	LogTypeTransition          LogType = "transition"
-	LogTypeUnequip             LogType = "unequip"
-	LogTypeUse                 LogType = "use"
-	LogTypeWithdrawGold        LogType = "withdraw_gold"
-	LogTypeWithdrawItem        LogType = "withdraw_item"
+	LogTypeAchievement          LogType = "achievement"
+	LogTypeBuyBankExpansion     LogType = "buy_bank_expansion"
+	LogTypeBuyGe                LogType = "buy_ge"
+	LogTypeBuyNpc               LogType = "buy_npc"
+	LogTypeCancelGe             LogType = "cancel_ge"
+	LogTypeChangeSkin           LogType = "change_skin"
+	LogTypeClaimItem            LogType = "claim_item"
+	LogTypeCrafting             LogType = "crafting"
+	LogTypeCreateBuyOrderGe     LogType = "create_buy_order_ge"
+	LogTypeDeleteCharacter      LogType = "delete_character"
+	LogTypeDeleteItem           LogType = "delete_item"
+	LogTypeDepositGold          LogType = "deposit_gold"
+	LogTypeDepositItem          LogType = "deposit_item"
+	LogTypeEquip                LogType = "equip"
+	LogTypeFight                LogType = "fight"
+	LogTypeFillBuyOrderGe       LogType = "fill_buy_order_ge"
+	LogTypeGathering            LogType = "gathering"
+	LogTypeGiveGold             LogType = "give_gold"
+	LogTypeGiveItem             LogType = "give_item"
+	LogTypeMovement             LogType = "movement"
+	LogTypeMultiFight           LogType = "multi_fight"
+	LogTypeNewTask              LogType = "new_task"
+	LogTypeRaidDeposit          LogType = "raid_deposit"
+	LogTypeRaidFight            LogType = "raid_fight"
+	LogTypeReceiveGold          LogType = "receive_gold"
+	LogTypeReceiveItem          LogType = "receive_item"
+	LogTypeRecycling            LogType = "recycling"
+	LogTypeRename               LogType = "rename"
+	LogTypeRest                 LogType = "rest"
+	LogTypeSandboxClearCooldown LogType = "sandbox_clear_cooldown"
+	LogTypeSandboxGiveGold      LogType = "sandbox_give_gold"
+	LogTypeSandboxGiveItem      LogType = "sandbox_give_item"
+	LogTypeSandboxGiveXp        LogType = "sandbox_give_xp"
+	LogTypeSandboxResetAccount  LogType = "sandbox_reset_account"
+	LogTypeSandboxTeleport      LogType = "sandbox_teleport"
+	LogTypeSellGe               LogType = "sell_ge"
+	LogTypeSellNpc              LogType = "sell_npc"
+	LogTypeSpawn                LogType = "spawn"
+	LogTypeTaskCancelled        LogType = "task_cancelled"
+	LogTypeTaskCompleted        LogType = "task_completed"
+	LogTypeTaskExchange         LogType = "task_exchange"
+	LogTypeTaskTrade            LogType = "task_trade"
+	LogTypeTransition           LogType = "transition"
+	LogTypeUnequip              LogType = "unequip"
+	LogTypeUse                  LogType = "use"
+	LogTypeWithdrawGold         LogType = "withdraw_gold"
+	LogTypeWithdrawItem         LogType = "withdraw_item"
 )
 
 const (
-	MapAccessTypeBlocked       MapAccessType = "blocked"
-	MapAccessTypeConditional   MapAccessType = "conditional"
-	MapAccessTypeStandard      MapAccessType = "standard"
-	MapAccessTypeTeleportation MapAccessType = "teleportation"
+	MapAccessTypeBlocked     MapAccessType = "blocked"
+	MapAccessTypeConditional MapAccessType = "conditional"
+	MapAccessTypeRestricted  MapAccessType = "restricted"
+	MapAccessTypeStandard    MapAccessType = "standard"
 )
 
 const (
-	Bank          MapContentType = "bank"
-	GrandExchange MapContentType = "grand_exchange"
-	Monster       MapContentType = "monster"
-	Npc           MapContentType = "npc"
-	Resource      MapContentType = "resource"
-	TasksMaster   MapContentType = "tasks_master"
-	Workshop      MapContentType = "workshop"
+	MapContentTypeBank          MapContentType = "bank"
+	MapContentTypeGrandExchange MapContentType = "grand_exchange"
+	MapContentTypeMonster       MapContentType = "monster"
+	MapContentTypeNpc           MapContentType = "npc"
+	MapContentTypeRaid          MapContentType = "raid"
+	MapContentTypeResource      MapContentType = "resource"
+	MapContentTypeTasksMaster   MapContentType = "tasks_master"
+	MapContentTypeWorkshop      MapContentType = "workshop"
 )
 
 const (
@@ -260,9 +263,10 @@ const (
 )
 
 const (
-	Boss   MonsterType = "boss"
-	Elite  MonsterType = "elite"
-	Normal MonsterType = "normal"
+	Boss     MonsterType = "boss"
+	Elite    MonsterType = "elite"
+	Normal   MonsterType = "normal"
+	RaidBoss MonsterType = "raid_boss"
 )
 
 const (
@@ -276,6 +280,49 @@ const (
 	PendingItemSourceEvent         PendingItemSource = "event"
 	PendingItemSourceGrandExchange PendingItemSource = "grand_exchange"
 	PendingItemSourceOther         PendingItemSource = "other"
+	PendingItemSourceRaid          PendingItemSource = "raid"
+)
+
+const (
+	N1100  PurchaseGemsRequestSchemaQuantity = 1100
+	N12500 PurchaseGemsRequestSchemaQuantity = 12500
+	N2400  PurchaseGemsRequestSchemaQuantity = 2400
+	N500   PurchaseGemsRequestSchemaQuantity = 500
+	N6125  PurchaseGemsRequestSchemaQuantity = 6125
+)
+
+const (
+	GemPack      PurchaseType = "gem_pack"
+	Subscription PurchaseType = "subscription"
+)
+
+const (
+	Failure RaidInstanceResult = "failure"
+	Success RaidInstanceResult = "success"
+)
+
+const (
+	Active          RaidStatus = "active"
+	FinishedFailure RaidStatus = "finished_failure"
+	FinishedSuccess RaidStatus = "finished_success"
+	Upcoming        RaidStatus = "upcoming"
+)
+
+const (
+	Friday    RaidWeekday = "friday"
+	Monday    RaidWeekday = "monday"
+	Saturday  RaidWeekday = "saturday"
+	Sunday    RaidWeekday = "sunday"
+	Thursday  RaidWeekday = "thursday"
+	Tuesday   RaidWeekday = "tuesday"
+	Wednesday RaidWeekday = "wednesday"
+)
+
+const (
+	Badge RewardType = "badge"
+	Gold  RewardType = "gold"
+	Item  RewardType = "item"
+	Skin  RewardType = "skin"
 )
 
 const (
@@ -290,8 +337,38 @@ const (
 )
 
 const (
+	StripeSubscriptionPlanAnnual  StripeSubscriptionPlan = "annual"
+	StripeSubscriptionPlanMonthly StripeSubscriptionPlan = "monthly"
+)
+
+const (
+	SubscriptionPlanAnnual  SubscriptionPlan = "annual"
+	SubscriptionPlanMonthly SubscriptionPlan = "monthly"
+	SubscriptionPlanPrepaid SubscriptionPlan = "prepaid"
+)
+
+const (
+	Gems        SubscriptionSchemaPurchaseSource = "gems"
+	MemberToken SubscriptionSchemaPurchaseSource = "member_token"
+	Mixed       SubscriptionSchemaPurchaseSource = "mixed"
+	Stripe      SubscriptionSchemaPurchaseSource = "stripe"
+)
+
+const (
 	Items    TaskType = "items"
 	Monsters TaskType = "monsters"
+)
+
+const (
+	Alchemy         XPType = "alchemy"
+	Combat          XPType = "combat"
+	Cooking         XPType = "cooking"
+	Fishing         XPType = "fishing"
+	Gearcrafting    XPType = "gearcrafting"
+	Jewelrycrafting XPType = "jewelrycrafting"
+	Mining          XPType = "mining"
+	Weaponcrafting  XPType = "weaponcrafting"
+	Woodcutting     XPType = "woodcutting"
 )
 
 type AccessSchema struct {
@@ -332,11 +409,12 @@ type AccountDetailsSchema struct {
 }
 
 type AccountLeaderboardSchema struct {
-	Account            string        `json:"account"`
-	AchievementsPoints int           `json:"achievements_points"`
-	Gold               int           `json:"gold"`
-	Position           int           `json:"position"`
-	Status             AccountStatus `json:"status"`
+	Account            string     `json:"account"`
+	AchievementsPoints int        `json:"achievements_points"`
+	CompletedAt        *time.Time `json:"completed_at"`
+	Gold               int        `json:"gold"`
+	Member             bool       `json:"member"`
+	Position           int        `json:"position"`
 }
 
 type AccountLeaderboardType string
@@ -372,13 +450,13 @@ type AchievementType string
 type ActionType string
 
 type ActiveCharacterSchema struct {
-	Account string        `json:"account"`
-	Layer   MapLayer      `json:"layer"`
-	MapId   int           `json:"map_id"`
-	Name    string        `json:"name"`
-	Skin    CharacterSkin `json:"skin"`
-	X       int           `json:"x"`
-	Y       int           `json:"y"`
+	Account string   `json:"account"`
+	Layer   MapLayer `json:"layer"`
+	MapId   int      `json:"map_id"`
+	Name    string   `json:"name"`
+	Skin    string   `json:"skin"`
+	X       int      `json:"x"`
+	Y       int      `json:"y"`
 }
 
 type ActiveEventResponseSchema struct {
@@ -402,13 +480,23 @@ type AddAccountSchema struct {
 }
 
 type AddCharacterSchema struct {
-	Name string        `json:"name"`
-	Skin CharacterSkin `json:"skin"`
+	Name string `json:"name"`
+	Skin string `json:"skin"`
 }
 
-type BadgeConditionSchema struct {
-	Code     string `json:"code"`
-	Quantity *int   `json:"quantity"`
+type AssistantAnswerDataSchema struct {
+	Answer       string               `json:"answer"`
+	Assistant    RateLimitScopeSchema `json:"assistant"`
+	PaidWithGems bool                 `json:"paid_with_gems"`
+}
+
+type AssistantAnswerSchema struct {
+	Data AssistantAnswerDataSchema `json:"data"`
+}
+
+type AssistantQuestionSchema struct {
+	PayWithGems *bool  `json:"pay_with_gems,omitempty"`
+	Question    string `json:"question"`
 }
 
 type BadgeResponseSchema struct {
@@ -416,10 +504,9 @@ type BadgeResponseSchema struct {
 }
 
 type BadgeSchema struct {
-	Code        string                 `json:"code"`
-	Conditions  []BadgeConditionSchema `json:"conditions"`
-	Description string                 `json:"description"`
-	Season      *int                   `json:"season"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	Season      *int   `json:"season"`
 }
 
 type BankExtensionSchema struct {
@@ -468,7 +555,30 @@ type BankSchema struct {
 	Slots             int `json:"slots"`
 }
 
-type ChangePassword struct {
+type BuyCustomDesignRequestSchema struct {
+	Code string `json:"code"`
+}
+
+type BuySkinRequestSchema struct {
+	Code string `json:"code"`
+}
+
+type BuySkinResponseDataSchema struct {
+	Gems  int      `json:"gems"`
+	Skin  string   `json:"skin"`
+	Skins []string `json:"skins"`
+}
+
+type BuySkinResponseSchema struct {
+	Data BuySkinResponseDataSchema `json:"data"`
+}
+
+type ChangeEmailSchema struct {
+	CurrentEmail openapi_types.Email `json:"current_email"`
+	NewEmail     openapi_types.Email `json:"new_email"`
+}
+
+type ChangePasswordSchema struct {
 	CurrentPassword string `json:"current_password"`
 	NewPassword     string `json:"new_password"`
 }
@@ -480,7 +590,7 @@ type ChangeSkinCharacterDataSchema struct {
 }
 
 type ChangeSkinCharacterSchema struct {
-	Skin CharacterSkin `json:"skin"`
+	Skin string `json:"skin"`
 }
 
 type ChangeSkinResponseSchema struct {
@@ -506,30 +616,30 @@ type CharacterFightSchema struct {
 }
 
 type CharacterLeaderboardSchema struct {
-	Account                string        `json:"account"`
-	AlchemyLevel           int           `json:"alchemy_level"`
-	AlchemyTotalXp         int           `json:"alchemy_total_xp"`
-	CookingLevel           int           `json:"cooking_level"`
-	CookingTotalXp         int           `json:"cooking_total_xp"`
-	FishingLevel           int           `json:"fishing_level"`
-	FishingTotalXp         int           `json:"fishing_total_xp"`
-	GearcraftingLevel      int           `json:"gearcrafting_level"`
-	GearcraftingTotalXp    int           `json:"gearcrafting_total_xp"`
-	Gold                   int           `json:"gold"`
-	JewelrycraftingLevel   int           `json:"jewelrycrafting_level"`
-	JewelrycraftingTotalXp int           `json:"jewelrycrafting_total_xp"`
-	Level                  int           `json:"level"`
-	MiningLevel            int           `json:"mining_level"`
-	MiningTotalXp          int           `json:"mining_total_xp"`
-	Name                   string        `json:"name"`
-	Position               int           `json:"position"`
-	Skin                   string        `json:"skin"`
-	Status                 AccountStatus `json:"status"`
-	TotalXp                int           `json:"total_xp"`
-	WeaponcraftingLevel    int           `json:"weaponcrafting_level"`
-	WeaponcraftingTotalXp  int           `json:"weaponcrafting_total_xp"`
-	WoodcuttingLevel       int           `json:"woodcutting_level"`
-	WoodcuttingTotalXp     int           `json:"woodcutting_total_xp"`
+	Account                string `json:"account"`
+	AlchemyLevel           int    `json:"alchemy_level"`
+	AlchemyTotalXp         int    `json:"alchemy_total_xp"`
+	CookingLevel           int    `json:"cooking_level"`
+	CookingTotalXp         int    `json:"cooking_total_xp"`
+	FishingLevel           int    `json:"fishing_level"`
+	FishingTotalXp         int    `json:"fishing_total_xp"`
+	GearcraftingLevel      int    `json:"gearcrafting_level"`
+	GearcraftingTotalXp    int    `json:"gearcrafting_total_xp"`
+	Gold                   int    `json:"gold"`
+	JewelrycraftingLevel   int    `json:"jewelrycrafting_level"`
+	JewelrycraftingTotalXp int    `json:"jewelrycrafting_total_xp"`
+	Level                  int    `json:"level"`
+	Member                 bool   `json:"member"`
+	MiningLevel            int    `json:"mining_level"`
+	MiningTotalXp          int    `json:"mining_total_xp"`
+	Name                   string `json:"name"`
+	Position               int    `json:"position"`
+	Skin                   string `json:"skin"`
+	TotalXp                int    `json:"total_xp"`
+	WeaponcraftingLevel    int    `json:"weaponcrafting_level"`
+	WeaponcraftingTotalXp  int    `json:"weaponcrafting_total_xp"`
+	WoodcuttingLevel       int    `json:"woodcutting_level"`
+	WoodcuttingTotalXp     int    `json:"woodcutting_total_xp"`
 }
 
 type CharacterLeaderboardType string
@@ -606,7 +716,7 @@ type CharacterSchema struct {
 	HelmetSlot           string                 `json:"helmet_slot"`
 	Hp                   int                    `json:"hp"`
 	Initiative           int                    `json:"initiative"`
-	Inventory            *[]InventorySlot       `json:"inventory,omitempty"`
+	Inventory            *[]InventorySlotSchema `json:"inventory,omitempty"`
 	InventoryMaxItems    int                    `json:"inventory_max_items"`
 	JewelrycraftingLevel int                    `json:"jewelrycrafting_level"`
 	JewelrycraftingMaxXp int                    `json:"jewelrycrafting_max_xp"`
@@ -630,7 +740,7 @@ type CharacterSchema struct {
 	Ring2Slot            string                 `json:"ring2_slot"`
 	RuneSlot             string                 `json:"rune_slot"`
 	ShieldSlot           string                 `json:"shield_slot"`
-	Skin                 CharacterSkin          `json:"skin"`
+	Skin                 string                 `json:"skin"`
 	Speed                int                    `json:"speed"`
 	Task                 string                 `json:"task"`
 	TaskProgress         int                    `json:"task_progress"`
@@ -654,7 +764,16 @@ type CharacterSchema struct {
 	Y                    int                    `json:"y"`
 }
 
-type CharacterSkin string
+type CharacterStatsResponseSchema struct {
+	Data CharacterStatsSchema `json:"data"`
+}
+
+type CharacterStatsSchema struct {
+	ActionCounts      *map[string]int `json:"action_counts,omitempty"`
+	Deaths            *int            `json:"deaths,omitempty"`
+	MonstersKilled    *map[string]int `json:"monsters_killed,omitempty"`
+	ResourcesGathered *map[string]int `json:"resources_gathered,omitempty"`
+}
 
 type CharacterTransitionDataSchema struct {
 	Character   CharacterSchema  `json:"character"`
@@ -669,6 +788,15 @@ type CharacterTransitionResponseSchema struct {
 
 type CharactersListSchema struct {
 	Data []CharacterSchema `json:"data"`
+}
+
+type CheckoutResponseSchema struct {
+	CheckoutUrl string `json:"checkout_url"`
+	SessionId   string `json:"session_id"`
+}
+
+type CheckoutResponseWrapperSchema struct {
+	Data CheckoutResponseSchema `json:"data"`
 }
 
 type ClaimPendingItemDataSchema struct {
@@ -737,74 +865,82 @@ type CraftingSchema struct {
 
 type DataPageAccountAchievementSchema struct {
 	Data  []AccountAchievementSchema `json:"data"`
-	Page  *int                       `json:"page"`
-	Pages *int                       `json:"pages"`
-	Size  *int                       `json:"size"`
-	Total *int                       `json:"total"`
+	Page  int                        `json:"page"`
+	Pages int                        `json:"pages"`
+	Size  int                        `json:"size"`
+	Total int                        `json:"total"`
 }
 
 type DataPageAccountLeaderboardSchema struct {
 	Data  []AccountLeaderboardSchema `json:"data"`
-	Page  *int                       `json:"page"`
-	Pages *int                       `json:"pages"`
-	Size  *int                       `json:"size"`
-	Total *int                       `json:"total"`
+	Page  int                        `json:"page"`
+	Pages int                        `json:"pages"`
+	Size  int                        `json:"size"`
+	Total int                        `json:"total"`
 }
 
 type DataPageActiveCharacterSchema struct {
 	Data  []ActiveCharacterSchema `json:"data"`
-	Page  *int                    `json:"page"`
-	Pages *int                    `json:"pages"`
-	Size  *int                    `json:"size"`
-	Total *int                    `json:"total"`
+	Page  int                     `json:"page"`
+	Pages int                     `json:"pages"`
+	Size  int                     `json:"size"`
+	Total int                     `json:"total"`
 }
 
 type DataPageCharacterLeaderboardSchema struct {
 	Data  []CharacterLeaderboardSchema `json:"data"`
-	Page  *int                         `json:"page"`
-	Pages *int                         `json:"pages"`
-	Size  *int                         `json:"size"`
-	Total *int                         `json:"total"`
+	Page  int                          `json:"page"`
+	Pages int                          `json:"pages"`
+	Size  int                          `json:"size"`
+	Total int                          `json:"total"`
+}
+
+type DataPageGEOrderHistorySchema struct {
+	Data  []GEOrderHistorySchema `json:"data"`
+	Page  int                    `json:"page"`
+	Pages int                    `json:"pages"`
+	Size  int                    `json:"size"`
+	Total int                    `json:"total"`
 }
 
 type DataPageGEOrderSchema struct {
 	Data  []GEOrderSchema `json:"data"`
-	Page  *int            `json:"page"`
-	Pages *int            `json:"pages"`
-	Size  *int            `json:"size"`
-	Total *int            `json:"total"`
-}
-
-type DataPageGeOrderHistorySchema struct {
-	Data  []GeOrderHistorySchema `json:"data"`
-	Page  *int                   `json:"page"`
-	Pages *int                   `json:"pages"`
-	Size  *int                   `json:"size"`
-	Total *int                   `json:"total"`
+	Page  int             `json:"page"`
+	Pages int             `json:"pages"`
+	Size  int             `json:"size"`
+	Total int             `json:"total"`
 }
 
 type DataPageLogSchema struct {
 	Data  []LogSchema `json:"data"`
-	Page  *int        `json:"page"`
-	Pages *int        `json:"pages"`
-	Size  *int        `json:"size"`
-	Total *int        `json:"total"`
+	Page  int         `json:"page"`
+	Pages int         `json:"pages"`
+	Size  int         `json:"size"`
+	Total int         `json:"total"`
 }
 
 type DataPagePendingItemSchema struct {
 	Data  []PendingItemSchema `json:"data"`
-	Page  *int                `json:"page"`
-	Pages *int                `json:"pages"`
-	Size  *int                `json:"size"`
-	Total *int                `json:"total"`
+	Page  int                 `json:"page"`
+	Pages int                 `json:"pages"`
+	Size  int                 `json:"size"`
+	Total int                 `json:"total"`
+}
+
+type DataPageRaidLeaderboardEntrySchema struct {
+	Data  []RaidLeaderboardEntrySchema `json:"data"`
+	Page  int                          `json:"page"`
+	Pages int                          `json:"pages"`
+	Size  int                          `json:"size"`
+	Total int                          `json:"total"`
 }
 
 type DataPageSimpleItemSchema struct {
 	Data  []SimpleItemSchema `json:"data"`
-	Page  *int               `json:"page"`
-	Pages *int               `json:"pages"`
-	Size  *int               `json:"size"`
-	Total *int               `json:"total"`
+	Page  int                `json:"page"`
+	Pages int                `json:"pages"`
+	Size  int                `json:"size"`
+	Total int                `json:"total"`
 }
 
 type DeleteCharacterSchema struct {
@@ -859,21 +995,25 @@ type EffectSubtype string
 
 type EffectType string
 
-type EquipRequestSchema struct {
-	Character CharacterSchema `json:"character"`
-	Cooldown  CooldownSchema  `json:"cooldown"`
-	Item      ItemSchema      `json:"item"`
-	Slot      ItemSlot        `json:"slot"`
-}
-
 type EquipSchema struct {
 	Code     string   `json:"code"`
 	Quantity *int     `json:"quantity,omitempty"`
 	Slot     ItemSlot `json:"slot"`
 }
 
+type EquipmentItemSchema struct {
+	Item ItemSchema `json:"item"`
+	Slot ItemSlot   `json:"slot"`
+}
+
 type EquipmentResponseSchema struct {
-	Data EquipRequestSchema `json:"data"`
+	Data EquipmentTransactionSchema `json:"data"`
+}
+
+type EquipmentTransactionSchema struct {
+	Character CharacterSchema       `json:"character"`
+	Cooldown  CooldownSchema        `json:"cooldown"`
+	Items     []EquipmentItemSchema `json:"items"`
 }
 
 type ErrorResponseSchema struct {
@@ -900,12 +1040,16 @@ type EventMapSchema struct {
 }
 
 type EventSchema struct {
-	Code     string             `json:"code"`
-	Content  EventContentSchema `json:"content"`
-	Duration int                `json:"duration"`
-	Maps     []EventMapSchema   `json:"maps"`
-	Name     string             `json:"name"`
-	Rate     int                `json:"rate"`
+	Code               string              `json:"code"`
+	Content            *EventContentSchema `json:"content,omitempty"`
+	Cooldown           *int                `json:"cooldown,omitempty"`
+	CooldownExpiration *time.Time          `json:"cooldown_expiration"`
+	Duration           int                 `json:"duration"`
+	Maps               []EventMapSchema    `json:"maps"`
+	Name               string              `json:"name"`
+	Price              *int                `json:"price"`
+	Rate               int                 `json:"rate"`
+	Transition         *TransitionSchema   `json:"transition,omitempty"`
 }
 
 type FakeCharacterSchema struct {
@@ -968,10 +1112,20 @@ type GEOrderCreatedSchema struct {
 	TotalPrice int       `json:"total_price"`
 }
 
-type GEOrderCreationrSchema struct {
+type GEOrderCreationSchema struct {
 	Code     string `json:"code"`
 	Price    int    `json:"price"`
 	Quantity int    `json:"quantity"`
+}
+
+type GEOrderHistorySchema struct {
+	Buyer    string    `json:"buyer"`
+	Code     string    `json:"code"`
+	OrderId  string    `json:"order_id"`
+	Price    int       `json:"price"`
+	Quantity int       `json:"quantity"`
+	Seller   string    `json:"seller"`
+	SoldAt   time.Time `json:"sold_at"`
 }
 
 type GEOrderResponseSchema struct {
@@ -1016,14 +1170,83 @@ type GETransactionSchema struct {
 
 type GatheringSkill string
 
-type GeOrderHistorySchema struct {
-	Buyer    string    `json:"buyer"`
-	Code     string    `json:"code"`
-	OrderId  string    `json:"order_id"`
-	Price    int       `json:"price"`
-	Quantity int       `json:"quantity"`
-	Seller   string    `json:"seller"`
-	SoldAt   time.Time `json:"sold_at"`
+type GemShopCatalogDataSchema struct {
+	CustomDesigns []GemShopCustomDesignCatalogItemSchema `json:"custom_designs"`
+	Skins         []GemShopSkinCatalogItemSchema         `json:"skins"`
+	SpawnEvents   []GemShopSpawnEventCatalogItemSchema   `json:"spawn_events"`
+	Subscriptions []GemShopSubscriptionCatalogItemSchema `json:"subscriptions"`
+}
+
+type GemShopCatalogResponseSchema struct {
+	Data GemShopCatalogDataSchema `json:"data"`
+}
+
+type GemShopCustomDesignCatalogItemSchema struct {
+	Category        GemShopCustomDesignCatalogItemSchemaCategory `json:"category"`
+	Code            string                                       `json:"code"`
+	Description     string                                       `json:"description"`
+	Name            string                                       `json:"name"`
+	Price           int                                          `json:"price"`
+	UniqueToAccount bool                                         `json:"unique_to_account"`
+}
+
+type GemShopCustomDesignCatalogItemSchemaCategory string
+
+type GemShopCustomDesignPurchaseResponseDataSchema struct {
+	Code string `json:"code"`
+	Cost int    `json:"cost"`
+	Gems int    `json:"gems"`
+	Name string `json:"name"`
+}
+
+type GemShopCustomDesignPurchaseResponseSchema struct {
+	Data GemShopCustomDesignPurchaseResponseDataSchema `json:"data"`
+}
+
+type GemShopSkinCatalogItemSchema struct {
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	Name        string `json:"name"`
+	Price       int    `json:"price"`
+}
+
+type GemShopSpawnEventCatalogItemSchema struct {
+	Code        string         `json:"code"`
+	ContentCode string         `json:"content_code"`
+	ContentType MapContentType `json:"content_type"`
+	Duration    int            `json:"duration"`
+	Name        string         `json:"name"`
+	Price       int            `json:"price"`
+}
+
+type GemShopSubscriptionCatalogItemSchema struct {
+	Code         string `json:"code"`
+	DurationDays int    `json:"duration_days"`
+	Name         string `json:"name"`
+	Price        int    `json:"price"`
+}
+
+type GemShopSubscriptionResponseDataSchema struct {
+	Cost             int       `json:"cost"`
+	Gems             int       `json:"gems"`
+	Member           bool      `json:"member"`
+	MemberExpiration time.Time `json:"member_expiration"`
+}
+
+type GemShopSubscriptionResponseSchema struct {
+	Data GemShopSubscriptionResponseDataSchema `json:"data"`
+}
+
+type GemTransactionListResponseSchema struct {
+	Data []GemTransactionSchema `json:"data"`
+}
+
+type GemTransactionSchema struct {
+	CreatedAt   time.Time              `json:"created_at"`
+	Description string                 `json:"description"`
+	Gems        int                    `json:"gems"`
+	Metadata    map[string]interface{} `json:"metadata"`
+	Type        string                 `json:"type"`
 }
 
 type GiveGoldDataSchema struct {
@@ -1067,7 +1290,7 @@ type InteractionSchema struct {
 	Transition *TransitionSchema `json:"transition,omitempty"`
 }
 
-type InventorySlot struct {
+type InventorySlotSchema struct {
 	Code     string `json:"code"`
 	Quantity int    `json:"quantity"`
 	Slot     int    `json:"slot"`
@@ -1085,6 +1308,7 @@ type ItemSchema struct {
 	Effects     *[]SimpleEffectSchema `json:"effects,omitempty"`
 	Level       int                   `json:"level"`
 	Name        string                `json:"name"`
+	Recyclable  *bool                 `json:"recyclable,omitempty"`
 	Subtype     string                `json:"subtype"`
 	Tradeable   bool                  `json:"tradeable"`
 	Type        string                `json:"type"`
@@ -1133,6 +1357,16 @@ type MapSchema struct {
 	Y            int               `json:"y"`
 }
 
+type MemberTokenSubscriptionResponseDataSchema struct {
+	Member           bool      `json:"member"`
+	MemberExpiration time.Time `json:"member_expiration"`
+	MemberToken      int       `json:"member_token"`
+}
+
+type MemberTokenSubscriptionResponseSchema struct {
+	Data MemberTokenSubscriptionResponseDataSchema `json:"data"`
+}
+
 type MonsterResponseSchema struct {
 	Data MonsterSchema `json:"data"`
 }
@@ -1167,10 +1401,10 @@ type MyAccountDetails struct {
 	BanReason          *string             `json:"ban_reason,omitempty"`
 	Banned             bool                `json:"banned"`
 	Email              openapi_types.Email `json:"email"`
-	EventToken         int                 `json:"event_token"`
 	Gems               int                 `json:"gems"`
 	Member             bool                `json:"member"`
 	MemberExpiration   *time.Time          `json:"member_expiration"`
+	MemberToken        *int                `json:"member_token,omitempty"`
 	Skins              []string            `json:"skins"`
 	Status             AccountStatus       `json:"status"`
 	Username           string              `json:"username"`
@@ -1184,7 +1418,7 @@ type MyCharactersListSchema struct {
 	Data []CharacterSchema `json:"data"`
 }
 
-type NPCItem struct {
+type NPCItemSchema struct {
 	BuyPrice  *int   `json:"buy_price"`
 	Code      string `json:"code"`
 	Currency  string `json:"currency"`
@@ -1197,11 +1431,11 @@ type NPCResponseSchema struct {
 }
 
 type NPCSchema struct {
-	Code        string           `json:"code"`
-	Description string           `json:"description"`
-	Items       *[]SimpleNPCItem `json:"items,omitempty"`
-	Name        string           `json:"name"`
-	Type        NPCType          `json:"type"`
+	Code        string                 `json:"code"`
+	Description string                 `json:"description"`
+	Items       *[]SimpleNPCItemSchema `json:"items,omitempty"`
+	Name        string                 `json:"name"`
+	Type        NPCType                `json:"type"`
 }
 
 type NPCType string
@@ -1256,9 +1490,120 @@ type PendingItemSchema struct {
 
 type PendingItemSource string
 
+type PurchaseGemsRequestSchema struct {
+	Quantity PurchaseGemsRequestSchemaQuantity `json:"quantity"`
+}
+
+type PurchaseGemsRequestSchemaQuantity int
+
+type PurchaseHistoryListResponseSchema struct {
+	Data []PurchaseHistorySchema `json:"data"`
+}
+
+type PurchaseHistorySchema struct {
+	Amount       int          `json:"amount"`
+	CreatedAt    time.Time    `json:"created_at"`
+	Description  string       `json:"description"`
+	GemsCredited *int         `json:"gems_credited,omitempty"`
+	Type         PurchaseType `json:"type"`
+}
+
+type PurchaseType string
+
+type RaidDamageRewardSchema struct {
+	DamagePerReward int                 `json:"damage_per_reward"`
+	Items           *[]SimpleItemSchema `json:"items,omitempty"`
+	MaxRewards      *int                `json:"max_rewards"`
+}
+
+type RaidInstanceResult string
+
+type RaidInstanceSchema struct {
+	EndedAt              *time.Time          `json:"ended_at"`
+	EndsAt               time.Time           `json:"ends_at"`
+	ParticipantCount     *int                `json:"participant_count,omitempty"`
+	RemainingHp          int                 `json:"remaining_hp"`
+	Result               *RaidInstanceResult `json:"result,omitempty"`
+	RewardsDistributedAt *time.Time          `json:"rewards_distributed_at"`
+	StartsAt             time.Time           `json:"starts_at"`
+	Status               RaidStatus          `json:"status"`
+	TotalHp              int                 `json:"total_hp"`
+}
+
+type RaidLeaderboardEntrySchema struct {
+	Account  string `json:"account"`
+	Points   int    `json:"points"`
+	Position int    `json:"position"`
+}
+
+type RaidRankRewardSchema struct {
+	Items   *[]SimpleItemSchema `json:"items,omitempty"`
+	MaxRank int                 `json:"max_rank"`
+	MinRank int                 `json:"min_rank"`
+}
+
+type RaidResponseSchema struct {
+	Data RaidSchema `json:"data"`
+}
+
+type RaidRewardsSchema struct {
+	DamageRewards *[]RaidDamageRewardSchema `json:"damage_rewards,omitempty"`
+	Leaderboard   *[]RaidRankRewardSchema   `json:"leaderboard,omitempty"`
+}
+
+type RaidScheduleSchema struct {
+	DurationHours  *int          `json:"duration_hours,omitempty"`
+	StartHourUtc   *int          `json:"start_hour_utc,omitempty"`
+	StartMinuteUtc *int          `json:"start_minute_utc,omitempty"`
+	Weekdays       []RaidWeekday `json:"weekdays"`
+}
+
+type RaidSchema struct {
+	ActiveInstance   *RaidInstanceSchema `json:"active_instance,omitempty"`
+	Code             string              `json:"code"`
+	Description      *string             `json:"description"`
+	LatestInstance   *RaidInstanceSchema `json:"latest_instance,omitempty"`
+	Monster          string              `json:"monster"`
+	Name             string              `json:"name"`
+	NextStartAt      time.Time           `json:"next_start_at"`
+	ParticipantCount *int                `json:"participant_count,omitempty"`
+	Rewards          *RaidRewardsSchema  `json:"rewards,omitempty"`
+	Schedule         RaidScheduleSchema  `json:"schedule"`
+	Status           RaidStatus          `json:"status"`
+}
+
+type RaidStatus string
+
+type RaidWeekday string
+
 type RateLimitSchema struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`
+}
+
+type RateLimitScopeSchema struct {
+	Day    *RateLimitWindowSchema `json:"day,omitempty"`
+	Hour   *RateLimitWindowSchema `json:"hour,omitempty"`
+	Minute *RateLimitWindowSchema `json:"minute,omitempty"`
+	Second *RateLimitWindowSchema `json:"second,omitempty"`
+}
+
+type RateLimitWindowSchema struct {
+	Limit     int       `json:"limit"`
+	Remaining int       `json:"remaining"`
+	Reset     time.Time `json:"reset"`
+}
+
+type RateLimitsDataSchema struct {
+	Account    RateLimitScopeSchema  `json:"account"`
+	Action     RateLimitScopeSchema  `json:"action"`
+	Assistant  *RateLimitScopeSchema `json:"assistant,omitempty"`
+	Data       RateLimitScopeSchema  `json:"data"`
+	Simulation RateLimitScopeSchema  `json:"simulation"`
+}
+
+type RateLimitsSchema struct {
+	Data RateLimitsDataSchema `json:"data"`
 }
 
 type RecyclingDataSchema struct {
@@ -1268,7 +1613,9 @@ type RecyclingDataSchema struct {
 }
 
 type RecyclingItemsSchema struct {
-	Items []DropSchema `json:"items"`
+	Enhanced *bool        `json:"enhanced,omitempty"`
+	Gold     *int         `json:"gold,omitempty"`
+	Items    []DropSchema `json:"items"`
 }
 
 type RecyclingResponseSchema struct {
@@ -1277,6 +1624,7 @@ type RecyclingResponseSchema struct {
 
 type RecyclingSchema struct {
 	Code     string `json:"code"`
+	Enhanced *bool  `json:"enhanced,omitempty"`
 	Quantity *int   `json:"quantity,omitempty"`
 }
 
@@ -1315,29 +1663,97 @@ type RewardResponseSchema struct {
 	Data DropRateSchema `json:"data"`
 }
 
+type RewardType string
+
 type RewardsSchema struct {
 	Gold  int                `json:"gold"`
 	Items []SimpleItemSchema `json:"items"`
 }
 
-type SeasonBadgeSchema struct {
-	Code           string `json:"code"`
-	Description    string `json:"description"`
-	RequiredPoints int    `json:"required_points"`
+type SandboxCharacterActionSchema struct {
+	Character string `json:"character"`
+}
+
+type SandboxGiveGoldDataSchema struct {
+	Character CharacterSchema `json:"character"`
+	Cooldown  CooldownSchema  `json:"cooldown"`
+	Quantity  int             `json:"quantity"`
+}
+
+type SandboxGiveGoldResponseSchema struct {
+	Data SandboxGiveGoldDataSchema `json:"data"`
+}
+
+type SandboxGiveItemDataSchema struct {
+	Character CharacterSchema  `json:"character"`
+	Cooldown  CooldownSchema   `json:"cooldown"`
+	Item      SimpleItemSchema `json:"item"`
+}
+
+type SandboxGiveItemResponseSchema struct {
+	Data SandboxGiveItemDataSchema `json:"data"`
+}
+
+type SandboxGiveItemSchema struct {
+	Character string `json:"character"`
+	Code      string `json:"code"`
+	Quantity  int    `json:"quantity"`
+}
+
+type SandboxGiveXPDataSchema struct {
+	Amount    int             `json:"amount"`
+	Character CharacterSchema `json:"character"`
+	Cooldown  CooldownSchema  `json:"cooldown"`
+	Type      XPType          `json:"type"`
+}
+
+type SandboxGiveXPResponseSchema struct {
+	Data SandboxGiveXPDataSchema `json:"data"`
+}
+
+type SandboxGiveXPSchema struct {
+	Amount    int    `json:"amount"`
+	Character string `json:"character"`
+	Type      XPType `json:"type"`
+}
+
+type SandboxResponseSchema struct {
+	Data SandboxSchema `json:"data"`
+}
+
+type SandboxSchema struct {
+	Character CharacterSchema `json:"character"`
+}
+
+type SandboxTeleportDataSchema struct {
+	Character   CharacterSchema `json:"character"`
+	Destination MapSchema       `json:"destination"`
+}
+
+type SandboxTeleportResponseSchema struct {
+	Data SandboxTeleportDataSchema `json:"data"`
+}
+
+type SandboxTeleportSchema struct {
+	Character string `json:"character"`
+	MapId     int    `json:"map_id"`
+}
+
+type SeasonRewardSchema struct {
+	Code           string     `json:"code"`
+	Description    string     `json:"description"`
+	FirstOnly      *bool      `json:"first_only,omitempty"`
+	MemberRequired *bool      `json:"member_required,omitempty"`
+	Quantity       *int       `json:"quantity,omitempty"`
+	RequiredPoints int        `json:"required_points"`
+	Type           RewardType `json:"type"`
 }
 
 type SeasonSchema struct {
-	Badges    []SeasonBadgeSchema `json:"badges"`
-	Name      *string             `json:"name,omitempty"`
-	Number    *int                `json:"number,omitempty"`
-	Skins     []SeasonSkinSchema  `json:"skins"`
-	StartDate *time.Time          `json:"start_date,omitempty"`
-}
-
-type SeasonSkinSchema struct {
-	Code           string `json:"code"`
-	Description    string `json:"description"`
-	RequiredPoints int    `json:"required_points"`
+	Name      *string                    `json:"name,omitempty"`
+	Number    *int                       `json:"number,omitempty"`
+	Rewards   []StatusSeasonRewardSchema `json:"rewards"`
+	StartDate *time.Time                 `json:"start_date,omitempty"`
 }
 
 type SimpleEffectSchema struct {
@@ -1351,7 +1767,7 @@ type SimpleItemSchema struct {
 	Quantity int    `json:"quantity"`
 }
 
-type SimpleNPCItem struct {
+type SimpleNPCItemSchema struct {
 	BuyPrice  *int   `json:"buy_price"`
 	Code      string `json:"code"`
 	Currency  string `json:"currency"`
@@ -1375,112 +1791,148 @@ type SkillResponseSchema struct {
 	Data SkillDataSchema `json:"data"`
 }
 
-type SpawnEventRequest struct {
+type SkinResponseSchema struct {
+	Data SkinSchema `json:"data"`
+}
+
+type SkinSchema struct {
+	Code        string `json:"code"`
+	Default     bool   `json:"default"`
+	Description string `json:"description"`
+	Name        string `json:"name"`
+	Price       *int   `json:"price"`
+}
+
+type SpawnEventRequestSchema struct {
 	Code string `json:"code"`
 }
 
 type StaticDataPageAchievementSchema struct {
 	Data  []AchievementSchema `json:"data"`
-	Page  *int                `json:"page"`
-	Pages *int                `json:"pages"`
-	Size  *int                `json:"size"`
-	Total *int                `json:"total"`
+	Page  int                 `json:"page"`
+	Pages int                 `json:"pages"`
+	Size  int                 `json:"size"`
+	Total int                 `json:"total"`
 }
 
 type StaticDataPageActiveEventSchema struct {
 	Data  []ActiveEventSchema `json:"data"`
-	Page  *int                `json:"page"`
-	Pages *int                `json:"pages"`
-	Size  *int                `json:"size"`
-	Total *int                `json:"total"`
+	Page  int                 `json:"page"`
+	Pages int                 `json:"pages"`
+	Size  int                 `json:"size"`
+	Total int                 `json:"total"`
 }
 
 type StaticDataPageBadgeSchema struct {
 	Data  []BadgeSchema `json:"data"`
-	Page  *int          `json:"page"`
-	Pages *int          `json:"pages"`
-	Size  *int          `json:"size"`
-	Total *int          `json:"total"`
+	Page  int           `json:"page"`
+	Pages int           `json:"pages"`
+	Size  int           `json:"size"`
+	Total int           `json:"total"`
 }
 
 type StaticDataPageDropRateSchema struct {
 	Data  []DropRateSchema `json:"data"`
-	Page  *int             `json:"page"`
-	Pages *int             `json:"pages"`
-	Size  *int             `json:"size"`
-	Total *int             `json:"total"`
+	Page  int              `json:"page"`
+	Pages int              `json:"pages"`
+	Size  int              `json:"size"`
+	Total int              `json:"total"`
 }
 
 type StaticDataPageEffectSchema struct {
 	Data  []EffectSchema `json:"data"`
-	Page  *int           `json:"page"`
-	Pages *int           `json:"pages"`
-	Size  *int           `json:"size"`
-	Total *int           `json:"total"`
+	Page  int            `json:"page"`
+	Pages int            `json:"pages"`
+	Size  int            `json:"size"`
+	Total int            `json:"total"`
 }
 
 type StaticDataPageEventSchema struct {
 	Data  []EventSchema `json:"data"`
-	Page  *int          `json:"page"`
-	Pages *int          `json:"pages"`
-	Size  *int          `json:"size"`
-	Total *int          `json:"total"`
+	Page  int           `json:"page"`
+	Pages int           `json:"pages"`
+	Size  int           `json:"size"`
+	Total int           `json:"total"`
 }
 
 type StaticDataPageItemSchema struct {
 	Data  []ItemSchema `json:"data"`
-	Page  *int         `json:"page"`
-	Pages *int         `json:"pages"`
-	Size  *int         `json:"size"`
-	Total *int         `json:"total"`
+	Page  int          `json:"page"`
+	Pages int          `json:"pages"`
+	Size  int          `json:"size"`
+	Total int          `json:"total"`
 }
 
 type StaticDataPageMapSchema struct {
 	Data  []MapSchema `json:"data"`
-	Page  *int        `json:"page"`
-	Pages *int        `json:"pages"`
-	Size  *int        `json:"size"`
-	Total *int        `json:"total"`
+	Page  int         `json:"page"`
+	Pages int         `json:"pages"`
+	Size  int         `json:"size"`
+	Total int         `json:"total"`
 }
 
 type StaticDataPageMonsterSchema struct {
 	Data  []MonsterSchema `json:"data"`
-	Page  *int            `json:"page"`
-	Pages *int            `json:"pages"`
-	Size  *int            `json:"size"`
-	Total *int            `json:"total"`
+	Page  int             `json:"page"`
+	Pages int             `json:"pages"`
+	Size  int             `json:"size"`
+	Total int             `json:"total"`
 }
 
-type StaticDataPageNPCItem struct {
-	Data  []NPCItem `json:"data"`
-	Page  *int      `json:"page"`
-	Pages *int      `json:"pages"`
-	Size  *int      `json:"size"`
-	Total *int      `json:"total"`
+type StaticDataPageNPCItemSchema struct {
+	Data  []NPCItemSchema `json:"data"`
+	Page  int             `json:"page"`
+	Pages int             `json:"pages"`
+	Size  int             `json:"size"`
+	Total int             `json:"total"`
 }
 
 type StaticDataPageNPCSchema struct {
 	Data  []NPCSchema `json:"data"`
-	Page  *int        `json:"page"`
-	Pages *int        `json:"pages"`
-	Size  *int        `json:"size"`
-	Total *int        `json:"total"`
+	Page  int         `json:"page"`
+	Pages int         `json:"pages"`
+	Size  int         `json:"size"`
+	Total int         `json:"total"`
+}
+
+type StaticDataPageRaidSchema struct {
+	Data  []RaidSchema `json:"data"`
+	Page  int          `json:"page"`
+	Pages int          `json:"pages"`
+	Size  int          `json:"size"`
+	Total int          `json:"total"`
 }
 
 type StaticDataPageResourceSchema struct {
 	Data  []ResourceSchema `json:"data"`
-	Page  *int             `json:"page"`
-	Pages *int             `json:"pages"`
-	Size  *int             `json:"size"`
-	Total *int             `json:"total"`
+	Page  int              `json:"page"`
+	Pages int              `json:"pages"`
+	Size  int              `json:"size"`
+	Total int              `json:"total"`
+}
+
+type StaticDataPageSeasonRewardSchema struct {
+	Data  []SeasonRewardSchema `json:"data"`
+	Page  int                  `json:"page"`
+	Pages int                  `json:"pages"`
+	Size  int                  `json:"size"`
+	Total int                  `json:"total"`
+}
+
+type StaticDataPageSkinSchema struct {
+	Data  []SkinSchema `json:"data"`
+	Page  int          `json:"page"`
+	Pages int          `json:"pages"`
+	Size  int          `json:"size"`
+	Total int          `json:"total"`
 }
 
 type StaticDataPageTaskFullSchema struct {
 	Data  []TaskFullSchema `json:"data"`
-	Page  *int             `json:"page"`
-	Pages *int             `json:"pages"`
-	Size  *int             `json:"size"`
-	Total *int             `json:"total"`
+	Page  int              `json:"page"`
+	Pages int              `json:"pages"`
+	Size  int              `json:"size"`
+	Total int              `json:"total"`
 }
 
 type StatusResponseSchema struct {
@@ -1497,10 +1949,44 @@ type StatusSchema struct {
 	Version          string            `json:"version"`
 }
 
+type StatusSeasonRewardSchema struct {
+	Code           string     `json:"code"`
+	Description    string     `json:"description"`
+	FirstOnly      *bool      `json:"first_only,omitempty"`
+	MemberRequired *bool      `json:"member_required,omitempty"`
+	Quantity       *int       `json:"quantity,omitempty"`
+	RequiredPoints int        `json:"required_points"`
+	Type           RewardType `json:"type"`
+}
+
 type StorageEffectSchema struct {
 	Code  string `json:"code"`
 	Value int    `json:"value"`
 }
+
+type StripeSubscriptionPlan string
+
+type SubscribeRequestSchema struct {
+	Plan StripeSubscriptionPlan `json:"plan"`
+}
+
+type SubscriptionPlan string
+
+type SubscriptionResponseSchema struct {
+	Data SubscriptionSchema `json:"data"`
+}
+
+type SubscriptionSchema struct {
+	CancelledAt        *time.Time                       `json:"cancelled_at"`
+	CreatedAt          time.Time                        `json:"created_at"`
+	CurrentPeriodEnd   time.Time                        `json:"current_period_end"`
+	CurrentPeriodStart time.Time                        `json:"current_period_start"`
+	Plan               SubscriptionPlan                 `json:"plan"`
+	PurchaseSource     SubscriptionSchemaPurchaseSource `json:"purchase_source"`
+	Status             string                           `json:"status"`
+}
+
+type SubscriptionSchemaPurchaseSource string
 
 type TaskCancelledResponseSchema struct {
 	Data TaskCancelledSchema `json:"data"`
@@ -1586,6 +2072,8 @@ type UseItemSchema struct {
 	Item      ItemSchema      `json:"item"`
 }
 
+type XPType string
+
 type GetAccountAchievementsAccountsAccountAchievementsGetParams struct {
 	Type      *AchievementType `form:"type,omitempty" json:"type,omitempty"`
 	Completed *bool            `form:"completed,omitempty" json:"completed,omitempty"`
@@ -1632,11 +2120,12 @@ type GetGeHistoryGrandexchangeHistoryCodeGetParams struct {
 }
 
 type GetGeOrdersGrandexchangeOrdersGetParams struct {
-	Code    *string      `form:"code,omitempty" json:"code,omitempty"`
-	Account *string      `form:"account,omitempty" json:"account,omitempty"`
-	Type    *GEOrderType `form:"type,omitempty" json:"type,omitempty"`
-	Page    *int         `form:"page,omitempty" json:"page,omitempty"`
-	Size    *int         `form:"size,omitempty" json:"size,omitempty"`
+	Code     *string      `form:"code,omitempty" json:"code,omitempty"`
+	Account  *string      `form:"account,omitempty" json:"account,omitempty"`
+	Type     *GEOrderType `form:"type,omitempty" json:"type,omitempty"`
+	ItemType *ItemType    `form:"item_type,omitempty" json:"item_type,omitempty"`
+	Page     *int         `form:"page,omitempty" json:"page,omitempty"`
+	Size     *int         `form:"size,omitempty" json:"size,omitempty"`
 }
 
 type GetAllItemsItemsGetParams struct {
@@ -1669,6 +2158,8 @@ type GetAllMapsMapsGetParams struct {
 	ContentType     *MapContentType `form:"content_type,omitempty" json:"content_type,omitempty"`
 	ContentCode     *string         `form:"content_code,omitempty" json:"content_code,omitempty"`
 	HideBlockedMaps *bool           `form:"hide_blocked_maps,omitempty" json:"hide_blocked_maps,omitempty"`
+	HideEvent       *bool           `form:"hide_event,omitempty" json:"hide_event,omitempty"`
+	Transition      *bool           `form:"transition,omitempty" json:"transition,omitempty"`
 	Page            *int            `form:"page,omitempty" json:"page,omitempty"`
 	Size            *int            `form:"size,omitempty" json:"size,omitempty"`
 }
@@ -1677,6 +2168,8 @@ type GetLayerMapsMapsLayerGetParams struct {
 	ContentType     *MapContentType `form:"content_type,omitempty" json:"content_type,omitempty"`
 	ContentCode     *string         `form:"content_code,omitempty" json:"content_code,omitempty"`
 	HideBlockedMaps *bool           `form:"hide_blocked_maps,omitempty" json:"hide_blocked_maps,omitempty"`
+	HideEvent       *bool           `form:"hide_event,omitempty" json:"hide_event,omitempty"`
+	Transition      *bool           `form:"transition,omitempty" json:"transition,omitempty"`
 	Page            *int            `form:"page,omitempty" json:"page,omitempty"`
 	Size            *int            `form:"size,omitempty" json:"size,omitempty"`
 }
@@ -1729,7 +2222,9 @@ type ActionDepositBankItemMyNameActionBankDepositItemPostJSONBody = []SimpleItem
 
 type ActionWithdrawBankItemMyNameActionBankWithdrawItemPostJSONBody = []SimpleItemSchema
 
-type ActionFightMyNameActionFightPostJSONBody = FightRequestSchema
+type ActionEquipItemMyNameActionEquipPostJSONBody = []EquipSchema
+
+type ActionUnequipItemMyNameActionUnequipPostJSONBody = []UnequipSchema
 
 type GetAllNpcsNpcsDetailsGetParams struct {
 	Name     *string  `form:"name,omitempty" json:"name,omitempty"`
@@ -1753,6 +2248,18 @@ type GetNpcItemsNpcsItemsCodeGetParams struct {
 	Size *int `form:"size,omitempty" json:"size,omitempty"`
 }
 
+type GetAllRaidsRaidsGetParams struct {
+	Name   *string `form:"name,omitempty" json:"name,omitempty"`
+	Active *bool   `form:"active,omitempty" json:"active,omitempty"`
+	Page   *int    `form:"page,omitempty" json:"page,omitempty"`
+	Size   *int    `form:"size,omitempty" json:"size,omitempty"`
+}
+
+type GetRaidLeaderboardRaidsCodeLeaderboardGetParams struct {
+	Page *int `form:"page,omitempty" json:"page,omitempty"`
+	Size *int `form:"size,omitempty" json:"size,omitempty"`
+}
+
 type GetAllResourcesResourcesGetParams struct {
 	MinLevel *int            `form:"min_level,omitempty" json:"min_level,omitempty"`
 	MaxLevel *int            `form:"max_level,omitempty" json:"max_level,omitempty"`
@@ -1760,6 +2267,22 @@ type GetAllResourcesResourcesGetParams struct {
 	Drop     *string         `form:"drop,omitempty" json:"drop,omitempty"`
 	Page     *int            `form:"page,omitempty" json:"page,omitempty"`
 	Size     *int            `form:"size,omitempty" json:"size,omitempty"`
+}
+
+type GetAllSeasonRewardsSeasonRewardsGetParams struct {
+	Type *RewardType `form:"type,omitempty" json:"type,omitempty"`
+	Page *int        `form:"page,omitempty" json:"page,omitempty"`
+	Size *int        `form:"size,omitempty" json:"size,omitempty"`
+}
+
+type GetSeasonRewardsByCodeSeasonRewardsCodeGetParams struct {
+	Page *int `form:"page,omitempty" json:"page,omitempty"`
+	Size *int `form:"size,omitempty" json:"size,omitempty"`
+}
+
+type GetAllSkinsSkinsGetParams struct {
+	Page *int `form:"page,omitempty" json:"page,omitempty"`
+	Size *int `form:"size,omitempty" json:"size,omitempty"`
 }
 
 type GetAllTasksTasksListGetParams struct {
@@ -1786,9 +2309,21 @@ type CreateCharacterCharactersCreatePostJSONRequestBody = AddCharacterSchema
 
 type DeleteCharacterCharactersDeletePostJSONRequestBody = DeleteCharacterSchema
 
-type SpawnEventEventsSpawnPostJSONRequestBody = SpawnEventRequest
+type AskGameAssistantGameAssistantAskPostJSONRequestBody = AssistantQuestionSchema
 
-type ChangePasswordMyChangePasswordPostJSONRequestBody = ChangePassword
+type BuyCustomDesignGemsShopBuyCustomDesignPostJSONRequestBody = BuyCustomDesignRequestSchema
+
+type BuySkinGemsShopSkinPostJSONRequestBody = BuySkinRequestSchema
+
+type BuySpawnEventGemsShopSpawnEventPostJSONRequestBody = SpawnEventRequestSchema
+
+type BuyGemsMyBuyGemsPostJSONRequestBody = PurchaseGemsRequestSchema
+
+type ChangeEmailMyChangeEmailPostJSONRequestBody = ChangeEmailSchema
+
+type ChangePasswordMyChangePasswordPostJSONRequestBody = ChangePasswordSchema
+
+type BuySubscriptionMySubscribeStripePostJSONRequestBody = SubscribeRequestSchema
 
 type ActionDepositBankGoldMyNameActionBankDepositGoldPostJSONRequestBody = DepositWithdrawGoldSchema
 
@@ -1804,9 +2339,9 @@ type ActionCraftingMyNameActionCraftingPostJSONRequestBody = CraftingSchema
 
 type ActionDeleteItemMyNameActionDeletePostJSONRequestBody = SimpleItemSchema
 
-type ActionEquipItemMyNameActionEquipPostJSONRequestBody = EquipSchema
+type ActionEquipItemMyNameActionEquipPostJSONRequestBody = ActionEquipItemMyNameActionEquipPostJSONBody
 
-type ActionFightMyNameActionFightPostJSONRequestBody = ActionFightMyNameActionFightPostJSONBody
+type ActionFightMyNameActionFightPostJSONRequestBody = FightRequestSchema
 
 type ActionGiveGoldMyNameActionGiveGoldPostJSONRequestBody = GiveGoldSchema
 
@@ -1818,7 +2353,7 @@ type ActionGeCancelOrderMyNameActionGrandexchangeCancelPostJSONRequestBody = GEC
 
 type ActionGeCreateBuyOrderMyNameActionGrandexchangeCreateBuyOrderPostJSONRequestBody = GEBuyOrderCreationSchema
 
-type ActionGeCreateSellOrderMyNameActionGrandexchangeCreateSellOrderPostJSONRequestBody = GEOrderCreationrSchema
+type ActionGeCreateSellOrderMyNameActionGrandexchangeCreateSellOrderPostJSONRequestBody = GEOrderCreationSchema
 
 type ActionGeFillMyNameActionGrandexchangeFillPostJSONRequestBody = GEFillBuyOrderSchema
 
@@ -1832,8 +2367,20 @@ type ActionRecyclingMyNameActionRecyclingPostJSONRequestBody = RecyclingSchema
 
 type ActionTaskTradeMyNameActionTaskTradePostJSONRequestBody = SimpleItemSchema
 
-type ActionUnequipItemMyNameActionUnequipPostJSONRequestBody = UnequipSchema
+type ActionUnequipItemMyNameActionUnequipPostJSONRequestBody = ActionUnequipItemMyNameActionUnequipPostJSONBody
 
 type ActionUseItemMyNameActionUsePostJSONRequestBody = SimpleItemSchema
 
-type FightSimulationSimulationFightSimulationPostJSONRequestBody = CombatSimulationRequestSchema
+type ClearCooldownSandboxClearCooldownPostJSONRequestBody = SandboxCharacterActionSchema
+
+type GiveGoldSandboxGiveGoldPostJSONRequestBody = GiveGoldSchema
+
+type GiveItemSandboxGiveItemPostJSONRequestBody = SandboxGiveItemSchema
+
+type GiveXpSandboxGiveXpPostJSONRequestBody = SandboxGiveXPSchema
+
+type SpawnEventSandboxSpawnEventPostJSONRequestBody = SpawnEventRequestSchema
+
+type TeleportSandboxTeleportPostJSONRequestBody = SandboxTeleportSchema
+
+type FightSimulationSimulationFightPostJSONRequestBody = CombatSimulationRequestSchema

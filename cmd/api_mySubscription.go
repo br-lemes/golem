@@ -6,12 +6,11 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
-var myPendingItemsCmd = &cobra.Command{
-	Use:   "myPendingItems",
-	Short: "Get Pending Items",
+var mySubscriptionCmd = &cobra.Command{
+	Use:   "mySubscription",
+	Short: "Get My Subscription",
 	Args: func(cmd *cobra.Command, args []string) error {
 		argCount := len(args)
 		switch argCount {
@@ -27,17 +26,10 @@ var myPendingItemsCmd = &cobra.Command{
 
 		switch argCount {
 		case 0:
-			path = "/my/pending_items"
+			path = "/my/subscription"
 		}
 
 		params := make(map[string]string)
-		localFlags := cmd.LocalFlags()
-		cmd.Flags().Visit(func(f *pflag.Flag) {
-			if localFlags.Lookup(f.Name) == nil {
-				return
-			}
-			params[f.Name] = f.Value.String()
-		})
 
 		resp, err := api.Get(path, params)
 		if err != nil {
@@ -48,9 +40,5 @@ var myPendingItemsCmd = &cobra.Command{
 }
 
 func init() {
-	apiCmd.AddCommand(myPendingItemsCmd)
-	myPendingItemsCmd.Flags().Int("page", 0,
-		"Page number")
-	myPendingItemsCmd.Flags().Int("size", 0,
-		"Page size")
+	apiCmd.AddCommand(mySubscriptionCmd)
 }

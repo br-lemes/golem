@@ -9,13 +9,17 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var myPendingItemsCmd = &cobra.Command{
-	Use:   "myPendingItems",
-	Short: "Get Pending Items",
+var raidsLeaderboardCmd = &cobra.Command{
+	Use:   "raidsLeaderboard <code>",
+	Short: "Get Raid Leaderboard",
+	Long: `Get Raid Leaderboard
+
+Arguments:
+  code   The code of the raid.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		argCount := len(args)
 		switch argCount {
-		case 0:
+		case 1:
 			return nil
 		default:
 			return fmt.Errorf("invalid number of arguments: %d", argCount)
@@ -26,8 +30,8 @@ var myPendingItemsCmd = &cobra.Command{
 		argCount := len(args)
 
 		switch argCount {
-		case 0:
-			path = "/my/pending_items"
+		case 1:
+			path = fmt.Sprintf("/raids/%s/leaderboard", args[0])
 		}
 
 		params := make(map[string]string)
@@ -48,9 +52,9 @@ var myPendingItemsCmd = &cobra.Command{
 }
 
 func init() {
-	apiCmd.AddCommand(myPendingItemsCmd)
-	myPendingItemsCmd.Flags().Int("page", 0,
+	apiCmd.AddCommand(raidsLeaderboardCmd)
+	raidsLeaderboardCmd.Flags().Int("page", 0,
 		"Page number")
-	myPendingItemsCmd.Flags().Int("size", 0,
+	raidsLeaderboardCmd.Flags().Int("size", 0,
 		"Page size")
 }

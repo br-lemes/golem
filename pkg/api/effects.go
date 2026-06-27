@@ -21,11 +21,7 @@ func Effects() ([]schemas.EffectSchema, error) {
 			return nil, err
 		}
 		result = append(result, data.Data...)
-		pages := 0
-		if data.Pages != nil {
-			pages = *data.Pages
-		}
-		if page >= pages {
+		if page >= data.Pages {
 			break
 		}
 		page++

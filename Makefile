@@ -27,9 +27,9 @@ coverage:
 		go tool cover -html=coverage.out
 
 pkg/schemas/schemas.go: pkg/database/openapi.json
-	@oapi-codegen -package cmd -generate models $< > $@
-	@sd '\n\n\t//[^\n]*' '' $@
-	@sd '^\t*//[^\n]*\n' '' $@
+	@oapi-codegen -package schemas -generate models $< > $@
+	@sd -A '\n\n\t//[^\n]*' '' $@
+	@sd -A '^\t*//[^\n]*\n' '' $@
 	@sd 'Path\s+\[\]\[\]interface\{\}' 'Path [][2]int' $@
 	@gofmt -w $@
 

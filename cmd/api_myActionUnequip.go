@@ -43,7 +43,7 @@ Arguments:
 			params[f.Name] = f.Value.String()
 		})
 
-		resp, err := api.Post(path, params)
+		resp, err := api.Post(path, []map[string]string{params})
 		if err != nil {
 			return err
 		}

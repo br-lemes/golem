@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var myPendingItemsCmd = &cobra.Command{
-	Use:   "myPendingItems",
-	Short: "Get Pending Items",
+var mySubscribeStripeCmd = &cobra.Command{
+	Use:   "mySubscribeStripe",
+	Short: "Subscribe with Stripe",
 	Args: func(cmd *cobra.Command, args []string) error {
 		argCount := len(args)
 		switch argCount {
@@ -27,7 +27,7 @@ var myPendingItemsCmd = &cobra.Command{
 
 		switch argCount {
 		case 0:
-			path = "/my/pending_items"
+			path = "/my/subscribe/stripe"
 		}
 
 		params := make(map[string]string)
@@ -39,7 +39,7 @@ var myPendingItemsCmd = &cobra.Command{
 			params[f.Name] = f.Value.String()
 		})
 
-		resp, err := api.Get(path, params)
+		resp, err := api.Post(path, params)
 		if err != nil {
 			return err
 		}
@@ -48,9 +48,7 @@ var myPendingItemsCmd = &cobra.Command{
 }
 
 func init() {
-	apiCmd.AddCommand(myPendingItemsCmd)
-	myPendingItemsCmd.Flags().Int("page", 0,
-		"Page number")
-	myPendingItemsCmd.Flags().Int("size", 0,
-		"Page size")
+	apiCmd.AddCommand(mySubscribeStripeCmd)
+	mySubscribeStripeCmd.Flags().String("plan", "",
+		"Recurring Stripe subscription plan to purchase.")
 }

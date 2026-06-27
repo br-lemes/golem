@@ -54,7 +54,7 @@ Arguments:
 			}
 
 			for _, character := range characters {
-				inventory := []schemas.InventorySlot{}
+				inventory := []schemas.InventorySlotSchema{}
 				if character.Inventory != nil {
 					inventory = *character.Inventory
 				}
