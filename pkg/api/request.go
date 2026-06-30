@@ -79,7 +79,7 @@ func Request(method, path string, body []byte, cooldown bool) ([]byte, error) {
 		cache.APILog(method, path, string(body), string(respBytes),
 			resp.StatusCode, cd)
 
-		if cooldown {
+		if cooldown && cd > 0 {
 			handleCooldown(cd)
 		}
 

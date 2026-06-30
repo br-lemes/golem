@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -16,5 +17,6 @@ func MyDetails() (schemas.MyAccountDetails, error) {
 	if err != nil {
 		return schemas.MyAccountDetails{}, err
 	}
+	cache.SaveAccount(data.Data.Username)
 	return data.Data, nil
 }

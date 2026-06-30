@@ -4,10 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
+	if account == cache.GetAccount() {
+		characters := cache.GetAccountCharacters()
+		if characters != nil {
+			return characters, nil
+		}
+	}
 	resp, err := Get(fmt.Sprintf("/accounts/%s/characters", account), nil)
 	if err != nil {
 		return nil, err
@@ -16,6 +23,9 @@ func AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
 	err = json.Unmarshal(resp, &data)
 	if err != nil {
 		return nil, err
+	}
+	for _, character := range data.Data {
+		cache.SaveCharacter(character.Name, character)
 	}
 	return data.Data, nil
 }

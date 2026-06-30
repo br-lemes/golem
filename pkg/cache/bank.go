@@ -14,7 +14,7 @@ func CleanBank() {
 
 func GetBank() *schemas.BankSchema {
 	var bankCache models.Cache
-	if !isFresh(&bankCache, "bank", 30) {
+	if !isNameFresh(&bankCache, "bank", 30) {
 		return nil
 	}
 	var bank schemas.BankSchema
@@ -47,7 +47,7 @@ func CleanBankItems() {
 
 func GetBankItems() *[]schemas.SimpleItemSchema {
 	var bankItemsCache models.Cache
-	if !isFresh(&bankItemsCache, "bankItems", 30) {
+	if !isNameFresh(&bankItemsCache, "bankItems", 30) {
 		return nil
 	}
 	var bankItems []schemas.SimpleItemSchema

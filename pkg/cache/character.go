@@ -13,7 +13,7 @@ func CleanCharacter(name string) {
 
 func GetCharacter(name string) *schemas.CharacterSchema {
 	var characterCache models.Character
-	if !isFresh(&characterCache, name, 10) {
+	if !isNameFresh(&characterCache, name, 10) {
 		return nil
 	}
 	var character schemas.CharacterSchema

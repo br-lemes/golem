@@ -33,15 +33,34 @@ func init() {
 	cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{})
 }
 
-func isFresh(dest any, name string, minutes int) bool {
+func isAPILogFresh() bool {
 	var logCache models.APILog
 	result := cache.Where("created_at >= ?", limit(5)).Limit(1).Find(&logCache)
 	if result.Error != nil || result.RowsAffected == 0 {
 		return false
 	}
+	return true
+}
 
-	result = cache.Where("name = ? AND updated_at >= ?", name, limit(minutes)).
+func isNameFresh(dest any, name string, minutes int) bool {
+	if !isAPILogFresh() {
+		return false
+	}
+
+	result := cache.Where("name = ? AND updated_at >= ?", name, limit(minutes)).
 		Limit(1).Find(dest)
+	if result.Error != nil || result.RowsAffected == 0 {
+		return false
+	}
+	return true
+}
+
+func isTableFresh(dest any, minutes int) bool {
+	if !isAPILogFresh() {
+		return false
+	}
+
+	result := cache.Where("updated_at >= ?", limit(minutes)).Find(dest)
 	if result.Error != nil || result.RowsAffected == 0 {
 		return false
 	}
