@@ -4,10 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func MyBankItems() ([]schemas.SimpleItemSchema, error) {
+	bankItems := cache.GetBankItems()
+	if bankItems != nil {
+		return *bankItems, nil
+	}
 	result := []schemas.SimpleItemSchema{}
 	page := 1
 	for {
@@ -26,5 +31,6 @@ func MyBankItems() ([]schemas.SimpleItemSchema, error) {
 		}
 		page++
 	}
+	cache.SaveBankItems(result)
 	return result, nil
 }

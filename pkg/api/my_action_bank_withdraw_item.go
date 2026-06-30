@@ -19,6 +19,7 @@ func MyActionBankWithdrawItem(name string, items []schemas.SimpleItemSchema) (sc
 	if err != nil {
 		return schemas.BankItemTransactionSchema{}, err
 	}
+	cache.SaveBankItems(data.Data.Bank)
 	cache.SaveCharacter(name, data.Data.Character)
 	handleCooldown(data.Data.Cooldown.TotalSeconds)
 	return data.Data, nil

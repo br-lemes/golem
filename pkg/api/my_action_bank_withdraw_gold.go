@@ -8,8 +8,8 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func MyActionBankDepositGold(name string, quantity int) (schemas.BankGoldTransactionSchema, error) {
-	path := fmt.Sprintf("/my/%s/action/bank/deposit/gold", name)
+func MyActionBankWithdrawGold(name string, quantity int) (schemas.BankGoldTransactionSchema, error) {
+	path := fmt.Sprintf("/my/%s/action/bank/withdraw/gold", name)
 	resp, err := PostNoCooldown(path, schemas.GoldSchema{Quantity: quantity})
 	if err != nil {
 		return schemas.BankGoldTransactionSchema{}, err
