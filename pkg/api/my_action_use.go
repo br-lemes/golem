@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func MyActionUse(name string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error) {
-	resp, err := Post(fmt.Sprintf("/my/%s/action/use", name), item)
+	path := fmt.Sprintf("/my/%s/action/use", name)
+	resp, err := PostNoCooldown(path, item)
 	if err != nil {
 		return schemas.UseItemSchema{}, err
 	}
@@ -17,5 +19,7 @@ func MyActionUse(name string, item schemas.SimpleItemSchema) (schemas.UseItemSch
 	if err != nil {
 		return schemas.UseItemSchema{}, err
 	}
+	cache.SaveCharacter(name, data.Data.Character)
+	handleCooldown(data.Data.Cooldown.TotalSeconds)
 	return data.Data, nil
 }

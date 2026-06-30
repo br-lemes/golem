@@ -2,11 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/config"
-	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/task"
 	"github.com/spf13/cobra"
@@ -63,18 +61,10 @@ Arguments:
 				return err
 			}
 
-			console.Printf("[%s] Gathering resources...\n",
-				time.Now().Format("15:04:05"))
 			skill, err := api.MyActionGathering(name)
 			if err != nil {
 				return err
 			}
-			dropsStr := ""
-			for _, item := range skill.Details.Items {
-				dropsStr += fmt.Sprintf("%dx %s, ", item.Quantity, item.Code)
-			}
-			console.Printf("[%s] Gathered %s\n",
-				time.Now().Format("15:04:05"), dropsStr)
 
 			character = skill.Character
 		}

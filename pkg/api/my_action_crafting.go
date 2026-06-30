@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func MyActionCrafting(name string, item schemas.SimpleItemSchema) (schemas.SkillDataSchema, error) {
-	resp, err := Post(fmt.Sprintf("/my/%s/action/crafting", name), item)
+	path := fmt.Sprintf("/my/%s/action/crafting", name)
+	resp, err := PostNoCooldown(path, item)
 	if err != nil {
 		return schemas.SkillDataSchema{}, err
 	}
@@ -17,5 +20,10 @@ func MyActionCrafting(name string, item schemas.SimpleItemSchema) (schemas.Skill
 	if err != nil {
 		return schemas.SkillDataSchema{}, err
 	}
+	cache.SaveCharacter(name, data.Data.Character)
+	console.Printf("XP gained: %d", data.Data.Details.Xp)
+	printDropSchema(data.Data.Details.Items)
+	console.Printf("\n")
+	handleCooldown(data.Data.Cooldown.TotalSeconds)
 	return data.Data, nil
 }

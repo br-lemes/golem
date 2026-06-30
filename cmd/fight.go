@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/config"
@@ -81,24 +80,6 @@ Arguments:
 				return fmt.Errorf("error during fight: %w", err)
 			}
 			character = fightResult.Characters[0]
-
-			drops := []string{}
-			for _, item := range fightResult.Fight.Characters[0].Drops {
-				dropStr := fmt.Sprintf("%dx %s", item.Quantity, item.Code)
-				drops = append(drops, dropStr)
-			}
-
-			if fightResult.Fight.Result == "win" {
-				console.Printf("  XP gained: %d",
-					fightResult.Fight.Characters[0].Xp)
-				if len(drops) > 0 {
-					dropsStr := strings.Join(drops, ", ")
-					console.Printf(", Drops: %s", dropsStr)
-				}
-				console.Printf("\n")
-			} else {
-				console.Printf("  💀 Fight lost!\n")
-			}
 		}
 	},
 }

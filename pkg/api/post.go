@@ -6,6 +6,14 @@ import (
 )
 
 func Post(path string, data any) ([]byte, error) {
+	return post(path, data, true)
+}
+
+func PostNoCooldown(path string, data any) ([]byte, error) {
+	return post(path, data, false)
+}
+
+func post(path string, data any, cooldown bool) ([]byte, error) {
 	var body []byte
 	var err error
 	if data != nil {
@@ -14,5 +22,5 @@ func Post(path string, data any) ([]byte, error) {
 			return nil, err
 		}
 	}
-	return Request(http.MethodPost, path, body)
+	return Request(http.MethodPost, path, body, cooldown)
 }

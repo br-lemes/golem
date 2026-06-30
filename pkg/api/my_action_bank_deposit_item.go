@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func MyActionBankDepositItem(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
-	resp, err := Post(fmt.Sprintf("/my/%s/action/bank/deposit/item", name),
-		items)
+	path := fmt.Sprintf("/my/%s/action/bank/deposit/item", name)
+	resp, err := PostNoCooldown(path, items)
 	if err != nil {
 		return schemas.BankItemTransactionSchema{}, err
 	}
@@ -18,5 +19,7 @@ func MyActionBankDepositItem(name string, items []schemas.SimpleItemSchema) (sch
 	if err != nil {
 		return schemas.BankItemTransactionSchema{}, err
 	}
+	cache.SaveCharacter(name, data.Data.Character)
+	handleCooldown(data.Data.Cooldown.TotalSeconds)
 	return data.Data, nil
 }

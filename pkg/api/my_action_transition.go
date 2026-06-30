@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func MyActionTransition(name string) (schemas.CharacterTransitionDataSchema, error) {
-	resp, err := Post(fmt.Sprintf("/my/%s/action/transition", name), nil)
+	path := fmt.Sprintf("/my/%s/action/transition", name)
+	resp, err := PostNoCooldown(path, nil)
 	if err != nil {
 		return schemas.CharacterTransitionDataSchema{}, err
 	}
@@ -17,5 +19,7 @@ func MyActionTransition(name string) (schemas.CharacterTransitionDataSchema, err
 	if err != nil {
 		return schemas.CharacterTransitionDataSchema{}, err
 	}
+	cache.SaveCharacter(name, data.Data.Character)
+	handleCooldown(data.Data.Cooldown.TotalSeconds)
 	return data.Data, nil
 }

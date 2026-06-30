@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/br-lemes/golem/pkg/cache"
@@ -18,7 +19,7 @@ var Token string
 
 var httpClient = &http.Client{Timeout: 30 * time.Second}
 
-func Request(method, path string, body []byte) ([]byte, error) {
+func Request(method, path string, body []byte, cooldown bool) ([]byte, error) {
 	for {
 		req, err := http.NewRequest(method, baseURL+path, bytes.NewReader(body))
 		if err != nil {
@@ -53,6 +54,18 @@ func Request(method, path string, body []byte) ([]byte, error) {
 			continue
 		}
 
+		contentType := resp.Header.Get("Content-Type")
+		if resp.StatusCode >= http.StatusBadRequest &&
+			!strings.Contains(contentType, "application/json") {
+			format := "Server error: %d. Retrying in 5 seconds...\n"
+			message := fmt.Sprintf(format, resp.StatusCode)
+			cache.APILog(method, path, string(body), message,
+				resp.StatusCode, 0)
+			console.Errorf(format, resp.StatusCode)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
 		errMsg := gjson.GetBytes(respBytes, "error.message")
 		if errMsg.Exists() {
 			cache.APILog(method, path, string(body), string(respBytes),
@@ -65,9 +78,9 @@ func Request(method, path string, body []byte) ([]byte, error) {
 
 		cache.APILog(method, path, string(body), string(respBytes),
 			resp.StatusCode, cd)
-		if cd > 0 {
-			console.Errorf("⏳ Cooldown started: %d seconds\n", cd)
-			time.Sleep(time.Duration(cd) * time.Second)
+
+		if cooldown {
+			handleCooldown(cd)
 		}
 
 		return respBytes, nil

@@ -18,5 +18,5 @@ func Get(path string, data map[string]string) ([]byte, error) {
 			path = path + "?" + queryString
 		}
 	}
-	return Request(http.MethodGet, path, nil)
+	return Request(http.MethodGet, path, nil, false)
 }

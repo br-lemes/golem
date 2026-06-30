@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func MyActionMove(name string, x, y int) (schemas.CharacterMovementDataSchema, error) {
-	resp, err := Post(fmt.Sprintf("/my/%s/action/move", name),
-		map[string]int{"x": x, "y": y})
+	path := fmt.Sprintf("/my/%s/action/move", name)
+	resp, err := PostNoCooldown(path, map[string]int{"x": x, "y": y})
 	if err != nil {
 		return schemas.CharacterMovementDataSchema{}, err
 	}
@@ -18,5 +19,7 @@ func MyActionMove(name string, x, y int) (schemas.CharacterMovementDataSchema, e
 	if err != nil {
 		return schemas.CharacterMovementDataSchema{}, err
 	}
+	cache.SaveCharacter(name, data.Data.Character)
+	handleCooldown(data.Data.Cooldown.TotalSeconds)
 	return data.Data, nil
 }
