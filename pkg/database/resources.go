@@ -36,10 +36,7 @@ func GetResourceCodes() []string {
 	return codes
 }
 
-func initResourcesCache() {
-	if resourcesCache != nil {
-		return
-	}
+var initResourcesCache = sync.OnceFunc(func() {
 	resourcesCache = make(map[string]schemas.ResourceSchema)
 	err := json.Unmarshal(resources, &resourcesList)
 	if err != nil {
@@ -48,4 +45,4 @@ func initResourcesCache() {
 	for _, resource := range resourcesList {
 		resourcesCache[resource.Code] = resource
 	}
-}
+})
