@@ -6,16 +6,17 @@ import (
 	"sync"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/tidwall/gjson"
 )
 
 var (
 	//go:embed events.json
 	events []byte
 
-	eventsList              []schemas.EventSchema
-	eventsCache             map[string]schemas.EventSchema
-	eventsContentCodesList  []string
-	eventsContentCodesCache map[string]bool
+	eventsList             []schemas.EventSchema
+	eventsCache            map[string]schemas.EventSchema
+	eventCodesList         []string
+	eventsContentCodesList []string
 )
 
 func GetEvents() []schemas.EventSchema {
@@ -40,16 +41,12 @@ func GetEventByContent(code string) (schemas.EventSchema, bool) {
 }
 
 func GetEventCodes() []string {
-	initEventsCache()
-	var codes []string
-	for code := range eventsCache {
-		codes = append(codes, code)
-	}
-	return codes
+	initEventCodes()
+	return eventCodesList
 }
 
 func GetEventContentCodes() []string {
-	initEventsContentCodesCache()
+	initEventContentCodes()
 	return eventsContentCodesList
 }
 
@@ -64,16 +61,23 @@ var initEventsCache = sync.OnceFunc(func() {
 	}
 })
 
-var initEventsContentCodesCache = sync.OnceFunc(func() {
-	initEventsCache()
+var initEventCodes = sync.OnceFunc(func() {
+	gjson.GetBytes(events, "#.code").ForEach(func(_, value gjson.Result) bool {
+		eventCodesList = append(eventCodesList, value.String())
+		return true
+	})
+})
 
-	eventsContentCodesList = make([]string, 0)
-	eventsContentCodesCache = make(map[string]bool)
-	for _, event := range eventsList {
-		code := event.Content.Code
-		if !eventsContentCodesCache[code] {
-			eventsContentCodesCache[code] = true
-			eventsContentCodesList = append(eventsContentCodesList, code)
+var initEventContentCodes = sync.OnceFunc(func() {
+	uniqueContentCodes := make(map[string]struct{})
+	gjson.GetBytes(events, "#.content.code").ForEach(func(_, value gjson.Result) bool {
+		s := value.String()
+		if s != "" {
+			uniqueContentCodes[s] = struct{}{}
 		}
+		return true
+	})
+	for code := range uniqueContentCodes {
+		eventsContentCodesList = append(eventsContentCodesList, code)
 	}
 })

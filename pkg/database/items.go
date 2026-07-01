@@ -6,14 +6,17 @@ import (
 	"sync"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/tidwall/gjson"
 )
 
 var (
 	//go:embed items.json
 	items []byte
 
-	itemsList  []schemas.ItemSchema
-	itemsCache map[string]schemas.ItemSchema
+	itemsList     []schemas.ItemSchema
+	itemsCache    map[string]schemas.ItemSchema
+	itemCodesList []string
+	itemTypesList []string
 )
 
 func GetItems() []schemas.ItemSchema {
@@ -28,30 +31,13 @@ func GetItem(code string) (schemas.ItemSchema, bool) {
 }
 
 func GetItemCodes() []string {
-	initItemsCache()
-	codes := make([]string, 0, len(itemsCache))
-	for code := range itemsCache {
-		codes = append(codes, code)
-	}
-	return codes
+	initItemsCodes()
+	return itemCodesList
 }
 
 func GetItemTypes() []string {
-	initItemsCache()
-	uniqueTypes := make(map[string]bool)
-	for _, item := range itemsList {
-		if item.Type != "" {
-			uniqueTypes[item.Type] = true
-		}
-		if item.Subtype != "" {
-			uniqueTypes[item.Subtype] = true
-		}
-	}
-	types := make([]string, 0, len(uniqueTypes))
-	for itemType := range uniqueTypes {
-		types = append(types, itemType)
-	}
-	return types
+	initItemTypes()
+	return itemTypesList
 }
 
 var initItemsCache = sync.OnceFunc(func() {
@@ -62,5 +48,35 @@ var initItemsCache = sync.OnceFunc(func() {
 	}
 	for _, item := range itemsList {
 		itemsCache[item.Code] = item
+	}
+})
+
+var initItemsCodes = sync.OnceFunc(func() {
+	gjson.GetBytes(items, "#.code").ForEach(func(_, value gjson.Result) bool {
+		itemCodesList = append(itemCodesList, value.String())
+		return true
+	})
+})
+
+var initItemTypes = sync.OnceFunc(func() {
+	uniqueTypes := make(map[string]struct{})
+
+	gjson.GetBytes(items, "#.type").ForEach(func(_, value gjson.Result) bool {
+		s := value.String()
+		if s != "" {
+			uniqueTypes[s] = struct{}{}
+		}
+		return true
+	})
+	gjson.GetBytes(items, "#.subtype").ForEach(func(_, value gjson.Result) bool {
+		s := value.String()
+		if s != "" {
+			uniqueTypes[s] = struct{}{}
+		}
+		return true
+	})
+
+	for t := range uniqueTypes {
+		itemTypesList = append(itemTypesList, t)
 	}
 })

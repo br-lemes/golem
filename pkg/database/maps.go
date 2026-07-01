@@ -3,10 +3,12 @@ package database
 import (
 	_ "embed"
 	"encoding/json"
+	"slices"
 	"sync"
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/tidwall/gjson"
 )
 
 type (
@@ -33,10 +35,9 @@ var (
 	//go:embed maps.json
 	maps []byte
 
-	mapsList       []schemas.MapSchema
-	mapsCache      map[Point]schemas.MapSchema
-	mapsCodesList  []string
-	mapsCodesCache map[string]bool
+	mapsList      []schemas.MapSchema
+	mapsCache     map[Point]schemas.MapSchema
+	mapsCodesList []string
 )
 
 func GetMaps() []schemas.MapSchema {
@@ -153,14 +154,15 @@ func FindClosest(character schemas.CharacterSchema, code string) *SearchResult {
 
 func getEventPoints(code string) EventPoints {
 	initMapsCodesCache()
-	initEventsContentCodesCache()
+	if slices.Contains(mapsCodesList, code) {
+		return EventPoints{}
+	}
 
-	if mapsCodesCache[code] {
+	initEventContentCodes()
+	if !slices.Contains(eventsContentCodesList, code) {
 		return EventPoints{}
 	}
-	if !eventsContentCodesCache[code] {
-		return EventPoints{}
-	}
+
 	events, err := api.EventsActive()
 	if err != nil {
 		return EventPoints{}
@@ -193,17 +195,15 @@ var initMapsCache = sync.OnceFunc(func() {
 })
 
 var initMapsCodesCache = sync.OnceFunc(func() {
-	initMapsCache()
-
-	mapsCodesList = make([]string, 0)
-	mapsCodesCache = make(map[string]bool)
-	for _, tile := range mapsList {
-		if tile.Interactions.Content != nil {
-			code := tile.Interactions.Content.Code
-			if !mapsCodesCache[code] {
-				mapsCodesCache[code] = true
-				mapsCodesList = append(mapsCodesList, code)
-			}
+	uniqueCodes := make(map[string]struct{})
+	gjson.GetBytes(maps, "#.interactions.content.code").ForEach(func(_, value gjson.Result) bool {
+		s := value.String()
+		if s != "" {
+			uniqueCodes[s] = struct{}{}
 		}
+		return true
+	})
+	for code := range uniqueCodes {
+		mapsCodesList = append(mapsCodesList, code)
 	}
 })

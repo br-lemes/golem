@@ -6,14 +6,16 @@ import (
 	"sync"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/tidwall/gjson"
 )
 
 var (
 	//go:embed monsters.json
 	monsters []byte
 
-	monstersList  []schemas.MonsterSchema
-	monstersCache map[string]schemas.MonsterSchema
+	monstersList     []schemas.MonsterSchema
+	monstersCache    map[string]schemas.MonsterSchema
+	monsterCodesList []string
 )
 
 func GetMonsters() []schemas.MonsterSchema {
@@ -28,12 +30,8 @@ func GetMonster(code string) (schemas.MonsterSchema, bool) {
 }
 
 func GetMonsterCodes() []string {
-	initMonstersCache()
-	codes := make([]string, 0, len(monstersCache))
-	for code := range monstersCache {
-		codes = append(codes, code)
-	}
-	return codes
+	initMonsterCodes()
+	return monsterCodesList
 }
 
 var initMonstersCache = sync.OnceFunc(func() {
@@ -45,4 +43,11 @@ var initMonstersCache = sync.OnceFunc(func() {
 	for _, monster := range monstersList {
 		monstersCache[monster.Code] = monster
 	}
+})
+
+var initMonsterCodes = sync.OnceFunc(func() {
+	gjson.GetBytes(monsters, "#.code").ForEach(func(_, value gjson.Result) bool {
+		monsterCodesList = append(monsterCodesList, value.String())
+		return true
+	})
 })

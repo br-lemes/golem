@@ -6,14 +6,16 @@ import (
 	"sync"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/tidwall/gjson"
 )
 
 var (
 	//go:embed effects.json
 	effects []byte
 
-	effectsList  []schemas.EffectSchema
-	effectsCache map[string]schemas.EffectSchema
+	effectsList     []schemas.EffectSchema
+	effectsCache    map[string]schemas.EffectSchema
+	effectCodesList []string
 )
 
 func GetEffects() []schemas.EffectSchema {
@@ -28,12 +30,8 @@ func GetEffect(code string) (schemas.EffectSchema, bool) {
 }
 
 func GetEffectCodes() []string {
-	initEffectsCache()
-	var codes []string
-	for code := range effectsCache {
-		codes = append(codes, code)
-	}
-	return codes
+	initEffectsCodes()
+	return effectCodesList
 }
 
 var initEffectsCache = sync.OnceFunc(func() {
@@ -45,4 +43,11 @@ var initEffectsCache = sync.OnceFunc(func() {
 	for _, effect := range effectsList {
 		effectsCache[effect.Code] = effect
 	}
+})
+
+var initEffectsCodes = sync.OnceFunc(func() {
+	gjson.GetBytes(effects, "#.code").ForEach(func(_, value gjson.Result) bool {
+		effectCodesList = append(effectCodesList, value.String())
+		return true
+	})
 })

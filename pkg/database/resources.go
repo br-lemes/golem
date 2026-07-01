@@ -6,14 +6,16 @@ import (
 	"sync"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/tidwall/gjson"
 )
 
 var (
 	//go:embed resources.json
 	resources []byte
 
-	resourcesList  []schemas.ResourceSchema
-	resourcesCache map[string]schemas.ResourceSchema
+	resourcesList     []schemas.ResourceSchema
+	resourcesCache    map[string]schemas.ResourceSchema
+	resourceCodesList []string
 )
 
 func GetResources() []schemas.ResourceSchema {
@@ -22,18 +24,14 @@ func GetResources() []schemas.ResourceSchema {
 }
 
 func GetResource(code string) (schemas.ResourceSchema, bool) {
-	sync.OnceFunc(initResourcesCache)()
+	initResourcesCache()
 	resource, exists := resourcesCache[code]
 	return resource, exists
 }
 
 func GetResourceCodes() []string {
-	initResourcesCache()
-	codes := make([]string, 0, len(resourcesCache))
-	for code := range resourcesCache {
-		codes = append(codes, code)
-	}
-	return codes
+	initResourceCodes()
+	return resourceCodesList
 }
 
 var initResourcesCache = sync.OnceFunc(func() {
@@ -45,4 +43,11 @@ var initResourcesCache = sync.OnceFunc(func() {
 	for _, resource := range resourcesList {
 		resourcesCache[resource.Code] = resource
 	}
+})
+
+var initResourceCodes = sync.OnceFunc(func() {
+	gjson.GetBytes(resources, "#.code").ForEach(func(_, value gjson.Result) bool {
+		resourceCodesList = append(resourceCodesList, value.String())
+		return true
+	})
 })
