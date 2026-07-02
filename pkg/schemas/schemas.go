@@ -359,18 +359,6 @@ const (
 	Monsters TaskType = "monsters"
 )
 
-const (
-	Alchemy         XPType = "alchemy"
-	Combat          XPType = "combat"
-	Cooking         XPType = "cooking"
-	Fishing         XPType = "fishing"
-	Gearcrafting    XPType = "gearcrafting"
-	Jewelrycrafting XPType = "jewelrycrafting"
-	Mining          XPType = "mining"
-	Weaponcrafting  XPType = "weaponcrafting"
-	Woodcutting     XPType = "woodcutting"
-)
-
 type AccessSchema struct {
 	Conditions *[]ConditionSchema `json:"conditions"`
 	Type       MapAccessType      `json:"type"`
@@ -771,6 +759,7 @@ type CharacterStatsResponseSchema struct {
 type CharacterStatsSchema struct {
 	ActionCounts      *map[string]int `json:"action_counts,omitempty"`
 	Deaths            *int            `json:"deaths,omitempty"`
+	ItemsCrafted      *map[string]int `json:"items_crafted,omitempty"`
 	MonstersKilled    *map[string]int `json:"monsters_killed,omitempty"`
 	ResourcesGathered *map[string]int `json:"resources_gathered,omitempty"`
 }
@@ -1670,75 +1659,6 @@ type RewardsSchema struct {
 	Items []SimpleItemSchema `json:"items"`
 }
 
-type SandboxCharacterActionSchema struct {
-	Character string `json:"character"`
-}
-
-type SandboxGiveGoldDataSchema struct {
-	Character CharacterSchema `json:"character"`
-	Cooldown  CooldownSchema  `json:"cooldown"`
-	Quantity  int             `json:"quantity"`
-}
-
-type SandboxGiveGoldResponseSchema struct {
-	Data SandboxGiveGoldDataSchema `json:"data"`
-}
-
-type SandboxGiveItemDataSchema struct {
-	Character CharacterSchema  `json:"character"`
-	Cooldown  CooldownSchema   `json:"cooldown"`
-	Item      SimpleItemSchema `json:"item"`
-}
-
-type SandboxGiveItemResponseSchema struct {
-	Data SandboxGiveItemDataSchema `json:"data"`
-}
-
-type SandboxGiveItemSchema struct {
-	Character string `json:"character"`
-	Code      string `json:"code"`
-	Quantity  int    `json:"quantity"`
-}
-
-type SandboxGiveXPDataSchema struct {
-	Amount    int             `json:"amount"`
-	Character CharacterSchema `json:"character"`
-	Cooldown  CooldownSchema  `json:"cooldown"`
-	Type      XPType          `json:"type"`
-}
-
-type SandboxGiveXPResponseSchema struct {
-	Data SandboxGiveXPDataSchema `json:"data"`
-}
-
-type SandboxGiveXPSchema struct {
-	Amount    int    `json:"amount"`
-	Character string `json:"character"`
-	Type      XPType `json:"type"`
-}
-
-type SandboxResponseSchema struct {
-	Data SandboxSchema `json:"data"`
-}
-
-type SandboxSchema struct {
-	Character CharacterSchema `json:"character"`
-}
-
-type SandboxTeleportDataSchema struct {
-	Character   CharacterSchema `json:"character"`
-	Destination MapSchema       `json:"destination"`
-}
-
-type SandboxTeleportResponseSchema struct {
-	Data SandboxTeleportDataSchema `json:"data"`
-}
-
-type SandboxTeleportSchema struct {
-	Character string `json:"character"`
-	MapId     int    `json:"map_id"`
-}
-
 type SeasonRewardSchema struct {
 	Code           string     `json:"code"`
 	Description    string     `json:"description"`
@@ -2072,8 +1992,6 @@ type UseItemSchema struct {
 	Item      ItemSchema      `json:"item"`
 }
 
-type XPType string
-
 type GetAccountAchievementsAccountsAccountAchievementsGetParams struct {
 	Type      *AchievementType `form:"type,omitempty" json:"type,omitempty"`
 	Completed *bool            `form:"completed,omitempty" json:"completed,omitempty"`
@@ -2370,17 +2288,5 @@ type ActionTaskTradeMyNameActionTaskTradePostJSONRequestBody = SimpleItemSchema
 type ActionUnequipItemMyNameActionUnequipPostJSONRequestBody = ActionUnequipItemMyNameActionUnequipPostJSONBody
 
 type ActionUseItemMyNameActionUsePostJSONRequestBody = SimpleItemSchema
-
-type ClearCooldownSandboxClearCooldownPostJSONRequestBody = SandboxCharacterActionSchema
-
-type GiveGoldSandboxGiveGoldPostJSONRequestBody = GiveGoldSchema
-
-type GiveItemSandboxGiveItemPostJSONRequestBody = SandboxGiveItemSchema
-
-type GiveXpSandboxGiveXpPostJSONRequestBody = SandboxGiveXPSchema
-
-type SpawnEventSandboxSpawnEventPostJSONRequestBody = SpawnEventRequestSchema
-
-type TeleportSandboxTeleportPostJSONRequestBody = SandboxTeleportSchema
 
 type FightSimulationSimulationFightPostJSONRequestBody = CombatSimulationRequestSchema
