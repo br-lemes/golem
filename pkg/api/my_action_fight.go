@@ -28,14 +28,9 @@ func MyActionFight(name string, participants []string) (schemas.CharacterFightDa
 			if len(data.Data.Fight.Characters) > 1 {
 				console.Printf("[%s] ", character.CharacterName)
 			}
-			if character.Xp > 0 {
-				console.Printf("XP gained: %d", character.Xp)
-			}
+			console.Printf("XP gained: %d", character.Xp)
 			if character.Gold > 0 {
-				if character.Xp > 0 {
-					console.Printf(", ")
-				}
-				console.Printf("Gold gained: %d", character.Gold)
+				console.Printf(", Gold gained: %d", character.Gold)
 			}
 			printDropSchema(character.Drops)
 		}
