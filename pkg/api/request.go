@@ -17,25 +17,36 @@ const baseURL = "https://api.artifactsmmo.com"
 
 var Token string
 
-var httpClient = &http.Client{Timeout: 30 * time.Second}
+var defaultClient = &http.Client{Timeout: 30 * time.Second}
 
 type requestCtx struct {
-	baseURL    string
-	method     string
-	path       string
-	body       []byte
-	maxRetries int
-	retries    int
+	baseURL     string
+	body        []byte
+	client      *http.Client
+	initialWait time.Duration
+	maxRetries  int
+	maxWait     time.Duration
+	method      string
+	path        string
+	retries     int
 }
 
 func Request(method, path string, body []byte, cooldown bool) ([]byte, error) {
-	ctx := &requestCtx{baseURL: baseURL, method: method, path: path, body: body}
+	ctx := &requestCtx{
+		baseURL:     baseURL,
+		body:        body,
+		client:      defaultClient,
+		initialWait: 5 * time.Second,
+		maxWait:     60 * time.Second,
+		method:      method,
+		path:        path,
+	}
 	return ctx.execute(cooldown)
 }
 
 func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
-	serverWait := 5 * time.Second
-	maxServerWait := 60 * time.Second
+	wait := ctx.initialWait
+	maxWait := ctx.maxWait
 
 	for {
 		if !ctx.shouldRetry() {
@@ -48,18 +59,16 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 			return nil, err
 		}
 
-		resp, err := httpClient.Do(req)
+		resp, err := ctx.client.Do(req)
 		if err != nil {
-			format := "Network error: %v. Retrying in 5 seconds...\n"
-			ctx.handleInfraError(format, err)
+			ctx.handleInfraError("Network error", err)
 			continue
 		}
 
 		respBytes, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			format := "Read error: %v. Retrying in 5 seconds...\n"
-			ctx.handleInfraError(format, err)
+			ctx.handleInfraError("Read error", err)
 			continue
 		}
 
@@ -68,15 +77,13 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 		}
 
 		if resp.StatusCode >= 500 {
-			serverWait = ctx.handleBackoff(resp, respBytes, serverWait,
-				maxServerWait)
+			wait = ctx.handleBackoff(resp, respBytes, wait, maxWait)
 			continue
 		}
 
 		contentType := resp.Header.Get("Content-Type")
 		if !strings.Contains(contentType, "application/json") {
-			serverWait = ctx.handleBackoff(resp, respBytes, serverWait,
-				maxServerWait)
+			wait = ctx.handleBackoff(resp, respBytes, wait, maxWait)
 			continue
 		}
 
@@ -120,11 +127,12 @@ func (ctx *requestCtx) newRequest() (*http.Request, error) {
 	return req, nil
 }
 
-func (ctx *requestCtx) handleInfraError(format string, err error) {
-	message := fmt.Sprintf(format, err)
+func (ctx *requestCtx) handleInfraError(reason string, err error) {
+	format := "%s: %v. Retrying in %v...\n"
+	message := fmt.Sprintf(format, reason, err, ctx.initialWait)
 	cache.APILog(ctx.method, ctx.path, string(ctx.body), message, 0, 0)
-	console.Errorf(format, err)
-	time.Sleep(5 * time.Second)
+	console.Errorf(format, reason, err, ctx.initialWait)
+	time.Sleep(ctx.initialWait)
 }
 
 func (ctx *requestCtx) handleClientError(resp *http.Response, respBytes []byte) error {
@@ -143,6 +151,9 @@ func (ctx *requestCtx) handleClientError(resp *http.Response, respBytes []byte) 
 func (ctx *requestCtx) handleBackoff(resp *http.Response, respBytes []byte, currentWait, maxWait time.Duration) time.Duration {
 	errMsg := gjson.GetBytes(respBytes, "error.message")
 	message := "Server error: "
+	if resp.StatusCode < 400 {
+		message = "Invalid response format: "
+	}
 	if errMsg.Exists() {
 		message += errMsg.String()
 	} else {
