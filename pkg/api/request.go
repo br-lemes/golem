@@ -20,6 +20,9 @@ var Token string
 var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 func Request(method, path string, body []byte, cooldown bool) ([]byte, error) {
+	serverWait := 5 * time.Second
+	maxServerWait := 60 * time.Second
+
 	for {
 		req, err := http.NewRequest(method, baseURL+path, bytes.NewReader(body))
 		if err != nil {
@@ -54,15 +57,30 @@ func Request(method, path string, body []byte, cooldown bool) ([]byte, error) {
 			continue
 		}
 
+		if resp.StatusCode >= http.StatusInternalServerError {
+			format := "Server error: %d. Retrying in %v...\n"
+			message := fmt.Sprintf(format, resp.StatusCode, serverWait)
+			cache.APILog(method, path, string(body), message, resp.StatusCode, 0)
+			console.Errorf(format, resp.StatusCode, serverWait)
+			time.Sleep(serverWait)
+			serverWait = serverWait * 2
+			if serverWait > maxServerWait {
+				serverWait = maxServerWait
+			}
+			continue
+		}
+
 		contentType := resp.Header.Get("Content-Type")
-		if resp.StatusCode >= http.StatusBadRequest &&
-			!strings.Contains(contentType, "application/json") {
-			format := "Server error: %d. Retrying in 5 seconds...\n"
-			message := fmt.Sprintf(format, resp.StatusCode)
-			cache.APILog(method, path, string(body), message,
-				resp.StatusCode, 0)
-			console.Errorf(format, resp.StatusCode)
-			time.Sleep(5 * time.Second)
+		if !strings.Contains(contentType, "application/json") {
+			format := "Unexpected non-JSON response: %d. Retrying in %v...\n"
+			message := fmt.Sprintf(format, resp.StatusCode, serverWait)
+			cache.APILog(method, path, string(body), message, resp.StatusCode, 0)
+			console.Errorf(format, resp.StatusCode, serverWait)
+			time.Sleep(serverWait)
+			serverWait = serverWait * 2
+			if serverWait > maxServerWait {
+				serverWait = maxServerWait
+			}
 			continue
 		}
 
