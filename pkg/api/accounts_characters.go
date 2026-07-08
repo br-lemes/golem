@@ -9,7 +9,15 @@ import (
 )
 
 func AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
-	if account == cache.GetAccount() {
+	myAccount := cache.GetAccount()
+	if myAccount == "" {
+		MyDetails()
+		myAccount = cache.GetAccount()
+	}
+	if account == "" {
+		account = myAccount
+	}
+	if account == myAccount {
 		characters := cache.GetAccountCharacters()
 		if characters != nil {
 			return characters, nil
