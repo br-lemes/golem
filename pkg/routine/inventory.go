@@ -1,4 +1,4 @@
-package task
+package routine
 
 import (
 	"github.com/br-lemes/golem/pkg/api"

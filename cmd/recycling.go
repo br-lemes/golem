@@ -6,8 +6,8 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
-	"github.com/br-lemes/golem/pkg/task"
 	"github.com/spf13/cobra"
 )
 
@@ -69,7 +69,7 @@ func StartRecyclingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
-	task.Cooldown(character)
+	routine.Cooldown(character)
 
 	bankInventory, err := fetchAllBankItems()
 	if err != nil {
@@ -131,7 +131,7 @@ func StartRecyclingBot(name string, code string, qty int) error {
 		}
 
 		if currentInventoryHas > 0 {
-			character, err = task.Move(character, string(*item.Craft.Skill))
+			character, err = routine.Move(character, string(*item.Craft.Skill))
 			if err != nil {
 				return err
 			}
@@ -153,7 +153,7 @@ func StartRecyclingBot(name string, code string, qty int) error {
 			continue
 		}
 
-		character, err = task.Move(character, "bank")
+		character, err = routine.Move(character, "bank")
 		if err != nil {
 			return err
 		}
@@ -225,7 +225,7 @@ func StartRecyclingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
-	character, err = task.Move(character, "bank")
+	character, err = routine.Move(character, "bank")
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func isRecyclable(item schemas.ItemSchema) bool {
 		return false
 	}
 	switch string(*item.Craft.Skill) {
-	case "gearcrafting", "jewelrycrafting", "weaponcrafting", "alchemy":
+	case "alchemy", "gearcrafting", "jewelrycrafting", "weaponcrafting":
 		return true
 	default:
 		return false

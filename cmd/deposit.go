@@ -6,7 +6,7 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/database"
-	"github.com/br-lemes/golem/pkg/task"
+	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/spf13/cobra"
 )
 
@@ -33,15 +33,15 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		task.Cooldown(character)
-		character, err = task.Move(character, "bank")
+		routine.Cooldown(character)
+		character, err = routine.Move(character, "bank")
 		if err != nil {
 			return err
 		}
-		items := task.GetInventoryItems(character, keepTypes)
+		items := routine.GetInventoryItems(character, keepTypes)
 		if len(items) > 0 {
 			_, err = api.MyActionBankDepositItem(character.Name,
-				task.GetInventoryItems(character, keepTypes))
+				routine.GetInventoryItems(character, keepTypes))
 			if err != nil {
 				return err
 			}

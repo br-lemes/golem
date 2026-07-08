@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/database"
-	"github.com/br-lemes/golem/pkg/task"
+	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ var equipCmd = &cobra.Command{
 		return database.GetEquipments(), cobra.ShellCompDirectiveNoFileComp
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := task.Equip(args[0], args[1:])
+		_, err := routine.Equip(args[0], args[1:])
 		return err
 	},
 }

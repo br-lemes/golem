@@ -7,7 +7,7 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/database"
-	"github.com/br-lemes/golem/pkg/task"
+	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/spf13/cobra"
 )
 
@@ -45,12 +45,9 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		task.Cooldown(character)
-		_, err = task.Move(character, code)
-		if err != nil {
-			return err
-		}
-		return nil
+		routine.Cooldown(character)
+		_, err = routine.Move(character, code)
+		return err
 	},
 }
 
