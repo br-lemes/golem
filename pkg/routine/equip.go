@@ -2,69 +2,97 @@ package routine
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func Equip(name string, equipments []string) (schemas.CharacterSchema, error) {
-	slotsReserved := make(map[string]string)
-	for _, req := range equipments {
-		if strings.Contains(req, "@0") {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("invalid slot number 0")
-		}
-		itemCode, slotNum, _ := parseEquipmentArg(req)
-		item, exists := database.GetItem(itemCode)
-		if !exists {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("item not found in database: %s", itemCode)
-		}
-		slots, hasSlot := database.EquipmentTypeToSlots[item.Type]
-		if !hasSlot {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("item type cannot be equipped: %s", item.Type)
-		}
-		if len(slots) == 1 && slotNum != 0 {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("cannot specify slot number for item with single"+
-					" slot: %s", itemCode)
-		}
-		if len(slots) > 1 && slotNum == 0 {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("must specify slot (e.g. @1 or @2) for item with"+
-					" multiple slots: %s", itemCode)
-		}
-		if len(slots) > 1 && (slotNum < 1 || slotNum > len(slots)) {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("invalid slot number %d for item %s", slotNum,
-					itemCode)
-		}
-		targetSlotStr := slots[0]
-		if slotNum > 0 && slotNum <= len(slots) {
-			targetSlotStr = slots[slotNum-1]
-		}
-		conflictingItem, reserved := slotsReserved[targetSlotStr]
-		if reserved {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("slot conflict: both %s and %s are targeting %s",
-					conflictingItem, itemCode, targetSlotStr)
-		}
-		slotsReserved[targetSlotStr] = itemCode
+func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
+	err := validateEquipments(equipments)
+	if err != nil {
+		return schemas.CharacterSchema{}, err
 	}
-
 	character, err := api.Characters(name)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
+	err = checkLevelRequirements(character, equipments)
+	if err != nil {
+		return schemas.CharacterSchema{}, err
+	}
+	needed, err := filterNeededEquipments(character, equipments)
+	if err != nil {
+		return schemas.CharacterSchema{}, err
+	}
+	if len(needed) == 0 {
+		return character, nil
+	}
+	err = validateTotalStock(character, needed)
+	if err != nil {
+		return schemas.CharacterSchema{}, err
+	}
+
 	Cooldown(character)
 
-	for _, req := range equipments {
-		itemCode, _, _ := parseEquipmentArg(req)
-		item, _ := database.GetItem(itemCode)
+	missing := calculateMissingItems(character, needed)
+	if len(missing) > 0 {
+		character, err = Move(character, "bank")
+		if err != nil {
+			return character, err
+		}
+		transaction, err := api.MyActionBankWithdrawItem(name, missing)
+		if err != nil {
+			return character, err
+		}
+		character = transaction.Character
+	}
+	result, err := api.MyActionEquip(name, needed)
+	if err != nil {
+		return character, err
+	}
+	character = result.Character
+	return character, nil
+}
+
+func validateEquipments(equipments []schemas.EquipSchema) error {
+	slotsReserved := map[schemas.ItemSlot]string{}
+	for _, equipment := range equipments {
+		if equipment.Code == "" || equipment.Slot == "" {
+			return fmt.Errorf("invalid equipment request: missing code or slot")
+		}
+		item, exists := database.GetItem(equipment.Code)
+		if !exists {
+			return fmt.Errorf("item not found in database: %s", equipment.Code)
+		}
+		slots, hasSlot := database.EquipmentTypeToSlots[item.Type]
+		if !hasSlot {
+			return fmt.Errorf("item type cannot be equipped: %s", item.Type)
+		}
+		validSlot := false
+		for _, s := range slots {
+			if schemas.ItemSlot(s) == equipment.Slot {
+				validSlot = true
+				break
+			}
+		}
+		if !validSlot {
+			return fmt.Errorf("item %s cannot be equipped in slot %s",
+				equipment.Code, equipment.Slot)
+		}
+		conflictingItem, reserved := slotsReserved[equipment.Slot]
+		if reserved {
+			return fmt.Errorf("slot conflict: both %s and %s are targeting %s",
+				conflictingItem, equipment.Code, equipment.Slot)
+		}
+		slotsReserved[equipment.Slot] = equipment.Code
+	}
+	return nil
+}
+
+func checkLevelRequirements(character schemas.CharacterSchema, equipments []schemas.EquipSchema) error {
+	for _, equipment := range equipments {
+		item, _ := database.GetItem(equipment.Code)
 		currentLevel := character.Level
 		if item.Subtype == "tool" && item.Effects != nil {
 			for _, effect := range *item.Effects {
@@ -81,13 +109,16 @@ func Equip(name string, equipments []string) (schemas.CharacterSchema, error) {
 			}
 		}
 		if currentLevel < item.Level {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("character %s does not meet requirement for %s"+
-					" (has %d, requires %d)", character.Name, item.Name,
-					currentLevel, item.Level)
+			return fmt.Errorf(
+				"does not meet requirement for %s (has %d, requires %d)",
+				item.Name, currentLevel, item.Level)
 		}
 	}
-	currentSlots := map[string]string{
+	return nil
+}
+
+func filterNeededEquipments(character schemas.CharacterSchema, equipments []schemas.EquipSchema) ([]schemas.EquipSchema, error) {
+	currentSlots := map[schemas.ItemSlot]string{
 		"amulet":     character.AmuletSlot,
 		"artifact1":  character.Artifact1Slot,
 		"artifact2":  character.Artifact2Slot,
@@ -105,138 +136,93 @@ func Equip(name string, equipments []string) (schemas.CharacterSchema, error) {
 		"utility2":   character.Utility2Slot,
 		"weapon":     character.WeaponSlot,
 	}
-	currentQuantities := map[string]int{
+	currentQuantities := map[schemas.ItemSlot]int{
 		"utility1": character.Utility1SlotQuantity,
 		"utility2": character.Utility2SlotQuantity,
 	}
-	var neededEquipments []string
-	for _, req := range equipments {
-		itemCode, slotNum, qty := parseEquipmentArg(req)
-		item, _ := database.GetItem(itemCode)
-		slots := database.EquipmentTypeToSlots[item.Type]
-		targetSlot := slots[0]
-		if slotNum > 0 && slotNum <= len(slots) {
-			targetSlot = slots[slotNum-1]
-		}
-		currentItem := currentSlots[targetSlot]
+
+	var needed []schemas.EquipSchema
+	for _, equipment := range equipments {
 		currentQty := 1
-		if q, ok := currentQuantities[targetSlot]; ok {
+		currentItem := currentSlots[equipment.Slot]
+		q, ok := currentQuantities[equipment.Slot]
+		if ok {
 			currentQty = q
 		}
-		if currentItem == itemCode && currentQty == qty {
+		targetQty := 1
+		if equipment.Quantity != nil {
+			targetQty = *equipment.Quantity
+		}
+		if currentItem == equipment.Code && currentQty == targetQty {
 			continue
 		}
-		neededEquipments = append(neededEquipments, req)
+		needed = append(needed, equipment)
 	}
+	return needed, nil
+}
 
-	if len(neededEquipments) == 0 {
-		return character, nil
-	}
-
+func validateTotalStock(character schemas.CharacterSchema, needed []schemas.EquipSchema) error {
 	bankItems, err := api.MyBankItems()
 	if err != nil {
-		return schemas.CharacterSchema{}, err
+		return err
 	}
-	for _, req := range neededEquipments {
-		itemCode, _, qty := parseEquipmentArg(req)
+	totalRequired := map[string]int{}
+	for _, equipment := range needed {
+		targetQty := 1
+		if equipment.Quantity != nil {
+			targetQty = *equipment.Quantity
+		}
+		totalRequired[equipment.Code] += targetQty
+	}
+	for code, requiredQty := range totalRequired {
 		totalAvailable := 0
 		if character.Inventory != nil {
 			for _, invSlot := range *character.Inventory {
-				if invSlot.Code == itemCode {
+				if invSlot.Code == code {
 					totalAvailable += invSlot.Quantity
 				}
 			}
 		}
 		for _, bankItem := range bankItems {
-			if bankItem.Code == itemCode {
+			if bankItem.Code == code {
 				totalAvailable += bankItem.Quantity
 			}
 		}
-		if totalAvailable < qty {
-			return schemas.CharacterSchema{},
-				fmt.Errorf("insufficient items: %s requires %d, but you only"+
-					" have %d (inventory+bank)", itemCode, qty, totalAvailable)
+		if totalAvailable < requiredQty {
+			return fmt.Errorf(
+				"insufficient items: %s requires %d, but you only have %d",
+				code, requiredQty, totalAvailable)
 		}
 	}
-	var withdrawPayload []schemas.SimpleItemSchema
-	withdrawMap := make(map[string]int)
-	for _, req := range neededEquipments {
-		itemCode, _, qty := parseEquipmentArg(req)
+	return nil
+}
+
+func calculateMissingItems(character schemas.CharacterSchema, needed []schemas.EquipSchema) []schemas.SimpleItemSchema {
+	totalRequired := map[string]int{}
+	for _, equipment := range needed {
+		targetQty := 1
+		if equipment.Quantity != nil {
+			targetQty = *equipment.Quantity
+		}
+		totalRequired[equipment.Code] += targetQty
+	}
+	var missing []schemas.SimpleItemSchema
+	for code, requiredQty := range totalRequired {
 		qtyInInventory := 0
 		if character.Inventory != nil {
 			for _, invSlot := range *character.Inventory {
-				if invSlot.Code == itemCode {
+				if invSlot.Code == code {
 					qtyInInventory = invSlot.Quantity
 					break
 				}
 			}
 		}
-		if qtyInInventory < qty {
-			neededQty := qty - qtyInInventory
-			withdrawMap[itemCode] += neededQty
+		if qtyInInventory < requiredQty {
+			missing = append(missing, schemas.SimpleItemSchema{
+				Code:     code,
+				Quantity: requiredQty - qtyInInventory,
+			})
 		}
 	}
-	for code, qty := range withdrawMap {
-		withdrawPayload = append(withdrawPayload, schemas.SimpleItemSchema{
-			Code:     code,
-			Quantity: qty,
-		})
-	}
-	if len(withdrawPayload) > 0 {
-		character, err = Move(character, "bank")
-		if err != nil {
-			return character, err
-		}
-		transaction, err := api.MyActionBankWithdrawItem(name, withdrawPayload)
-		if err != nil {
-			return character, err
-		}
-		character = transaction.Character
-	}
-
-	var equipPayload []schemas.EquipSchema
-	for _, req := range neededEquipments {
-		itemCode, slotNum, qty := parseEquipmentArg(req)
-		item, _ := database.GetItem(itemCode)
-		slots := database.EquipmentTypeToSlots[item.Type]
-		targetSlotStr := slots[0]
-		if slotNum > 0 && slotNum <= len(slots) {
-			targetSlotStr = slots[slotNum-1]
-		}
-		targetSlot := schemas.ItemSlot(targetSlotStr)
-		apiQty := qty
-		equipPayload = append(equipPayload, schemas.EquipSchema{
-			Code:     itemCode,
-			Slot:     targetSlot,
-			Quantity: &apiQty,
-		})
-	}
-	if len(equipPayload) > 0 {
-		result, err := api.MyActionEquip(name, equipPayload)
-		if err != nil {
-			return character, err
-		}
-		character = result.Character
-	}
-
-	return character, nil
-}
-
-func parseEquipmentArg(arg string) (string, int, int) {
-	qty := 1
-	slot := 0
-	itemPart := arg
-	if strings.Contains(arg, "@") {
-		parts := strings.Split(arg, "@")
-		itemPart = parts[0]
-		rightPart := parts[1]
-		if strings.Contains(rightPart, "x") {
-			subParts := strings.Split(rightPart, "x")
-			slot, _ = strconv.Atoi(subParts[0])
-			qty, _ = strconv.Atoi(subParts[1])
-		} else {
-			slot, _ = strconv.Atoi(rightPart)
-		}
-	}
-	return itemPart, slot, qty
+	return missing
 }
