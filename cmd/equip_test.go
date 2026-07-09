@@ -76,8 +76,14 @@ func TestParseCliEquipment(t *testing.T) {
 			errContains: "cannot specify quantity for non-utility slot",
 		},
 		{
-			name:        "Non-existent item code",
-			input:       "invalid_item_code",
+			name:        "Non-equipment item",
+			input:       "apple",
+			expectError: true,
+			errContains: "item type cannot be equipped",
+		},
+		{
+			name:        "Non-existent item",
+			input:       "invalid_item",
 			expectError: true,
 			errContains: "item not found in database",
 		},
