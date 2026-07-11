@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
@@ -10,13 +12,30 @@ import (
 var leaderboardCharactersCmd = &cobra.Command{
 	Use:   "leaderboardCharacters",
 	Short: "Get Characters Leaderboard",
-	Args:  cobra.NoArgs,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		case 0:
+			return nil
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var path string
-		path = "/leaderboard/characters"
+		argCount := len(args)
+
+		switch argCount {
+		case 0:
+			path = "/leaderboard/characters"
+		}
 
 		params := make(map[string]string)
+		localFlags := cmd.LocalFlags()
 		cmd.Flags().Visit(func(f *pflag.Flag) {
+			if localFlags.Lookup(f.Name) == nil {
+				return
+			}
 			params[f.Name] = f.Value.String()
 		})
 

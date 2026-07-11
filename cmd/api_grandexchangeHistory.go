@@ -10,22 +10,36 @@ import (
 )
 
 var grandexchangeHistoryCmd = &cobra.Command{
-	Use:   "grandexchangeHistory [code]",
+	Use:   "grandexchangeHistory <code>",
 	Short: "Get Ge History",
 	Long: `Get Ge History
 
 Arguments:
-  [code]  The code of the item.`,
-	Args: cobra.MaximumNArgs(1),
+  code   The code of the item.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		case 1:
+			return nil
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var path string
-		if len(args) == 0 {
-			return fmt.Errorf("missing required argument: code")
+		argCount := len(args)
+
+		switch argCount {
+		case 1:
+			path = fmt.Sprintf("/grandexchange/history/%s", args[0])
 		}
-		path = fmt.Sprintf("/grandexchange/history/%s", args[0])
 
 		params := make(map[string]string)
+		localFlags := cmd.LocalFlags()
 		cmd.Flags().Visit(func(f *pflag.Flag) {
+			if localFlags.Lookup(f.Name) == nil {
+				return
+			}
 			params[f.Name] = f.Value.String()
 		})
 

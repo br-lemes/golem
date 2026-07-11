@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
@@ -10,13 +12,30 @@ import (
 var myGrandexchangeHistoryCmd = &cobra.Command{
 	Use:   "myGrandexchangeHistory",
 	Short: "Get Ge History",
-	Args:  cobra.NoArgs,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		case 0:
+			return nil
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var path string
-		path = "/my/grandexchange/history"
+		argCount := len(args)
+
+		switch argCount {
+		case 0:
+			path = "/my/grandexchange/history"
+		}
 
 		params := make(map[string]string)
+		localFlags := cmd.LocalFlags()
 		cmd.Flags().Visit(func(f *pflag.Flag) {
+			if localFlags.Lookup(f.Name) == nil {
+				return
+			}
 			params[f.Name] = f.Value.String()
 		})
 

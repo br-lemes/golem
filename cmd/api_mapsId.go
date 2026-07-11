@@ -9,19 +9,29 @@ import (
 )
 
 var mapsIdCmd = &cobra.Command{
-	Use:   "mapsId [map_id]",
+	Use:   "mapsId <map_id>",
 	Short: "Get Map By Id",
 	Long: `Get Map By Id
 
 Arguments:
-  [map_id]  The unique ID of the map.`,
-	Args: cobra.MaximumNArgs(1),
+  map_id   The unique ID of the map.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		case 1:
+			return nil
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var path string
-		if len(args) == 0 {
-			return fmt.Errorf("missing required argument: map_id")
+		argCount := len(args)
+
+		switch argCount {
+		case 1:
+			path = fmt.Sprintf("/maps/id/%s", args[0])
 		}
-		path = fmt.Sprintf("/maps/id/%s", args[0])
 
 		params := make(map[string]string)
 

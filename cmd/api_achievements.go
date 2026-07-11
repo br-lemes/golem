@@ -15,18 +15,35 @@ var achievementsCmd = &cobra.Command{
 	Long: `Get All Achievements
 
 Arguments:
-  [code]  The code of the achievement.`,
-	Args: cobra.MaximumNArgs(1),
+  code   The code of the achievement.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		case 0:
+			return nil
+		case 1:
+			return nil
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var path string
-		if len(args) == 0 {
+		argCount := len(args)
+
+		switch argCount {
+		case 0:
 			path = "/achievements"
-		} else if len(args) == 1 {
+		case 1:
 			path = fmt.Sprintf("/achievements/%s", args[0])
 		}
 
 		params := make(map[string]string)
+		localFlags := cmd.LocalFlags()
 		cmd.Flags().Visit(func(f *pflag.Flag) {
+			if localFlags.Lookup(f.Name) == nil {
+				return
+			}
 			params[f.Name] = f.Value.String()
 		})
 

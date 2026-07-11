@@ -9,19 +9,29 @@ import (
 )
 
 var accountsCharactersCmd = &cobra.Command{
-	Use:   "accountsCharacters [account]",
+	Use:   "accountsCharacters <account>",
 	Short: "Get Account Characters",
 	Long: `Get Account Characters
 
 Arguments:
-  [account]  The name of the account.`,
-	Args: cobra.MaximumNArgs(1),
+  account   The name of the account.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		case 1:
+			return nil
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var path string
-		if len(args) == 0 {
-			return fmt.Errorf("missing required argument: account")
+		argCount := len(args)
+
+		switch argCount {
+		case 1:
+			path = fmt.Sprintf("/accounts/%s/characters", args[0])
 		}
-		path = fmt.Sprintf("/accounts/%s/characters", args[0])
 
 		params := make(map[string]string)
 

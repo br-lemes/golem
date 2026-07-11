@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
@@ -9,10 +11,23 @@ import (
 var myCharactersCmd = &cobra.Command{
 	Use:   "myCharacters",
 	Short: "Get My Characters",
-	Args:  cobra.NoArgs,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		switch argCount {
+		case 0:
+			return nil
+		default:
+			return fmt.Errorf("invalid number of arguments: %d", argCount)
+		}
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var path string
-		path = "/my/characters"
+		argCount := len(args)
+
+		switch argCount {
+		case 0:
+			path = "/my/characters"
+		}
 
 		params := make(map[string]string)
 
