@@ -17,6 +17,7 @@
         "glebarez",
         "GOARCH",
         "goccy",
+        "gocover",
         "gofmt",
         "gorm",
         "grandexchange",

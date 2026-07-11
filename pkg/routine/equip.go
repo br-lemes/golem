@@ -3,17 +3,16 @@ package routine
 import (
 	"fmt"
 
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
+func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
 	err := validateEquipments(equipments)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
-	character, err := api.Characters(name)
+	character, err := d.characters(name)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
@@ -28,7 +27,7 @@ func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSche
 	if len(needed) == 0 {
 		return character, nil
 	}
-	err = validateTotalStock(character, needed)
+	err = validateTotalStock(d, character, needed)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
@@ -37,17 +36,17 @@ func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSche
 
 	missing := calculateMissingItems(character, needed)
 	if len(missing) > 0 {
-		character, err = Move(character, "bank")
+		character, err = move(d, character, "bank")
 		if err != nil {
 			return character, err
 		}
-		transaction, err := api.MyActionBankWithdrawItem(name, missing)
+		transaction, err := d.myActionBankWithdrawItem(name, missing)
 		if err != nil {
 			return character, err
 		}
 		character = transaction.Character
 	}
-	result, err := api.MyActionEquip(name, needed)
+	result, err := d.myActionEquip(name, needed)
 	if err != nil {
 		return character, err
 	}
@@ -161,8 +160,8 @@ func filterNeededEquipments(character schemas.CharacterSchema, equipments []sche
 	return needed, nil
 }
 
-func validateTotalStock(character schemas.CharacterSchema, needed []schemas.EquipSchema) error {
-	bankItems, err := api.MyBankItems()
+func validateTotalStock(d deps, character schemas.CharacterSchema, needed []schemas.EquipSchema) error {
+	bankItems, err := d.myBankItems()
 	if err != nil {
 		return err
 	}

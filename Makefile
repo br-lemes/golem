@@ -24,7 +24,7 @@ clean:
 
 coverage:
 	@go test ./... -coverprofile=coverage.out && \
-		go tool cover -html=coverage.out
+		go run github.com/Azure/gocover@latest full --cover-profile=coverage.out
 
 pkg/schemas/schemas.go: pkg/database/openapi.json
 	@oapi-codegen -package schemas -generate models $< > $@
