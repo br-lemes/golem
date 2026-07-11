@@ -8,6 +8,7 @@ import (
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
+	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
 
@@ -43,6 +44,9 @@ Arguments:
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
+		}
+		if taskCompleted(character, code) {
+			return nil
 		}
 		routine.Cooldown(character)
 
@@ -80,10 +84,24 @@ Arguments:
 				return fmt.Errorf("error during fight: %w", err)
 			}
 			character = fightResult.Characters[0]
+
+			if taskCompleted(character, code) {
+				return nil
+			}
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(fightCmd)
+}
+
+func taskCompleted(character schemas.CharacterSchema, code string) bool {
+	if character.TaskType == "monsters" &&
+		character.Task == code &&
+		character.TaskProgress == character.TaskTotal {
+		console.Printf("  Task completed\n")
+		return true
+	}
+	return false
 }
