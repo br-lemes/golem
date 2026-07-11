@@ -24,6 +24,7 @@ clean:
 
 coverage:
 	@go test ./... -coverprofile=coverage.out && \
+		sed -i '/cmd\/api/d' coverage.out && \
 		go run github.com/Azure/gocover@latest full --cover-profile=coverage.out
 
 pkg/schemas/schemas.go: pkg/database/openapi.json
