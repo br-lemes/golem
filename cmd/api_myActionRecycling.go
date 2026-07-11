@@ -55,6 +55,8 @@ func init() {
 	apiCmd.AddCommand(myActionRecyclingCmd)
 	myActionRecyclingCmd.Flags().String("code", "",
 		"Item code.")
+	myActionRecyclingCmd.Flags().Bool("enhanced", false,
+		"Whether to use enhanced recycling.")
 	myActionRecyclingCmd.Flags().Int("quantity", 0,
 		"Quantity of items to recycle.")
 }

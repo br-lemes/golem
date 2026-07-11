@@ -69,10 +69,14 @@ func init() {
 		"Type of maps.")
 	mapsCmd.Flags().Bool("hide_blocked_maps", false,
 		"When true, excludes maps with access_type 'blocked' from the results.")
+	mapsCmd.Flags().Bool("hide_event", false,
+		"When true, does not overlay active events on maps.")
 	mapsCmd.Flags().String("layer", "",
 		"Filter maps by layer.")
 	mapsCmd.Flags().Int("page", 0,
 		"Page number")
 	mapsCmd.Flags().Int("size", 0,
 		"Page size")
+	mapsCmd.Flags().Bool("transition", false,
+		"Filter maps by transition. True returns only maps with transitions, False returns only maps without.")
 }

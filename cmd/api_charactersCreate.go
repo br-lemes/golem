@@ -52,5 +52,5 @@ func init() {
 	charactersCreateCmd.Flags().String("name", "",
 		"Your desired character name. It's unique and all players can see it.")
 	charactersCreateCmd.Flags().String("skin", "",
-		"Your desired skin. Skins unlocked by default: 'men1', 'men2', 'men3', 'women1', 'women2', 'women3'.")
+		"Your desired skin.")
 }

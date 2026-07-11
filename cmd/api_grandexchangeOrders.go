@@ -61,6 +61,8 @@ func init() {
 		"The account that sells or buys items.")
 	grandexchangeOrdersCmd.Flags().String("code", "",
 		"The code of the item.")
+	grandexchangeOrdersCmd.Flags().String("item_type", "",
+		"Filter by item type.")
 	grandexchangeOrdersCmd.Flags().Int("page", 0,
 		"Page number")
 	grandexchangeOrdersCmd.Flags().Int("size", 0,

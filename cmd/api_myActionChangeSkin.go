@@ -54,5 +54,5 @@ Arguments:
 func init() {
 	apiCmd.AddCommand(myActionChangeSkinCmd)
 	myActionChangeSkinCmd.Flags().String("skin", "",
-		"Your desired skin. Skins unlocked by default: 'men1', 'men2', 'men3', 'women1', 'women2', 'women3'.")
+		"Your desired skin.")
 }
