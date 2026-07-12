@@ -120,17 +120,27 @@ func (c *bestCtx) matchEquipment() {
 	slots := slices.Collect(maps.Keys(database.EquipmentSlotToTypes))
 	slices.Sort(slots)
 	c.Result = make(map[string]bestResult)
+	usedUniqueItems := make(map[string]bool)
 	for _, slot := range slots {
 		itemType := database.EquipmentSlotToTypes[slot]
+		isRingSlot := strings.HasPrefix(slot, "ring")
 		for _, item := range c.ValidItems {
-			if item.Type == itemType && c.OwnedItems[item.Code] > 0 {
-				c.Result[slot] = bestResult{
-					Code:  item.Code,
-					Value: c.formatItem(item),
-				}
-				c.OwnedItems[item.Code]--
-				break
+			if item.Type != itemType {
+				continue
 			}
+			if c.OwnedItems[item.Code] <= 0 {
+				continue
+			}
+			if !isRingSlot && usedUniqueItems[item.Code] {
+				continue
+			}
+			c.Result[slot] = bestResult{
+				Code:  item.Code,
+				Value: c.formatItem(item),
+			}
+			c.OwnedItems[item.Code]--
+			usedUniqueItems[item.Code] = true
+			break
 		}
 	}
 }
