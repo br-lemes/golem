@@ -30,8 +30,5 @@ func SaveCharacter(name string, character schemas.CharacterSchema) {
 	if err != nil {
 		return
 	}
-	cache.Save(&models.Character{
-		Name: name,
-		Data: string(data),
-	})
+	cache.Save(&models.Character{Name: name, Data: string(data)})
 }

@@ -30,20 +30,13 @@ func init() {
 		panic(err)
 	}
 
+	cache.Exec("PRAGMA journal_mode=WAL;")
+	cache.Exec("PRAGMA synchronous=NORMAL;")
 	cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{})
 }
 
-func isAPILogFresh() bool {
-	var logCache models.APILog
-	result := cache.Where("created_at >= ?", limit(5)).Limit(1).Find(&logCache)
-	if result.Error != nil || result.RowsAffected == 0 {
-		return false
-	}
-	return true
-}
-
 func isNameFresh(dest any, name string, minutes int) bool {
-	if !isAPILogFresh() {
+	if !isStatusFresh() {
 		return false
 	}
 
@@ -56,11 +49,21 @@ func isNameFresh(dest any, name string, minutes int) bool {
 }
 
 func isTableFresh(dest any, minutes int) bool {
-	if !isAPILogFresh() {
+	if !isStatusFresh() {
 		return false
 	}
 
 	result := cache.Where("updated_at >= ?", limit(minutes)).Find(dest)
+	if result.Error != nil || result.RowsAffected == 0 {
+		return false
+	}
+	return true
+}
+
+func isStatusFresh() bool {
+	var statusCache models.Cache
+	result := cache.Where("name = ? AND updated_at >= ?", "status", limit(5)).
+		Limit(1).Find(&statusCache)
 	if result.Error != nil || result.RowsAffected == 0 {
 		return false
 	}

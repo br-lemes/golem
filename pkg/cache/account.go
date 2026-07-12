@@ -18,10 +18,7 @@ func GetAccount() string {
 }
 
 func SaveAccount(account string) {
-	cache.Save(&models.Cache{
-		Name: "account",
-		Data: account,
-	})
+	cache.Save(&models.Cache{Name: "account", Data: account})
 }
 
 func GetAccountCharacters() []schemas.CharacterSchema {

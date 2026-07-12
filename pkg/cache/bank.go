@@ -30,10 +30,7 @@ func SaveBank(bank schemas.BankSchema) {
 	if err != nil {
 		return
 	}
-	cache.Save(&models.Cache{
-		Name: "bank",
-		Data: string(data),
-	})
+	cache.Save(&models.Cache{Name: "bank", Data: string(data)})
 }
 
 func UpdateBankGold(gold int) {
@@ -63,8 +60,5 @@ func SaveBankItems(bankItems []schemas.SimpleItemSchema) {
 	if err != nil {
 		return
 	}
-	cache.Save(&models.Cache{
-		Name: "bankItems",
-		Data: string(data),
-	})
+	cache.Save(&models.Cache{Name: "bankItems", Data: string(data)})
 }
