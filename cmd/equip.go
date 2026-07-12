@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ var equipCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
-			return config.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
+			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 		}
 		return database.GetEquipments(), cobra.ShellCompDirectiveNoFileComp
 	},

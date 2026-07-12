@@ -15,9 +15,10 @@ import (
 
 const baseURL = "https://api.artifactsmmo.com"
 
-var Token string
-
-var defaultClient = &http.Client{Timeout: 30 * time.Second}
+var (
+	token         string
+	defaultClient = &http.Client{Timeout: 30 * time.Second}
+)
 
 type requestCtx struct {
 	baseURL     string
@@ -117,7 +118,7 @@ func (ctx *requestCtx) newRequest() (*http.Request, error) {
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+Token)
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	console.Debugf("%s %s\n", ctx.method, ctx.path)
 	if len(ctx.body) > 0 {

@@ -6,10 +6,10 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -39,8 +39,7 @@ Arguments:
 	},
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
-			characters := config.GetCharacters()
-			return characters, cobra.ShellCompDirectiveNoFileComp
+			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 		}
 		if len(args) == 1 {
 			return database.EquipmentTypes, cobra.ShellCompDirectiveNoFileComp
@@ -70,7 +69,7 @@ func init() {
 	missingCmd.Flags().StringSliceP("type", "t", []string{},
 		"Equipment types to filter")
 	missingCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return config.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
+		return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 	})
 	missingCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return database.EquipmentTypes, cobra.ShellCompDirectiveNoFileComp

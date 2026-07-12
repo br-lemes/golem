@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -36,7 +35,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		characters, err := api.AccountsCharacters(config.Account)
+		characters, err := api.AccountsCharacters("")
 		if err != nil {
 			return err
 		}

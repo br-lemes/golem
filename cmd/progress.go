@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
@@ -19,7 +18,7 @@ Arguments:
   account   The name of the account (optional).`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		account := config.Account
+		account := ""
 		if len(args) > 0 {
 			account = args[0]
 		}

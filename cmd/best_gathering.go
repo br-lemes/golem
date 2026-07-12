@@ -5,7 +5,6 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -24,7 +23,7 @@ Arguments:
 	Args: cobra.ExactArgs(2),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
-			return config.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
+			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 		}
 		if len(args) == 1 {
 			validSkills := database.GetEnum("GatheringSkill")

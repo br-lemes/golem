@@ -5,9 +5,9 @@ import (
 	"math"
 
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -19,8 +19,7 @@ and estimate the total XP gained based on character stats.`,
 	Args: cobra.ExactArgs(2),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
-			characters := config.GetCharacters()
-			return characters, cobra.ShellCompDirectiveNoFileComp
+			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 		}
 		if len(args) == 1 {
 			codes := database.GetItemCodes()
@@ -152,9 +151,10 @@ func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom i
 	var skillMultiplier float64
 	skillMultiplier = 1.0
 
-	if skill == "mining" || skill == "woodcutting" || skill == "fishing" {
+	switch skill {
+	case "fishing", "mining", "woodcutting":
 		skillMultiplier = 0.1
-	} else if skill == "cooking" {
+	case "cooking":
 		skillMultiplier = 0.5
 	}
 

@@ -4,15 +4,23 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func AccountsAchievements(name string) ([]schemas.AccountAchievementSchema, error) {
+func AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, error) {
+	if account == "" {
+		account = cache.GetAccount()
+		if account == "" {
+			MyDetails()
+			account = cache.GetAccount()
+		}
+	}
 	result := []schemas.AccountAchievementSchema{}
 	page := 1
 	for {
 		resp, err := Get(fmt.Sprintf("/accounts/%s/achievements?page=%d",
-			name, page), nil)
+			account, page), nil)
 		if err != nil {
 			return nil, err
 		}

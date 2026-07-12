@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -18,7 +17,7 @@ Arguments:
 `,
 	Args: cobra.ExactArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return config.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
+		return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 	},
 
 	RunE: func(cmd *cobra.Command, args []string) error {
