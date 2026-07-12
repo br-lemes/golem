@@ -25,6 +25,12 @@ func GetCharacter(name string) *schemas.CharacterSchema {
 	return &character
 }
 
+func GetCharacters() []string {
+	var names []string
+	cache.Model(&models.Character{}).Unscoped().Pluck("name", &names)
+	return names
+}
+
 func SaveCharacter(name string, character schemas.CharacterSchema) {
 	data, err := json.Marshal(character)
 	if err != nil {

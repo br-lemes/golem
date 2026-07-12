@@ -1,6 +1,9 @@
 package utils
 
-import "github.com/br-lemes/golem/pkg/api"
+import (
+	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/cache"
+)
 
 var characters []string
 
@@ -9,6 +12,10 @@ func GetCharacters() []string {
 }
 
 func init() {
+	characters = cache.GetCharacters()
+	if len(characters) == 5 {
+		return
+	}
 	chars, err := api.AccountsCharacters("")
 	if err != nil {
 		panic(err)
