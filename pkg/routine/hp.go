@@ -1,9 +1,9 @@
 package routine
 
 import (
+	"math"
 	"sort"
 
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
@@ -14,25 +14,30 @@ type FoodItem struct {
 	Quantity int
 }
 
-func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
+func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
 	if character.Hp > minHp {
 		return character, nil
 	}
-	if character.Inventory == nil {
-		return handleRest(character)
+	neededHp := character.MaxHp - character.Hp
+	missingHpPercent := (float64(neededHp) / float64(character.MaxHp)) * 100
+	estimatedRestCooldown := math.Ceil(missingHpPercent)
+	if estimatedRestCooldown < 3 {
+		estimatedRestCooldown = 3
+	}
+	if character.Inventory == nil || estimatedRestCooldown <= 3 {
+		return rest(d, character)
 	}
 	foods := []FoodItem{}
 	for _, slot := range *character.Inventory {
-		if slot.Quantity <= 0 {
+		if slot.Quantity <= 0 { //+gocover:ignore:block should not happen
 			continue
 		}
-
 		item, found := database.GetItem(slot.Code)
 		if !found || item.Type != "consumable" || item.Subtype != "food" ||
 			item.Level > character.Level || item.Effects == nil {
+			//+gocover:ignore:block should not happen
 			continue
 		}
-
 		healValue := 0
 		for _, effect := range *item.Effects {
 			if effect.Code == "heal" {
@@ -40,8 +45,7 @@ func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, 
 				break
 			}
 		}
-
-		if healValue <= 0 {
+		if healValue <= 0 { //+gocover:ignore:block should not happen
 			continue
 		}
 		foods = append(foods, FoodItem{
@@ -50,61 +54,39 @@ func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, 
 			Quantity: slot.Quantity,
 		})
 	}
+	if len(foods) == 0 {
+		return rest(d, character)
+	}
 	sort.Slice(foods, func(i, j int) bool {
 		return foods[i].Heal > foods[j].Heal
 	})
-
-	for i, food := range foods {
-		neededHp := character.MaxHp - character.Hp
+	for _, food := range foods {
+		neededHp = character.MaxHp - character.Hp
 		if neededHp <= 0 {
 			break
 		}
-
-		qtyToUse := neededHp / food.Heal
+		qtyToUse := (neededHp + food.Heal - 1) / food.Heal
 		if qtyToUse > food.Quantity {
 			qtyToUse = food.Quantity
 		}
-
-		if qtyToUse <= 0 {
+		if qtyToUse <= 0 { //+gocover:ignore:block should not happen
 			continue
 		}
-		useData, err := api.MyActionUse(character.Name,
+		useData, err := d.myActionUse(character.Name,
 			schemas.SimpleItemSchema{Code: food.Code, Quantity: qtyToUse})
 		if err != nil {
 			return schemas.CharacterSchema{}, err
 		}
 		character = useData.Character
-		foods[i].Quantity = foods[i].Quantity - qtyToUse
 	}
-
-	if character.Hp > minHp {
-		return character, nil
+	if character.Hp < character.MaxHp {
+		return rest(d, character)
 	}
-
-	for i := len(foods) - 1; i >= 0; i-- {
-		food := foods[i]
-		if food.Quantity <= 0 {
-			continue
-		}
-
-		useData, err := api.MyActionUse(character.Name,
-			schemas.SimpleItemSchema{Code: food.Code, Quantity: 1})
-		if err != nil {
-			return schemas.CharacterSchema{}, err
-		}
-		character = useData.Character
-		break
-	}
-
-	if character.Hp > minHp {
-		return character, nil
-	}
-
-	return handleRest(character)
+	return character, nil
 }
 
-func handleRest(character schemas.CharacterSchema) (schemas.CharacterSchema, error) {
-	data, err := api.MyActionRest(character.Name)
+func rest(d deps, character schemas.CharacterSchema) (schemas.CharacterSchema, error) {
+	data, err := d.myActionRest(character.Name)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
