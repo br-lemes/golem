@@ -18,13 +18,15 @@ type bestResult struct {
 }
 
 type bestCtx struct {
-	Character  schemas.CharacterSchema
-	ItemValues map[string]int
-	OwnedItems map[string]int
-	Result     map[string]bestResult
-	Skill      string
-	ValidItems []schemas.ItemSchema
-	Weights    map[string]int
+	Character       schemas.CharacterSchema
+	ItemValues      map[string]int
+	OwnedItems      map[string]int
+	Equipped        map[string]string
+	AlreadyEquipped map[string]int
+	Result          map[string]bestResult
+	Skill           string
+	ValidItems      []schemas.ItemSchema
+	Weights         map[string]int
 }
 
 func BestFinder(character schemas.CharacterSchema, skill string, weights map[string]int) (map[string]bestResult, error) {
@@ -52,29 +54,36 @@ func (c *bestCtx) fetchItems() error {
 			c.OwnedItems[item.Code] += item.Quantity
 		}
 	}
-	equipped := []schemas.SimpleItemSchema{
-		{Code: c.Character.AmuletSlot, Quantity: 1},
-		{Code: c.Character.Artifact1Slot, Quantity: 1},
-		{Code: c.Character.Artifact2Slot, Quantity: 1},
-		{Code: c.Character.Artifact3Slot, Quantity: 1},
-		{Code: c.Character.BagSlot, Quantity: 1},
-		{Code: c.Character.BodyArmorSlot, Quantity: 1},
-		{Code: c.Character.BootsSlot, Quantity: 1},
-		{Code: c.Character.HelmetSlot, Quantity: 1},
-		{Code: c.Character.LegArmorSlot, Quantity: 1},
-		{Code: c.Character.Ring1Slot, Quantity: 1},
-		{Code: c.Character.Ring2Slot, Quantity: 1},
-		{Code: c.Character.RuneSlot, Quantity: 1},
-		{Code: c.Character.ShieldSlot, Quantity: 1},
-		{Code: c.Character.Utility1Slot,
-			Quantity: c.Character.Utility1SlotQuantity},
-		{Code: c.Character.Utility2Slot,
-			Quantity: c.Character.Utility2SlotQuantity},
-		{Code: c.Character.WeaponSlot, Quantity: 1},
+	c.Equipped = map[string]string{
+		"amulet":     c.Character.AmuletSlot,
+		"artifact1":  c.Character.Artifact1Slot,
+		"artifact2":  c.Character.Artifact2Slot,
+		"artifact3":  c.Character.Artifact3Slot,
+		"bag":        c.Character.BagSlot,
+		"body_armor": c.Character.BodyArmorSlot,
+		"boots":      c.Character.BootsSlot,
+		"helmet":     c.Character.HelmetSlot,
+		"leg_armor":  c.Character.LegArmorSlot,
+		"ring1":      c.Character.Ring1Slot,
+		"ring2":      c.Character.Ring2Slot,
+		"rune":       c.Character.RuneSlot,
+		"shield":     c.Character.ShieldSlot,
+		"utility1":   c.Character.Utility1Slot,
+		"utility2":   c.Character.Utility2Slot,
+		"weapon":     c.Character.WeaponSlot,
 	}
-	for _, item := range equipped {
-		if item.Code != "" {
-			c.OwnedItems[item.Code] += item.Quantity
+	c.AlreadyEquipped = make(map[string]int)
+	for slot, code := range c.Equipped {
+		if code != "" {
+			qty := 1
+			switch slot {
+			case "utility1":
+				qty = c.Character.Utility1SlotQuantity
+			case "utility2":
+				qty = c.Character.Utility2SlotQuantity
+			}
+			c.OwnedItems[code] += qty
+			c.AlreadyEquipped[code] += qty
 		}
 	}
 	return nil
@@ -124,6 +133,7 @@ func (c *bestCtx) matchEquipment() {
 	for _, slot := range slots {
 		itemType := database.EquipmentSlotToTypes[slot]
 		isRingSlot := strings.HasPrefix(slot, "ring")
+		equippedCode := c.Equipped[slot]
 		for _, item := range c.ValidItems {
 			if item.Type != itemType {
 				continue
@@ -134,10 +144,22 @@ func (c *bestCtx) matchEquipment() {
 			if !isRingSlot && usedUniqueItems[item.Code] {
 				continue
 			}
-			c.Result[slot] = bestResult{
-				Code:  item.Code,
-				Value: c.formatItem(item),
+			isCurrentlyEquippedElsewhere := c.AlreadyEquipped[item.Code] > 0
+			if isCurrentlyEquippedElsewhere {
+				if item.Code != equippedCode {
+					c.AlreadyEquipped[item.Code]--
+					c.OwnedItems[item.Code]--
+					usedUniqueItems[item.Code] = true
+					continue
+				}
 			}
+			if item.Code != equippedCode {
+				c.Result[slot] = bestResult{
+					Code:  item.Code,
+					Value: c.formatItem(item),
+				}
+			}
+			c.AlreadyEquipped[item.Code]--
 			c.OwnedItems[item.Code]--
 			usedUniqueItems[item.Code] = true
 			break
@@ -155,7 +177,11 @@ func (c *bestCtx) evaluateItem(item schemas.ItemSchema) int {
 		if !exists {
 			continue
 		}
-		score += effect.Value * weight
+		val := effect.Value
+		if effect.Code == c.Skill {
+			val = -val
+		}
+		score += val * weight
 	}
 	return score
 }
