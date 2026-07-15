@@ -4,6 +4,7 @@
     "overrides": [{ "filename": "**/*.tmpl", "languageId": "go" }],
     "words": [
         "alecthomas",
+        "berserked",
         "codegen",
         "cooldown",
         "coverprofile",
@@ -25,6 +26,7 @@
         "jewelrycrafting",
         "ldflags",
         "lemes",
+        "lifesteal",
         "linux",
         "monokai",
         "npcs",
