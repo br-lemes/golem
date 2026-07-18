@@ -15,7 +15,7 @@ type FoodItem struct {
 }
 
 func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
-	if character.Hp > minHp {
+	if character.Hp >= minHp {
 		return character, nil
 	}
 	neededHp := character.MaxHp - character.Hp

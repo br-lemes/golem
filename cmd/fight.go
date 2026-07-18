@@ -34,12 +34,10 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
-
 		monster, found := database.GetMonster(code)
 		if !found {
 			return fmt.Errorf("monster %s not found", code)
 		}
-
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
@@ -47,8 +45,6 @@ Arguments:
 		if taskCompleted(character, code) {
 			return nil
 		}
-		routine.Cooldown(character)
-
 		if character.Level < monster.Level {
 			console.Printf("Your level %d < monster level %d\n",
 				character.Level, monster.Level)
@@ -58,25 +54,8 @@ Arguments:
 			}
 		}
 
-		minHp := monster.Hp + (monster.Hp * 20 / 100)
-		if minHp > character.MaxHp {
-			minHp = character.MaxHp
-		}
 		for {
-			character, err = routine.Hp(character, minHp)
-			if err != nil {
-				return err
-			}
-
-			character, err = routine.Inventory(character, []string{"food"})
-			if err != nil {
-				return err
-			}
-
-			character, err = routine.Move(character, code)
-			if err != nil {
-				return err
-			}
+			prepare(character, monster)
 
 			fightResult, err := api.MyActionFight(name, []string{})
 			if err != nil {
@@ -93,6 +72,27 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(fightCmd)
+}
+
+func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema) error {
+	routine.Cooldown(character)
+	minHp := monster.Hp + (monster.Hp * 20 / 100)
+	if minHp > character.MaxHp {
+		minHp = character.MaxHp
+	}
+	character, err := routine.Hp(character, minHp)
+	if err != nil {
+		return err
+	}
+	character, err = routine.Inventory(character, []string{"food"})
+	if err != nil {
+		return err
+	}
+	_, err = routine.Move(character, monster.Code)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func taskCompleted(character schemas.CharacterSchema, code string) bool {

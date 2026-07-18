@@ -33,11 +33,11 @@ func MyActionFight(name string, participants []string) (schemas.CharacterFightDa
 				console.Printf(", Gold gained: %d", character.Gold)
 			}
 			printDropSchema(character.Drops)
+			console.Printf("\n")
 		}
 	} else {
-		console.Printf("💀 Fight lost!")
+		console.Printf("💀 Fight lost!\n")
 	}
-	console.Printf("\n")
 	handleCooldown(data.Data.Cooldown.TotalSeconds)
 	return data.Data, nil
 }
