@@ -14,9 +14,6 @@ ARTIFACTS := $(foreach p,$(PLATFORMS),\
 
 SEMVER := github.com/br-lemes/semver@latest
 
-build: pkg/schemas/schemas.go test
-	@go build -ldflags "-s -w"
-
 all: $(PLATFORMS)
 
 clean:
