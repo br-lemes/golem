@@ -20,16 +20,25 @@ var countCmd = &cobra.Command{
 	Long: `Show the total quantity of items in the account
 
 Arguments:
-  code      The code of the item.`,
-	ValidArgsFunction: completion.Item(0).Build(),
+  code      The code of the item (or 'gold' for gold).`,
+	ValidArgsFunction: completion.Custom(0, func() []string {
+		return append(database.GetItemCodes(), "gold")
+	}).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		for _, code := range args {
+			if code == "gold" {
+				continue
+			}
 			_, found := database.GetItem(code)
 			if !found {
 				return fmt.Errorf("item %s not found", code)
 			}
 		}
 
+		bank, err := api.MyBank()
+		if err != nil {
+			return err
+		}
 		items, err := api.MyBankItems()
 		if err != nil {
 			return err
@@ -44,14 +53,27 @@ Arguments:
 		for _, code := range args {
 			result := []map[string]int{}
 
-			for _, item := range items {
-				if item.Code == code {
-					result = append(result,
-						map[string]int{"bank": item.Quantity})
+			if code == "gold" {
+				if bank.Gold > 0 {
+					result = append(result, map[string]int{"bank": bank.Gold})
+				}
+			} else {
+				for _, item := range items {
+					if item.Code == code {
+						result = append(result,
+							map[string]int{"bank": item.Quantity})
+					}
 				}
 			}
 
 			for _, character := range characters {
+				if code == "gold" {
+					if character.Gold > 0 {
+						result = append(result,
+							map[string]int{character.Name: character.Gold})
+						continue
+					}
+				}
 				inventory := []schemas.InventorySlotSchema{}
 				if character.Inventory != nil {
 					inventory = *character.Inventory
