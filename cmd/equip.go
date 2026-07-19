@@ -5,23 +5,23 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
-	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var equipCmd = &cobra.Command{
-	Use:   "equip <name> <code>",
-	Short: "Equip Item",
 	Args:  cobra.MinimumNArgs(1),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-		}
-		return database.GetEquipments(), cobra.ShellCompDirectiveNoFileComp
-	},
+	Use:   "equip <name> <code>",
+	Short: "Equip one or more items on a character",
+	Long: `Equip one or more items on a character
+
+Arguments:
+  name   Name of your character.
+  code   The code of the item.`,
+	ValidArgsFunction: completion.CharacterName(1).Equipment(0).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var equipments []schemas.EquipSchema
 		for _, arg := range args[1:] {

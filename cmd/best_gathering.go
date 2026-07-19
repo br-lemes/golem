@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -12,26 +13,15 @@ import (
 )
 
 var bestGatheringCmd = &cobra.Command{
+	Args:  cobra.ExactArgs(2),
 	Use:   "gathering <name> <skill>",
 	Short: "Find the best equipment for gathering",
 	Long: `Find the best equipment for gathering
 
 Arguments:
   name   Name of your character.
-  skill  The gathering skill (alchemy, fishing, mining, woodcutting).
-`,
-	Args: cobra.ExactArgs(2),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-		}
-		if len(args) == 1 {
-			validSkills := database.GetEnum("GatheringSkill")
-			return validSkills, cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-
+  skill  The gathering skill (alchemy, fishing, mining, woodcutting).`,
+	ValidArgsFunction: completion.CharacterName(1).GatheringSkill(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		skill := args[1]

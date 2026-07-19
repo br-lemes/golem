@@ -5,28 +5,22 @@ import (
 	"math"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
-	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var costCmd = &cobra.Command{
+	Args:  cobra.ExactArgs(2),
 	Use:   "cost <name> <code>",
 	Short: "Calculate resources and XP for crafting an item",
-	Long: `Calculate how many items can be crafted with current resources
-and estimate the total XP gained based on character stats.`,
-	Args: cobra.ExactArgs(2),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-		}
-		if len(args) == 1 {
-			codes := database.GetItemCodes()
-			return codes, cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
+	Long: `Calculate resources and XP for crafting an item
+
+Arguments:
+  name   Name of your character.
+  code   The code of the item.`,
+	ValidArgsFunction: completion.CharacterName(1).Item(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]

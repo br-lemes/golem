@@ -4,26 +4,22 @@ import (
 	_ "embed"
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var generateCmd = &cobra.Command{
+	Args:  cobra.ExactArgs(1),
 	Use:   "generate <command>",
 	Short: "Generate Go code for specific commands",
 	Long: `Generate Go source code for specific game API commands
 
 Arguments:
   command   Name of the target command to generate code for.`,
-	Args: cobra.ExactArgs(1),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCommandsCompletion(),
-				cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
+	ValidArgsFunction: completion.Custom(1, utils.GetCommandsCompletion).
+		Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		targetCmd := args[0]
 

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -13,16 +14,14 @@ import (
 )
 
 var countCmd = &cobra.Command{
+	Args:  cobra.MinimumNArgs(1),
 	Use:   "count <code>...",
 	Short: "Show the total quantity of items in the account",
 	Long: `Show the total quantity of items in the account
 
 Arguments:
   code      The code of the item.`,
-	Args: cobra.MinimumNArgs(1),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.GetItemCodes(), cobra.ShellCompDirectiveNoFileComp
-	},
+	ValidArgsFunction: completion.Item(0).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		for _, code := range args {
 			_, found := database.GetItem(code)

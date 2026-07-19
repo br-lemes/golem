@@ -4,14 +4,15 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
-	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var recyclingCmd = &cobra.Command{
+	Args:  cobra.ExactArgs(2),
 	Use:   "recycling <name> <code>",
 	Short: "Start the recycling bot loop",
 	Long: `Start the recycling bot loop
@@ -19,17 +20,7 @@ var recyclingCmd = &cobra.Command{
 Arguments:
   name   Name of your character.
   code   The code of the item.`,
-	Args: cobra.ExactArgs(2),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-		}
-		if len(args) == 1 {
-			codes := database.GetItemCodes()
-			return codes, cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
+	ValidArgsFunction: completion.CharacterName(1).Item(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]

@@ -5,18 +5,21 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var cleanCharacterCmd = &cobra.Command{
-	Use:   "character",
-	Short: "Clean the character cache",
 	Args:  cobra.MaximumNArgs(5),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-	},
+	Use:   "character [names...]",
+	Short: "Clean the character cache",
+	Long: `Clean the character cache
+
+Arguments:
+  names   Names of the characters to clean.`,
+	ValidArgsFunction: completion.CharacterName(5).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 && console.Confirm("Clean all characters") {
 			for _, character := range utils.GetCharacters() {

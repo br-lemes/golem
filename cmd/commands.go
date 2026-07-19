@@ -3,26 +3,22 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var commandsCmd = &cobra.Command{
+	Args:  cobra.MaximumNArgs(1),
 	Use:   "commands [command]",
 	Short: "List available commands mapped from the game's OpenAPI spec",
 	Long: `List available commands mapped from the game's OpenAPI spec
 
 Arguments:
   command   Name of a specific command to inspect.`,
-	Args: cobra.MaximumNArgs(1),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCommandsCompletion(),
-				cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
+	ValidArgsFunction: completion.Custom(1, utils.GetCommandsCompletion).
+		Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		commands, err := utils.GetCommands()
 		if err != nil {

@@ -4,16 +4,17 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
-	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 )
 
 var bossCmd = &cobra.Command{
-	Use:   "boss",
+	Args:  cobra.RangeArgs(3, 4),
+	Use:   "boss <name> <code> <participants>...",
 	Short: "Boss fight continuously",
 	Long: `Boss fight continuously
 
@@ -21,20 +22,8 @@ Arguments:
   name           Name of your character.
   code           The code of the boss.
   participants   Names of other characters in your account to fight alongside.`,
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-		}
-		if len(args) == 1 {
-			codes := database.GetBossCodes()
-			return codes, cobra.ShellCompDirectiveNoFileComp
-		}
-		if len(args) == 2 || len(args) == 3 {
-			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	Args: cobra.RangeArgs(3, 4),
+	ValidArgsFunction: completion.CharacterName(1).Boss(1).CharacterName(2).
+		Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]

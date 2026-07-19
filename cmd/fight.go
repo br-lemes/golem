@@ -4,15 +4,16 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
-	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var fightCmd = &cobra.Command{
+	Args:  cobra.ExactArgs(2),
 	Use:   "fight <name> <code>",
 	Short: "Fight continuously",
 	Long: `Fight continuously
@@ -20,17 +21,7 @@ var fightCmd = &cobra.Command{
 Arguments:
   name   Name of your character.
   code   The code of the monster.`,
-	Args: cobra.ExactArgs(2),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-		}
-		if len(args) == 1 {
-			codes := database.GetMonsterCodes()
-			return codes, cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
+	ValidArgsFunction: completion.CharacterName(1).Monster(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
