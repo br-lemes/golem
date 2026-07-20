@@ -7,6 +7,10 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+func Move(character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
+	return move(defaultDeps, character, code)
+}
+
 func move(d deps, character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
 	result := database.FindClosest(character, code)
 	if result == nil {

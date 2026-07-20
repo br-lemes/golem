@@ -7,6 +7,10 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
+	return equip(defaultDeps, name, equipments)
+}
+
 func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
 	err := validateEquipments(equipments)
 	if err != nil {

@@ -26,15 +26,3 @@ var defaultDeps = deps{
 	myActionUse:              api.MyActionUse,
 	myBankItems:              api.MyBankItems,
 }
-
-func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
-	return equip(defaultDeps, name, equipments)
-}
-
-func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
-	return hp(defaultDeps, character, minHp)
-}
-
-func Move(character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
-	return move(defaultDeps, character, code)
-}

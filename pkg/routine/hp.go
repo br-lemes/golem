@@ -14,6 +14,10 @@ type FoodItem struct {
 	Quantity int
 }
 
+func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
+	return hp(defaultDeps, character, minHp)
+}
+
 func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
 	if character.Hp >= minHp {
 		return character, nil
