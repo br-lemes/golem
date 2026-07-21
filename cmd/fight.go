@@ -45,12 +45,17 @@ Arguments:
 			}
 		}
 
+		utility1, _ := cmd.Flags().GetString("utility1")
+		utility2, _ := cmd.Flags().GetString("utility2")
 		for {
-			prepare(character, monster)
+			err = prepare(character, monster, utility1, utility2)
+			if err != nil {
+				return err
+			}
 
 			fightResult, err := api.MyActionFight(name, []string{})
 			if err != nil {
-				return fmt.Errorf("error during fight: %w", err)
+				return err
 			}
 			character = fightResult.Characters[0]
 
@@ -63,9 +68,13 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(fightCmd)
+	fightCmd.Flags().String("utility1", "",
+		"item code to auto-refill in utility1 slot")
+	fightCmd.Flags().String("utility2", "",
+		"item code to auto-refill in utility2 slot")
 }
 
-func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema) error {
+func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, utility1, utility2 string) error {
 	routine.Cooldown(character)
 	minHp := monster.Hp + (monster.Hp * 20 / 100)
 	if minHp > character.MaxHp {
@@ -79,6 +88,10 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema) e
 	if err != nil {
 		return err
 	}
+	character, err = routine.Utility(character, utility1, utility2)
+	if err != nil {
+		return err
+	}
 	_, err = routine.Move(character, monster.Code)
 	if err != nil {
 		return err
@@ -87,8 +100,7 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema) e
 }
 
 func taskCompleted(character schemas.CharacterSchema, code string) bool {
-	if character.TaskType == "monsters" &&
-		character.Task == code &&
+	if character.TaskType == "monsters" && character.Task == code &&
 		character.TaskProgress == character.TaskTotal {
 		console.Printf("  Task completed\n")
 		return true

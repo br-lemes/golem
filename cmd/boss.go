@@ -31,14 +31,17 @@ Arguments:
 		switch len(participants) {
 		case 1:
 			if participants[0] == name {
-				return fmt.Errorf("participants cannot include the main character")
+				return fmt.Errorf(
+					"participants cannot include the main character")
 			}
 		case 2:
 			if participants[0] == participants[1] {
-				return fmt.Errorf("participants cannot include the same character twice")
+				return fmt.Errorf(
+					"participants cannot include the same character twice")
 			}
 			if participants[0] == name || participants[1] == name {
-				return fmt.Errorf("participants cannot include the main character")
+				return fmt.Errorf(
+					"participants cannot include the main character")
 			}
 		}
 		boss, found := database.GetMonster(code)
@@ -79,11 +82,13 @@ Arguments:
 			}
 		}
 
+		utility1, _ := cmd.Flags().GetString("utility1")
+		utility2, _ := cmd.Flags().GetString("utility2")
 		for {
 			var g errgroup.Group
-			g.Go(func() error { return prepare(charMap[name], boss) })
+			g.Go(func() error { return prepare(charMap[name], boss, utility1, utility2) })
 			for _, p := range participants {
-				g.Go(func() error { return prepare(charMap[p], boss) })
+				g.Go(func() error { return prepare(charMap[p], boss, utility1, utility2) })
 			}
 			err := g.Wait()
 			if err != nil {
@@ -103,4 +108,8 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(bossCmd)
+	bossCmd.Flags().String("utility1", "",
+		"item code to auto-refill in utility1 slot")
+	bossCmd.Flags().String("utility2", "",
+		"item code to auto-refill in utility2 slot")
 }

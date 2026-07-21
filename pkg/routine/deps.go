@@ -12,6 +12,7 @@ type deps struct {
 	myActionMove             func(name string, x, y int) (schemas.CharacterMovementDataSchema, error)
 	myActionRest             func(name string) (schemas.CharacterRestDataSchema, error)
 	myActionTransition       func(name string) (schemas.CharacterTransitionDataSchema, error)
+	myActionUnequip          func(name string, unequips []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error)
 	myActionUse              func(name string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error)
 	myBankItems              func() ([]schemas.SimpleItemSchema, error)
 }
@@ -23,6 +24,7 @@ var defaultDeps = deps{
 	myActionMove:             api.MyActionMove,
 	myActionRest:             api.MyActionRest,
 	myActionTransition:       api.MyActionTransition,
+	myActionUnequip:          api.MyActionUnequip,
 	myActionUse:              api.MyActionUse,
 	myBankItems:              api.MyBankItems,
 }
