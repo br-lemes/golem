@@ -11,11 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	tasksCoin       = "tasks_coin"
-	tasksCoinBuffer = 3
-	tasksMaxCancel  = 3
-)
+const tasksCoin = "tasks_coin"
 
 var forbiddenTaskItem = []string{
 	"magical_plank", "magical_wood", "strangold_bar", "strangold_ore"}
@@ -31,6 +27,9 @@ Arguments:
 	ValidArgsFunction: completion.CharacterName(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
+		tasksCoinBuffer, _ := cmd.Flags().GetInt("coin-buffer")
+		tasksMaxCancel, _ := cmd.Flags().GetInt("max-cancel")
+		cancelMissing, _ := cmd.Flags().GetBool("cancel-missing")
 
 		character, err := api.Characters(name)
 		if err != nil {
@@ -64,9 +63,13 @@ Arguments:
 				return err
 			}
 			isForbidden := slices.Contains(forbiddenTaskItem, character.Task)
+			bankQty := taskItemBankQty(bankItems, character.Task)
 			needed := character.TaskTotal - character.TaskProgress
-			if !isForbidden &&
-				taskItemBankQty(bankItems, character.Task) >= needed {
+			if !cancelMissing && !isForbidden && bankQty < needed {
+				return fmt.Errorf("missing item: %s (have %d, need %d)",
+					character.Task, bankQty, needed)
+			}
+			if !isForbidden && bankQty >= needed {
 				cancelsInARow = 0
 				for character.TaskProgress < character.TaskTotal {
 					character, err = routine.Move(character, "bank")
@@ -74,7 +77,7 @@ Arguments:
 						return err
 					}
 					remaining := character.TaskTotal - character.TaskProgress
-					toWithdraw := min(remaining, taskItemInvSpace(character))
+					toWithdraw := min(remaining, taskItemInvSpace(character, tasksCoinBuffer))
 					withdraw := []schemas.SimpleItemSchema{
 						{Code: character.Task, Quantity: toWithdraw},
 					}
@@ -161,6 +164,12 @@ Arguments:
 }
 
 func init() {
+	taskItemCmd.Flags().IntP("coin-buffer", "b", 3,
+		"Buffer of coins to keep in inventory")
+	taskItemCmd.Flags().IntP("max-cancel", "c", 3,
+		"Maximum consecutive task cancellations")
+	taskItemCmd.Flags().Bool("cancel-missing", false,
+		"Cancel task if required items are missing in bank")
 	taskCmd.AddCommand(taskItemCmd)
 }
 
@@ -186,8 +195,8 @@ func taskItemInvQty(character schemas.CharacterSchema, code string) int {
 	return total
 }
 
-func taskItemInvSpace(character schemas.CharacterSchema) int {
-	used := tasksCoinBuffer
+func taskItemInvSpace(character schemas.CharacterSchema, coinBuffer int) int {
+	used := coinBuffer
 	if character.Inventory != nil {
 		for _, slot := range *character.Inventory {
 			used += slot.Quantity
