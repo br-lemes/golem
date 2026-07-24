@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/completion"
@@ -15,6 +16,9 @@ const (
 	tasksCoinBuffer = 3
 	tasksMaxCancel  = 3
 )
+
+var forbiddenTaskItem = []string{
+	"magical_plank", "magical_wood", "strangold_bar", "strangold_ore"}
 
 var taskItemCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
@@ -32,7 +36,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		if character.TaskType != "items" {
+		if character.TaskType != "" && character.TaskType != "items" {
 			return fmt.Errorf("has another task type: %s %s",
 				character.TaskType, character.Task)
 		}
@@ -59,8 +63,10 @@ Arguments:
 			if err != nil {
 				return err
 			}
+			isForbidden := slices.Contains(forbiddenTaskItem, character.Task)
 			needed := character.TaskTotal - character.TaskProgress
-			if taskItemBankQty(bankItems, character.Task) >= needed {
+			if !isForbidden &&
+				taskItemBankQty(bankItems, character.Task) >= needed {
 				cancelsInARow = 0
 				for character.TaskProgress < character.TaskTotal {
 					character, err = routine.Move(character, "bank")
@@ -181,10 +187,13 @@ func taskItemInvQty(character schemas.CharacterSchema, code string) int {
 }
 
 func taskItemInvSpace(character schemas.CharacterSchema) int {
-	used := 0
+	used := tasksCoinBuffer
 	if character.Inventory != nil {
 		for _, slot := range *character.Inventory {
 			used += slot.Quantity
+			if slot.Code != tasksCoin {
+				used += slot.Quantity
+			}
 		}
 	}
 	return character.InventoryMaxItems - used
