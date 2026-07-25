@@ -14,7 +14,12 @@ import (
 const tasksCoin = "tasks_coin"
 
 var forbiddenTaskItem = []string{
-	"magical_plank", "magical_wood", "strangold_bar", "strangold_ore"}
+	"enchanted_mushroom",
+	"magic_wood",
+	"magical_plank",
+	"strange_ore",
+	"strangold_bar",
+}
 
 var taskItemCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),

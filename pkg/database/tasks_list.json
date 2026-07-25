@@ -598,5 +598,425 @@
 		},
 		"skill": null,
 		"type": "monsters"
+	},
+	{
+		"code": "goblin_guard",
+		"level": 35,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "strangold_bar",
+		"level": 35,
+		"max_quantity": 30,
+		"min_quantity": 10,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "mining",
+		"type": "items"
+	},
+	{
+		"code": "magical_plank",
+		"level": 35,
+		"max_quantity": 30,
+		"min_quantity": 10,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "woodcutting",
+		"type": "items"
+	},
+	{
+		"code": "goblin",
+		"level": 35,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "magic_wood",
+		"level": 35,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "woodcutting",
+		"type": "items"
+	},
+	{
+		"code": "strange_ore",
+		"level": 35,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "mining",
+		"type": "items"
+	},
+	{
+		"code": "orc",
+		"level": 38,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "bat",
+		"level": 38,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "cooked_salmon",
+		"level": 40,
+		"max_quantity": 240,
+		"min_quantity": 60,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "cooking",
+		"type": "items"
+	},
+	{
+		"code": "maple_plank",
+		"level": 40,
+		"max_quantity": 30,
+		"min_quantity": 10,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "woodcutting",
+		"type": "items"
+	},
+	{
+		"code": "enchanted_mushroom",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "alchemy",
+		"type": "items"
+	},
+	{
+		"code": "dryad",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "mithril_bar",
+		"level": 40,
+		"max_quantity": 30,
+		"min_quantity": 10,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "mining",
+		"type": "items"
+	},
+	{
+		"code": "glowstem_leaf",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "alchemy",
+		"type": "items"
+	},
+	{
+		"code": "cultist_alchemist",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "salmon",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "fishing",
+		"type": "items"
+	},
+	{
+		"code": "mithril_ore",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "mining",
+		"type": "items"
+	},
+	{
+		"code": "maple_wood",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 350,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "woodcutting",
+		"type": "items"
+	},
+	{
+		"code": "hellhound",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "goblin_wolfrider",
+		"level": 40,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "sand_snake",
+		"level": 44,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "dusk_beetle",
+		"level": 47,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "adamantite_bar",
+		"level": 50,
+		"max_quantity": 30,
+		"min_quantity": 10,
+		"rewards": {
+			"gold": 300,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "mining",
+		"type": "items"
+	},
+	{
+		"code": "adamantite_ore",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 300,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "mining",
+		"type": "items"
+	},
+	{
+		"code": "torch_cactus_flower",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 300,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "alchemy",
+		"type": "items"
+	},
+	{
+		"code": "desert_scorpion",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "sandwarden",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "palm_wood",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 300,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "woodcutting",
+		"type": "items"
+	},
+	{
+		"code": "cooked_swordfish",
+		"level": 50,
+		"max_quantity": 240,
+		"min_quantity": 60,
+		"rewards": {
+			"gold": 300,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "cooking",
+		"type": "items"
+	},
+	{
+		"code": "laval_fish",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 300,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "fishing",
+		"type": "items"
+	},
+	{
+		"code": "palm_plank",
+		"level": 50,
+		"max_quantity": 30,
+		"min_quantity": 10,
+		"rewards": {
+			"gold": 300,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "woodcutting",
+		"type": "items"
+	},
+	{
+		"code": "fennec",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "flameche",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "baby_red_dragon",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 50,
+		"rewards": {
+			"gold": 500,
+			"items": [{ "code": "tasks_coin", "quantity": 5 }]
+		},
+		"skill": null,
+		"type": "monsters"
+	},
+	{
+		"code": "swordfish",
+		"level": 50,
+		"max_quantity": 400,
+		"min_quantity": 100,
+		"rewards": {
+			"gold": 300,
+			"items": [{ "code": "tasks_coin", "quantity": 4 }]
+		},
+		"skill": "fishing",
+		"type": "items"
 	}
 ]

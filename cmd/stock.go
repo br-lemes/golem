@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"slices"
+
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
@@ -24,35 +26,16 @@ var stockCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		skills := database.GetTasksSkills()
-		maxSkillLevel := map[string]int{}
-		for _, character := range characters {
-			for _, skill := range skills {
-				maxSkillLevel[skill] = max(maxSkillLevel[skill],
-					utils.GetCharacterSkillLevel(character, skill))
-			}
-		}
-		maxQuantities := map[string]int{}
-		tasks := database.GetTasksList()
-		for _, task := range tasks {
-			if task.Skill == nil {
-				continue
-			}
-			if task.Level <= maxSkillLevel[*task.Skill] {
-				maxQuantities[task.Code] = task.MaxQuantity
-			}
-		}
 		bankItems, err := api.MyBankItems()
 		if err != nil {
 			return err
 		}
+		taskCodes := database.GetTasksCodes()
 		itemsMap := map[string]*schemas.SimpleItemSchema{}
 		for _, item := range bankItems {
-			_, exists := maxQuantities[item.Code]
-			if !exists {
-				continue
+			if slices.Contains(taskCodes, item.Code) {
+				itemsMap[item.Code] = &item
 			}
-			itemsMap[item.Code] = &item
 		}
 		for _, character := range characters {
 			if character.Inventory == nil {
@@ -66,31 +49,49 @@ var stockCmd = &cobra.Command{
 				if !exists {
 					itemsMap[slot.Code] = &schemas.SimpleItemSchema{
 						Code:     slot.Code,
-						Quantity: 0,
+						Quantity: slot.Quantity,
 					}
 				}
 				itemsMap[slot.Code].Quantity += slot.Quantity
 			}
 		}
+		skills := database.GetTasksSkills()
+		maxSkillLevel := map[string]int{}
+		for _, character := range characters {
+			for _, skill := range skills {
+				maxSkillLevel[skill] = max(maxSkillLevel[skill],
+					utils.GetCharacterSkillLevel(character, skill))
+			}
+		}
+		tasks := database.GetTasksList()
 		result := map[string]ItemStock{}
 		for _, task := range tasks {
-			item, exists := itemsMap[task.Code]
-			if !exists {
+			if task.Skill == nil ||
+				task.Type != "items" ||
+				task.Level > maxSkillLevel[*task.Skill] ||
+				slices.Contains(forbiddenTaskItem, task.Code) {
 				continue
 			}
-			safety := maxQuantities[item.Code]
+			var itemQuantity int
+			item, exists := itemsMap[task.Code]
+			if exists {
+				itemQuantity = item.Quantity
+			} else {
+				itemQuantity = 0
+			}
+			safety := task.MaxQuantity
 			if safety > 100 {
 				safety *= 5
 			} else {
 				safety *= 10
 			}
-			if item.Quantity >= safety {
+			if itemQuantity >= safety {
 				continue
 			}
 			target := safety + safety/3
-			result[item.Code] = ItemStock{
-				Current: item.Quantity,
-				Needed:  target - item.Quantity,
+			result[task.Code] = ItemStock{
+				Current: itemQuantity,
+				Needed:  target - itemQuantity,
 				Safety:  safety,
 				Target:  target,
 			}

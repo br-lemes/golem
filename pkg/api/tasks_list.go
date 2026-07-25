@@ -21,7 +21,7 @@ func TasksList() ([]schemas.TaskFullSchema, error) {
 			return nil, err
 		}
 		result = append(result, data.Data...)
-		if page >= data.Page {
+		if page >= data.Pages {
 			break
 		}
 		page++
