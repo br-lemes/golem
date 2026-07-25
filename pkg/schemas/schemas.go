@@ -1617,6 +1617,21 @@ type RecyclingSchema struct {
 	Quantity *int   `json:"quantity,omitempty"`
 }
 
+type RenameCharacterDataSchema struct {
+	Character CharacterSchema `json:"character"`
+	Cooldown  CooldownSchema  `json:"cooldown"`
+	NewName   string          `json:"new_name"`
+	OldName   string          `json:"old_name"`
+}
+
+type RenameCharacterSchema struct {
+	Name string `json:"name"`
+}
+
+type RenameResponseSchema struct {
+	Data RenameCharacterDataSchema `json:"data"`
+}
+
 type ResourceResponseSchema struct {
 	Data ResourceSchema `json:"data"`
 }
@@ -1887,7 +1902,8 @@ type StorageEffectSchema struct {
 type StripeSubscriptionPlan string
 
 type SubscribeRequestSchema struct {
-	Plan StripeSubscriptionPlan `json:"plan"`
+	Plan      StripeSubscriptionPlan `json:"plan"`
+	Recurring *bool                  `json:"recurring,omitempty"`
 }
 
 type SubscriptionPlan string
@@ -2282,6 +2298,8 @@ type ActionNpcBuyItemMyNameActionNpcBuyPostJSONRequestBody = NpcMerchantBuySchem
 type ActionNpcSellItemMyNameActionNpcSellPostJSONRequestBody = NpcMerchantBuySchema
 
 type ActionRecyclingMyNameActionRecyclingPostJSONRequestBody = RecyclingSchema
+
+type ActionRenameMyNameActionRenamePostJSONRequestBody = RenameCharacterSchema
 
 type ActionTaskTradeMyNameActionTaskTradePostJSONRequestBody = SimpleItemSchema
 

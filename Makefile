@@ -24,11 +24,17 @@ coverage:
 		sed -i '/cmd\/api/d' coverage.out && \
 		go run github.com/Azure/gocover@latest full --cover-profile=coverage.out
 
+pkg/database/openapi.json:
+	@curl https://api.artifactsmmo.com/openapi.json -o $@
+	@sd -F '"anyOf":[{"type":"boolean"},{"type":"null"}]' \
+		'"type":"boolean","nullable":true' $@
+	@biome format --write $@
+
 pkg/schemas/schemas.go: pkg/database/openapi.json
 	@oapi-codegen -package schemas -generate models $< > $@
 	@sd -A '\n\n\t//[^\n]*' '' $@
 	@sd -A '^\t*//[^\n]*\n' '' $@
-	@sd 'Path\s+\[\]\[\]interface\{\}' 'Path [][2]int' $@
+	@sd 'Path\s+\[\]\[\]int' 'Path [][2]int' $@
 	@gofmt -w $@
 
 $(PLATFORMS): pkg/schemas/schemas.go test

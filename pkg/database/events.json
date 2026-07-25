@@ -2,8 +2,8 @@
 	{
 		"code": "attacking_the_island",
 		"content": { "code": "sea_marauder", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-17T21:40:27.083Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -28,8 +28,8 @@
 	{
 		"code": "bandit_camp",
 		"content": { "code": "bandit_lizard", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-23T18:15:25.852Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -68,8 +68,8 @@
 	{
 		"code": "corrupted_ogre",
 		"content": { "code": "corrupted_ogre", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-24T22:13:44.415Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -94,8 +94,8 @@
 	{
 		"code": "corrupted_owlbear",
 		"content": { "code": "corrupted_owlbear", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-23T12:53:39.69Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -120,8 +120,8 @@
 	{
 		"code": "corrupted_portal",
 		"content": { "code": "grimlet", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-11T23:11:40.678Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -146,8 +146,8 @@
 	{
 		"code": "cult_of_darkness",
 		"content": { "code": "cultist_emperor", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-25T20:44:20.566Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -165,8 +165,8 @@
 	{
 		"code": "fish_merchant",
 		"content": { "code": "fish_merchant", "type": "npc" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-22T04:15:45.459Z",
 		"duration": 90,
 		"maps": [
 			{
@@ -178,14 +178,14 @@
 			}
 		],
 		"name": "Fish Merchant",
-		"price": null,
+		"price": 50,
 		"rate": 1500
 	},
 	{
 		"code": "full_moon",
 		"content": { "code": "full_moon_vampire", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-25T05:15:59.291Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -210,8 +210,8 @@
 	{
 		"code": "gemstone_merchant",
 		"content": { "code": "gemstone_merchant", "type": "npc" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-23T03:00:13.813Z",
 		"duration": 90,
 		"maps": [
 			{
@@ -223,14 +223,14 @@
 			}
 		],
 		"name": "Gemstone Merchant",
-		"price": null,
+		"price": 50,
 		"rate": 1500
 	},
 	{
 		"code": "herbal_merchant",
 		"content": { "code": "herbal_merchant", "type": "npc" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-22T09:14:18.782Z",
 		"duration": 90,
 		"maps": [
 			{
@@ -242,14 +242,14 @@
 			}
 		],
 		"name": "Herbal Merchant",
-		"price": null,
+		"price": 50,
 		"rate": 1500
 	},
 	{
 		"code": "magic_apparition",
 		"content": { "code": "magic_tree", "type": "resource" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-25T18:14:20.642Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -281,8 +281,8 @@
 	{
 		"code": "nomadic_merchant",
 		"content": { "code": "nomadic_merchant", "type": "npc" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-25T12:01:58.198Z",
 		"duration": 90,
 		"maps": [
 			{
@@ -294,14 +294,14 @@
 			}
 		],
 		"name": "Nomadic Merchant",
-		"price": null,
+		"price": 50,
 		"rate": 1500
 	},
 	{
 		"code": "out_of_the_ground",
 		"content": { "code": "duskworm", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-18T05:43:51.273Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -319,8 +319,8 @@
 	{
 		"code": "portal_demon",
 		"content": { "code": "demon", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-25T04:59:35.167Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -352,8 +352,8 @@
 	{
 		"code": "portal_efreet_sultan",
 		"content": { "code": "efreet_sultan", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-07T15:16:28.855Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -385,8 +385,8 @@
 	{
 		"code": "silent_night",
 		"content": { "code": "echoless_bat", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-25T04:12:42.608Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -411,8 +411,8 @@
 	{
 		"code": "small_becomes_great",
 		"content": { "code": "red_dragon", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-19T11:04:06.656Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -444,8 +444,8 @@
 	{
 		"code": "strange_apparition",
 		"content": { "code": "strange_rocks", "type": "resource" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-25T20:39:20.323Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -477,8 +477,8 @@
 	{
 		"code": "sunsting_awakening",
 		"content": { "code": "solar_desert_scorpion", "type": "monster" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-07T00:46:24.374Z",
 		"duration": 60,
 		"maps": [
 			{
@@ -503,8 +503,8 @@
 	{
 		"code": "timber_merchant",
 		"content": { "code": "timber_merchant", "type": "npc" },
-		"cooldown": 0,
-		"cooldown_expiration": null,
+		"cooldown": 120,
+		"cooldown_expiration": "2026-07-18T23:43:00.264Z",
 		"duration": 90,
 		"maps": [
 			{
@@ -516,7 +516,7 @@
 			}
 		],
 		"name": "Timber Merchant",
-		"price": null,
+		"price": 50,
 		"rate": 1500
 	}
 ]

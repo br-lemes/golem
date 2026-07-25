@@ -1489,7 +1489,7 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "", "type": "monster" } },
+		"interactions": {},
 		"layer": "overworld",
 		"map_id": 145,
 		"name": "Forest",
@@ -1971,11 +1971,13 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "ogre", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "corrupted_ogre", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 193,
 		"name": "Forest",
-		"skin": "forest_ogre2",
+		"skin": "forest_corruptedogre2",
 		"x": 8,
 		"y": -2
 	},
@@ -9033,11 +9035,13 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": {},
+		"interactions": {
+			"content": { "code": "cultist_emperor", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 880,
 		"name": "Forest",
-		"skin": "forest_cultis1",
+		"skin": "forest_cultistemperor1",
 		"x": -1,
 		"y": 12
 	},
@@ -12688,7 +12692,7 @@
 					"value": 1
 				}
 			],
-			"type": "standard"
+			"type": "conditional"
 		},
 		"interactions": { "content": { "code": "bank", "type": "bank" } },
 		"layer": "overworld",

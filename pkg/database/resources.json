@@ -4,7 +4,13 @@
 		"drops": [
 			{ "code": "ash_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
 			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{ "code": "apple", "max_quantity": 1, "min_quantity": 1, "rate": 20 }
+			{ "code": "apple", "max_quantity": 1, "min_quantity": 1, "rate": 20 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 1,
 		"name": "Ash Tree",
@@ -15,7 +21,13 @@
 		"drops": [
 			{ "code": "gudgeon", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
 			{ "code": "algae", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{ "code": "shell", "max_quantity": 1, "min_quantity": 1, "rate": 100 }
+			{ "code": "shell", "max_quantity": 1, "min_quantity": 1, "rate": 100 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 1,
 		"name": "Gudgeon Spot",
@@ -48,6 +60,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 200
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 1,
@@ -57,7 +75,13 @@
 	{
 		"code": "sunflower_field",
 		"drops": [
-			{ "code": "sunflower", "max_quantity": 1, "min_quantity": 1, "rate": 1 }
+			{ "code": "sunflower", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 1,
 		"name": "Sunflower Field",
@@ -90,6 +114,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 200
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 10,
@@ -105,7 +135,13 @@
 				"min_quantity": 1,
 				"rate": 1
 			},
-			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
+			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 10,
 		"name": "Spruce Tree",
@@ -122,7 +158,13 @@
 				"rate": 1000
 			},
 			{ "code": "algae", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{ "code": "shell", "max_quantity": 1, "min_quantity": 1, "rate": 100 }
+			{ "code": "shell", "max_quantity": 1, "min_quantity": 1, "rate": 100 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 10,
 		"name": "Shrimp Spot",
@@ -155,6 +197,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 200
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 20,
@@ -171,6 +219,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 300
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 20,
@@ -181,7 +235,13 @@
 		"code": "birch_tree",
 		"drops": [
 			{ "code": "birch_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
+			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 20,
 		"name": "Birch Tree",
@@ -190,7 +250,18 @@
 	{
 		"code": "nettle",
 		"drops": [
-			{ "code": "nettle_leaf", "max_quantity": 1, "min_quantity": 1, "rate": 1 }
+			{
+				"code": "nettle_leaf",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 20,
 		"name": "Nettle",
@@ -206,6 +277,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 300
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 30,
@@ -239,6 +316,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 30,
@@ -249,7 +332,13 @@
 		"code": "dead_tree",
 		"drops": [
 			{ "code": "dead_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
+			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 30,
 		"name": "Dead Tree",
@@ -259,7 +348,13 @@
 		"code": "magic_tree",
 		"drops": [
 			{ "code": "magic_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "magic_sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
+			{ "code": "magic_sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 35,
 		"name": "Magic Tree",
@@ -279,6 +374,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 35,
@@ -295,6 +396,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 40,
@@ -309,6 +416,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 40,
@@ -347,6 +460,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 40,
@@ -357,7 +476,13 @@
 		"code": "maple_tree",
 		"drops": [
 			{ "code": "maple_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "maple_sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
+			{ "code": "maple_sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 40,
 		"name": "Maple Tree",
@@ -371,6 +496,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 40,
@@ -391,6 +522,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 200
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 50,
@@ -401,7 +538,13 @@
 		"code": "palm_tree",
 		"drops": [
 			{ "code": "palm_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "coconut", "max_quantity": 1, "min_quantity": 1, "rate": 20 }
+			{ "code": "coconut", "max_quantity": 1, "min_quantity": 1, "rate": 20 },
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 50,
 		"name": "Palm Tree",
@@ -415,6 +558,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 50,
@@ -430,6 +579,12 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
 			}
 		],
 		"level": 50,
@@ -439,7 +594,18 @@
 	{
 		"code": "lava_fish_spot",
 		"drops": [
-			{ "code": "lava_fish", "max_quantity": 1, "min_quantity": 1, "rate": 100 }
+			{
+				"code": "lava_fish",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 100
+			},
+			{
+				"code": "event_ticket",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 200
+			}
 		],
 		"level": 50,
 		"name": "Lava Fish Spot",

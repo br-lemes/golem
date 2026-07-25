@@ -3,7 +3,7 @@
 	"info": {
 		"title": "Artifacts API",
 		"description": "Artifacts is an API-based MMO game where you can manage 5 characters to explore, fight, gather resources, craft items and much more.\n\nWebsite: https://artifactsmmo.com/\n\nDocumentation: https://docs.artifactsmmo.com/\n\nOpenAPI Spec: https://api.artifactsmmo.com/openapi.json",
-		"version": "8.0.0"
+		"version": "8.2.0"
 	},
 	"paths": {
 		"/": {
@@ -568,6 +568,22 @@
 									"error": {
 										"code": 565,
 										"message": "You already have an active subscription."
+									}
+								}
+							}
+						}
+					},
+					"573": {
+						"description": "An active Stripe subscription cannot be extended with gems or member tokens.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponseSchema"
+								},
+								"example": {
+									"error": {
+										"code": 573,
+										"message": "An active Stripe subscription cannot be extended with gems or member tokens."
 									}
 								}
 							}
@@ -6078,6 +6094,143 @@
 				}
 			}
 		},
+		"/my/{name}/action/rename": {
+			"post": {
+				"tags": ["My characters"],
+				"summary": "Action Rename",
+				"description": "Rename a character. An active membership is required.",
+				"operationId": "action_rename_my__name__action_rename_post",
+				"security": [{ "JWTBearer": [] }],
+				"parameters": [
+					{
+						"name": "name",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"pattern": "^[a-zA-Z0-9_-]+$",
+							"title": "Character name",
+							"description": "Current name of your character."
+						},
+						"description": "Current name of your character."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/RenameCharacterSchema" }
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Character successfully renamed.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RenameResponseSchema"
+								}
+							}
+						}
+					},
+					"451": {
+						"description": "Access denied, you must be a member to do that.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponseSchema"
+								},
+								"example": {
+									"error": {
+										"code": 451,
+										"message": "Access denied, you must be a member to do that."
+									}
+								}
+							}
+						}
+					},
+					"499": {
+						"description": "The character is in cooldown.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponseSchema"
+								},
+								"example": {
+									"error": {
+										"code": 499,
+										"message": "The character is in cooldown."
+									}
+								}
+							}
+						}
+					},
+					"486": {
+						"description": "An action is already in progress for this character.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponseSchema"
+								},
+								"example": {
+									"error": {
+										"code": 486,
+										"message": "An action is already in progress for this character."
+									}
+								}
+							}
+						}
+					},
+					"494": {
+						"description": "This name is already in use.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponseSchema"
+								},
+								"example": {
+									"error": {
+										"code": 494,
+										"message": "This name is already in use."
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Character not found.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponseSchema"
+								},
+								"example": {
+									"error": { "code": 404, "message": "Character not found." }
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Request could not be processed due to an invalid payload.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorResponseSchema"
+								},
+								"example": {
+									"error": {
+										"code": 422,
+										"message": "Request could not be processed due to an invalid payload.",
+										"data": { "field_name": ["Field required"] }
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/my/logs": {
 			"get": {
 				"tags": ["My characters"],
@@ -11242,7 +11395,7 @@
 					},
 					"path": {
 						"items": {
-							"prefixItems": [{ "type": "integer" }, { "type": "integer" }],
+							"items": { "type": "integer" },
 							"type": "array",
 							"maxItems": 2,
 							"minItems": 2
@@ -12727,6 +12880,13 @@
 						"description": "Cooldown in minutes before the event can be spawned with gems.",
 						"default": 0
 					},
+					"cooldown_expiration": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true,
+						"title": "Cooldown Expiration",
+						"description": "Gems spawn cooldown expiration datetime (null if not on cooldown)."
+					},
 					"price": {
 						"type": "integer",
 						"nullable": true,
@@ -12737,13 +12897,6 @@
 						"$ref": "#/components/schemas/TransitionSchema",
 						"nullable": true,
 						"description": "Transition to add to the map when event is active."
-					},
-					"cooldown_expiration": {
-						"type": "string",
-						"format": "date-time",
-						"nullable": true,
-						"title": "Cooldown Expiration",
-						"description": "Gems spawn cooldown expiration datetime (null if not on cooldown)."
 					}
 				},
 				"type": "object",
@@ -15129,6 +15282,54 @@
 				"required": ["code"],
 				"title": "RecyclingSchema"
 			},
+			"RenameCharacterDataSchema": {
+				"properties": {
+					"cooldown": {
+						"$ref": "#/components/schemas/CooldownSchema",
+						"description": "Cooldown details."
+					},
+					"old_name": {
+						"type": "string",
+						"title": "Old Name",
+						"description": "Previous character name."
+					},
+					"new_name": {
+						"type": "string",
+						"title": "New Name",
+						"description": "New character name."
+					},
+					"character": {
+						"$ref": "#/components/schemas/CharacterSchema",
+						"description": "Player details."
+					}
+				},
+				"type": "object",
+				"required": ["cooldown", "old_name", "new_name", "character"],
+				"title": "RenameCharacterDataSchema"
+			},
+			"RenameCharacterSchema": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"maxLength": 12,
+						"minLength": 3,
+						"pattern": "^[a-zA-Z0-9_-]+$",
+						"title": "Name",
+						"description": "Your desired character name. It's unique and all players can see it."
+					}
+				},
+				"type": "object",
+				"required": ["name"],
+				"title": "RenameCharacterSchema"
+			},
+			"RenameResponseSchema": {
+				"properties": {
+					"data": { "$ref": "#/components/schemas/RenameCharacterDataSchema" }
+				},
+				"type": "object",
+				"required": ["data"],
+				"title": "RenameResponseSchema"
+			},
 			"ResourceResponseSchema": {
 				"properties": {
 					"data": { "$ref": "#/components/schemas/ResourceSchema" }
@@ -15896,7 +16097,13 @@
 				"properties": {
 					"plan": {
 						"$ref": "#/components/schemas/StripeSubscriptionPlan",
-						"description": "Recurring Stripe subscription plan to purchase."
+						"description": "Stripe membership plan to purchase."
+					},
+					"recurring": {
+						"type": "boolean",
+						"title": "Recurring",
+						"description": "Whether to create a recurring Stripe subscription. Set to false to buy membership time once.",
+						"default": true
 					}
 				},
 				"type": "object",
