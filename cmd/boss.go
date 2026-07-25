@@ -82,13 +82,14 @@ Arguments:
 			}
 		}
 
+		food, _ := cmd.Flags().GetString("food")
 		utility1, _ := cmd.Flags().GetString("utility1")
 		utility2, _ := cmd.Flags().GetString("utility2")
 		for {
 			var g errgroup.Group
-			g.Go(func() error { return prepare(charMap[name], boss, utility1, utility2) })
+			g.Go(func() error { return prepare(charMap[name], boss, food, utility1, utility2) })
 			for _, p := range participants {
-				g.Go(func() error { return prepare(charMap[p], boss, utility1, utility2) })
+				g.Go(func() error { return prepare(charMap[p], boss, food, utility1, utility2) })
 			}
 			err := g.Wait()
 			if err != nil {
@@ -108,6 +109,8 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(bossCmd)
+	bossCmd.Flags().String("food", "", "auto-stock food from bank")
+	bossCmd.Flags().Lookup("food").NoOptDefVal = "auto"
 	bossCmd.Flags().String("utility1", "",
 		"item code to auto-refill in utility1 slot")
 	bossCmd.Flags().String("utility2", "",

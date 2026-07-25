@@ -7,6 +7,7 @@ import (
 
 type deps struct {
 	characters               func(name string) (schemas.CharacterSchema, error)
+	myActionBankDepositItem  func(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error)
 	myActionBankWithdrawItem func(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error)
 	myActionEquip            func(name string, equips []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error)
 	myActionMove             func(name string, x, y int) (schemas.CharacterMovementDataSchema, error)
@@ -19,6 +20,7 @@ type deps struct {
 
 var defaultDeps = deps{
 	characters:               api.Characters,
+	myActionBankDepositItem:  api.MyActionBankDepositItem,
 	myActionBankWithdrawItem: api.MyActionBankWithdrawItem,
 	myActionEquip:            api.MyActionEquip,
 	myActionMove:             api.MyActionMove,

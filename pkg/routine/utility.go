@@ -10,10 +10,6 @@ import (
 const utilityMaxStack = 100
 const utilityMinThreshold = 10
 
-func Utility(character schemas.CharacterSchema, utility1, utility2 string) (schemas.CharacterSchema, error) {
-	return utility(defaultDeps, character, utility1, utility2)
-}
-
 type utilitySlot struct {
 	slot    schemas.ItemSlot
 	code    string
@@ -21,22 +17,25 @@ type utilitySlot struct {
 	curQty  int
 }
 
-func utility(d deps, character schemas.CharacterSchema, utility1, utility2 string) (schemas.CharacterSchema, error) {
-	slots := []*utilitySlot{
+func utilitySlots(character schemas.CharacterSchema, utility1, utility2 string) []*utilitySlot {
+	return []*utilitySlot{
 		{
-			"utility1",
+			schemas.Utility1,
 			utility1,
 			character.Utility1Slot,
 			character.Utility1SlotQuantity,
 		},
 		{
-			"utility2",
+			schemas.Utility2,
 			utility2,
 			character.Utility2Slot,
 			character.Utility2SlotQuantity,
 		},
 	}
+}
 
+func utilityCheck(character schemas.CharacterSchema, utility1, utility2 string, bankQty map[string]int) (bool, error) {
+	slots := utilitySlots(character, utility1, utility2)
 	var needsAttention []*utilitySlot
 	for _, s := range slots {
 		if s.code == "" {
@@ -47,18 +46,8 @@ func utility(d deps, character schemas.CharacterSchema, utility1, utility2 strin
 		}
 	}
 	if len(needsAttention) == 0 {
-		return character, nil
+		return false, nil
 	}
-
-	bankItems, err := d.myBankItems()
-	if err != nil {
-		return character, err
-	}
-	bankQty := map[string]int{}
-	for _, item := range bankItems {
-		bankQty[item.Code] += item.Quantity
-	}
-
 	predicted := func(s *utilitySlot) int {
 		current := 0
 		if s.curCode == s.code {
@@ -66,83 +55,16 @@ func utility(d deps, character schemas.CharacterSchema, utility1, utility2 strin
 		}
 		return current + bankQty[s.code]
 	}
-	err = checkDepleted(utility1, utility2, slots, predicted)
-	if err != nil {
-		return character, err
+	if err := checkDepleted(utility1, utility2, slots, predicted); err != nil {
+		return false, err
 	}
-
-	var toFill []*utilitySlot
 	for _, s := range needsAttention {
-		if bankQty[s.code] <= 0 {
-			console.Printf("  No %s available in bank to fill %s\n", s.code, s.slot)
-			continue
+		if bankQty[s.code] > 0 {
+			return true, nil
 		}
-		toFill = append(toFill, s)
+		console.Printf("  No %s available in bank to fill %s\n", s.code, s.slot)
 	}
-	if len(toFill) == 0 {
-		return character, nil
-	}
-
-	character, err = Move(character, "bank")
-	if err != nil {
-		return character, err
-	}
-
-	for _, s := range toFill {
-		if s.curCode != "" && s.curCode != s.code {
-			qty := s.curQty
-			unequipData, err := d.myActionUnequip(character.Name,
-				[]schemas.UnequipSchema{{Slot: s.slot, Quantity: &qty}})
-			if err != nil {
-				return character, err
-			}
-			character = unequipData.Character
-			s.curCode = ""
-			s.curQty = 0
-		}
-
-		remaining := utilityMaxStack - s.curQty
-		filled := 0
-		for remaining > 0 && bankQty[s.code] > 0 {
-			freeSpace := character.InventoryMaxItems - totalItems(character)
-			if freeSpace <= 0 {
-				console.Printf("  No inventory space to withdraw more %s for %s\n",
-					s.code, s.slot)
-				break
-			}
-			chunk := remaining
-			if bankQty[s.code] < chunk {
-				chunk = bankQty[s.code]
-			}
-			if freeSpace < chunk {
-				chunk = freeSpace
-			}
-
-			withdrawData, err := d.myActionBankWithdrawItem(character.Name,
-				[]schemas.SimpleItemSchema{{Code: s.code, Quantity: chunk}})
-			if err != nil {
-				return character, err
-			}
-			character = withdrawData.Character
-			bankQty[s.code] -= chunk
-
-			equipData, err := d.myActionEquip(character.Name, []schemas.EquipSchema{
-				{Code: s.code, Quantity: &chunk, Slot: s.slot}})
-			if err != nil {
-				return character, err
-			}
-			character = equipData.Character
-
-			remaining -= chunk
-			filled += chunk
-		}
-		if remaining > 0 {
-			console.Printf("  Only %d/%d %s filled for %s\n",
-				filled, utilityMaxStack-s.curQty, s.code, s.slot)
-		}
-	}
-
-	return character, nil
+	return false, nil
 }
 
 func checkDepleted(utility1, utility2 string, slots []*utilitySlot, qty func(*utilitySlot) int) error {
@@ -161,4 +83,69 @@ func checkDepleted(utility1, utility2 string, slots []*utilitySlot, qty func(*ut
 		}
 	}
 	return nil
+}
+
+func utilityRestock(d deps, character schemas.CharacterSchema, utility1, utility2 string, bankQty map[string]int) (schemas.CharacterSchema, error) {
+	slots := utilitySlots(character, utility1, utility2)
+	for _, s := range slots {
+		if s.code == "" || bankQty[s.code] <= 0 {
+			continue
+		}
+		if s.curCode == s.code && s.curQty >= utilityMaxStack {
+			continue
+		}
+		if s.curCode != "" && s.curCode != s.code {
+			qty := s.curQty
+			unequipData, err := d.myActionUnequip(character.Name,
+				[]schemas.UnequipSchema{{Slot: s.slot, Quantity: &qty}})
+			if err != nil {
+				return character, err
+			}
+			character = unequipData.Character
+			s.curCode = ""
+			s.curQty = 0
+		}
+		remaining := utilityMaxStack - s.curQty
+		filled := 0
+		for remaining > 0 && bankQty[s.code] > 0 {
+			freeSpace := character.InventoryMaxItems - totalItems(character)
+			if freeSpace <= 0 {
+				console.Printf(
+					"No inventory space to withdraw more %s for %s\n",
+					s.code, s.slot)
+				break
+			}
+			chunk := remaining
+			if bankQty[s.code] < chunk {
+				chunk = bankQty[s.code]
+			}
+			if freeSpace < chunk {
+				chunk = freeSpace
+			}
+			withdrawData, err := d.myActionBankWithdrawItem(character.Name,
+				[]schemas.SimpleItemSchema{{Code: s.code, Quantity: chunk}})
+			if err != nil {
+				return character, err
+			}
+			character = withdrawData.Character
+			bankQty[s.code] -= chunk
+			equipData, err := d.myActionEquip(character.Name,
+				[]schemas.EquipSchema{{
+					Code:     s.code,
+					Quantity: &chunk,
+					Slot:     s.slot,
+				}})
+			if err != nil {
+				return character, err
+			}
+			character = equipData.Character
+			remaining -= chunk
+			filled += chunk
+		}
+		if remaining > 0 {
+			console.Printf("  Only %d/%d %s filled for %s\n",
+				filled, utilityMaxStack-s.curQty, s.code, s.slot)
+		}
+	}
+	return character, nil
 }

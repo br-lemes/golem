@@ -45,10 +45,11 @@ Arguments:
 			}
 		}
 
+		food, _ := cmd.Flags().GetString("food")
 		utility1, _ := cmd.Flags().GetString("utility1")
 		utility2, _ := cmd.Flags().GetString("utility2")
 		for {
-			err = prepare(character, monster, utility1, utility2)
+			err = prepare(character, monster, food, utility1, utility2)
 			if err != nil {
 				return err
 			}
@@ -68,13 +69,15 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(fightCmd)
+	fightCmd.Flags().String("food", "", "auto-stock food from bank")
+	fightCmd.Flags().Lookup("food").NoOptDefVal = "auto"
 	fightCmd.Flags().String("utility1", "",
 		"item code to auto-refill in utility1 slot")
 	fightCmd.Flags().String("utility2", "",
 		"item code to auto-refill in utility2 slot")
 }
 
-func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, utility1, utility2 string) error {
+func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, food, utility1, utility2 string) error {
 	routine.Cooldown(character)
 	minHp := monster.Hp + (monster.Hp * 20 / 100)
 	if minHp > character.MaxHp {
@@ -88,7 +91,11 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, u
 	if err != nil {
 		return err
 	}
-	character, err = routine.Utility(character, utility1, utility2)
+	character, err = routine.Bank(character, routine.BankOptions{
+		Food:     food,
+		Utility1: utility1,
+		Utility2: utility2,
+	})
 	if err != nil {
 		return err
 	}
