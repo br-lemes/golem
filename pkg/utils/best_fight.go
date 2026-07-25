@@ -13,12 +13,39 @@ import (
 
 // weapon must remain first to fix the element the fight scales around
 var allSlots = []string{
-	"weapon", "shield", "helmet", "body_armor", "leg_armor", "boots", "amulet", "rune", "bag",
-	"ring1", "ring2", "artifact1", "artifact2", "artifact3", "utility1", "utility2",
+	"weapon",
+	"shield",
+	"helmet",
+	"body_armor",
+	"leg_armor",
+	"boots",
+	"amulet",
+	"rune",
+	"bag",
+	"ring1",
+	"ring2",
+	"artifact1",
+	"artifact2",
+	"artifact3",
+	"utility1",
+	"utility2",
+}
+
+func FightSlots() []string {
+	return append([]string{}, allSlots...)
 }
 
 var (
-	singleSlots   = []string{"shield", "helmet", "body_armor", "leg_armor", "boots", "amulet", "rune", "bag"}
+	singleSlots = []string{
+		"shield",
+		"helmet",
+		"body_armor",
+		"leg_armor",
+		"boots",
+		"amulet",
+		"rune",
+		"bag",
+	}
 	ringSlots     = []string{"ring1", "ring2"}
 	artifactSlots = []string{"artifact1", "artifact2", "artifact3"}
 	utilitySlots  = []string{"utility1", "utility2"}
@@ -30,10 +57,16 @@ const (
 	groupCap   = 12
 )
 
-func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema) (map[string]bestResult, error) {
+type bestFightResult struct {
+	Win       bool
+	Safe      bool
+	Equipment map[string]bestResult
+}
+
+func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema) (bestFightResult, error) {
 	owned, err := ownedItemCounts(character)
 	if err != nil {
-		return nil, err
+		return bestFightResult{}, err
 	}
 	base := baseStats(character)
 	pools := buildFightPools(character, monster, owned)
@@ -49,6 +82,8 @@ func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema)
 	}
 
 	var bestSlots map[string]string
+	var bestForecast FightForecast
+	var bestSafe bool
 	bestScore := math.Inf(-1)
 
 	for w := range weaponOpts {
@@ -61,13 +96,13 @@ func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema)
 		for pass := 0; pass < 3; pass++ {
 			for _, s := range singleSlots {
 				best := slots[s]
-				_, bestSc := evaluate(slots)
+				_, bestSc, _ := evaluate(slots)
 				for _, opt := range append([]string{""}, pools[s]...) {
 					if opt == slots[s] {
 						continue
 					}
 					slots[s] = opt
-					_, sc := evaluate(slots)
+					_, sc, _ := evaluate(slots)
 					if sc > bestSc {
 						bestSc = sc
 						best = opt
@@ -75,14 +110,19 @@ func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema)
 				}
 				slots[s] = best
 			}
-			chooseGroup(slots, ringSlots, pools["ring1"], owned, worn, evaluate)
-			chooseGroup(slots, artifactSlots, pools["artifact1"], nil, worn, evaluate)
-			chooseGroup(slots, utilitySlots, pools["utility1"], nil, worn, evaluate)
+			chooseGroup(slots,
+				ringSlots, pools["ring1"], owned, worn, evaluate)
+			chooseGroup(slots,
+				artifactSlots, pools["artifact1"], nil, worn, evaluate)
+			chooseGroup(slots,
+				utilitySlots, pools["utility1"], nil, worn, evaluate)
 		}
 
-		_, sc := evaluate(slots)
+		f, sc, safe := evaluate(slots)
 		if sc > bestScore {
 			bestScore = sc
+			bestForecast = f
+			bestSafe = safe
 			bestSlots = make(map[string]string, len(slots))
 			for k, v := range slots {
 				bestSlots[k] = v
@@ -90,7 +130,7 @@ func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema)
 		}
 	}
 
-	result := make(map[string]bestResult)
+	equipment := make(map[string]bestResult)
 	for _, s := range allSlots {
 		code := bestSlots[s]
 		if code == "" || code == worn[s] {
@@ -100,9 +140,13 @@ func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema)
 		if !ok {
 			continue
 		}
-		result[s] = bestResult{Code: code, Value: formatAllEffects(it)}
+		equipment[s] = bestResult{Code: code, Value: formatAllEffects(it)}
 	}
-	return result, nil
+	return bestFightResult{
+		Win:       bestForecast.Win,
+		Safe:      bestSafe,
+		Equipment: equipment,
+	}, nil
 }
 
 func ownedItemCounts(character schemas.CharacterSchema) (map[string]int, error) {
@@ -269,7 +313,10 @@ func fightHeuristic(it schemas.ItemSchema, monster schemas.MonsterSchema) float6
 			v += val * 0.3
 		case "res_fire", "res_earth", "res_water", "res_air":
 			v += val * 0.5
-		case "boost_dmg_fire", "boost_dmg_earth", "boost_dmg_water", "boost_dmg_air":
+		case "boost_dmg_fire",
+			"boost_dmg_earth",
+			"boost_dmg_water",
+			"boost_dmg_air":
 			v += val
 		case "restore":
 			v += val * 0.3
@@ -278,10 +325,10 @@ func fightHeuristic(it schemas.ItemSchema, monster schemas.MonsterSchema) float6
 	return v
 }
 
-type fightEvaluator func(slots map[string]string) (FightForecast, float64)
+type fightEvaluator func(slots map[string]string) (FightForecast, float64, bool)
 
 func makeFightEvaluator(base EffectiveStats, monster schemas.MonsterSchema, worn map[string]string) fightEvaluator {
-	return func(slots map[string]string) (FightForecast, float64) {
+	return func(slots map[string]string) (FightForecast, float64, bool) {
 		var codes []string
 		for _, s := range allSlots {
 			if slots[s] != "" {
@@ -291,7 +338,7 @@ func makeFightEvaluator(base EffectiveStats, monster schemas.MonsterSchema, worn
 		fighter := applyGear(base, codes)
 		f := Simulate(fighter, monster, SimOptions{})
 
-		// Prefer filling slots, then prefer keeping currently worn items to avoid lateral swaps
+		// Tiebreak prefers filling empty slots and keeping equipped gear.
 		filled, keep := 0, 0
 		for _, s := range allSlots {
 			if slots[s] == "" {
@@ -305,14 +352,15 @@ func makeFightEvaluator(base EffectiveStats, monster schemas.MonsterSchema, worn
 		tiebreak := float64(filled)*1e-3 + float64(keep)*1e-4
 
 		if !f.Win || f.TimedOut {
-			return f, -1e12 + float64(f.Turns)*1000 + float64(f.HpRemaining) + tiebreak
+			return f, -1e12 + float64(f.Turns)*1000 + float64(f.HpRemaining) +
+				tiebreak, false
 		}
 		worst := Simulate(fighter, monster, SimOptions{Pessimistic: true})
 		score := float64(f.HpRemaining)*1000 - float64(f.Turns) + tiebreak
 		if worst.Win {
 			score += 1e9
 		}
-		return f, score
+		return f, score, worst.Win
 	}
 }
 
@@ -372,7 +420,7 @@ func chooseGroup(slots map[string]string, group, pool []string, ownedQty map[str
 	for i, g := range group {
 		best[i] = slots[g]
 	}
-	_, bestScore := evaluate(slots)
+	_, bestScore, _ := evaluate(slots)
 
 	var combos [][]string
 	var gen func(start int, chosen []string)
@@ -413,7 +461,7 @@ func chooseGroup(slots map[string]string, group, pool []string, ownedQty map[str
 			}
 			slots[group[i]] = v
 		}
-		_, sc := evaluate(slots)
+		_, sc, _ := evaluate(slots)
 		if sc > bestScore {
 			bestScore = sc
 			best = make([]string, n)

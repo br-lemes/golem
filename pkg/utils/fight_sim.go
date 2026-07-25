@@ -8,8 +8,12 @@ import (
 
 const maxTurnsTimeout = 100
 
+// SimOptions controls a single Simulate pass.
 type SimOptions struct {
+	// Evaluates worst-case (0% player crit, 100% monster crit) to reject gear
+	// that relies on lucky RNG.
 	Pessimistic bool
+	Rng         func() float64
 }
 
 type FightForecast struct {
@@ -28,6 +32,8 @@ type combatant struct {
 	barrier        float64
 	turn           int
 	hitEV          float64
+	hitNormal      float64
+	hitCrit        float64
 	dmgMultiplier  float64
 	totalAtk       float64
 	crit           float64
@@ -59,10 +65,14 @@ func elementDamage(atk, dmgPct, resPct int) float64 {
 
 func playerHits(stats EffectiveStats, boostDmg elementHits, monster schemas.MonsterSchema) elementHits {
 	return elementHits{
-		fire:  elementDamage(stats.AttackFire, stats.Dmg+stats.DmgFire+int(boostDmg.fire), monster.ResFire),
-		earth: elementDamage(stats.AttackEarth, stats.Dmg+stats.DmgEarth+int(boostDmg.earth), monster.ResEarth),
-		water: elementDamage(stats.AttackWater, stats.Dmg+stats.DmgWater+int(boostDmg.water), monster.ResWater),
-		air:   elementDamage(stats.AttackAir, stats.Dmg+stats.DmgAir+int(boostDmg.air), monster.ResAir),
+		fire: elementDamage(stats.AttackFire,
+			stats.Dmg+stats.DmgFire+int(boostDmg.fire), monster.ResFire),
+		earth: elementDamage(stats.AttackEarth,
+			stats.Dmg+stats.DmgEarth+int(boostDmg.earth), monster.ResEarth),
+		water: elementDamage(stats.AttackWater,
+			stats.Dmg+stats.DmgWater+int(boostDmg.water), monster.ResWater),
+		air: elementDamage(stats.AttackAir,
+			stats.Dmg+stats.DmgAir+int(boostDmg.air), monster.ResAir),
 	}
 }
 
@@ -110,31 +120,55 @@ func Simulate(player Fighter, monster schemas.MonsterSchema, opts SimOptions) Fi
 		mCrit = 1
 	}
 
-	pTotalAtk := float64(player.Stats.AttackFire + player.Stats.AttackEarth + player.Stats.AttackWater + player.Stats.AttackAir)
-	mTotalAtk := float64(monster.AttackFire + monster.AttackEarth + monster.AttackWater + monster.AttackAir)
+	pTotalAtk := float64(player.Stats.AttackFire + player.Stats.AttackEarth +
+		player.Stats.AttackWater + player.Stats.AttackAir)
+	mTotalAtk := float64(monster.AttackFire + monster.AttackEarth +
+		monster.AttackWater + monster.AttackAir)
 
 	pHits := playerHits(player.Stats, boostDmg, monster)
 	mHits := monsterHits(monster, pRes)
 
 	P := &combatant{
-		hp: pMaxHp, maxHp: pMaxHp, barrier: float64(pEff["barrier"]),
-		hitEV:         pHits.sum() * (1 + 0.5*pCrit),
-		dmgMultiplier: 1, totalAtk: pTotalAtk, crit: pCrit, init: player.Stats.Initiative,
-		restore: float64(pEff["restore"]), healingPct: float64(pEff["healing"]),
-		reconstitution: pEff["reconstitution"], barrierRestore: float64(pEff["barrier"]),
-		berserkerPct: float64(pEff["berserker_rage"]), lifestealPct: float64(pEff["lifesteal"]),
-		poison:  float64(mEff["poison"]),
-		burnCur: float64(mEff["burn"]) / 100 * mTotalAtk, burnActive: mEff["burn"] > 0,
+		hp:             pMaxHp,
+		maxHp:          pMaxHp,
+		barrier:        float64(pEff["barrier"]),
+		hitEV:          pHits.sum() * (1 + 0.5*pCrit),
+		hitNormal:      pHits.sum(),
+		hitCrit:        math.Round(pHits.sum() * 1.5),
+		dmgMultiplier:  1,
+		totalAtk:       pTotalAtk,
+		crit:           pCrit,
+		init:           player.Stats.Initiative,
+		restore:        float64(pEff["restore"]),
+		healingPct:     float64(pEff["healing"]),
+		reconstitution: pEff["reconstitution"],
+		barrierRestore: float64(pEff["barrier"]),
+		berserkerPct:   float64(pEff["berserker_rage"]),
+		lifestealPct:   float64(pEff["lifesteal"]),
+		poison:         float64(mEff["poison"]),
+		burnCur:        float64(mEff["burn"]) / 100 * mTotalAtk,
+		burnActive:     mEff["burn"] > 0,
 	}
 	M := &combatant{
-		hp: float64(monster.Hp), maxHp: float64(monster.Hp), barrier: float64(mEff["barrier"]),
-		hitEV:         mHits.sum() * (1 + 0.5*mCrit),
-		dmgMultiplier: 1, totalAtk: mTotalAtk, crit: mCrit, init: monster.Initiative,
-		restore: float64(mEff["restore"]), healingPct: float64(mEff["healing"]),
-		reconstitution: mEff["reconstitution"], barrierRestore: float64(mEff["barrier"]),
-		berserkerPct: float64(mEff["berserker_rage"]), lifestealPct: float64(mEff["lifesteal"]),
-		poison:  float64(pEff["poison"]),
-		burnCur: float64(pEff["burn"]) / 100 * pTotalAtk, burnActive: pEff["burn"] > 0,
+		hp:             float64(monster.Hp),
+		maxHp:          float64(monster.Hp),
+		barrier:        float64(mEff["barrier"]),
+		hitEV:          mHits.sum() * (1 + 0.5*mCrit),
+		hitNormal:      mHits.sum(),
+		hitCrit:        math.Round(mHits.sum() * 1.5),
+		dmgMultiplier:  1,
+		totalAtk:       mTotalAtk,
+		crit:           mCrit,
+		init:           monster.Initiative,
+		restore:        float64(mEff["restore"]),
+		healingPct:     float64(mEff["healing"]),
+		reconstitution: mEff["reconstitution"],
+		barrierRestore: float64(mEff["barrier"]),
+		berserkerPct:   float64(mEff["berserker_rage"]),
+		lifestealPct:   float64(mEff["lifesteal"]),
+		poison:         float64(pEff["poison"]),
+		burnCur:        float64(pEff["burn"]) / 100 * pTotalAtk,
+		burnActive:     pEff["burn"] > 0,
 	}
 
 	playerFirst := P.init >= M.init
@@ -175,7 +209,16 @@ func Simulate(player Fighter, monster schemas.MonsterSchema, opts SimOptions) Fi
 	}
 
 	attack := func(a, d *combatant) bool {
-		dmg := a.hitEV * a.dmgMultiplier
+		isCrit := false
+		dmg := a.hitEV
+		if opts.Rng != nil {
+			isCrit = opts.Rng() < a.crit
+			dmg = a.hitNormal
+			if isCrit {
+				dmg = a.hitCrit
+			}
+		}
+		dmg *= a.dmgMultiplier
 		if d.barrier > 0 {
 			absorbed := math.Min(d.barrier, dmg)
 			d.barrier -= absorbed
@@ -183,7 +226,14 @@ func Simulate(player Fighter, monster schemas.MonsterSchema, opts SimOptions) Fi
 		}
 		d.hp -= dmg
 		if a.lifestealPct > 0 {
-			a.hp = math.Min(a.maxHp, a.hp+a.crit*(a.lifestealPct/100)*a.totalAtk)
+			share := a.crit
+			if opts.Rng != nil {
+				share = 0
+				if isCrit {
+					share = 1
+				}
+			}
+			a.hp = math.Min(a.maxHp, a.hp+share*(a.lifestealPct/100)*a.totalAtk)
 		}
 		checkBerserk(d)
 		return d.hp <= 0
@@ -224,7 +274,13 @@ func Simulate(player Fighter, monster schemas.MonsterSchema, opts SimOptions) Fi
 		margin = float64(clampedHp) / pMaxHp
 	}
 	return FightForecast{
-		Win: win, Turns: turn, HpRemaining: clampedHp, HpLostPct: hpLostPct,
-		TimedOut: timedOut, PlayerFirst: playerFirst, Margin: margin, MaxHp: int(pMaxHp),
+		Win:         win,
+		Turns:       turn,
+		HpRemaining: clampedHp,
+		HpLostPct:   hpLostPct,
+		TimedOut:    timedOut,
+		PlayerFirst: playerFirst,
+		Margin:      margin,
+		MaxHp:       int(pMaxHp),
 	}
 }
