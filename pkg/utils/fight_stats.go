@@ -99,18 +99,30 @@ func foldEffects(acc *EffectiveStats, effects *[]schemas.SimpleEffectSchema, com
 		if isStatCode(e.Code) {
 			addToStats(acc, e.Code, sign*e.Value)
 		} else if isCombatEffect(e.Code) {
-			*combat = append(*combat, EffectEntry{Code: e.Code, Value: sign * e.Value})
+			*combat = append(*combat,
+				EffectEntry{Code: e.Code, Value: sign * e.Value})
 		}
 	}
 }
 
 func equippedSlotMap(c schemas.CharacterSchema) map[string]string {
 	return map[string]string{
-		"amulet": c.AmuletSlot, "artifact1": c.Artifact1Slot, "artifact2": c.Artifact2Slot,
-		"artifact3": c.Artifact3Slot, "bag": c.BagSlot, "body_armor": c.BodyArmorSlot,
-		"boots": c.BootsSlot, "helmet": c.HelmetSlot, "leg_armor": c.LegArmorSlot,
-		"ring1": c.Ring1Slot, "ring2": c.Ring2Slot, "rune": c.RuneSlot, "shield": c.ShieldSlot,
-		"utility1": c.Utility1Slot, "utility2": c.Utility2Slot, "weapon": c.WeaponSlot,
+		"amulet":     c.AmuletSlot,
+		"artifact1":  c.Artifact1Slot,
+		"artifact2":  c.Artifact2Slot,
+		"artifact3":  c.Artifact3Slot,
+		"bag":        c.BagSlot,
+		"body_armor": c.BodyArmorSlot,
+		"boots":      c.BootsSlot,
+		"helmet":     c.HelmetSlot,
+		"leg_armor":  c.LegArmorSlot,
+		"ring1":      c.Ring1Slot,
+		"ring2":      c.Ring2Slot,
+		"rune":       c.RuneSlot,
+		"shield":     c.ShieldSlot,
+		"utility1":   c.Utility1Slot,
+		"utility2":   c.Utility2Slot,
+		"weapon":     c.WeaponSlot,
 	}
 }
 

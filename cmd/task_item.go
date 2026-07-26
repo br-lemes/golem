@@ -82,7 +82,8 @@ Arguments:
 						return err
 					}
 					remaining := character.TaskTotal - character.TaskProgress
-					toWithdraw := min(remaining, taskItemInvSpace(character, tasksCoinBuffer))
+					toWithdraw := min(remaining,
+						taskItemInvSpace(character, tasksCoinBuffer))
 					withdraw := []schemas.SimpleItemSchema{
 						{Code: character.Task, Quantity: toWithdraw},
 					}

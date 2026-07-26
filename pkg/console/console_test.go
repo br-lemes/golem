@@ -70,36 +70,12 @@ func TestConfirm(t *testing.T) {
 		userInput  string
 		wantResult bool
 	}{
-		{
-			name:       "Accepts lowercase y",
-			userInput:  "y\n",
-			wantResult: true,
-		},
-		{
-			name:       "Accepts full word yes",
-			userInput:  "yes\n",
-			wantResult: true,
-		},
-		{
-			name:       "Accepts uppercase input",
-			userInput:  "YES\n",
-			wantResult: true,
-		},
-		{
-			name:       "Rejects lowercase n",
-			userInput:  "n\n",
-			wantResult: false,
-		},
-		{
-			name:       "Rejects unknown text",
-			userInput:  "maybe\n",
-			wantResult: false,
-		},
-		{
-			name:       "Rejects empty input",
-			userInput:  "\n",
-			wantResult: false,
-		},
+		{name: "Accepts lowercase y", userInput: "y\n", wantResult: true},
+		{name: "Accepts full word yes", userInput: "yes\n", wantResult: true},
+		{name: "Accepts uppercase input", userInput: "YES\n", wantResult: true},
+		{name: "Rejects lowercase n", userInput: "n\n", wantResult: false},
+		{name: "Rejects unknown text", userInput: "maybe\n", wantResult: false},
+		{name: "Rejects empty input", userInput: "\n", wantResult: false},
 	}
 
 	for _, tt := range tests {

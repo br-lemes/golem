@@ -43,8 +43,9 @@ func init() {
 		"Output format: auto, json or yaml")
 	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "",
 		"Output file path (default: stdout)")
-	rootCmd.PersistentFlags().StringVarP(&console.Style, "style", "s", "monokai",
-		"The style to use for syntax highlighting")
+	rootCmd.PersistentFlags().
+		StringVarP(&console.Style, "style", "s", "monokai",
+			"The style to use for syntax highlighting")
 }
 
 func Execute(version string) error {

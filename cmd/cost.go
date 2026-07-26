@@ -85,7 +85,8 @@ Arguments:
 			maxPossible = 0
 		}
 
-		xpPerCraft := CalculateArtifactsXP(*item.Craft.Level, skillLevel, string(*item.Craft.Skill), character.Wisdom)
+		xpPerCraft := CalculateArtifactsXP(*item.Craft.Level,
+			skillLevel, string(*item.Craft.Skill), character.Wisdom)
 		totalXpGained := maxPossible * xpPerCraft
 
 		output := map[string]interface{}{

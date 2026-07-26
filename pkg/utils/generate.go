@@ -94,9 +94,9 @@ func BuildTemplateData(targetCmd string) (TemplateData, error) {
 
 			existingRoute, exists := data.Routes[argCount]
 			if exists {
-				return data, fmt.Errorf(
-					"route conflict: both %s %s and %s %s require %d positional arguments",
-					existingRoute.Method, existingRoute.Path, method, path, argCount)
+				return data, fmt.Errorf("route conflict: both %s %s and %s %s"+
+					" require %d positional arguments", existingRoute.Method,
+					existingRoute.Path, method, path, argCount)
 			}
 
 			tRoute := TemplateRoute{

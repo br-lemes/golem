@@ -38,7 +38,8 @@ func FightSimulate(character schemas.CharacterSchema, monster schemas.MonsterSch
 			resolved[slot] = ""
 			continue
 		}
-		if _, ok := database.GetItem(code); !ok {
+		_, ok := database.GetItem(code)
+		if !ok {
 			return FightReport{}, fmt.Errorf("invalid item code: %s", code)
 		}
 		resolved[slot] = code

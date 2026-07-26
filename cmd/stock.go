@@ -66,8 +66,7 @@ var stockCmd = &cobra.Command{
 		tasks := database.GetTasksList()
 		result := map[string]ItemStock{}
 		for _, task := range tasks {
-			if task.Skill == nil ||
-				task.Type != "items" ||
+			if task.Skill == nil || task.Type != "items" ||
 				task.Level > maxSkillLevel[*task.Skill] ||
 				slices.Contains(forbiddenTaskItem, task.Code) {
 				continue

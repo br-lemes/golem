@@ -55,7 +55,8 @@ func utilityCheck(character schemas.CharacterSchema, utility1, utility2 string, 
 		}
 		return current + bankQty[s.code]
 	}
-	if err := checkDepleted(utility1, utility2, slots, predicted); err != nil {
+	err := checkDepleted(utility1, utility2, slots, predicted)
+	if err != nil {
 		return false, err
 	}
 	for _, s := range needsAttention {

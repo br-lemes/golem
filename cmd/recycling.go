@@ -83,7 +83,9 @@ func StartRecyclingBot(name string, code string, qty int) error {
 	}
 
 	if targetQty > totalItemsAvailable {
-		return fmt.Errorf("requested to recycle %d items, but only %d are available", targetQty, totalItemsAvailable)
+		return fmt.Errorf(
+			"requested to recycle %d items, but only %d are available",
+			targetQty, totalItemsAvailable)
 	}
 
 	totalItemsInRecipe := 0
@@ -196,7 +198,8 @@ func StartRecyclingBot(name string, code string, qty int) error {
 		}
 
 		if batchSize <= 0 {
-			return fmt.Errorf("inventory is completely full or no items left in bank")
+			return fmt.Errorf(
+				"inventory is completely full or no items left in bank")
 		}
 
 		var withdrawList []schemas.SimpleItemSchema
