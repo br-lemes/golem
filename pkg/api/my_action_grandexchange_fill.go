@@ -1,0 +1,25 @@
+package api
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/schemas"
+)
+
+func MyActionGrandexchangeFill(name string, fill schemas.GEFillBuyOrderSchema) (schemas.GETransactionListSchema, error) {
+	path := fmt.Sprintf("/my/%s/action/grandexchange/fill", name)
+	resp, err := PostNoCooldown(path, fill)
+	if err != nil {
+		return schemas.GETransactionListSchema{}, err
+	}
+	var data schemas.GETransactionResponseSchema
+	err = json.Unmarshal(resp, &data)
+	if err != nil {
+		return schemas.GETransactionListSchema{}, err
+	}
+	cache.SaveCharacter(name, data.Data.Character)
+	handleCooldown(data.Data.Cooldown.TotalSeconds)
+	return data.Data, nil
+}
