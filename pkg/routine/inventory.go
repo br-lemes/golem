@@ -15,12 +15,14 @@ func Inventory(character schemas.CharacterSchema, keepTypes []string) (schemas.C
 	if err != nil {
 		return character, err
 	}
-	transaction, err := api.MyActionBankDepositItem(character.Name,
-		GetInventoryItems(character, keepTypes))
-	if err != nil {
-		return character, err
+	items := GetInventoryItems(character, keepTypes)
+	if len(items) > 0 {
+		transaction, err := api.MyActionBankDepositItem(character.Name, items)
+		if err != nil {
+			return character, err
+		}
+		character = transaction.Character
 	}
-	character = transaction.Character
 	return character, nil
 }
 

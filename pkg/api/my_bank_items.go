@@ -11,7 +11,7 @@ import (
 func MyBankItems() ([]schemas.SimpleItemSchema, error) {
 	bankItems := cache.GetBankItems()
 	if bankItems != nil {
-		return *bankItems, nil
+		return bankItems, nil
 	}
 	result := []schemas.SimpleItemSchema{}
 	page := 1

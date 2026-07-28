@@ -1,0 +1,25 @@
+package api
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/schemas"
+)
+
+func MyActionGrandexchangeCreateSellOrder(name string, order schemas.GEOrderCreationSchema) (schemas.GEOrderTransactionSchema, error) {
+	path := fmt.Sprintf("/my/%s/action/grandexchange/create_sell_order", name)
+	resp, err := PostNoCooldown(path, order)
+	if err != nil {
+		return schemas.GEOrderTransactionSchema{}, err
+	}
+	var data schemas.GECreateOrderTransactionResponseSchema
+	err = json.Unmarshal(resp, &data)
+	if err != nil {
+		return schemas.GEOrderTransactionSchema{}, err
+	}
+	cache.SaveCharacter(name, data.Data.Character)
+	handleCooldown(data.Data.Cooldown.TotalSeconds)
+	return data.Data, nil
+}

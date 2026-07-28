@@ -42,7 +42,7 @@ func CleanBankItems() {
 	cache.Where("name = ?", "bankItems").Delete(&models.Cache{})
 }
 
-func GetBankItems() *[]schemas.SimpleItemSchema {
+func GetBankItems() []schemas.SimpleItemSchema {
 	var bankItemsCache models.Cache
 	if !isNameFresh(&bankItemsCache, "bankItems", 30) {
 		return nil
@@ -52,7 +52,7 @@ func GetBankItems() *[]schemas.SimpleItemSchema {
 	if err != nil {
 		return nil
 	}
-	return &bankItems
+	return bankItems
 }
 
 func SaveBankItems(bankItems []schemas.SimpleItemSchema) {

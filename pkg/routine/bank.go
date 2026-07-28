@@ -37,8 +37,7 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	}
 	items := GetInventoryItems(character, nil)
 	if len(items) > 0 {
-		depositData, err := d.myActionBankDepositItem(character.Name,
-			GetInventoryItems(character, nil))
+		depositData, err := d.myActionBankDepositItem(character.Name, items)
 		if err != nil {
 			return character, err
 		}
