@@ -12,46 +12,61 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const maxFillQuantity = 100
+
 var fillData struct {
 	character     schemas.CharacterSchema
+	order         schemas.GEOrderSchema
 	bankItem      schemas.SimpleItemSchema
 	inventoryItem schemas.SimpleItemSchema
 }
 
 var fillFlags struct {
-	id       string
 	quantity int
 }
 
 var fillCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
-	Use:   "fill <name> <code>",
+	Use:   "fill <name> <id>",
 	Short: "Fill an existing buy order",
 	Long: `Fill an existing buy order.
 
 Arguments:
   name   Name of your character
-  code   The code of the item you want to sell`,
-	ValidArgsFunction: completion.CharacterName(1).BankItem(1).Build(),
+  id     The id of the buy order you want to fill`,
+	ValidArgsFunction: completion.CharacterName(1).Build(),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
-		code := args[1]
+		id := args[1]
 		validCharacters := utils.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
 			return fmt.Errorf("invalid character %q: allowed values are %v",
 				name, validCharacters)
 		}
-		validItems := completion.GetBankItems()
-		if !slices.Contains(validItems, code) {
-			return fmt.Errorf("invalid item %q: allowed values are %v",
-				code, validItems)
-		}
-		if fillFlags.id == "" {
+		if id == "" {
 			return fmt.Errorf("id must not be empty")
 		}
 		if fillFlags.quantity <= 0 {
 			return fmt.Errorf("quantity must be greater than 0")
 		}
+		orders, err := api.GrandexchangeOrders(id)
+		if err != nil {
+			return err
+		}
+		if len(orders) == 0 {
+			return fmt.Errorf("order %q not found", id)
+		}
+		fillData.order = orders[0]
+		if fillData.order.Type != "buy" {
+			return fmt.Errorf("order %q is not a buy order: type %q",
+				id, fillData.order.Type)
+		}
+		if fillFlags.quantity > fillData.order.Quantity {
+			return fmt.Errorf(
+				"not enough quantity in order %q: required %d, available %d",
+				id, fillFlags.quantity, fillData.order.Quantity)
+		}
+		code := fillData.order.Code
 		items, err := api.MyBankItems()
 		if err != nil {
 			return err
@@ -86,7 +101,8 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
 		name := args[0]
-		code := args[1]
+		id := args[1]
+		code := fillData.order.Code
 		totalFilled := 0
 		for totalFilled < fillFlags.quantity {
 			remaining := fillFlags.quantity - totalFilled
@@ -125,17 +141,23 @@ Arguments:
 			if err != nil {
 				return err
 			}
-			fill := schemas.GEFillBuyOrderSchema{
-				Id:       fillFlags.id,
-				Quantity: min(remaining, fillData.inventoryItem.Quantity),
+			for fillData.inventoryItem.Quantity > 0 &&
+				totalFilled < fillFlags.quantity {
+				fillQuantity := min(maxFillQuantity,
+					fillData.inventoryItem.Quantity,
+					fillFlags.quantity-totalFilled)
+				fill := schemas.GEFillBuyOrderSchema{
+					Id:       id,
+					Quantity: fillQuantity,
+				}
+				fillOrderData, err := api.MyActionGrandexchangeFill(name, fill)
+				if err != nil {
+					return err
+				}
+				fillData.character = fillOrderData.Character
+				fillData.inventoryItem.Quantity -= fillOrderData.Order.Quantity
+				totalFilled += fillOrderData.Order.Quantity
 			}
-			fillOrderData, err := api.MyActionGrandexchangeFill(name, fill)
-			if err != nil {
-				return err
-			}
-			fillData.character = fillOrderData.Character
-			fillData.inventoryItem.Quantity -= fillOrderData.Order.Quantity
-			totalFilled += fillOrderData.Order.Quantity
 		}
 		return nil
 	},
@@ -143,7 +165,6 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(fillCmd)
-	fillCmd.Flags().StringVarP(&fillFlags.id, "id", "i", "", "Buy order id")
 	fillCmd.Flags().IntVarP(&fillFlags.quantity, "quantity", "q", 0,
 		"Item quantity")
 }

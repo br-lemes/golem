@@ -39,18 +39,21 @@ Arguments:
 			}
 		}
 		if !slices.Contains(levelGroups, levelFlags.group) {
-			return fmt.Errorf("invalid group %q: must be 'skill' or 'character'", levelFlags.group)
+			return fmt.Errorf("invalid group %q: allowed values are %v",
+				levelFlags.group, levelGroups)
 		}
 		validSkills := database.GetEnum("CharacterLeaderboardType")
 		for _, skill := range levelFlags.skill {
 			if !slices.Contains(validSkills, skill) {
-				return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
+				return fmt.Errorf("invalid skill %q: allowed values are %v",
+					skill, validSkills)
 			}
 		}
 		validCharacters := utils.GetCharacters()
 		for _, character := range levelFlags.character {
 			if !slices.Contains(validCharacters, character) {
-				return fmt.Errorf("invalid character %q: allowed values are %v", character, validCharacters)
+				return fmt.Errorf("invalid character %q: allowed values are %v",
+					character, validCharacters)
 			}
 		}
 		return nil
