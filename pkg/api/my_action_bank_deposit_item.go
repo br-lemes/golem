@@ -21,6 +21,7 @@ func MyActionBankDepositItem(name string, items []schemas.SimpleItemSchema) (sch
 	}
 	cache.SaveBankItems(data.Data.Bank)
 	cache.SaveCharacter(name, data.Data.Character)
-	handleCooldown(data.Data.Cooldown.TotalSeconds)
+	handleCooldown(data.Data.Cooldown.TotalSeconds,
+		string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

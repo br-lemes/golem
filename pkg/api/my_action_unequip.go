@@ -20,6 +20,7 @@ func MyActionUnequip(name string, unequips []schemas.UnequipSchema) (schemas.Equ
 		return schemas.EquipmentTransactionSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
-	handleCooldown(data.Data.Cooldown.TotalSeconds)
+	handleCooldown(data.Data.Cooldown.TotalSeconds,
+		string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

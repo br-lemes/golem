@@ -24,6 +24,7 @@ func MyActionGathering(name string) (schemas.SkillDataSchema, error) {
 	console.Printf("XP gained: %d", data.Data.Details.Xp)
 	printDropSchema(data.Data.Details.Items)
 	console.Printf("\n")
-	handleCooldown(data.Data.Cooldown.TotalSeconds)
+	handleCooldown(data.Data.Cooldown.TotalSeconds,
+		string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

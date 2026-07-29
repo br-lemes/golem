@@ -38,6 +38,7 @@ func MyActionFight(name string, participants []string) (schemas.CharacterFightDa
 	} else {
 		console.Printf("💀 Fight lost!\n")
 	}
-	handleCooldown(data.Data.Cooldown.TotalSeconds)
+	handleCooldown(data.Data.Cooldown.TotalSeconds,
+		string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

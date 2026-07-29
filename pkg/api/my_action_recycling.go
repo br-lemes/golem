@@ -20,6 +20,7 @@ func MyActionRecycling(name string, item schemas.SimpleItemSchema) (schemas.Recy
 		return schemas.RecyclingDataSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
-	handleCooldown(data.Data.Cooldown.TotalSeconds)
+	handleCooldown(data.Data.Cooldown.TotalSeconds,
+		string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

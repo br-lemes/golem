@@ -102,7 +102,8 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 			resp.StatusCode, cd)
 
 		if cooldown && cd > 0 {
-			handleCooldown(cd)
+			reason := gjson.GetBytes(respBytes, "data.cooldown.reason")
+			handleCooldown(cd, reason.String())
 		}
 
 		return respBytes, nil

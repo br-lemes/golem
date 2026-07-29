@@ -20,6 +20,7 @@ func MyActionTaskCancel(name string) (schemas.TaskCancelledSchema, error) {
 		return schemas.TaskCancelledSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
-	handleCooldown(data.Data.Cooldown.TotalSeconds)
+	handleCooldown(data.Data.Cooldown.TotalSeconds,
+		string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }
