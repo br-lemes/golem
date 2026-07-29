@@ -12,8 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const maxFillQuantity = 100
-
 var fillData struct {
 	character     schemas.CharacterSchema
 	order         schemas.GEOrderSchema
@@ -81,6 +79,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		fillData.inventoryItem = schemas.SimpleItemSchema{}
 		if fillData.character.Inventory != nil {
 			for _, item := range *fillData.character.Inventory {
 				if item.Code == code {
@@ -106,7 +105,7 @@ Arguments:
 		totalFilled := 0
 		for totalFilled < fillFlags.quantity {
 			remaining := fillFlags.quantity - totalFilled
-			if remaining > fillData.inventoryItem.Quantity {
+			if fillData.inventoryItem.Quantity == 0 {
 				var err error
 				fillData.character, err =
 					routine.Move(fillData.character, "bank")
@@ -141,23 +140,17 @@ Arguments:
 			if err != nil {
 				return err
 			}
-			for fillData.inventoryItem.Quantity > 0 &&
-				totalFilled < fillFlags.quantity {
-				fillQuantity := min(maxFillQuantity,
-					fillData.inventoryItem.Quantity,
-					fillFlags.quantity-totalFilled)
-				fill := schemas.GEFillBuyOrderSchema{
-					Id:       id,
-					Quantity: fillQuantity,
-				}
-				fillOrderData, err := api.MyActionGrandexchangeFill(name, fill)
-				if err != nil {
-					return err
-				}
-				fillData.character = fillOrderData.Character
-				fillData.inventoryItem.Quantity -= fillOrderData.Order.Quantity
-				totalFilled += fillOrderData.Order.Quantity
+			fill := schemas.GEFillBuyOrderSchema{
+				Id:       id,
+				Quantity: min(remaining, fillData.inventoryItem.Quantity, 100),
 			}
+			fillOrderData, err := api.MyActionGrandexchangeFill(name, fill)
+			if err != nil {
+				return err
+			}
+			fillData.character = fillOrderData.Character
+			fillData.inventoryItem.Quantity -= fillOrderData.Order.Quantity
+			totalFilled += fillOrderData.Order.Quantity
 		}
 		return nil
 	},

@@ -66,6 +66,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		sellData.inventoryItem = schemas.SimpleItemSchema{}
 		if sellData.character.Inventory != nil {
 			for _, item := range *sellData.character.Inventory {
 				if item.Code == code {
@@ -90,7 +91,7 @@ Arguments:
 		totalSold := 0
 		for totalSold < sellFlags.quantity {
 			remaining := sellFlags.quantity - totalSold
-			if remaining > sellData.inventoryItem.Quantity {
+			if sellData.inventoryItem.Quantity == 0 {
 				var err error
 				sellData.character, err =
 					routine.Move(sellData.character, "bank")
@@ -128,7 +129,7 @@ Arguments:
 			order := schemas.GEOrderCreationSchema{
 				Code:     code,
 				Price:    sellFlags.price,
-				Quantity: min(remaining, sellData.inventoryItem.Quantity),
+				Quantity: min(remaining, sellData.inventoryItem.Quantity, 100),
 			}
 			orderData, err :=
 				api.MyActionGrandexchangeCreateSellOrder(name, order)
