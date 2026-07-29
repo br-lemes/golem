@@ -13,6 +13,7 @@ ARTIFACTS := $(foreach p,$(PLATFORMS),\
 	$(TARGET)-$(p)$(if $(filter windows%,$(p)),.exe))
 
 SEMVER := github.com/br-lemes/semver@latest
+GOCOVER := github.com/Azure/gocover@latest
 
 all: $(PLATFORMS)
 
@@ -22,7 +23,7 @@ clean:
 coverage:
 	@go test ./... -coverprofile=coverage.out && \
 		sed -i '/cmd\/api/d' coverage.out && \
-		go run github.com/Azure/gocover@latest full --cover-profile=coverage.out
+		go run $(GOCOVER) full --cover-profile=coverage.out
 
 pkg/database/openapi.json:
 	@curl https://api.artifactsmmo.com/openapi.json -o $@
