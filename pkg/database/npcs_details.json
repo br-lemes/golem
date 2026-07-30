@@ -1,0 +1,748 @@
+[
+	{
+		"code": "archaeologist",
+		"description": "Fragments are remnants of the past… Trade them with me, and I’ll share artifacts of immense historical value — and the rarest of resources.",
+		"items": [
+			{
+				"buy_price": 24,
+				"code": "book_from_hell",
+				"currency": "page_from_hell",
+				"sell_price": null
+			},
+			{
+				"buy_price": 30,
+				"code": "emerald_book",
+				"currency": "elemental_page",
+				"sell_price": null
+			},
+			{
+				"buy_price": 100,
+				"code": "lich_race_medal",
+				"currency": "event_ticket",
+				"sell_price": null
+			},
+			{
+				"buy_price": 10,
+				"code": "lich_race_trophy",
+				"currency": "lich_race_medal",
+				"sell_price": null
+			},
+			{
+				"buy_price": 24,
+				"code": "life_crystal",
+				"currency": "life_crystal_shard",
+				"sell_price": null
+			},
+			{
+				"buy_price": 24,
+				"code": "malefic_crystal",
+				"currency": "malefic_shard",
+				"sell_price": null
+			},
+			{
+				"buy_price": 20,
+				"code": "perfect_pearl",
+				"currency": "small_pearls",
+				"sell_price": null
+			},
+			{
+				"buy_price": 30,
+				"code": "ruby_book",
+				"currency": "elemental_page",
+				"sell_price": null
+			},
+			{
+				"buy_price": 24,
+				"code": "sandwhisper_codex",
+				"currency": "codex_page",
+				"sell_price": null
+			},
+			{
+				"buy_price": 30,
+				"code": "sapphire_book",
+				"currency": "elemental_page",
+				"sell_price": null
+			},
+			{
+				"buy_price": 30,
+				"code": "topaz_book",
+				"currency": "elemental_page",
+				"sell_price": null
+			}
+		],
+		"name": "Archaeologist",
+		"type": "trader"
+	},
+	{
+		"code": "beastmaster",
+		"description": "A seasoned handler of wild and enchanted creatures. The Beastmaster trades unique rewards for Enchanted Coins earned by defeating Pixie.",
+		"items": [
+			{
+				"buy_price": 1,
+				"code": "enchanted_fabric",
+				"currency": "enchanted_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 200,
+				"code": "enchanted_rune",
+				"currency": "enchanted_coin",
+				"sell_price": null
+			}
+		],
+		"name": "Beastmaster",
+		"type": "trader"
+	},
+	{
+		"code": "cultist_wizard",
+		"description": "Bring me your corrupted gems! I’ll trade them for a selection of powerful treasures.",
+		"items": [
+			{
+				"buy_price": 8,
+				"code": "bag_of_gold",
+				"currency": "corrupted_gem",
+				"sell_price": null
+			},
+			{
+				"buy_price": 220,
+				"code": "corrupted_crown",
+				"currency": "corrupted_gem",
+				"sell_price": null
+			},
+			{
+				"buy_price": 1,
+				"code": "corrupted_fruit",
+				"currency": "corrupted_gem",
+				"sell_price": null
+			},
+			{
+				"buy_price": 75,
+				"code": "corrupted_skull",
+				"currency": "corrupted_gem",
+				"sell_price": null
+			},
+			{
+				"buy_price": 2,
+				"code": "diabolic_elixir",
+				"currency": "corrupted_gem",
+				"sell_price": null
+			}
+		],
+		"name": "Cultist Wizard",
+		"type": "trader"
+	},
+	{
+		"code": "fish_merchant",
+		"description": "If it swims or helps catch what swims, I’ll buy it or sell it.",
+		"items": [
+			{
+				"buy_price": 50,
+				"code": "algae",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 75,
+				"code": "bass",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": null,
+				"code": "golden_shrimp",
+				"currency": "gold",
+				"sell_price": 1000
+			},
+			{
+				"buy_price": 10,
+				"code": "gudgeon",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": null,
+				"code": "holey_boot",
+				"currency": "gold",
+				"sell_price": 200
+			},
+			{
+				"buy_price": null,
+				"code": "lava_fish",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 100,
+				"code": "salmon",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": null,
+				"code": "shell",
+				"currency": "gold",
+				"sell_price": 120
+			},
+			{
+				"buy_price": 30,
+				"code": "shrimp",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": null,
+				"code": "small_pearls",
+				"currency": "gold",
+				"sell_price": 250
+			},
+			{
+				"buy_price": 150,
+				"code": "swordfish",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 50,
+				"code": "trout",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 250000,
+				"code": "voidstone_fishing_rod",
+				"currency": "gold",
+				"sell_price": null
+			}
+		],
+		"name": "Fish Merchant",
+		"type": "merchant"
+	},
+	{
+		"code": "gemstone_merchant",
+		"description": "Need mining tools or got some to sell? I handle all that stuff.",
+		"items": [
+			{
+				"buy_price": 100,
+				"code": "adamantite_ore",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 75000,
+				"code": "alexandrite",
+				"currency": "gold",
+				"sell_price": 8000
+			},
+			{
+				"buy_price": 35,
+				"code": "coal",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 10,
+				"code": "copper_ore",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 50000,
+				"code": "diamond",
+				"currency": "gold",
+				"sell_price": 5000
+			},
+			{
+				"buy_price": null,
+				"code": "emerald",
+				"currency": "gold",
+				"sell_price": 1500
+			},
+			{
+				"buy_price": 50,
+				"code": "gold_ore",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 25,
+				"code": "iron_ore",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 75,
+				"code": "mithril_ore",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 350,
+				"code": "piece_of_obsidian",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": null,
+				"code": "ruby",
+				"currency": "gold",
+				"sell_price": 1500
+			},
+			{
+				"buy_price": null,
+				"code": "sapphire",
+				"currency": "gold",
+				"sell_price": 1500
+			},
+			{
+				"buy_price": 100,
+				"code": "strange_ore",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": null,
+				"code": "topaz",
+				"currency": "gold",
+				"sell_price": 1500
+			},
+			{
+				"buy_price": 250000,
+				"code": "voidstone_pickaxe",
+				"currency": "gold",
+				"sell_price": null
+			}
+		],
+		"name": "Gemstone Merchant",
+		"type": "merchant"
+	},
+	{
+		"code": "herbal_merchant",
+		"description": "Need potions, ingredients, or alchemy tools? I’ve got what you need — or I’ll buy what you’ve got!",
+		"items": [
+			{
+				"buy_price": null,
+				"code": "enchanted_mushroom",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 200,
+				"code": "forest_bank_potion",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": 75,
+				"code": "glowstem_leaf",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 35,
+				"code": "nettle_leaf",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 200,
+				"code": "recall_potion",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": 10,
+				"code": "sunflower",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 250000,
+				"code": "voidstone_gloves",
+				"currency": "gold",
+				"sell_price": null
+			}
+		],
+		"name": "Herbal Merchant",
+		"type": "merchant"
+	},
+	{
+		"code": "nomadic_merchant",
+		"description": "Everything has value to someone. I just make the exchange happen.",
+		"items": [
+			{
+				"buy_price": 50000,
+				"code": "backpack",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": null,
+				"code": "bandit_armor",
+				"currency": "gold",
+				"sell_price": 2000
+			},
+			{
+				"buy_price": null,
+				"code": "death_knight_sword",
+				"currency": "gold",
+				"sell_price": 1500
+			},
+			{
+				"buy_price": null,
+				"code": "desert_wrap",
+				"currency": "gold",
+				"sell_price": 2000
+			},
+			{
+				"buy_price": null,
+				"code": "event_ticket",
+				"currency": "gold",
+				"sell_price": 100
+			},
+			{
+				"buy_price": null,
+				"code": "forest_ring",
+				"currency": "gold",
+				"sell_price": 100
+			},
+			{
+				"buy_price": null,
+				"code": "forest_staff",
+				"currency": "gold",
+				"sell_price": 100
+			},
+			{
+				"buy_price": null,
+				"code": "goblin_guard_shield",
+				"currency": "gold",
+				"sell_price": 2000
+			},
+			{
+				"buy_price": null,
+				"code": "golden_egg",
+				"currency": "gold",
+				"sell_price": 1000
+			},
+			{
+				"buy_price": null,
+				"code": "highwayman_dagger",
+				"currency": "gold",
+				"sell_price": 350
+			},
+			{
+				"buy_price": null,
+				"code": "lich_crown",
+				"currency": "gold",
+				"sell_price": 2500
+			},
+			{
+				"buy_price": 15000,
+				"code": "lost_world_map",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": 600,
+				"code": "minor_health_potion",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": null,
+				"code": "old_boots",
+				"currency": "gold",
+				"sell_price": 350
+			},
+			{
+				"buy_price": null,
+				"code": "sanguine_edge_of_rosen",
+				"currency": "gold",
+				"sell_price": 2500
+			},
+			{
+				"buy_price": 800,
+				"code": "small_antidote",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": null,
+				"code": "wolf_ears",
+				"currency": "gold",
+				"sell_price": 300
+			},
+			{
+				"buy_price": null,
+				"code": "wooden_club",
+				"currency": "gold",
+				"sell_price": 350
+			}
+		],
+		"name": "Nomadic Merchant",
+		"type": "merchant"
+	},
+	{
+		"code": "rune_vendor",
+		"description": "Looking for runes? I’ve got what you need — just bring some gold!",
+		"items": [
+			{
+				"buy_price": 30000,
+				"code": "burn_rune",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": 25000,
+				"code": "healing_aura_rune",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": 10000,
+				"code": "healing_rune",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": 20000,
+				"code": "lifesteal_rune",
+				"currency": "gold",
+				"sell_price": null
+			},
+			{
+				"buy_price": 30000,
+				"code": "protection_rune",
+				"currency": "gold",
+				"sell_price": null
+			}
+		],
+		"name": "Rune Vendor",
+		"type": "merchant"
+	},
+	{
+		"code": "sandwhisper_trader",
+		"description": "The Sandwhisper Trader swaps shiny loot for your hard-stolen Sandwhisper Coins, arrr!",
+		"items": [
+			{
+				"buy_price": 100,
+				"code": "greater_healing_rune",
+				"currency": "sandwhisper_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 100,
+				"code": "greater_lifesteal_rune",
+				"currency": "sandwhisper_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 100,
+				"code": "greater_protection_rune",
+				"currency": "sandwhisper_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 230,
+				"code": "sandwhisper_bag",
+				"currency": "sandwhisper_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 5,
+				"code": "sandwhisper_key",
+				"currency": "sandwhisper_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 100,
+				"code": "vampiric_rune",
+				"currency": "sandwhisper_coin",
+				"sell_price": null
+			}
+		],
+		"name": "Sandwhisper Trader",
+		"type": "trader"
+	},
+	{
+		"code": "sorceress",
+		"description": "A mysterious spellcaster versed in ancient underground magic. The Sorceress trades unique rewards for Sonnengott Coins earned by defeating Sonnengott, and has a particular fondness for Fire Dust.\n\n",
+		"items": [
+			{
+				"buy_price": 10,
+				"code": "fire_crystal",
+				"currency": "fire_dust",
+				"sell_price": null
+			},
+			{
+				"buy_price": 200,
+				"code": "powerful_rune",
+				"currency": "sonnengott_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 245,
+				"code": "sonnengott_cloak",
+				"currency": "sonnengott_coin",
+				"sell_price": null
+			}
+		],
+		"name": "Sorceress",
+		"type": "trader"
+	},
+	{
+		"code": "tailor",
+		"description": "I specialize in skins, hides, fabrics, and fibers. Bring me raw materials, and I’ll trade you refined, higher-quality ones.",
+		"items": [
+			{
+				"buy_price": 3,
+				"code": "cloth",
+				"currency": "wool",
+				"sell_price": null
+			},
+			{
+				"buy_price": 3,
+				"code": "hard_leather",
+				"currency": "cowhide",
+				"sell_price": null
+			},
+			{
+				"buy_price": 4,
+				"code": "sand_snakeskin",
+				"currency": "sand_snake_hide",
+				"sell_price": null
+			},
+			{
+				"buy_price": 4,
+				"code": "snakeskin",
+				"currency": "snake_hide",
+				"sell_price": null
+			},
+			{
+				"buy_price": 4,
+				"code": "vermin_leather",
+				"currency": "rat_hide",
+				"sell_price": null
+			}
+		],
+		"name": "Tailor",
+		"type": "trader"
+	},
+	{
+		"code": "tasks_trader",
+		"description": "Resources for task coins — fair trade, every time.",
+		"items": [
+			{
+				"buy_price": 12,
+				"code": "astralyte_crystal",
+				"currency": "tasks_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 8,
+				"code": "jasper_crystal",
+				"currency": "tasks_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 8,
+				"code": "magical_cure",
+				"currency": "tasks_coin",
+				"sell_price": null
+			},
+			{
+				"buy_price": 14,
+				"code": "prime_fabric",
+				"currency": "tasks_coin",
+				"sell_price": null
+			}
+		],
+		"name": "Tasks Trader",
+		"type": "trader"
+	},
+	{
+		"code": "timber_merchant",
+		"description": "Got logs or tools to trade? I buy and sell anything woodcutting-related!",
+		"items": [
+			{
+				"buy_price": 10,
+				"code": "ash_wood",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 35,
+				"code": "birch_wood",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": null,
+				"code": "coconut",
+				"currency": "gold",
+				"sell_price": 5
+			},
+			{
+				"buy_price": 350,
+				"code": "cursed_wood",
+				"currency": "gold",
+				"sell_price": 15
+			},
+			{
+				"buy_price": 50,
+				"code": "dead_wood",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 1500,
+				"code": "magic_sap",
+				"currency": "gold",
+				"sell_price": 150
+			},
+			{
+				"buy_price": 100,
+				"code": "magic_wood",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 500,
+				"code": "maple_sap",
+				"currency": "gold",
+				"sell_price": 25
+			},
+			{
+				"buy_price": 75,
+				"code": "maple_wood",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 100,
+				"code": "palm_wood",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 300,
+				"code": "sap",
+				"currency": "gold",
+				"sell_price": 15
+			},
+			{
+				"buy_price": 25,
+				"code": "spruce_wood",
+				"currency": "gold",
+				"sell_price": 1
+			},
+			{
+				"buy_price": 250000,
+				"code": "voidstone_axe",
+				"currency": "gold",
+				"sell_price": null
+			}
+		],
+		"name": "Timber Merchant",
+		"type": "merchant"
+	}
+]
