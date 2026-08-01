@@ -30,8 +30,8 @@ var sellCmd = &cobra.Command{
 	Long: `Create a new sell order.
 
 Arguments:
-  name   Name of your character
-  code   The code of the item you want to sell`,
+  name   Name of your character.
+  code   The code of the item.`,
 	ValidArgsFunction: completion.CharacterName(1).BankItem(1).Build(),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
