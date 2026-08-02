@@ -7,11 +7,14 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+const MonstersSize = 10000
+
 func Monsters() ([]schemas.MonsterSchema, error) {
 	result := []schemas.MonsterSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/monsters?page=%d", page), nil)
+		resp, err := Get(fmt.Sprintf("/monsters?page=%d&size=%d",
+			page, MonstersSize), nil)
 		if err != nil {
 			return nil, err
 		}

@@ -8,6 +8,8 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+const MyBankItemsSize = 100
+
 func MyBankItems() ([]schemas.SimpleItemSchema, error) {
 	bankItems := cache.GetBankItems()
 	if bankItems != nil {
@@ -16,7 +18,8 @@ func MyBankItems() ([]schemas.SimpleItemSchema, error) {
 	result := []schemas.SimpleItemSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/my/bank/items?page=%d", page), nil)
+		resp, err := Get(fmt.Sprintf("/my/bank/items?page=%d&size=%d",
+			page, MyBankItemsSize), nil)
 		if err != nil {
 			return nil, err
 		}

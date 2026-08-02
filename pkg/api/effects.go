@@ -7,11 +7,14 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+const EffectsSize = 10000
+
 func Effects() ([]schemas.EffectSchema, error) {
 	result := []schemas.EffectSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/effects?page=%d", page), nil)
+		resp, err := Get(fmt.Sprintf("/effects?page=%d&size=%d",
+			page, EffectsSize), nil)
 		if err != nil {
 			return nil, err
 		}

@@ -8,6 +8,8 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+const AccountsAchievementsSize = 100
+
 func AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, error) {
 	if account == "" {
 		account = cache.GetAccount()
@@ -19,8 +21,9 @@ func AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, e
 	result := []schemas.AccountAchievementSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/accounts/%s/achievements?page=%d",
-			account, page), nil)
+		resp, err := Get(
+			fmt.Sprintf("/accounts/%s/achievements?page=%d&size=%d",
+				account, page, AccountsAchievementsSize), nil)
 		if err != nil {
 			return nil, err
 		}

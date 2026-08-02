@@ -7,11 +7,14 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+const ResourcesSize = 10000
+
 func Resources() ([]schemas.ResourceSchema, error) {
 	result := []schemas.ResourceSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/resources?page=%d", page), nil)
+		resp, err := Get(fmt.Sprintf("/resources?page=%d&size=%d",
+			page, ResourcesSize), nil)
 		if err != nil {
 			return nil, err
 		}

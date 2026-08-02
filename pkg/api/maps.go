@@ -7,11 +7,14 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+const MapsSize = 10000
+
 func Maps() ([]schemas.MapSchema, error) {
 	result := []schemas.MapSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/maps?page=%d", page), nil)
+		resp, err := Get(fmt.Sprintf("/maps?page=%d&size=%d", page, MapsSize),
+			nil)
 		if err != nil {
 			return nil, err
 		}

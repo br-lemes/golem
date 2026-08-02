@@ -7,6 +7,8 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+const GrandexchangeOrdersSize = 100
+
 func GrandexchangeOrders(id string) ([]schemas.GEOrderSchema, error) {
 	if id == "" {
 		return grandexchangeOrdersAll()
@@ -18,7 +20,8 @@ func grandexchangeOrdersAll() ([]schemas.GEOrderSchema, error) {
 	result := []schemas.GEOrderSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/grandexchange/orders?page=%d", page), nil)
+		resp, err := Get(fmt.Sprintf("/grandexchange/orders?page=%d&size=%d",
+			page, GrandexchangeOrdersSize), nil)
 		if err != nil {
 			return nil, err
 		}
