@@ -1148,7 +1148,9 @@
 	},
 	{
 		"code": "leather_gloves",
-		"conditions": [{ "code": "alchemy_level", "operator": "gt", "value": 9 }],
+		"conditions": [
+			{ "code": "alchemy_level", "operator": "gt", "value": 9 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "ash_plank", "quantity": 2 },
@@ -1181,7 +1183,9 @@
 	},
 	{
 		"code": "spruce_fishing_rod",
-		"conditions": [{ "code": "fishing_level", "operator": "gt", "value": 9 }],
+		"conditions": [
+			{ "code": "fishing_level", "operator": "gt", "value": 9 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "spruce_plank", "quantity": 8 },
@@ -1392,7 +1396,9 @@
 	},
 	{
 		"code": "iron_pickaxe",
-		"conditions": [{ "code": "mining_level", "operator": "gt", "value": 9 }],
+		"conditions": [
+			{ "code": "mining_level", "operator": "gt", "value": 9 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "spruce_plank", "quantity": 2 },
@@ -3653,7 +3659,9 @@
 	},
 	{
 		"code": "steel_gloves",
-		"conditions": [{ "code": "alchemy_level", "operator": "gt", "value": 19 }],
+		"conditions": [
+			{ "code": "alchemy_level", "operator": "gt", "value": 19 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "steel_bar", "quantity": 7 },
@@ -3687,7 +3695,9 @@
 	},
 	{
 		"code": "steel_pickaxe",
-		"conditions": [{ "code": "mining_level", "operator": "gt", "value": 19 }],
+		"conditions": [
+			{ "code": "mining_level", "operator": "gt", "value": 19 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "steel_bar", "quantity": 7 },
@@ -3721,7 +3731,9 @@
 	},
 	{
 		"code": "steel_fishing_rod",
-		"conditions": [{ "code": "fishing_level", "operator": "gt", "value": 19 }],
+		"conditions": [
+			{ "code": "fishing_level", "operator": "gt", "value": 19 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "steel_bar", "quantity": 7 },
@@ -6382,7 +6394,9 @@
 	},
 	{
 		"code": "gold_fishing_rod",
-		"conditions": [{ "code": "fishing_level", "operator": "gt", "value": 29 }],
+		"conditions": [
+			{ "code": "fishing_level", "operator": "gt", "value": 29 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "dead_wood_plank", "quantity": 2 },
@@ -7084,7 +7098,9 @@
 	},
 	{
 		"code": "gold_pickaxe",
-		"conditions": [{ "code": "mining_level", "operator": "gt", "value": 29 }],
+		"conditions": [
+			{ "code": "mining_level", "operator": "gt", "value": 29 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "dead_wood_plank", "quantity": 2 },
@@ -7660,7 +7676,9 @@
 	},
 	{
 		"code": "golden_gloves",
-		"conditions": [{ "code": "alchemy_level", "operator": "gt", "value": 29 }],
+		"conditions": [
+			{ "code": "alchemy_level", "operator": "gt", "value": 29 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "dead_wood_plank", "quantity": 7 },
@@ -10153,7 +10171,9 @@
 	},
 	{
 		"code": "mithril_gloves",
-		"conditions": [{ "code": "alchemy_level", "operator": "gt", "value": 39 }],
+		"conditions": [
+			{ "code": "alchemy_level", "operator": "gt", "value": 39 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "mithril_bar", "quantity": 8 },
@@ -10188,7 +10208,9 @@
 	},
 	{
 		"code": "mithril_fishing_rod",
-		"conditions": [{ "code": "fishing_level", "operator": "gt", "value": 39 }],
+		"conditions": [
+			{ "code": "fishing_level", "operator": "gt", "value": 39 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "mithril_bar", "quantity": 8 },
@@ -10223,7 +10245,9 @@
 	},
 	{
 		"code": "mithril_pickaxe",
-		"conditions": [{ "code": "mining_level", "operator": "gt", "value": 39 }],
+		"conditions": [
+			{ "code": "mining_level", "operator": "gt", "value": 39 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "mithril_bar", "quantity": 8 },
@@ -14902,7 +14926,9 @@
 	},
 	{
 		"code": "voidstone_pickaxe",
-		"conditions": [{ "code": "mining_level", "operator": "gt", "value": 49 }],
+		"conditions": [
+			{ "code": "mining_level", "operator": "gt", "value": 49 }
+		],
 		"description": "A pickaxe forged from voidstone, its edge humming with otherworldly power. It carves through rock and reveals hidden veins of precious minerals.",
 		"effects": [
 			{
@@ -14930,7 +14956,9 @@
 	},
 	{
 		"code": "voidstone_fishing_rod",
-		"conditions": [{ "code": "fishing_level", "operator": "gt", "value": 49 }],
+		"conditions": [
+			{ "code": "fishing_level", "operator": "gt", "value": 49 }
+		],
 		"description": "This fishing rod pulses with void energy, its line shimmering in the light. It attracts rare and magical fish from even the deepest waters and increases the chance of valuable finds.",
 		"effects": [
 			{
@@ -14958,7 +14986,9 @@
 	},
 	{
 		"code": "voidstone_gloves",
-		"conditions": [{ "code": "alchemy_level", "operator": "gt", "value": 49 }],
+		"conditions": [
+			{ "code": "alchemy_level", "operator": "gt", "value": 49 }
+		],
 		"description": "Gloves woven from void-infused fiber. They let the wearer sense and harvest rare plants, boosting both gathering speed and the chance to find valuables.",
 		"effects": [
 			{
@@ -15016,7 +15046,9 @@
 	},
 	{
 		"code": "adamantite_gloves",
-		"conditions": [{ "code": "alchemy_level", "operator": "gt", "value": 49 }],
+		"conditions": [
+			{ "code": "alchemy_level", "operator": "gt", "value": 49 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "adamantite_bar", "quantity": 10 },
@@ -15052,7 +15084,9 @@
 	},
 	{
 		"code": "adamantite_fishing_rod",
-		"conditions": [{ "code": "fishing_level", "operator": "gt", "value": 49 }],
+		"conditions": [
+			{ "code": "fishing_level", "operator": "gt", "value": 49 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "adamantite_bar", "quantity": 5 },
@@ -15089,7 +15123,9 @@
 	},
 	{
 		"code": "adamantite_pickaxe",
-		"conditions": [{ "code": "mining_level", "operator": "gt", "value": 49 }],
+		"conditions": [
+			{ "code": "mining_level", "operator": "gt", "value": 49 }
+		],
 		"craft": {
 			"items": [
 				{ "code": "adamantite_bar", "quantity": 10 },

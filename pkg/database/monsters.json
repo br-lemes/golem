@@ -14,7 +14,12 @@
 				"rate": 2
 			},
 			{ "code": "egg", "max_quantity": 1, "min_quantity": 1, "rate": 12 },
-			{ "code": "feather", "max_quantity": 1, "min_quantity": 1, "rate": 8 },
+			{
+				"code": "feather",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 8
+			},
 			{
 				"code": "golden_egg",
 				"max_quantity": 1,
@@ -55,7 +60,12 @@
 				"min_quantity": 1,
 				"rate": 10
 			},
-			{ "code": "apple", "max_quantity": 1, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "apple",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -90,7 +100,12 @@
 				"min_quantity": 1,
 				"rate": 10
 			},
-			{ "code": "apple", "max_quantity": 1, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "apple",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -119,7 +134,12 @@
 		"code": "sheep",
 		"critical_strike": 0,
 		"drops": [
-			{ "code": "wool", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "wool",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -154,7 +174,12 @@
 				"min_quantity": 1,
 				"rate": 10
 			},
-			{ "code": "apple", "max_quantity": 1, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "apple",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -189,7 +214,12 @@
 				"min_quantity": 1,
 				"rate": 10
 			},
-			{ "code": "apple", "max_quantity": 1, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "apple",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -218,14 +248,24 @@
 		"code": "cow",
 		"critical_strike": 0,
 		"drops": [
-			{ "code": "raw_beef", "max_quantity": 1, "min_quantity": 1, "rate": 2 },
+			{
+				"code": "raw_beef",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 2
+			},
 			{
 				"code": "milk_bucket",
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
 			},
-			{ "code": "cowhide", "max_quantity": 2, "min_quantity": 1, "rate": 8 },
+			{
+				"code": "cowhide",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 8
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -254,7 +294,12 @@
 		"code": "mushmush",
 		"critical_strike": 5,
 		"drops": [
-			{ "code": "mushroom", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "mushroom",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "forest_ring",
 				"max_quantity": 1,
@@ -427,8 +472,18 @@
 				"min_quantity": 1,
 				"rate": 2
 			},
-			{ "code": "wolf_bone", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
-			{ "code": "wolf_hair", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "wolf_bone",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
+			{
+				"code": "wolf_hair",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -503,7 +558,12 @@
 		"code": "pig",
 		"critical_strike": 30,
 		"drops": [
-			{ "code": "pig_skin", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "pig_skin",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "raw_porkchop",
 				"max_quantity": 1,
@@ -538,8 +598,18 @@
 		"code": "ogre",
 		"critical_strike": 5,
 		"drops": [
-			{ "code": "ogre_eye", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
-			{ "code": "ogre_skin", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "ogre_eye",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
+			{
+				"code": "ogre_skin",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "wooden_club",
 				"max_quantity": 1,
@@ -574,8 +644,18 @@
 		"code": "corrupted_ogre",
 		"critical_strike": 5,
 		"drops": [
-			{ "code": "ogre_eye", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
-			{ "code": "ogre_skin", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "ogre_eye",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
+			{
+				"code": "ogre_skin",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "corrupted_gem",
 				"max_quantity": 2,
@@ -818,7 +898,12 @@
 		"code": "rat",
 		"critical_strike": 50,
 		"drops": [
-			{ "code": "rat_hide", "max_quantity": 3, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "rat_hide",
+				"max_quantity": 3,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "raw_rat_meat",
 				"max_quantity": 1,
@@ -893,7 +978,12 @@
 				"min_quantity": 1,
 				"rate": 12
 			},
-			{ "code": "imp_tail", "max_quantity": 1, "min_quantity": 1, "rate": 6 },
+			{
+				"code": "imp_tail",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 6
+			},
 			{
 				"code": "piece_of_obsidian",
 				"max_quantity": 2,
@@ -940,7 +1030,12 @@
 				"min_quantity": 1,
 				"rate": 600
 			},
-			{ "code": "red_cloth", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "red_cloth",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "lich_tomb_key",
 				"max_quantity": 2,
@@ -1423,8 +1518,18 @@
 		"code": "orc",
 		"critical_strike": 10,
 		"drops": [
-			{ "code": "orc_skin", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
-			{ "code": "orc_bone", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "orc_skin",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
+			{
+				"code": "orc_bone",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -1453,8 +1558,18 @@
 		"code": "bat",
 		"critical_strike": 5,
 		"drops": [
-			{ "code": "bat_heart", "max_quantity": 1, "min_quantity": 1, "rate": 12 },
-			{ "code": "bat_wing", "max_quantity": 2, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "bat_heart",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 12
+			},
+			{
+				"code": "bat_wing",
+				"max_quantity": 2,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -1489,7 +1604,12 @@
 		"code": "echoless_bat",
 		"critical_strike": 5,
 		"drops": [
-			{ "code": "bat_heart", "max_quantity": 1, "min_quantity": 1, "rate": 12 },
+			{
+				"code": "bat_heart",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 12
+			},
 			{
 				"code": "echoless_bat_wing",
 				"max_quantity": 2,
@@ -2344,7 +2464,12 @@
 		"code": "flameche",
 		"critical_strike": 5,
 		"drops": [
-			{ "code": "fire_dust", "max_quantity": 1, "min_quantity": 1, "rate": 20 },
+			{
+				"code": "fire_dust",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 20
+			},
 			{
 				"code": "sonnengott_key",
 				"max_quantity": 1,

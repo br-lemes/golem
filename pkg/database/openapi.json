@@ -37,7 +37,9 @@
 						"description": "Successfully fetched data.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/BankResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/BankResponseSchema"
+								}
 							}
 						}
 					}
@@ -336,7 +338,9 @@
 						"description": "Successfully fetched rate limits.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/RateLimitsSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/RateLimitsSchema"
+								}
 							}
 						}
 					}
@@ -353,7 +357,9 @@
 				"requestBody": {
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/ChangePasswordSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/ChangePasswordSchema"
+							}
 						}
 					},
 					"required": true
@@ -363,7 +369,9 @@
 						"description": "Password changed successfully.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/ResponseSchema"
+								}
 							}
 						}
 					},
@@ -410,7 +418,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -429,7 +439,9 @@
 				"requestBody": {
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/ChangeEmailSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/ChangeEmailSchema"
+							}
 						}
 					},
 					"required": true
@@ -439,7 +451,9 @@
 						"description": "Email changed successfully.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/ResponseSchema"
+								}
 							}
 						}
 					},
@@ -486,7 +500,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -521,7 +537,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Subscription not found." }
+									"error": {
+										"code": 404,
+										"message": "Subscription not found."
+									}
 								}
 							}
 						}
@@ -600,7 +619,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -670,7 +691,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -691,7 +714,9 @@
 						"description": "Successfully fetched data.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/ResponseSchema"
+								}
 							}
 						}
 					},
@@ -703,7 +728,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Subscription not found." }
+									"error": {
+										"code": 404,
+										"message": "Subscription not found."
+									}
 								}
 							}
 						}
@@ -719,7 +747,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -806,7 +836,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Gem pack not found." }
+									"error": {
+										"code": 404,
+										"message": "Gem pack not found."
+									}
 								}
 							}
 						}
@@ -822,7 +855,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -857,7 +892,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/DestinationSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/DestinationSchema"
+							}
 						}
 					}
 				},
@@ -880,7 +917,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -925,7 +965,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Map not found." }
+									"error": {
+										"code": 404,
+										"message": "Map not found."
+									}
 								}
 							}
 						}
@@ -986,7 +1029,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 496, "message": "Conditions not met." }
+									"error": {
+										"code": 496,
+										"message": "Conditions not met."
+									}
 								}
 							}
 						}
@@ -1002,7 +1048,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -1051,7 +1099,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -1080,7 +1131,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Transition not found." }
+									"error": {
+										"code": 404,
+										"message": "Transition not found."
+									}
 								}
 							}
 						}
@@ -1141,7 +1195,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 496, "message": "Conditions not met." }
+									"error": {
+										"code": 496,
+										"message": "Conditions not met."
+									}
 								}
 							}
 						}
@@ -1157,7 +1214,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -1206,7 +1265,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -1254,7 +1316,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -1290,7 +1354,9 @@
 						"application/json": {
 							"schema": {
 								"type": "array",
-								"items": { "$ref": "#/components/schemas/EquipSchema" },
+								"items": {
+									"$ref": "#/components/schemas/EquipSchema"
+								},
 								"description": "List of items to equip.",
 								"min_items": 1,
 								"max_items": 20,
@@ -1318,7 +1384,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -1331,7 +1400,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -1408,7 +1480,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 496, "message": "Conditions not met." }
+									"error": {
+										"code": 496,
+										"message": "Conditions not met."
+									}
 								}
 							}
 						}
@@ -1488,7 +1563,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -1524,7 +1601,9 @@
 						"application/json": {
 							"schema": {
 								"type": "array",
-								"items": { "$ref": "#/components/schemas/UnequipSchema" },
+								"items": {
+									"$ref": "#/components/schemas/UnequipSchema"
+								},
 								"description": "List of items to unequip.",
 								"min_items": 1,
 								"max_items": 20,
@@ -1552,7 +1631,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -1565,7 +1647,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -1677,7 +1762,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -1711,7 +1798,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/SimpleItemSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/SimpleItemSchema"
+							}
 						}
 					}
 				},
@@ -1734,7 +1823,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -1747,7 +1839,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -1824,7 +1919,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 496, "message": "Conditions not met." }
+									"error": {
+										"code": 496,
+										"message": "Conditions not met."
+									}
 								}
 							}
 						}
@@ -1840,7 +1938,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -1899,7 +1999,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -1995,7 +2098,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -2030,7 +2135,9 @@
 						"description": "The resource has been successfully gathered.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/SkillResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/SkillResponseSchema"
+								}
 							}
 						}
 					},
@@ -2042,7 +2149,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -2138,7 +2248,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -2172,7 +2284,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/CraftingSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/CraftingSchema"
+							}
 						}
 					}
 				},
@@ -2181,7 +2295,9 @@
 						"description": "The item was successfully crafted.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/SkillResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/SkillResponseSchema"
+								}
 							}
 						}
 					},
@@ -2193,7 +2309,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Craft not found." }
+									"error": {
+										"code": 404,
+										"message": "Craft not found."
+									}
 								}
 							}
 						}
@@ -2222,7 +2341,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -2318,7 +2440,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -2409,7 +2533,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -2473,7 +2600,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -2509,7 +2638,9 @@
 						"application/json": {
 							"schema": {
 								"type": "array",
-								"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+								"items": {
+									"$ref": "#/components/schemas/SimpleItemSchema"
+								},
 								"description": "List of items to deposit in the bank.",
 								"min_items": 1,
 								"max_items": 20,
@@ -2553,7 +2684,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -2582,7 +2716,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -2643,7 +2780,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 462, "message": "Your bank is full." }
+									"error": {
+										"code": 462,
+										"message": "Your bank is full."
+									}
 								}
 							}
 						}
@@ -2659,7 +2799,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -2695,7 +2837,9 @@
 						"application/json": {
 							"schema": {
 								"type": "array",
-								"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+								"items": {
+									"$ref": "#/components/schemas/SimpleItemSchema"
+								},
 								"min_items": 1,
 								"max_items": 20,
 								"title": "Items"
@@ -2722,7 +2866,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -2735,7 +2882,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -2847,7 +2997,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -2906,7 +3058,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -3002,7 +3157,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -3067,7 +3224,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -3131,7 +3291,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -3165,7 +3327,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/NpcMerchantBuySchema" }
+							"schema": {
+								"$ref": "#/components/schemas/NpcMerchantBuySchema"
+							}
 						}
 					}
 				},
@@ -3204,7 +3368,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -3313,7 +3480,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -3329,7 +3499,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -3363,7 +3535,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/NpcMerchantBuySchema" }
+							"schema": {
+								"$ref": "#/components/schemas/NpcMerchantBuySchema"
+							}
 						}
 					}
 				},
@@ -3402,7 +3576,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -3495,7 +3672,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -3511,7 +3691,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -3545,7 +3727,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/RecyclingSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/RecyclingSchema"
+							}
 						}
 					}
 				},
@@ -3568,7 +3752,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -3597,7 +3784,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -3725,7 +3915,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -3759,7 +3951,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/GEBuyOrderSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/GEBuyOrderSchema"
+							}
 						}
 					}
 				},
@@ -3798,7 +3992,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -3923,7 +4120,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Order not found." }
+									"error": {
+										"code": 404,
+										"message": "Order not found."
+									}
 								}
 							}
 						}
@@ -3939,7 +4139,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -3973,7 +4175,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/GEOrderCreationSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/GEOrderCreationSchema"
+							}
 						}
 					}
 				},
@@ -3996,7 +4200,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -4041,7 +4248,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -4121,7 +4331,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -4155,7 +4367,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/GECancelOrderSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/GECancelOrderSchema"
+							}
 						}
 					}
 				},
@@ -4194,7 +4408,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -4287,7 +4504,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Order not found." }
+									"error": {
+										"code": 404,
+										"message": "Order not found."
+									}
 								}
 							}
 						}
@@ -4303,7 +4523,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -4362,7 +4584,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -4407,7 +4632,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -4487,7 +4715,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -4521,7 +4751,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/GEFillBuyOrderSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/GEFillBuyOrderSchema"
+							}
 						}
 					}
 				},
@@ -4560,7 +4792,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -4669,7 +4904,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Buy order not found." }
+									"error": {
+										"code": 404,
+										"message": "Buy order not found."
+									}
 								}
 							}
 						}
@@ -4685,7 +4923,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -4734,7 +4974,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -4846,7 +5089,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -4895,7 +5140,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -4991,7 +5239,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -5026,7 +5276,9 @@
 						"description": "New task successfully accepted.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/TaskResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/TaskResponseSchema"
+								}
 							}
 						}
 					},
@@ -5038,7 +5290,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -5118,7 +5373,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -5152,7 +5409,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/SimpleItemSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/SimpleItemSchema"
+							}
 						}
 					}
 				},
@@ -5175,7 +5434,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -5287,7 +5549,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -5336,7 +5600,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -5432,7 +5699,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -5466,7 +5735,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/GiveGoldSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/GiveGoldSchema"
+							}
 						}
 					}
 				},
@@ -5489,7 +5760,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -5553,7 +5827,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -5587,7 +5863,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/GiveItemsSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/GiveItemsSchema"
+							}
 						}
 					}
 				},
@@ -5610,7 +5888,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Item not found." }
+									"error": {
+										"code": 404,
+										"message": "Item not found."
+									}
 								}
 							}
 						}
@@ -5623,7 +5904,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -5703,7 +5987,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -5764,7 +6050,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Pending item not found." }
+									"error": {
+										"code": 404,
+										"message": "Pending item not found."
+									}
 								}
 							}
 						}
@@ -5777,7 +6066,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -5841,7 +6133,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -5875,7 +6169,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/SimpleItemSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/SimpleItemSchema"
+							}
 						}
 					}
 				},
@@ -5898,7 +6194,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -5962,7 +6261,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -6069,7 +6370,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Skin not found." }
+									"error": {
+										"code": 404,
+										"message": "Skin not found."
+									}
 								}
 							}
 						}
@@ -6085,7 +6389,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -6119,7 +6425,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/RenameCharacterSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/RenameCharacterSchema"
+							}
 						}
 					}
 				},
@@ -6206,7 +6514,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Character not found." }
+									"error": {
+										"code": 404,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -6222,7 +6533,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -6272,7 +6585,9 @@
 						"description": "Successfully fetched logs.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/DataPage_LogSchema_" }
+								"schema": {
+									"$ref": "#/components/schemas/DataPage_LogSchema_"
+								}
 							}
 						}
 					},
@@ -6284,7 +6599,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Logs not found." }
+									"error": {
+										"code": 404,
+										"message": "Logs not found."
+									}
 								}
 							}
 						}
@@ -6297,7 +6615,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -6358,7 +6679,9 @@
 						"description": "Successfully fetched logs.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/DataPage_LogSchema_" }
+								"schema": {
+									"$ref": "#/components/schemas/DataPage_LogSchema_"
+								}
 							}
 						}
 					},
@@ -6370,7 +6693,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Logs not found." }
+									"error": {
+										"code": 404,
+										"message": "Logs not found."
+									}
 								}
 							}
 						}
@@ -6383,7 +6709,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -6500,7 +6829,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Account not found." }
+									"error": {
+										"code": 404,
+										"message": "Account not found."
+									}
 								}
 							}
 						}
@@ -6550,7 +6882,9 @@
 				"requestBody": {
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/AddAccountSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/AddAccountSchema"
+							}
 						}
 					},
 					"required": true
@@ -6560,7 +6894,9 @@
 						"description": "Account created successfully.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/ResponseSchema"
+								}
 							}
 						}
 					},
@@ -6607,7 +6943,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -6654,7 +6992,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -6749,7 +7089,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -6797,7 +7139,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "account not found." }
+									"error": {
+										"code": 404,
+										"message": "account not found."
+									}
 								}
 							}
 						}
@@ -6904,7 +7249,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "achievement not found." }
+									"error": {
+										"code": 404,
+										"message": "achievement not found."
+									}
 								}
 							}
 						}
@@ -6986,7 +7334,9 @@
 						"description": "Successfully fetched badge.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/BadgeResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/BadgeResponseSchema"
+								}
 							}
 						}
 					},
@@ -6998,7 +7348,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "badge not found." }
+									"error": {
+										"code": 404,
+										"message": "badge not found."
+									}
 								}
 							}
 						}
@@ -7080,7 +7433,9 @@
 						"description": "Successfully fetched skin.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/SkinResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/SkinResponseSchema"
+								}
 							}
 						}
 					},
@@ -7092,7 +7447,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "skin not found." }
+									"error": {
+										"code": 404,
+										"message": "skin not found."
+									}
 								}
 							}
 						}
@@ -7230,7 +7588,9 @@
 				"requestBody": {
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/AddCharacterSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/AddCharacterSchema"
+							}
 						}
 					},
 					"required": true
@@ -7302,7 +7662,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Skin not found." }
+									"error": {
+										"code": 404,
+										"message": "Skin not found."
+									}
 								}
 							}
 						}
@@ -7318,7 +7681,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -7337,7 +7702,9 @@
 				"requestBody": {
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/DeleteCharacterSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/DeleteCharacterSchema"
+							}
 						}
 					},
 					"required": true
@@ -7361,7 +7728,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 498, "message": "Character not found." }
+									"error": {
+										"code": 498,
+										"message": "Character not found."
+									}
 								}
 							}
 						}
@@ -7377,7 +7747,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -7525,7 +7897,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "character not found." }
+									"error": {
+										"code": 404,
+										"message": "character not found."
+									}
 								}
 							}
 						}
@@ -7621,7 +7996,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "effect not found." }
+									"error": {
+										"code": 404,
+										"message": "effect not found."
+									}
 								}
 							}
 						}
@@ -7816,7 +8194,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "item history not found." }
+									"error": {
+										"code": 404,
+										"message": "item history not found."
+									}
 								}
 							}
 						}
@@ -7958,7 +8339,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "GE order not found." }
+									"error": {
+										"code": 404,
+										"message": "GE order not found."
+									}
 								}
 							}
 						}
@@ -8110,7 +8494,9 @@
 						"description": "Successfully fetched item.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ItemResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/ItemResponseSchema"
+								}
 							}
 						}
 					},
@@ -8122,7 +8508,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "item not found." }
+									"error": {
+										"code": 404,
+										"message": "item not found."
+									}
 								}
 							}
 						}
@@ -8558,7 +8947,9 @@
 						"description": "Successfully fetched map.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/MapResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/MapResponseSchema"
+								}
 							}
 						}
 					},
@@ -8570,7 +8961,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "map not found." }
+									"error": {
+										"code": 404,
+										"message": "map not found."
+									}
 								}
 							}
 						}
@@ -8602,7 +8996,9 @@
 						"description": "Successfully fetched map.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/MapResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/MapResponseSchema"
+								}
 							}
 						}
 					},
@@ -8614,7 +9010,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "map not found." }
+									"error": {
+										"code": 404,
+										"message": "map not found."
+									}
 								}
 							}
 						}
@@ -8758,7 +9157,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "monster not found." }
+									"error": {
+										"code": 404,
+										"message": "monster not found."
+									}
 								}
 							}
 						}
@@ -8887,7 +9289,9 @@
 						"description": "Successfully fetched NPC.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/NPCResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/NPCResponseSchema"
+								}
 							}
 						}
 					},
@@ -8899,7 +9303,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "NPC not found." }
+									"error": {
+										"code": 404,
+										"message": "NPC not found."
+									}
 								}
 							}
 						}
@@ -8973,7 +9380,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "NPC items not found." }
+									"error": {
+										"code": 404,
+										"message": "NPC items not found."
+									}
 								}
 							}
 						}
@@ -9164,7 +9574,9 @@
 						"description": "Successfully fetched raid.",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/RaidResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/RaidResponseSchema"
+								}
 							}
 						}
 					},
@@ -9176,7 +9588,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "raid not found." }
+									"error": {
+										"code": 404,
+										"message": "raid not found."
+									}
 								}
 							}
 						}
@@ -9380,7 +9795,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "resource not found." }
+									"error": {
+										"code": 404,
+										"message": "resource not found."
+									}
 								}
 							}
 						}
@@ -9522,7 +9940,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "task not found." }
+									"error": {
+										"code": 404,
+										"message": "task not found."
+									}
 								}
 							}
 						}
@@ -9618,7 +10039,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "tasks reward not found." }
+									"error": {
+										"code": 404,
+										"message": "tasks reward not found."
+									}
 								}
 							}
 						}
@@ -9712,7 +10136,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -9733,7 +10159,9 @@
 						"description": "Token generated successfully",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/TokenResponseSchema" }
+								"schema": {
+									"$ref": "#/components/schemas/TokenResponseSchema"
+								}
 							}
 						}
 					},
@@ -9764,7 +10192,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -9803,7 +10233,9 @@
 				"requestBody": {
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/BuySkinRequestSchema" }
+							"schema": {
+								"$ref": "#/components/schemas/BuySkinRequestSchema"
+							}
 						}
 					},
 					"required": true
@@ -9827,7 +10259,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Skin not found." }
+									"error": {
+										"code": 404,
+										"message": "Skin not found."
+									}
 								}
 							}
 						}
@@ -9872,7 +10307,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 563, "message": "Insufficient gems." }
+									"error": {
+										"code": 563,
+										"message": "Insufficient gems."
+									}
 								}
 							}
 						}
@@ -9888,7 +10326,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -9933,7 +10373,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 563, "message": "Insufficient gems." }
+									"error": {
+										"code": 563,
+										"message": "Insufficient gems."
+									}
 								}
 							}
 						}
@@ -9946,7 +10389,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 404, "message": "Event not found." }
+									"error": {
+										"code": 404,
+										"message": "Event not found."
+									}
 								}
 							}
 						}
@@ -10010,7 +10456,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -10045,7 +10493,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 563, "message": "Insufficient gems." }
+									"error": {
+										"code": 563,
+										"message": "Insufficient gems."
+									}
 								}
 							}
 						}
@@ -10077,7 +10528,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -10122,7 +10575,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 563, "message": "Insufficient gems." }
+									"error": {
+										"code": 563,
+										"message": "Insufficient gems."
+									}
 								}
 							}
 						}
@@ -10154,7 +10610,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -10231,7 +10689,10 @@
 									"$ref": "#/components/schemas/ErrorResponseSchema"
 								},
 								"example": {
-									"error": { "code": 563, "message": "Insufficient gems." }
+									"error": {
+										"code": 563,
+										"message": "Insufficient gems."
+									}
 								}
 							}
 						}
@@ -10247,7 +10708,9 @@
 									"error": {
 										"code": 422,
 										"message": "Request could not be processed due to an invalid payload.",
-										"data": { "field_name": ["Field required"] }
+										"data": {
+											"field_name": ["Field required"]
+										}
 									}
 								}
 							}
@@ -10267,7 +10730,9 @@
 						"description": "Map access type determining movement and accessibility"
 					},
 					"conditions": {
-						"items": { "$ref": "#/components/schemas/ConditionSchema" },
+						"items": {
+							"$ref": "#/components/schemas/ConditionSchema"
+						},
 						"type": "array",
 						"nullable": true,
 						"title": "Conditions",
@@ -10525,7 +10990,9 @@
 						"default": 0
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/RewardItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/RewardItemSchema"
+						},
 						"type": "array",
 						"nullable": true,
 						"title": "Items",
@@ -10682,7 +11149,15 @@
 					}
 				},
 				"type": "object",
-				"required": ["name", "account", "skin", "x", "y", "layer", "map_id"],
+				"required": [
+					"name",
+					"account",
+					"skin",
+					"x",
+					"y",
+					"layer",
+					"map_id"
+				],
 				"title": "ActiveCharacterSchema"
 			},
 			"ActiveEventResponseSchema": {
@@ -10815,7 +11290,9 @@
 			},
 			"AssistantAnswerSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/AssistantAnswerDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/AssistantAnswerDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -10916,7 +11393,9 @@
 			},
 			"BankGoldTransactionResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/BankGoldTransactionSchema" }
+					"data": {
+						"$ref": "#/components/schemas/BankGoldTransactionSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -10943,7 +11422,9 @@
 			},
 			"BankItemTransactionResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/BankItemTransactionSchema" }
+					"data": {
+						"$ref": "#/components/schemas/BankItemTransactionSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -10956,13 +11437,17 @@
 						"description": "Cooldown details."
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "Items details."
 					},
 					"bank": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Bank",
 						"description": "Items in your banks."
@@ -10977,7 +11462,9 @@
 				"title": "BankItemTransactionSchema"
 			},
 			"BankResponseSchema": {
-				"properties": { "data": { "$ref": "#/components/schemas/BankSchema" } },
+				"properties": {
+					"data": { "$ref": "#/components/schemas/BankSchema" }
+				},
 				"type": "object",
 				"required": ["data"],
 				"title": "BankResponseSchema"
@@ -11010,7 +11497,12 @@
 					}
 				},
 				"type": "object",
-				"required": ["slots", "expansions", "next_expansion_cost", "gold"],
+				"required": [
+					"slots",
+					"expansions",
+					"next_expansion_cost",
+					"gold"
+				],
 				"title": "BankSchema"
 			},
 			"BuyCustomDesignRequestSchema": {
@@ -11062,7 +11554,9 @@
 			},
 			"BuySkinResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/BuySkinResponseDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/BuySkinResponseDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -11163,7 +11657,9 @@
 						"description": "Character fight details."
 					},
 					"characters": {
-						"items": { "$ref": "#/components/schemas/CharacterSchema" },
+						"items": {
+							"$ref": "#/components/schemas/CharacterSchema"
+						},
 						"type": "array",
 						"title": "Characters",
 						"description": "All characters involved."
@@ -11175,7 +11671,9 @@
 			},
 			"CharacterFightResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/CharacterFightDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/CharacterFightDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -11213,7 +11711,13 @@
 					}
 				},
 				"type": "object",
-				"required": ["result", "turns", "opponent", "logs", "characters"],
+				"required": [
+					"result",
+					"turns",
+					"opponent",
+					"logs",
+					"characters"
+				],
 				"title": "CharacterFightSchema"
 			},
 			"CharacterLeaderboardSchema": {
@@ -11415,7 +11919,9 @@
 			},
 			"CharacterMovementResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/CharacterMovementDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/CharacterMovementDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -11451,7 +11957,13 @@
 					}
 				},
 				"type": "object",
-				"required": ["character_name", "xp", "gold", "drops", "final_hp"],
+				"required": [
+					"character_name",
+					"xp",
+					"gold",
+					"drops",
+					"final_hp"
+				],
 				"title": "CharacterMultiFightResultSchema"
 			},
 			"CharacterResponseSchema": {
@@ -11484,7 +11996,9 @@
 			},
 			"CharacterRestResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/CharacterRestDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/CharacterRestDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -11758,7 +12272,9 @@
 						"description": "% Air resistance. Reduces air attack."
 					},
 					"effects": {
-						"items": { "$ref": "#/components/schemas/StorageEffectSchema" },
+						"items": {
+							"$ref": "#/components/schemas/StorageEffectSchema"
+						},
 						"type": "array",
 						"title": "Effects",
 						"description": "List of active effects on the character."
@@ -11911,7 +12427,9 @@
 						"description": "Inventory max items."
 					},
 					"inventory": {
-						"items": { "$ref": "#/components/schemas/InventorySlotSchema" },
+						"items": {
+							"$ref": "#/components/schemas/InventorySlotSchema"
+						},
 						"type": "array",
 						"title": "Inventory",
 						"description": "List of inventory slots."
@@ -12005,7 +12523,9 @@
 			},
 			"CharacterStatsResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/CharacterStatsSchema" }
+					"data": {
+						"$ref": "#/components/schemas/CharacterStatsSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -12033,7 +12553,11 @@
 						"type": "object",
 						"title": "Action Counts"
 					},
-					"deaths": { "type": "integer", "title": "Deaths", "default": 0 }
+					"deaths": {
+						"type": "integer",
+						"title": "Deaths",
+						"default": 0
+					}
 				},
 				"type": "object",
 				"title": "CharacterStatsSchema",
@@ -12059,7 +12583,12 @@
 					}
 				},
 				"type": "object",
-				"required": ["cooldown", "destination", "transition", "character"],
+				"required": [
+					"cooldown",
+					"destination",
+					"transition",
+					"character"
+				],
 				"title": "CharacterTransitionDataSchema"
 			},
 			"CharacterTransitionResponseSchema": {
@@ -12075,7 +12604,9 @@
 			"CharactersListSchema": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/CharacterSchema" },
+						"items": {
+							"$ref": "#/components/schemas/CharacterSchema"
+						},
 						"type": "array",
 						"title": "Data",
 						"description": "List of your characters."
@@ -12105,7 +12636,9 @@
 			},
 			"CheckoutResponseWrapperSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/CheckoutResponseSchema" }
+					"data": {
+						"$ref": "#/components/schemas/CheckoutResponseSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -12162,7 +12695,10 @@
 						"description": "Combat logs."
 					},
 					"character_results": {
-						"items": { "additionalProperties": true, "type": "object" },
+						"items": {
+							"additionalProperties": true,
+							"type": "object"
+						},
 						"type": "array",
 						"title": "Character Results",
 						"description": "Character results from combat."
@@ -12175,7 +12711,9 @@
 			"CombatSimulationDataSchema": {
 				"properties": {
 					"results": {
-						"items": { "$ref": "#/components/schemas/CombatResultSchema" },
+						"items": {
+							"$ref": "#/components/schemas/CombatResultSchema"
+						},
 						"type": "array",
 						"title": "Results",
 						"description": "Results from each combat iteration."
@@ -12203,7 +12741,9 @@
 			"CombatSimulationRequestSchema": {
 				"properties": {
 					"characters": {
-						"items": { "$ref": "#/components/schemas/FakeCharacterSchema" },
+						"items": {
+							"$ref": "#/components/schemas/FakeCharacterSchema"
+						},
 						"type": "array",
 						"maxItems": 3,
 						"minItems": 1,
@@ -12325,7 +12865,9 @@
 						"description": "The skill level required to craft the item."
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "List of items required to craft the item."
@@ -12382,10 +12924,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12400,10 +12958,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12412,14 +12986,32 @@
 			"DataPage_ActiveCharacterSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/ActiveCharacterSchema" },
+						"items": {
+							"$ref": "#/components/schemas/ActiveCharacterSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12434,10 +13026,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12446,14 +13054,32 @@
 			"DataPage_GEOrderHistorySchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/GEOrderHistorySchema" },
+						"items": {
+							"$ref": "#/components/schemas/GEOrderHistorySchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12462,14 +13088,32 @@
 			"DataPage_GEOrderSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/GEOrderSchema" },
+						"items": {
+							"$ref": "#/components/schemas/GEOrderSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12482,10 +13126,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12494,14 +13154,32 @@
 			"DataPage_PendingItemSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/PendingItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/PendingItemSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12516,10 +13194,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12528,14 +13222,32 @@
 			"DataPage_SimpleItemSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -12766,7 +13478,9 @@
 			},
 			"EquipmentResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/EquipmentTransactionSchema" }
+					"data": {
+						"$ref": "#/components/schemas/EquipmentTransactionSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -12779,7 +13493,9 @@
 						"description": "Cooldown details."
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/EquipmentItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/EquipmentItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "Items details."
@@ -12859,7 +13575,9 @@
 						"description": "Content of the event."
 					},
 					"maps": {
-						"items": { "$ref": "#/components/schemas/EventMapSchema" },
+						"items": {
+							"$ref": "#/components/schemas/EventMapSchema"
+						},
 						"type": "array",
 						"title": "Maps",
 						"description": "Map list of the event."
@@ -13071,7 +13789,11 @@
 			},
 			"GEBuyOrderSchema": {
 				"properties": {
-					"id": { "type": "string", "title": "Id", "description": "Order id." },
+					"id": {
+						"type": "string",
+						"title": "Id",
+						"description": "Order id."
+					},
 					"quantity": {
 						"type": "integer",
 						"minimum": 1.0,
@@ -13086,7 +13808,11 @@
 			},
 			"GECancelOrderSchema": {
 				"properties": {
-					"id": { "type": "string", "title": "Id", "description": "Order id." }
+					"id": {
+						"type": "string",
+						"title": "Id",
+						"description": "Order id."
+					}
 				},
 				"type": "object",
 				"required": ["id"],
@@ -13094,7 +13820,9 @@
 			},
 			"GECreateOrderTransactionResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/GEOrderTransactionSchema" }
+					"data": {
+						"$ref": "#/components/schemas/GEOrderTransactionSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -13121,7 +13849,11 @@
 			},
 			"GEOrderCreatedSchema": {
 				"properties": {
-					"id": { "type": "string", "title": "Id", "description": "Order id." },
+					"id": {
+						"type": "string",
+						"title": "Id",
+						"description": "Order id."
+					},
 					"created_at": {
 						"type": "string",
 						"format": "date-time",
@@ -13254,7 +13986,11 @@
 			},
 			"GEOrderSchema": {
 				"properties": {
-					"id": { "type": "string", "title": "Id", "description": "Order id." },
+					"id": {
+						"type": "string",
+						"title": "Id",
+						"description": "Order id."
+					},
 					"type": {
 						"$ref": "#/components/schemas/GEOrderType",
 						"description": "Order type (sell or buy)."
@@ -13290,7 +14026,14 @@
 					}
 				},
 				"type": "object",
-				"required": ["id", "type", "code", "quantity", "price", "created_at"],
+				"required": [
+					"id",
+					"type",
+					"code",
+					"quantity",
+					"price",
+					"created_at"
+				],
 				"title": "GEOrderSchema"
 			},
 			"GEOrderTransactionSchema": {
@@ -13339,7 +14082,9 @@
 			},
 			"GETransactionResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/GETransactionListSchema" }
+					"data": {
+						"$ref": "#/components/schemas/GETransactionListSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -13347,7 +14092,11 @@
 			},
 			"GETransactionSchema": {
 				"properties": {
-					"id": { "type": "string", "title": "Id", "description": "Order id." },
+					"id": {
+						"type": "string",
+						"title": "Id",
+						"description": "Order id."
+					},
 					"code": {
 						"type": "string",
 						"title": "Code",
@@ -13424,7 +14173,9 @@
 			},
 			"GemShopCatalogResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/GemShopCatalogDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/GemShopCatalogDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -13650,7 +14401,9 @@
 			"GemTransactionListResponseSchema": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/GemTransactionSchema" },
+						"items": {
+							"$ref": "#/components/schemas/GemTransactionSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					}
@@ -13690,7 +14443,13 @@
 					}
 				},
 				"type": "object",
-				"required": ["type", "gems", "description", "metadata", "created_at"],
+				"required": [
+					"type",
+					"gems",
+					"description",
+					"metadata",
+					"created_at"
+				],
 				"title": "GemTransactionSchema"
 			},
 			"GiveGoldDataSchema": {
@@ -13716,12 +14475,19 @@
 					}
 				},
 				"type": "object",
-				"required": ["cooldown", "quantity", "receiver_character", "character"],
+				"required": [
+					"cooldown",
+					"quantity",
+					"receiver_character",
+					"character"
+				],
 				"title": "GiveGoldDataSchema"
 			},
 			"GiveGoldResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/GiveGoldDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/GiveGoldDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -13753,7 +14519,9 @@
 						"description": "Cooldown details."
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "Items given."
@@ -13768,12 +14536,19 @@
 					}
 				},
 				"type": "object",
-				"required": ["cooldown", "items", "receiver_character", "character"],
+				"required": [
+					"cooldown",
+					"items",
+					"receiver_character",
+					"character"
+				],
 				"title": "GiveItemDataSchema"
 			},
 			"GiveItemResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/GiveItemDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/GiveItemDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -13782,7 +14557,9 @@
 			"GiveItemsSchema": {
 				"properties": {
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"maxItems": 20,
 						"minItems": 1,
@@ -13816,7 +14593,9 @@
 			"HTTPValidationError": {
 				"properties": {
 					"detail": {
-						"items": { "$ref": "#/components/schemas/ValidationError" },
+						"items": {
+							"$ref": "#/components/schemas/ValidationError"
+						},
 						"type": "array",
 						"title": "Detail"
 					}
@@ -13865,7 +14644,9 @@
 				"title": "InventorySlotSchema"
 			},
 			"ItemResponseSchema": {
-				"properties": { "data": { "$ref": "#/components/schemas/ItemSchema" } },
+				"properties": {
+					"data": { "$ref": "#/components/schemas/ItemSchema" }
+				},
 				"type": "object",
 				"required": ["data"],
 				"title": "ItemResponseSchema"
@@ -13904,13 +14685,17 @@
 						"description": "Item description."
 					},
 					"conditions": {
-						"items": { "$ref": "#/components/schemas/ConditionSchema" },
+						"items": {
+							"$ref": "#/components/schemas/ConditionSchema"
+						},
 						"type": "array",
 						"title": "Conditions",
 						"description": "Item conditions. If applicable. Conditions for using or equipping the item."
 					},
 					"effects": {
-						"items": { "$ref": "#/components/schemas/SimpleEffectSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleEffectSchema"
+						},
 						"type": "array",
 						"title": "Effects",
 						"description": "List of object effects. For equipment, it will include item stats."
@@ -14137,7 +14922,9 @@
 				"title": "MapLayer"
 			},
 			"MapResponseSchema": {
-				"properties": { "data": { "$ref": "#/components/schemas/MapSchema" } },
+				"properties": {
+					"data": { "$ref": "#/components/schemas/MapSchema" }
+				},
 				"type": "object",
 				"required": ["data"],
 				"title": "MapResponseSchema"
@@ -14313,7 +15100,9 @@
 						"description": "Monster initiative for turn order."
 					},
 					"effects": {
-						"items": { "$ref": "#/components/schemas/SimpleEffectSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleEffectSchema"
+						},
 						"type": "array",
 						"title": "Effects",
 						"description": "List of effects."
@@ -14329,7 +15118,9 @@
 						"description": "Monster maximum gold drop. "
 					},
 					"drops": {
-						"items": { "$ref": "#/components/schemas/DropRateSchema" },
+						"items": {
+							"$ref": "#/components/schemas/DropRateSchema"
+						},
 						"type": "array",
 						"title": "Drops",
 						"description": "Monster drops. This is a list of items that the monster drops after killing the monster. "
@@ -14455,7 +15246,9 @@
 			"MyCharactersListSchema": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/CharacterSchema" },
+						"items": {
+							"$ref": "#/components/schemas/CharacterSchema"
+						},
 						"type": "array",
 						"title": "Data",
 						"description": "List of your characters."
@@ -14500,7 +15293,9 @@
 				"title": "NPCItemSchema"
 			},
 			"NPCResponseSchema": {
-				"properties": { "data": { "$ref": "#/components/schemas/NPCSchema" } },
+				"properties": {
+					"data": { "$ref": "#/components/schemas/NPCSchema" }
+				},
 				"type": "object",
 				"required": ["data"],
 				"title": "NPCResponseSchema"
@@ -14527,7 +15322,9 @@
 						"description": "Type of the NPC."
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleNPCItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleNPCItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "Items sold/bought by the NPC.",
@@ -14572,7 +15369,13 @@
 					}
 				},
 				"type": "object",
-				"required": ["code", "quantity", "currency", "price", "total_price"],
+				"required": [
+					"code",
+					"quantity",
+					"currency",
+					"price",
+					"total_price"
+				],
 				"title": "NpcItemTransactionSchema"
 			},
 			"NpcMerchantBuySchema": {
@@ -14701,7 +15504,9 @@
 						"default": 0
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "List of items to be claimed."
@@ -14721,7 +15526,13 @@
 					}
 				},
 				"type": "object",
-				"required": ["id", "account", "source", "description", "created_at"],
+				"required": [
+					"id",
+					"account",
+					"source",
+					"description",
+					"created_at"
+				],
 				"title": "PendingItemSchema",
 				"description": "Schema for pending items that can be claimed by any character."
 			},
@@ -14754,7 +15565,9 @@
 			"PurchaseHistoryListResponseSchema": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/PurchaseHistorySchema" },
+						"items": {
+							"$ref": "#/components/schemas/PurchaseHistorySchema"
+						},
 						"type": "array",
 						"title": "Data"
 					}
@@ -14818,7 +15631,9 @@
 						"description": "Maximum number of times this reward can be granted. Null means no cap."
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "Items granted per reward instance."
@@ -14939,7 +15754,9 @@
 						"description": "Inclusive maximum rank."
 					},
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "Items granted for this rank bracket."
@@ -14963,13 +15780,17 @@
 			"RaidRewardsSchema": {
 				"properties": {
 					"damage_rewards": {
-						"items": { "$ref": "#/components/schemas/RaidDamageRewardSchema" },
+						"items": {
+							"$ref": "#/components/schemas/RaidDamageRewardSchema"
+						},
 						"type": "array",
 						"title": "Damage Rewards",
 						"description": "Items granted based on cumulative damage dealt."
 					},
 					"leaderboard": {
-						"items": { "$ref": "#/components/schemas/RaidRankRewardSchema" },
+						"items": {
+							"$ref": "#/components/schemas/RaidRankRewardSchema"
+						},
 						"type": "array",
 						"title": "Leaderboard",
 						"description": "Items granted based on leaderboard rank."
@@ -15089,7 +15910,12 @@
 			},
 			"RaidStatus": {
 				"type": "string",
-				"enum": ["upcoming", "active", "finished_success", "finished_failure"],
+				"enum": [
+					"upcoming",
+					"active",
+					"finished_success",
+					"finished_failure"
+				],
 				"title": "RaidStatus"
 			},
 			"RaidWeekday": {
@@ -15198,7 +16024,9 @@
 			},
 			"RateLimitsSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/RateLimitsDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/RateLimitsDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -15250,7 +16078,9 @@
 			},
 			"RecyclingResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/RecyclingDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/RecyclingDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -15324,7 +16154,9 @@
 			},
 			"RenameResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/RenameCharacterDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/RenameCharacterDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -15361,7 +16193,9 @@
 						"description": "The skill level required to gather this resource."
 					},
 					"drops": {
-						"items": { "$ref": "#/components/schemas/DropRateSchema" },
+						"items": {
+							"$ref": "#/components/schemas/DropRateSchema"
+						},
 						"type": "array",
 						"title": "Drops",
 						"description": "The drops of this resource."
@@ -15372,7 +16206,9 @@
 				"title": "ResourceSchema"
 			},
 			"ResponseSchema": {
-				"properties": { "message": { "type": "string", "title": "Message" } },
+				"properties": {
+					"message": { "type": "string", "title": "Message" }
+				},
 				"type": "object",
 				"required": ["message"],
 				"title": "ResponseSchema"
@@ -15439,7 +16275,9 @@
 			"RewardsSchema": {
 				"properties": {
 					"items": {
-						"items": { "$ref": "#/components/schemas/SimpleItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SimpleItemSchema"
+						},
 						"type": "array",
 						"title": "Items",
 						"description": "Items rewards."
@@ -15660,7 +16498,9 @@
 				"title": "SkillResponseSchema"
 			},
 			"SkinResponseSchema": {
-				"properties": { "data": { "$ref": "#/components/schemas/SkinSchema" } },
+				"properties": {
+					"data": { "$ref": "#/components/schemas/SkinSchema" }
+				},
 				"type": "object",
 				"required": ["data"],
 				"title": "SkinResponseSchema"
@@ -15713,14 +16553,32 @@
 			"StaticDataPage_AchievementSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/AchievementSchema" },
+						"items": {
+							"$ref": "#/components/schemas/AchievementSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15729,14 +16587,32 @@
 			"StaticDataPage_ActiveEventSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/ActiveEventSchema" },
+						"items": {
+							"$ref": "#/components/schemas/ActiveEventSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15749,10 +16625,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15761,14 +16653,32 @@
 			"StaticDataPage_DropRateSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/DropRateSchema" },
+						"items": {
+							"$ref": "#/components/schemas/DropRateSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15777,14 +16687,32 @@
 			"StaticDataPage_EffectSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/EffectSchema" },
+						"items": {
+							"$ref": "#/components/schemas/EffectSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15797,10 +16725,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15813,10 +16757,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15829,10 +16789,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15841,14 +16817,32 @@
 			"StaticDataPage_MonsterSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/MonsterSchema" },
+						"items": {
+							"$ref": "#/components/schemas/MonsterSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15857,14 +16851,32 @@
 			"StaticDataPage_NPCItemSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/NPCItemSchema" },
+						"items": {
+							"$ref": "#/components/schemas/NPCItemSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15877,10 +16889,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15893,10 +16921,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15905,14 +16949,32 @@
 			"StaticDataPage_ResourceSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/ResourceSchema" },
+						"items": {
+							"$ref": "#/components/schemas/ResourceSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15921,14 +16983,32 @@
 			"StaticDataPage_SeasonRewardSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/SeasonRewardSchema" },
+						"items": {
+							"$ref": "#/components/schemas/SeasonRewardSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15941,10 +17021,26 @@
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -15953,14 +17049,32 @@
 			"StaticDataPage_TaskFullSchema_": {
 				"properties": {
 					"data": {
-						"items": { "$ref": "#/components/schemas/TaskFullSchema" },
+						"items": {
+							"$ref": "#/components/schemas/TaskFullSchema"
+						},
 						"type": "array",
 						"title": "Data"
 					},
-					"total": { "type": "integer", "minimum": 0.0, "title": "Total" },
-					"page": { "type": "integer", "minimum": 1.0, "title": "Page" },
-					"size": { "type": "integer", "minimum": 1.0, "title": "Size" },
-					"pages": { "type": "integer", "minimum": 0.0, "title": "Pages" }
+					"total": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Total"
+					},
+					"page": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Page"
+					},
+					"size": {
+						"type": "integer",
+						"minimum": 1.0,
+						"title": "Size"
+					},
+					"pages": {
+						"type": "integer",
+						"minimum": 0.0,
+						"title": "Pages"
+					}
 				},
 				"type": "object",
 				"required": ["data", "total", "page", "size", "pages"],
@@ -16007,7 +17121,9 @@
 						"description": "Current season details."
 					},
 					"rate_limits": {
-						"items": { "$ref": "#/components/schemas/RateLimitSchema" },
+						"items": {
+							"$ref": "#/components/schemas/RateLimitSchema"
+						},
 						"type": "array",
 						"title": "Rate Limits",
 						"description": "Rate limits."
@@ -16118,7 +17234,9 @@
 			},
 			"SubscriptionResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/SubscriptionSchema" }
+					"data": {
+						"$ref": "#/components/schemas/SubscriptionSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -16180,7 +17298,9 @@
 			},
 			"TaskCancelledResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/TaskCancelledSchema" }
+					"data": {
+						"$ref": "#/components/schemas/TaskCancelledSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -16332,7 +17452,9 @@
 			},
 			"TaskTradeResponseSchema": {
 				"properties": {
-					"data": { "$ref": "#/components/schemas/TaskTradeDataSchema" }
+					"data": {
+						"$ref": "#/components/schemas/TaskTradeDataSchema"
+					}
 				},
 				"type": "object",
 				"required": ["data"],
@@ -16361,7 +17483,9 @@
 				"title": "TaskType"
 			},
 			"TokenResponseSchema": {
-				"properties": { "token": { "type": "string", "title": "Token" } },
+				"properties": {
+					"token": { "type": "string", "title": "Token" }
+				},
 				"type": "object",
 				"required": ["token"],
 				"title": "TokenResponseSchema"
@@ -16388,7 +17512,9 @@
 						"description": "Layer of the destination."
 					},
 					"conditions": {
-						"items": { "$ref": "#/components/schemas/ConditionSchema" },
+						"items": {
+							"$ref": "#/components/schemas/ConditionSchema"
+						},
 						"type": "array",
 						"nullable": true,
 						"title": "Conditions",
@@ -16448,7 +17574,12 @@
 			"ValidationError": {
 				"properties": {
 					"loc": {
-						"items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+						"items": {
+							"anyOf": [
+								{ "type": "string" },
+								{ "type": "integer" }
+							]
+						},
 						"type": "array",
 						"title": "Location"
 					},
@@ -16465,7 +17596,10 @@
 				"type": "object",
 				"properties": {
 					"code": { "type": "integer", "description": "Error code" },
-					"message": { "type": "string", "description": "Error message" },
+					"message": {
+						"type": "string",
+						"description": "Error message"
+					},
 					"data": {
 						"type": "object",
 						"description": "Additional error data (used primarily for validation errors)",

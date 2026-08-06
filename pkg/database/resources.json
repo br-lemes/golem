@@ -2,9 +2,19 @@
 	{
 		"code": "ash_tree",
 		"drops": [
-			{ "code": "ash_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "ash_wood",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{ "code": "apple", "max_quantity": 1, "min_quantity": 1, "rate": 20 },
+			{
+				"code": "apple",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 20
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -19,9 +29,24 @@
 	{
 		"code": "gudgeon_spot",
 		"drops": [
-			{ "code": "gudgeon", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "algae", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{ "code": "shell", "max_quantity": 1, "min_quantity": 1, "rate": 100 },
+			{
+				"code": "gudgeon",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
+			{
+				"code": "algae",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 10
+			},
+			{
+				"code": "shell",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 100
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -36,7 +61,12 @@
 	{
 		"code": "copper_rocks",
 		"drops": [
-			{ "code": "copper_ore", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "copper_ore",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{
 				"code": "topaz_stone",
 				"max_quantity": 1,
@@ -75,7 +105,12 @@
 	{
 		"code": "sunflower_field",
 		"drops": [
-			{ "code": "sunflower", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "sunflower",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -90,7 +125,12 @@
 	{
 		"code": "iron_rocks",
 		"drops": [
-			{ "code": "iron_ore", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "iron_ore",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{
 				"code": "topaz_stone",
 				"max_quantity": 1,
@@ -150,15 +190,30 @@
 	{
 		"code": "shrimp_spot",
 		"drops": [
-			{ "code": "shrimp", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "shrimp",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{
 				"code": "golden_shrimp",
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1000
 			},
-			{ "code": "algae", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{ "code": "shell", "max_quantity": 1, "min_quantity": 1, "rate": 100 },
+			{
+				"code": "algae",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 10
+			},
+			{
+				"code": "shell",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 100
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -212,8 +267,18 @@
 	{
 		"code": "trout_spot",
 		"drops": [
-			{ "code": "trout", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "algae", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "trout",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
+			{
+				"code": "algae",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 10
+			},
 			{
 				"code": "small_pearls",
 				"max_quantity": 1,
@@ -234,7 +299,12 @@
 	{
 		"code": "birch_tree",
 		"drops": [
-			{ "code": "birch_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "birch_wood",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
 			{
 				"code": "event_ticket",
@@ -271,7 +341,12 @@
 		"code": "bass_spot",
 		"drops": [
 			{ "code": "bass", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "algae", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "algae",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 10
+			},
 			{
 				"code": "small_pearls",
 				"max_quantity": 1,
@@ -292,7 +367,12 @@
 	{
 		"code": "gold_rocks",
 		"drops": [
-			{ "code": "gold_ore", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "gold_ore",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{
 				"code": "topaz_stone",
 				"max_quantity": 1,
@@ -331,7 +411,12 @@
 	{
 		"code": "dead_tree",
 		"drops": [
-			{ "code": "dead_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "dead_wood",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
 			{
 				"code": "event_ticket",
@@ -347,8 +432,18 @@
 	{
 		"code": "magic_tree",
 		"drops": [
-			{ "code": "magic_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "magic_sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "magic_wood",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
+			{
+				"code": "magic_sap",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 10
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -389,8 +484,18 @@
 	{
 		"code": "salmon_spot",
 		"drops": [
-			{ "code": "salmon", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "algae", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "salmon",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
+			{
+				"code": "algae",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 10
+			},
 			{
 				"code": "small_pearls",
 				"max_quantity": 1,
@@ -475,8 +580,18 @@
 	{
 		"code": "maple_tree",
 		"drops": [
-			{ "code": "maple_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "maple_sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
+			{
+				"code": "maple_wood",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
+			{
+				"code": "maple_sap",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 10
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -537,8 +652,18 @@
 	{
 		"code": "palm_tree",
 		"drops": [
-			{ "code": "palm_wood", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
-			{ "code": "coconut", "max_quantity": 1, "min_quantity": 1, "rate": 20 },
+			{
+				"code": "palm_wood",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
+			{
+				"code": "coconut",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 20
+			},
 			{
 				"code": "event_ticket",
 				"max_quantity": 1,
@@ -573,7 +698,12 @@
 	{
 		"code": "swordfish_spot",
 		"drops": [
-			{ "code": "swordfish", "max_quantity": 1, "min_quantity": 1, "rate": 1 },
+			{
+				"code": "swordfish",
+				"max_quantity": 1,
+				"min_quantity": 1,
+				"rate": 1
+			},
 			{
 				"code": "holey_boot",
 				"max_quantity": 1,

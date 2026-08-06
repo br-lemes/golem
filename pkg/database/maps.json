@@ -253,7 +253,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "gold_rocks", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "gold_rocks", "type": "resource" }
+		},
 		"layer": "underground",
 		"map_id": 26,
 		"name": "Mine",
@@ -784,7 +786,11 @@
 			"content": { "code": "goblin_guard", "type": "monster" },
 			"transition": {
 				"conditions": [
-					{ "code": "priestess_hideout_key", "operator": "cost", "value": 1 }
+					{
+						"code": "priestess_hideout_key",
+						"operator": "cost",
+						"value": 1
+					}
 				],
 				"layer": "underground",
 				"map_id": 71,
@@ -851,7 +857,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "gold_rocks", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "gold_rocks", "type": "resource" }
+		},
 		"layer": "underground",
 		"map_id": 83,
 		"name": "Mine",
@@ -1729,7 +1737,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "blue_slime", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "blue_slime", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 169,
 		"name": "Forest",
@@ -1791,7 +1801,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "red_slime", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "red_slime", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 175,
 		"name": "Forest",
@@ -1821,7 +1833,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "green_slime", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "green_slime", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 178,
 		"name": "Forest",
@@ -2243,7 +2257,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "green_slime", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "green_slime", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 220,
 		"name": "Forest",
@@ -2273,7 +2289,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "red_slime", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "red_slime", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 223,
 		"name": "Forest",
@@ -2303,7 +2321,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "blue_slime", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "blue_slime", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 226,
 		"name": "Forest",
@@ -2333,7 +2353,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "king_slime", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "king_slime", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 229,
 		"name": "Forest",
@@ -2725,7 +2747,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "ash_tree", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "ash_tree", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 268,
 		"name": "Forest",
@@ -3301,7 +3325,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "cooking", "type": "workshop" } },
+		"interactions": {
+			"content": { "code": "cooking", "type": "workshop" }
+		},
 		"layer": "overworld",
 		"map_id": 325,
 		"name": "City",
@@ -3457,7 +3483,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "ash_tree", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "ash_tree", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 340,
 		"name": "Forest",
@@ -3467,7 +3495,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "flameche", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "flameche", "type": "monster" }
+		},
 		"layer": "underground",
 		"map_id": 341,
 		"name": "Lava Underground",
@@ -3497,7 +3527,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "god_of_the_sun", "type": "raid" } },
+		"interactions": {
+			"content": { "code": "god_of_the_sun", "type": "raid" }
+		},
 		"layer": "underground",
 		"map_id": 344,
 		"name": "Lava Underground",
@@ -3527,7 +3559,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "god_of_the_sun", "type": "raid" } },
+		"interactions": {
+			"content": { "code": "god_of_the_sun", "type": "raid" }
+		},
 		"layer": "underground",
 		"map_id": 347,
 		"name": "Lava Underground",
@@ -3557,7 +3591,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "flameche", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "flameche", "type": "monster" }
+		},
 		"layer": "underground",
 		"map_id": 350,
 		"name": "Lava Underground",
@@ -4383,7 +4419,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "alchemy", "type": "workshop" } },
+		"interactions": {
+			"content": { "code": "alchemy", "type": "workshop" }
+		},
 		"layer": "overworld",
 		"map_id": 430,
 		"name": "City",
@@ -4473,7 +4511,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "mushmush", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "mushmush", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 439,
 		"name": "Forest",
@@ -5037,7 +5077,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "mushmush", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "mushmush", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 493,
 		"name": "Forest",
@@ -5465,7 +5507,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "birch_tree", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "birch_tree", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 535,
 		"name": "Forest",
@@ -5882,7 +5926,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "birch_tree", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "birch_tree", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 574,
 		"name": "Forest",
@@ -5942,7 +5988,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "coal_rocks", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "coal_rocks", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 580,
 		"name": "Forest",
@@ -6154,7 +6202,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "skeleton", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "skeleton", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 601,
 		"name": "Graveyard",
@@ -6184,7 +6234,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "cursed_tree", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "cursed_tree", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 604,
 		"name": "Graveyard",
@@ -6454,7 +6506,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "iron_rocks", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "iron_rocks", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 631,
 		"name": "Forest",
@@ -7026,7 +7080,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "highwayman", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "highwayman", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 685,
 		"name": "Forest",
@@ -7206,7 +7262,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "skeleton", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "skeleton", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 703,
 		"name": "Graveyard",
@@ -7236,7 +7294,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "dead_tree", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "dead_tree", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 706,
 		"name": "Graveyard",
@@ -7361,7 +7421,9 @@
 		"interactions": {
 			"content": { "code": "beastmaster", "type": "npc" },
 			"transition": {
-				"conditions": [{ "code": "gold", "operator": "cost", "value": 5000 }],
+				"conditions": [
+					{ "code": "gold", "operator": "cost", "value": 5000 }
+				],
 				"layer": "overworld",
 				"map_id": 667,
 				"x": -4,
@@ -8031,7 +8093,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "glowstem", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "glowstem", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 784,
 		"name": "Forest",
@@ -8670,7 +8734,9 @@
 			],
 			"type": "conditional"
 		},
-		"interactions": { "content": { "code": "tasks_trader", "type": "npc" } },
+		"interactions": {
+			"content": { "code": "tasks_trader", "type": "npc" }
+		},
 		"layer": "overworld",
 		"map_id": 847,
 		"name": "Forest",
@@ -9097,7 +9163,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "maple_tree", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "maple_tree", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 886,
 		"name": "Forest",
@@ -9247,7 +9315,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "bass_spot", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "bass_spot", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 901,
 		"name": "Lake",
@@ -9277,7 +9347,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "trout_spot", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "trout_spot", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 904,
 		"name": "Lake",
@@ -9555,7 +9627,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "hellhound", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "hellhound", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 931,
 		"name": "Forest",
@@ -9574,7 +9648,9 @@
 			],
 			"type": "standard"
 		},
-		"interactions": { "content": { "code": "rosenblood", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "rosenblood", "type": "monster" }
+		},
 		"layer": "interior",
 		"map_id": 932,
 		"name": "Rosenblood House",
@@ -9598,7 +9674,11 @@
 			"content": { "code": "cultist_acolyte", "type": "monster" },
 			"transition": {
 				"conditions": [
-					{ "code": "cultist_cloak", "operator": "has_item", "value": 1 }
+					{
+						"code": "cultist_cloak",
+						"operator": "has_item",
+						"value": 1
+					}
 				],
 				"layer": "interior",
 				"map_id": 935,
@@ -9678,7 +9758,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "cultist_wizard", "type": "npc" } },
+		"interactions": {
+			"content": { "code": "cultist_wizard", "type": "npc" }
+		},
 		"layer": "overworld",
 		"map_id": 940,
 		"name": "Forest",
@@ -9738,7 +9820,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "items", "type": "tasks_master" } },
+		"interactions": {
+			"content": { "code": "items", "type": "tasks_master" }
+		},
 		"layer": "overworld",
 		"map_id": 946,
 		"name": "Forest",
@@ -9798,7 +9882,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "archaeologist", "type": "npc" } },
+		"interactions": {
+			"content": { "code": "archaeologist", "type": "npc" }
+		},
 		"layer": "overworld",
 		"map_id": 952,
 		"name": "Forest",
@@ -10160,7 +10246,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "hellhound", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "hellhound", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 988,
 		"name": "Forest",
@@ -10250,7 +10338,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "maple_tree", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "maple_tree", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 997,
 		"name": "Forest",
@@ -11212,7 +11302,9 @@
 		"access": { "conditions": [], "type": "standard" },
 		"interactions": {
 			"transition": {
-				"conditions": [{ "code": "gold", "operator": "cost", "value": 1000 }],
+				"conditions": [
+					{ "code": "gold", "operator": "cost", "value": 1000 }
+				],
 				"layer": "overworld",
 				"map_id": 1336,
 				"x": -2,
@@ -12171,7 +12263,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "sand_snake", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "sand_snake", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 1186,
 		"name": "Sandwhisper Isle",
@@ -12573,7 +12667,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "dusk_beetle", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "dusk_beetle", "type": "monster" }
+		},
 		"layer": "underground",
 		"map_id": 1226,
 		"name": "Sandwhisper Mine",
@@ -12631,7 +12727,11 @@
 			"content": { "code": "sandwarden", "type": "monster" },
 			"transition": {
 				"conditions": [
-					{ "code": "sandwhisper_key", "operator": "cost", "value": 1 }
+					{
+						"code": "sandwhisper_key",
+						"operator": "cost",
+						"value": 1
+					}
 				],
 				"layer": "interior",
 				"map_id": 1233,
@@ -13158,7 +13258,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "sand_snake", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "sand_snake", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 1279,
 		"name": "Sandwhisper Isle",
@@ -13188,7 +13290,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "palm_tree", "type": "resource" } },
+		"interactions": {
+			"content": { "code": "palm_tree", "type": "resource" }
+		},
 		"layer": "overworld",
 		"map_id": 1282,
 		"name": "Sandwhisper Isle",
@@ -13218,7 +13322,9 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": { "content": { "code": "sandwarden", "type": "monster" } },
+		"interactions": {
+			"content": { "code": "sandwarden", "type": "monster" }
+		},
 		"layer": "overworld",
 		"map_id": 1285,
 		"name": "Sandwhisper Isle",
@@ -13730,7 +13836,9 @@
 		"access": { "conditions": [], "type": "standard" },
 		"interactions": {
 			"transition": {
-				"conditions": [{ "code": "gold", "operator": "cost", "value": 1000 }],
+				"conditions": [
+					{ "code": "gold", "operator": "cost", "value": 1000 }
+				],
 				"layer": "overworld",
 				"map_id": 1093,
 				"x": 2,
