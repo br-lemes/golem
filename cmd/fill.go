@@ -27,11 +27,11 @@ var fillCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	Use:   "fill <name> <id>",
 	Short: "Fill an existing buy order",
-	Long: `Fill an existing buy order.
+	Long: `Fill an existing buy order
 
 Arguments:
-  name   Name of your character
-  id     The id of the buy order you want to fill`,
+  name   Name of your character.
+  id     The id of the buy order you want to fill.`,
 	ValidArgsFunction: completion.CharacterName(1).Build(),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]

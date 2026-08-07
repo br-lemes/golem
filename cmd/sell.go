@@ -27,7 +27,7 @@ var sellCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	Use:   "sell <name> <code>",
 	Short: "Create a new sell order",
-	Long: `Create a new sell order.
+	Long: `Create a new sell order
 
 Arguments:
   name   Name of your character.

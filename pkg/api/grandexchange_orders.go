@@ -31,7 +31,7 @@ func grandexchangeOrdersAll() ([]schemas.GEOrderSchema, error) {
 			return nil, err
 		}
 		result = append(result, data.Data...)
-		if data.Page >= data.Pages {
+		if page >= data.Pages {
 			break
 		}
 		page++
