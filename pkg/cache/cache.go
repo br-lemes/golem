@@ -30,9 +30,18 @@ func init() {
 		panic(err)
 	}
 
-	cache.Exec("PRAGMA journal_mode=WAL;")
-	cache.Exec("PRAGMA synchronous=NORMAL;")
-	cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{})
+	err = cache.Exec("PRAGMA journal_mode=WAL;").Error
+	if err != nil {
+		panic(err)
+	}
+	err = cache.Exec("PRAGMA synchronous=NORMAL;").Error
+	if err != nil {
+		panic(err)
+	}
+	err = cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func isNameFresh(dest any, name string, minutes int) bool {

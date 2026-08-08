@@ -58,9 +58,7 @@ Arguments:
 			return fmt.Errorf("failed to get character: %w", err)
 		}
 
-		console.Auto(
-			GetBestEquipmentForSkill(character, code, database.GetItems()))
-		return nil
+		return console.Auto(GetBestEquipmentForSkill(character, code, database.GetItems()))
 	},
 }
 

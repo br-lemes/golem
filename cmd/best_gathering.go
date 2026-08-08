@@ -39,8 +39,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		console.Auto(items)
-		return nil
+		return console.Auto(items)
 	},
 }
 

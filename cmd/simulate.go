@@ -49,8 +49,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		console.Auto(report)
-		return nil
+		return console.Auto(report)
 	},
 }
 
@@ -58,9 +57,12 @@ func init() {
 	for _, slot := range utils.FightSlots() {
 		usage := fmt.Sprintf("Override the %s slot for this simulation", slot)
 		simulateCmd.Flags().String(slot, "", usage)
-		simulateCmd.RegisterFlagCompletionFunc(slot, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		err := simulateCmd.RegisterFlagCompletionFunc(slot, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			return database.GetItemCodes(), cobra.ShellCompDirectiveNoFileComp
 		})
+		if err != nil {
+			panic(err)
+		}
 	}
 	rootCmd.AddCommand(simulateCmd)
 }

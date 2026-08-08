@@ -45,9 +45,7 @@ Arguments:
 			return fmt.Errorf("failed to get character: %w", err)
 		}
 
-		console.Auto(
-			GetBestBodyArmorForMonster(character, monster, database.GetItems()))
-		return nil
+		return console.Auto(GetBestBodyArmorForMonster(character, monster, database.GetItems()))
 	},
 }
 
@@ -111,15 +109,13 @@ func evaluateBodyArmorValue(item schemas.ItemSchema, monster schemas.MonsterSche
 
 		for _, element := range elements {
 			if effect.Code == "res_"+element {
-				var monsterAttack int
-				monsterAttack = getMonsterAttackValue(monster, element)
+				monsterAttack := getMonsterAttackValue(monster, element)
 				score = score + (float64(monsterAttack) *
 					(float64(effect.Value) / 100.0))
 			}
 
 			if effect.Code == "dmg_"+element {
-				var monsterResistance int
-				monsterResistance = getMonsterResistanceValue(monster, element)
+				monsterResistance := getMonsterResistanceValue(monster, element)
 				score = score + (float64(effect.Value) *
 					(1.0 - (float64(monsterResistance) / 100.0)))
 			}

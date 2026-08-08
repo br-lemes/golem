@@ -11,7 +11,10 @@ import (
 func AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
 	myAccount := cache.GetAccount()
 	if myAccount == "" {
-		MyDetails()
+		_, err := MyDetails()
+		if err != nil {
+			return nil, err
+		}
 		myAccount = cache.GetAccount()
 	}
 	if account == "" {

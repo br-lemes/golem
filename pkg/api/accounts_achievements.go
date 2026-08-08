@@ -14,7 +14,10 @@ func AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, e
 	if account == "" {
 		account = cache.GetAccount()
 		if account == "" {
-			MyDetails()
+			_, err := MyDetails()
+			if err != nil {
+				return nil, err
+			}
 			account = cache.GetAccount()
 		}
 	}

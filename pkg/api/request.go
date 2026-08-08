@@ -67,7 +67,7 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 		}
 
 		respBytes, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if err != nil {
 			ctx.handleInfraError("Read error", err)
 			continue

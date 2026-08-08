@@ -74,9 +74,9 @@ Arguments:
 		}
 		switch levelFlags.group {
 		case "character":
-			groupByCharacter(characters, levelFlags.skill)
+			return groupByCharacter(characters, levelFlags.skill)
 		case "skill":
-			groupBySkill(characters, levelFlags.skill)
+			return groupBySkill(characters, levelFlags.skill)
 		}
 		return nil
 	},
@@ -91,10 +91,13 @@ func init() {
 		[]string{}, "Show the level of specific skills")
 	levelCmd.Flags().StringSliceVarP(&levelFlags.character, "character", "c",
 		[]string{}, "Show the level of specific characters")
-	levelCmd.RegisterFlagCompletionFunc("group", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	err := levelCmd.RegisterFlagCompletionFunc("group", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return levelGroups, cobra.ShellCompDirectiveNoFileComp
 	})
-	levelCmd.RegisterFlagCompletionFunc("skill", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if err != nil {
+		panic(err)
+	}
+	err = levelCmd.RegisterFlagCompletionFunc("skill", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		skills := database.GetEnum("CharacterLeaderboardType")
 		idx := strings.LastIndex(toComplete, ",")
 		if idx == -1 {
@@ -112,7 +115,10 @@ func init() {
 		}
 		return suggestions, cobra.ShellCompDirectiveNoFileComp
 	})
-	levelCmd.RegisterFlagCompletionFunc("character", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if err != nil {
+		panic(err)
+	}
+	err = levelCmd.RegisterFlagCompletionFunc("character", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		characters := utils.GetCharacters()
 		idx := strings.LastIndex(toComplete, ",")
 		if idx == -1 {
@@ -130,9 +136,12 @@ func init() {
 		}
 		return suggestions, cobra.ShellCompDirectiveNoFileComp
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
-func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) {
+func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) error {
 	skills := database.GetEnum("CharacterLeaderboardType")
 	if len(filterSkills) > 0 {
 		skills = slices.DeleteFunc(skills, func(s string) bool {
@@ -147,10 +156,10 @@ func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) {
 				utils.GetCharacterSkillLevel(character, skill)
 		}
 	}
-	console.Auto(levels)
+	return console.Auto(levels)
 }
 
-func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []string) {
+func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []string) error {
 	skills := database.GetEnum("CharacterLeaderboardType")
 	if len(filterSkills) > 0 {
 		skills = slices.DeleteFunc(skills, func(s string) bool {
@@ -165,5 +174,5 @@ func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []strin
 				utils.GetCharacterSkillLevel(character, skill)
 		}
 	}
-	console.Auto(levels)
+	return console.Auto(levels)
 }

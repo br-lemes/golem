@@ -71,7 +71,7 @@ func Yaml(data any, isTerminal bool) error {
 
 func output(data []byte, isTerminal bool) error {
 	if isTerminal {
-		quick.Highlight(Stdout, string(data), "yaml", "terminal256", Style)
+		_ = quick.Highlight(Stdout, string(data), "yaml", "terminal256", Style)
 		return nil
 	}
 	_, err := Stdout.Write(data)
@@ -100,15 +100,15 @@ func Input(message string) string {
 }
 
 func Printf(format string, a ...any) {
-	fmt.Fprintf(Stdout, format, a...)
+	_, _ = fmt.Fprintf(Stdout, format, a...)
 }
 
 func Debugf(format string, a ...any) {
 	if Debug {
-		fmt.Fprintf(Stderr, "DEBUG: "+format, a...)
+		_, _ = fmt.Fprintf(Stderr, "DEBUG: "+format, a...)
 	}
 }
 
 func Errorf(format string, a ...any) {
-	fmt.Fprintf(Stderr, format, a...)
+	_, _ = fmt.Fprintf(Stderr, format, a...)
 }

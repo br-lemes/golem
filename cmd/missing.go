@@ -20,8 +20,7 @@ var missingCmd = &cobra.Command{
 
 Arguments:
   name   The name of the character.
-  type   The type of equipment.
-`,
+  type   The type of equipment.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			return nil
@@ -68,12 +67,18 @@ func init() {
 		"Character names to analyze")
 	missingCmd.Flags().StringSliceP("type", "t", []string{},
 		"Equipment types to filter")
-	missingCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	err := missingCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 	})
-	missingCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if err != nil {
+		panic(err)
+	}
+	err = missingCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return database.EquipmentTypes, cobra.ShellCompDirectiveNoFileComp
 	})
+	if err != nil {
+		panic(err)
+	}
 	rootCmd.AddCommand(missingCmd)
 }
 
@@ -186,8 +191,7 @@ func executeMissing(names []string, equipTypes []string) error {
 			}
 		}
 	}
-	console.Auto(filteredCodes)
-	return nil
+	return console.Auto(filteredCodes)
 }
 
 func hasRequiredSkillLevel(character schemas.CharacterSchema, item schemas.ItemSchema) bool {

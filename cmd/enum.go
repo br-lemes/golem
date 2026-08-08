@@ -18,11 +18,9 @@ Arguments:
 	ValidArgsFunction: completion.Custom(1, database.GetEnumNames).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			console.Auto(database.GetEnumNames())
-			return nil
+			return console.Auto(database.GetEnumNames())
 		}
-		console.Auto(database.GetEnum(args[0]))
-		return nil
+		return console.Auto(database.GetEnum(args[0]))
 	},
 }
 

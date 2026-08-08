@@ -12,9 +12,7 @@ func TestExecuteSuccess(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(
-			`{"data": {"cooldown": {"total_seconds": 0}}, "status": "success"}`,
-		))
+		_, _ = w.Write([]byte(`{"data": {"cooldown": {"total_seconds": 0}}, "status": "success"}`))
 	}))
 	defer server.Close()
 
@@ -42,7 +40,7 @@ func TestExecuteClientError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": {"message": "invalid payload"}}`))
+		_, _ = w.Write([]byte(`{"error": {"message": "invalid payload"}}`))
 	}))
 	defer server.Close()
 
@@ -71,7 +69,7 @@ func TestExecuteMaxRetriesReached(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": {"message": "server down"}}`))
+		_, _ = w.Write([]byte(`{"error": {"message": "server down"}}`))
 	}))
 	defer server.Close()
 
@@ -101,7 +99,7 @@ func TestExecuteInvalidContentTypeBackoff(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`text response`))
+		_, _ = w.Write([]byte(`text response`))
 	}))
 	defer server.Close()
 
@@ -126,7 +124,7 @@ func TestExecuteCooldownActivated(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"data": {"cooldown": {"total_seconds": 1}}}`))
+		_, _ = w.Write([]byte(`{"data": {"cooldown": {"total_seconds": 1}}}`))
 	}))
 	defer server.Close()
 
@@ -147,7 +145,7 @@ func TestExecuteClientErrorFallback(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusTeapot)
-		w.Write([]byte(`{}`))
+		_, _ = w.Write([]byte(`{}`))
 	}))
 	defer server.Close()
 
@@ -196,7 +194,7 @@ func TestExecuteResponseWithEmbeddedError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"error": {"message": "character not found"}}`))
+		_, _ = w.Write([]byte(`{"error": {"message": "character not found"}}`))
 	}))
 	defer server.Close()
 
@@ -225,7 +223,7 @@ func TestExecuteBackoffCapping(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{}`))
+		_, _ = w.Write([]byte(`{}`))
 	}))
 	defer server.Close()
 

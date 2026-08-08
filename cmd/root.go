@@ -53,7 +53,7 @@ func Execute(version string) error {
 	err := rootCmd.Execute()
 	closer, ok := console.Stdout.(io.Closer)
 	if ok && console.Stdout != os.Stdout {
-		closer.Close()
+		_ = closer.Close()
 	}
 	return err
 }
