@@ -106,43 +106,45 @@ func StartRecyclingBot(name string, code string, qty int) error {
 		}
 
 		currentInventoryCount := 0
+		currentInventoryHas := 0
 		for _, invItem := range *character.Inventory {
 			if invItem.Code != "" {
-				currentInventoryCount = currentInventoryCount + invItem.Quantity
+				currentInventoryCount += invItem.Quantity
+				if invItem.Code == item.Code {
+					currentInventoryHas += invItem.Quantity
+				}
 			}
 		}
 
 		remainingToRecycle := targetQty - recycledSoFar
 		freeSpace := character.InventoryMaxItems - currentInventoryCount
 
-		currentInventoryHas := 0
-		for _, invItem := range *character.Inventory {
-			if invItem.Code == item.Code {
-				currentInventoryHas = invItem.Quantity
-			}
-		}
-
 		if currentInventoryHas > 0 {
-			character, err = routine.Move(character, string(*item.Craft.Skill))
-			if err != nil {
-				return err
-			}
-
 			batchToRecycle := currentInventoryHas
 			if batchToRecycle > remainingToRecycle {
 				batchToRecycle = remainingToRecycle
 			}
 
-			_, err = api.MyActionRecycling(name, schemas.SimpleItemSchema{
-				Code:     item.Code,
-				Quantity: batchToRecycle,
-			})
-			if err != nil {
-				return err
-			}
+			maxMaterialsReturned := batchToRecycle * resourcesReturnedPerItem
+			netSpaceNeeded := maxMaterialsReturned - batchToRecycle
 
-			recycledSoFar = recycledSoFar + batchToRecycle
-			continue
+			if freeSpace >= netSpaceNeeded {
+				character, err = routine.Move(character, string(*item.Craft.Skill))
+				if err != nil {
+					return err
+				}
+
+				_, err = api.MyActionRecycling(name, schemas.SimpleItemSchema{
+					Code:     item.Code,
+					Quantity: batchToRecycle,
+				})
+				if err != nil {
+					return err
+				}
+
+				recycledSoFar += batchToRecycle
+				continue
+			}
 		}
 
 		character, err = routine.Move(character, "bank")
@@ -191,10 +193,6 @@ func StartRecyclingBot(name string, code string, qty int) error {
 
 		if batchSize > maxSafeBatch {
 			batchSize = maxSafeBatch
-		}
-
-		if batchSize > freeSpace {
-			batchSize = freeSpace
 		}
 
 		if batchSize <= 0 {

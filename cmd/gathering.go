@@ -33,7 +33,7 @@ Arguments:
 				return err
 			}
 
-			character, err = routine.Move(character, code)
+			_, err = routine.Move(character, code)
 			if err != nil {
 				return err
 			}
