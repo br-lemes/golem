@@ -7,6 +7,19 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
+func sizeMax(operation *openapi3.Operation) (int, bool) {
+	for _, paramRef := range operation.Parameters {
+		param := paramRef.Value
+		if param == nil || param.Name != "size" {
+			continue
+		}
+		if param.Schema != nil && param.Schema.Value != nil && param.Schema.Value.Max != nil {
+			return int(*param.Schema.Value.Max), true
+		}
+	}
+	return 0, false
+}
+
 func GetSize(targetPath string) (int, error) {
 	loader := openapi3.NewLoader()
 	doc, err := loader.LoadFromData(database.OpenAPI())
@@ -19,25 +32,25 @@ func GetSize(targetPath string) (int, error) {
 		return 0, fmt.Errorf("path %s not found", targetPath)
 	}
 
-	operation := pathItem.Get
-	if operation == nil {
-		return 0, fmt.Errorf("GET method not found for path %s", targetPath)
-	}
-
-	for _, paramRef := range operation.Parameters {
-		param := paramRef.Value
-		if param == nil || param.Name != "size" {
+	found := false
+	result := 0
+	for method, operation := range pathItem.Operations() {
+		max, ok := sizeMax(operation)
+		if !ok {
 			continue
 		}
-		if param.Schema != nil && param.Schema.Value != nil &&
-			param.Schema.Value.Max != nil {
-			return int(*param.Schema.Value.Max), nil
+		if found {
+			return 0, fmt.Errorf("multiple methods with size parameter for path %s (at least %s)", targetPath, method)
 		}
-		return 0, fmt.Errorf("size parameter has no maximum for path %s",
-			targetPath)
+		found = true
+		result = max
 	}
 
-	return 0, fmt.Errorf("size parameter not found for path %s", targetPath)
+	if !found {
+		return 0, fmt.Errorf("size parameter not found for path %s", targetPath)
+	}
+
+	return result, nil
 }
 
 func GetSizes() (map[string]int, error) {
@@ -51,19 +64,17 @@ func GetSizes() (map[string]int, error) {
 	result := make(map[string]int)
 
 	for path, pathItem := range pathsMap {
-		operation := pathItem.Get
-		if operation == nil {
-			continue
-		}
-
-		for _, paramRef := range operation.Parameters {
-			param := paramRef.Value
-			if param != nil && param.Name == "size" &&
-				param.Schema != nil && param.Schema.Value != nil &&
-				param.Schema.Value.Max != nil {
-				result[path] = int(*param.Schema.Value.Max)
-				break
+		found := false
+		for method, operation := range pathItem.Operations() {
+			max, ok := sizeMax(operation)
+			if !ok {
+				continue
 			}
+			if found {
+				return nil, fmt.Errorf("multiple methods with size parameter for path %s (at least %s)", path, method)
+			}
+			found = true
+			result[path] = max
 		}
 	}
 
