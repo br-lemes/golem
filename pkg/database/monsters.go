@@ -18,6 +18,8 @@ var (
 	monsterCodesList []string
 )
 
+var Monsters = newStore(jsonLoader[schemas.MonsterSchema](monsters), func(item *schemas.MonsterSchema) string { return item.Code })
+
 func GetMonsters() []schemas.MonsterSchema {
 	initMonstersCache()
 	return monstersList

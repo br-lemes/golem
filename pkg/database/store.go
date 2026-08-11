@@ -74,3 +74,12 @@ func (s *store[T, K]) Find(predicate func(*T) bool) (*T, bool) {
 	}
 	return nil, false
 }
+
+func (s *store[T, K]) Keys() []K {
+	state := s.initOnce()
+	keys := make([]K, len(state.items))
+	for i, item := range state.items {
+		keys[i] = s.keyExtractor(item)
+	}
+	return keys
+}
