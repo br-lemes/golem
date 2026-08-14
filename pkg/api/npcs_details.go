@@ -13,8 +13,7 @@ func NpcsDetails() ([]schemas.NPCSchema, error) {
 	result := []schemas.NPCSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/npcs/details?page=%d&size=%d",
-			page, NpcsDetailsSize), nil)
+		resp, err := Get(fmt.Sprintf("/npcs/details?page=%d&size=%d", page, NpcsDetailsSize), nil)
 		if err != nil {
 			return nil, err
 		}

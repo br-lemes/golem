@@ -13,8 +13,7 @@ func TasksList() ([]schemas.TaskFullSchema, error) {
 	result := []schemas.TaskFullSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/tasks/list?page=%d&size=%d",
-			page, TasksListSize), nil)
+		resp, err := Get(fmt.Sprintf("/tasks/list?page=%d&size=%d", page, TasksListSize), nil)
 		if err != nil {
 			return nil, err
 		}

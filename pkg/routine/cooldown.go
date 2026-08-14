@@ -16,7 +16,6 @@ func Cooldown(character schemas.CharacterSchema) {
 		return
 	}
 	duration := character.CooldownExpiration.Sub(now)
-	console.Errorf("⏳ Cooldown active: %.0f seconds\n",
-		duration.Round(time.Second).Seconds())
+	console.Errorf("⏳ Cooldown active: %.0f seconds\n", duration.Round(time.Second).Seconds())
 	time.Sleep(duration)
 }

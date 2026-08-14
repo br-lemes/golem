@@ -49,8 +49,6 @@ var charactersCreateCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(charactersCreateCmd)
-	charactersCreateCmd.Flags().String("name", "",
-		"Your desired character name. It's unique and all players can see it.")
-	charactersCreateCmd.Flags().String("skin", "",
-		"Your desired skin.")
+	charactersCreateCmd.Flags().String("name", "", "Your desired character name. It's unique and all players can see it.")
+	charactersCreateCmd.Flags().String("skin", "", "Your desired skin.")
 }

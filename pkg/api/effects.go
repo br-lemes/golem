@@ -13,8 +13,7 @@ func Effects() ([]schemas.EffectSchema, error) {
 	result := []schemas.EffectSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/effects?page=%d&size=%d",
-			page, EffectsSize), nil)
+		resp, err := Get(fmt.Sprintf("/effects?page=%d&size=%d", page, EffectsSize), nil)
 		if err != nil {
 			return nil, err
 		}

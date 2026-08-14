@@ -18,8 +18,7 @@ var generateCmd = &cobra.Command{
 
 Arguments:
   command   Name of the target command to generate code for.`,
-	ValidArgsFunction: completion.Custom(1, utils.GetCommandsCompletion).
-		Build(),
+	ValidArgsFunction: completion.Custom(1, utils.GetCommandsCompletion).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		targetCmd := args[0]
 

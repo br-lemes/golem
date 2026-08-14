@@ -49,12 +49,8 @@ var leaderboardCharactersCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(leaderboardCharactersCmd)
-	leaderboardCharactersCmd.Flags().String("name", "",
-		"Character name.")
-	leaderboardCharactersCmd.Flags().Int("page", 0,
-		"Page number")
-	leaderboardCharactersCmd.Flags().Int("size", 0,
-		"Page size")
-	leaderboardCharactersCmd.Flags().String("sort", "",
-		"Sort of character leaderboards.")
+	leaderboardCharactersCmd.Flags().String("name", "", "Character name.")
+	leaderboardCharactersCmd.Flags().Int("page", 0, "Page number")
+	leaderboardCharactersCmd.Flags().Int("size", 0, "Page size")
+	leaderboardCharactersCmd.Flags().String("sort", "", "Sort of character leaderboards.")
 }

@@ -37,8 +37,7 @@ Arguments:
 			return nil
 		}
 		if character.Level < monster.Level {
-			console.Printf("Your level %d < monster level %d\n",
-				character.Level, monster.Level)
+			console.Printf("Your level %d < monster level %d\n", character.Level, monster.Level)
 			if !console.Confirm("Do you want to continue?") {
 				cmd.SilenceUsage = true
 				return fmt.Errorf("operation cancelled")
@@ -71,10 +70,8 @@ func init() {
 	rootCmd.AddCommand(fightCmd)
 	fightCmd.Flags().String("food", "", "auto-stock food from bank")
 	fightCmd.Flags().Lookup("food").NoOptDefVal = "auto"
-	fightCmd.Flags().String("utility1", "",
-		"item code to auto-refill in utility1 slot")
-	fightCmd.Flags().String("utility2", "",
-		"item code to auto-refill in utility2 slot")
+	fightCmd.Flags().String("utility1", "", "item code to auto-refill in utility1 slot")
+	fightCmd.Flags().String("utility2", "", "item code to auto-refill in utility2 slot")
 }
 
 func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, food, utility1, utility2 string) error {
@@ -107,8 +104,7 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, f
 }
 
 func taskCompleted(character schemas.CharacterSchema, code string) bool {
-	if character.TaskType == "monsters" && character.Task == code &&
-		character.TaskProgress == character.TaskTotal {
+	if character.TaskType == "monsters" && character.Task == code && character.TaskProgress == character.TaskTotal {
 		console.Printf("  Task completed\n")
 		return true
 	}

@@ -57,16 +57,10 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(tasksListCmd)
-	tasksListCmd.Flags().Int("max_level", 0,
-		"Maximum level.")
-	tasksListCmd.Flags().Int("min_level", 0,
-		"Minimum level.")
-	tasksListCmd.Flags().Int("page", 0,
-		"Page number")
-	tasksListCmd.Flags().Int("size", 0,
-		"Page size")
-	tasksListCmd.Flags().String("skill", "",
-		"Skill of tasks.")
-	tasksListCmd.Flags().String("type", "",
-		"Type of tasks.")
+	tasksListCmd.Flags().Int("max_level", 0, "Maximum level.")
+	tasksListCmd.Flags().Int("min_level", 0, "Minimum level.")
+	tasksListCmd.Flags().Int("page", 0, "Page number")
+	tasksListCmd.Flags().Int("size", 0, "Page size")
+	tasksListCmd.Flags().String("skill", "", "Skill of tasks.")
+	tasksListCmd.Flags().String("type", "", "Type of tasks.")
 }

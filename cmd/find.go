@@ -25,8 +25,7 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		codes := append(database.GetMapCodes(),
-			database.GetEventContentCodes()...)
+		codes := append(database.GetMapCodes(), database.GetEventContentCodes()...)
 		if !slices.Contains(codes, code) {
 			return fmt.Errorf("code '%s' not found", code)
 		}

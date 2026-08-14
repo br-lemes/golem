@@ -80,13 +80,11 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 			}
 		}
 		if !validSlot {
-			return fmt.Errorf("item %s cannot be equipped in slot %s",
-				equipment.Code, equipment.Slot)
+			return fmt.Errorf("item %s cannot be equipped in slot %s", equipment.Code, equipment.Slot)
 		}
 		conflictingItem, reserved := slotsReserved[equipment.Slot]
 		if reserved {
-			return fmt.Errorf("slot conflict: both %s and %s are targeting %s",
-				conflictingItem, equipment.Code, equipment.Slot)
+			return fmt.Errorf("slot conflict: both %s and %s are targeting %s", conflictingItem, equipment.Code, equipment.Slot)
 		}
 		slotsReserved[equipment.Slot] = equipment.Code
 	}
@@ -112,9 +110,7 @@ func checkLevelRequirements(character schemas.CharacterSchema, equipments []sche
 			}
 		}
 		if currentLevel < item.Level {
-			return fmt.Errorf(
-				"does not meet requirement for %s (has %d, requires %d)",
-				item.Name, currentLevel, item.Level)
+			return fmt.Errorf("does not meet requirement for %s (has %d, requires %d)", item.Name, currentLevel, item.Level)
 		}
 	}
 	return nil
@@ -192,9 +188,7 @@ func validateTotalStock(d deps, character schemas.CharacterSchema, needed []sche
 			}
 		}
 		if totalAvailable < requiredQty {
-			return fmt.Errorf(
-				"insufficient items: %s requires %d, but you only have %d",
-				code, requiredQty, totalAvailable)
+			return fmt.Errorf("insufficient items: %s requires %d, but you only have %d", code, requiredQty, totalAvailable)
 		}
 	}
 	return nil

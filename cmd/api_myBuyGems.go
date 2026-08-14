@@ -49,6 +49,5 @@ var myBuyGemsCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(myBuyGemsCmd)
-	myBuyGemsCmd.Flags().Int("quantity", 0,
-		"Number of gems to purchase.")
+	myBuyGemsCmd.Flags().Int("quantity", 0, "Number of gems to purchase.")
 }

@@ -94,12 +94,10 @@ func TestParseCliEquipment(t *testing.T) {
 			_, err := parseCliEquipment(tc.input)
 			if tc.expectError {
 				if err == nil {
-					t.Fatalf("expected error containing %q, got nil",
-						tc.errContains)
+					t.Fatalf("expected error containing %q, got nil", tc.errContains)
 				}
 				if !strings.Contains(err.Error(), tc.errContains) {
-					t.Errorf("expected error %q to contain %q", err.Error(),
-						tc.errContains)
+					t.Errorf("expected error %q to contain %q", err.Error(), tc.errContains)
 				}
 			} else {
 				if err != nil {

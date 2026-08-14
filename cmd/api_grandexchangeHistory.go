@@ -53,10 +53,7 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(grandexchangeHistoryCmd)
-	grandexchangeHistoryCmd.Flags().String("account", "",
-		"Account involved in the transaction (matches either seller or buyer).")
-	grandexchangeHistoryCmd.Flags().Int("page", 0,
-		"Page number")
-	grandexchangeHistoryCmd.Flags().Int("size", 0,
-		"Page size")
+	grandexchangeHistoryCmd.Flags().String("account", "", "Account involved in the transaction (matches either seller or buyer).")
+	grandexchangeHistoryCmd.Flags().Int("page", 0, "Page number")
+	grandexchangeHistoryCmd.Flags().Int("size", 0, "Page size")
 }

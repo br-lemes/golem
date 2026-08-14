@@ -53,8 +53,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionTaskTradeCmd)
-	myActionTaskTradeCmd.Flags().String("code", "",
-		"Item code.")
-	myActionTaskTradeCmd.Flags().Int("quantity", 0,
-		"Item quantity.")
+	myActionTaskTradeCmd.Flags().String("code", "", "Item code.")
+	myActionTaskTradeCmd.Flags().Int("quantity", 0, "Item quantity.")
 }

@@ -57,8 +57,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(tasksRewardsCmd)
-	tasksRewardsCmd.Flags().Int("page", 0,
-		"Page number")
-	tasksRewardsCmd.Flags().Int("size", 0,
-		"Page size")
+	tasksRewardsCmd.Flags().Int("page", 0, "Page number")
+	tasksRewardsCmd.Flags().Int("size", 0, "Page size")
 }

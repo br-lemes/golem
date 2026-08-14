@@ -57,8 +57,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myLogsCmd)
-	myLogsCmd.Flags().Int("page", 0,
-		"Page number")
-	myLogsCmd.Flags().Int("size", 0,
-		"Page size")
+	myLogsCmd.Flags().Int("page", 0, "Page number")
+	myLogsCmd.Flags().Int("size", 0, "Page size")
 }

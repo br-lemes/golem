@@ -13,8 +13,7 @@ func MyGrandexchangeOrders(code string, orderType string) ([]schemas.GEOrderSche
 	result := []schemas.GEOrderSchema{}
 	page := 1
 	for {
-		path := fmt.Sprintf("/my/grandexchange/orders?page=%d&size=%d",
-			page, MyGrandexchangeOrdersSize)
+		path := fmt.Sprintf("/my/grandexchange/orders?page=%d&size=%d", page, MyGrandexchangeOrdersSize)
 		if code != "" {
 			path += fmt.Sprintf("&code=%s", code)
 		}

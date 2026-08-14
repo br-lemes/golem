@@ -23,8 +23,10 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		items, err := utils.BestFinder(character, "",
-			map[string]int{"initiative": 4, "inventory_space": 2})
+		items, err := utils.BestFinder(character, "", map[string]int{
+			"initiative":      4,
+			"inventory_space": 2,
+		})
 		if err != nil {
 			return err
 		}

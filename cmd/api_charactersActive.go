@@ -49,8 +49,6 @@ var charactersActiveCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(charactersActiveCmd)
-	charactersActiveCmd.Flags().Int("page", 0,
-		"Page number")
-	charactersActiveCmd.Flags().Int("size", 0,
-		"Page size")
+	charactersActiveCmd.Flags().Int("page", 0, "Page number")
+	charactersActiveCmd.Flags().Int("size", 0, "Page size")
 }

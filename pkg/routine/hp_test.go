@@ -46,7 +46,10 @@ func TestHp(t *testing.T) {
 			mockRest: func(name string) (schemas.CharacterRestDataSchema, error) {
 				return schemas.CharacterRestDataSchema{
 					Character: schemas.CharacterSchema{
-						Name: name, Hp: 350, MaxHp: 350},
+						Name:  name,
+						Hp:    350,
+						MaxHp: 350,
+					},
 				}, nil
 			},
 			expectHp:    350,
@@ -65,7 +68,10 @@ func TestHp(t *testing.T) {
 			mockRest: func(name string) (schemas.CharacterRestDataSchema, error) {
 				return schemas.CharacterRestDataSchema{
 					Character: schemas.CharacterSchema{
-						Name: name, Hp: 350, MaxHp: 350},
+						Name:  name,
+						Hp:    350,
+						MaxHp: 350,
+					},
 				}, nil
 			},
 			expectHp:    350,
@@ -89,7 +95,9 @@ func TestHp(t *testing.T) {
 				if item.Code == "cooked_chicken" && item.Quantity == 2 {
 					return schemas.UseItemSchema{
 						Character: schemas.CharacterSchema{
-							Name: name, Hp: 350, MaxHp: 350,
+							Name:  name,
+							Hp:    350,
+							MaxHp: 350,
 							Inventory: &[]schemas.InventorySlotSchema{
 								{Code: "cooked_chicken", Quantity: 3, Slot: 0},
 								{Code: "apple", Quantity: 10, Slot: 1},
@@ -97,8 +105,7 @@ func TestHp(t *testing.T) {
 						},
 					}, nil
 				}
-				return schemas.UseItemSchema{},
-					errors.New("processed inventory after full recovery")
+				return schemas.UseItemSchema{}, errors.New("processed inventory after full recovery")
 			},
 			expectHp:      350,
 			expectUseCode: "cooked_chicken",
@@ -121,11 +128,13 @@ func TestHp(t *testing.T) {
 				if item.Code == "cooked_chicken" && item.Quantity == 2 {
 					return schemas.UseItemSchema{
 						Character: schemas.CharacterSchema{
-							Name: name, Hp: 350, MaxHp: 350},
+							Name:  name,
+							Hp:    350,
+							MaxHp: 350,
+						},
 					}, nil
 				}
-				return schemas.UseItemSchema{},
-					errors.New("should have requested exactly 2 items")
+				return schemas.UseItemSchema{}, errors.New("should have requested exactly 2 items")
 			},
 			expectHp:      350,
 			expectUseCode: "cooked_chicken",
@@ -147,7 +156,10 @@ func TestHp(t *testing.T) {
 			mockRest: func(name string) (schemas.CharacterRestDataSchema, error) {
 				return schemas.CharacterRestDataSchema{
 					Character: schemas.CharacterSchema{
-						Name: name, Hp: 350, MaxHp: 350},
+						Name:  name,
+						Hp:    350,
+						MaxHp: 350,
+					},
 				}, nil
 			},
 			expectHp:    350,
@@ -171,7 +183,9 @@ func TestHp(t *testing.T) {
 				if item.Code == "cooked_chicken" && item.Quantity == 2 {
 					return schemas.UseItemSchema{
 						Character: schemas.CharacterSchema{
-							Name: name, Hp: 300, MaxHp: 350,
+							Name:  name,
+							Hp:    300,
+							MaxHp: 350,
 							Inventory: &[]schemas.InventorySlotSchema{
 								{Code: "apple", Quantity: 5, Slot: 0},
 								{Code: "cooked_chicken", Quantity: 0, Slot: 1},
@@ -182,11 +196,13 @@ func TestHp(t *testing.T) {
 				if item.Code == "apple" && item.Quantity == 1 {
 					return schemas.UseItemSchema{
 						Character: schemas.CharacterSchema{
-							Name: name, Hp: 350, MaxHp: 350},
+							Name:  name,
+							Hp:    350,
+							MaxHp: 350,
+						},
 					}, nil
 				}
-				return schemas.UseItemSchema{},
-					errors.New("unexpected food item combo or quantity")
+				return schemas.UseItemSchema{}, errors.New("unexpected food item combo or quantity")
 			},
 			expectHp:    350,
 			expectError: false,
@@ -206,13 +222,19 @@ func TestHp(t *testing.T) {
 			mockUse: func(name string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error) {
 				return schemas.UseItemSchema{
 					Character: schemas.CharacterSchema{
-						Name: name, Hp: 230, MaxHp: 350},
+						Name:  name,
+						Hp:    230,
+						MaxHp: 350,
+					},
 				}, nil
 			},
 			mockRest: func(name string) (schemas.CharacterRestDataSchema, error) {
 				return schemas.CharacterRestDataSchema{
 					Character: schemas.CharacterSchema{
-						Name: name, Hp: 350, MaxHp: 350},
+						Name:  name,
+						Hp:    350,
+						MaxHp: 350,
+					},
 				}, nil
 			},
 			expectHp:    350,
@@ -276,31 +298,22 @@ func TestHp(t *testing.T) {
 			}
 			resultChar, err := hp(dMock, tt.character, tt.minHp)
 			if (err != nil) != tt.expectError {
-				t.Fatalf(
-					"hp() unexpected error: expected error = %v, got = %v",
-					tt.expectError, err)
+				t.Fatalf("hp() unexpected error: expected error = %v, got = %v", tt.expectError, err)
 			}
 			if tt.expectError {
 				return
 			}
 			if resultChar.Hp != tt.expectHp {
-				t.Errorf("hp() final HP discrepancy: expected = %d, got = %d",
-					tt.expectHp, resultChar.Hp)
+				t.Errorf("hp() final HP discrepancy: expected = %d, got = %d", tt.expectHp, resultChar.Hp)
 			}
 			if restCalled != tt.expectRest {
-				t.Errorf(
-					"hp() rest action call mismatch: expected = %v, got = %v",
-					tt.expectRest, restCalled)
+				t.Errorf("hp() rest action call mismatch: expected = %v, got = %v", tt.expectRest, restCalled)
 			}
 			if tt.expectUseQty > 0 && useCalledWithQty != tt.expectUseQty {
-				t.Errorf(
-					"hp() consumed quantity mismatch: expected = %d, got = %d",
-					tt.expectUseQty, useCalledWithQty)
+				t.Errorf("hp() consumed quantity mismatch: expected = %d, got = %d", tt.expectUseQty, useCalledWithQty)
 			}
 			if tt.expectUseCode != "" && useCalledWithCode != tt.expectUseCode {
-				t.Errorf(
-					"hp() consumed item code mismatch: expected = %s, got = %s",
-					tt.expectUseCode, useCalledWithCode)
+				t.Errorf("hp() consumed item code mismatch: expected = %s, got = %s", tt.expectUseCode, useCalledWithCode)
 			}
 		})
 	}

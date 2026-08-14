@@ -34,8 +34,9 @@ func SaveBank(bank schemas.BankSchema) {
 }
 
 func UpdateBankGold(gold int) {
-	cache.Model(&models.Cache{}).Where("name = ?", "bank").Updates(
-		map[string]any{"data": gorm.Expr("json_set(data, '$.gold', ?)", gold)})
+	cache.Model(&models.Cache{}).Where("name = ?", "bank").Updates(map[string]any{
+		"data": gorm.Expr("json_set(data, '$.gold', ?)", gold),
+	})
 }
 
 func CleanBankItems() {

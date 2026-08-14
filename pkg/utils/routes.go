@@ -44,8 +44,7 @@ func GetRoute(targetPath string) (RouteData, error) {
 			param := paramRef.Value
 			if param != nil {
 				paramType := ""
-				if param.Schema != nil && param.Schema.Value != nil &&
-					param.Schema.Value.Type != nil {
+				if param.Schema != nil && param.Schema.Value != nil && param.Schema.Value.Type != nil {
 					types := *param.Schema.Value.Type
 					if len(types) > 0 {
 						paramType = types[0]
@@ -71,8 +70,7 @@ func GetRoute(targetPath string) (RouteData, error) {
 		if operation.RequestBody != nil && operation.RequestBody.Value != nil {
 			reqBody := operation.RequestBody.Value
 			jsonContent := reqBody.Content.Get("application/json")
-			if jsonContent != nil && jsonContent.Schema != nil &&
-				jsonContent.Schema.Value != nil {
+			if jsonContent != nil && jsonContent.Schema != nil && jsonContent.Schema.Value != nil {
 
 				schema := jsonContent.Schema.Value
 				schemaType := ""

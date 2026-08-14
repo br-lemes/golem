@@ -99,8 +99,10 @@ func foldEffects(acc *EffectiveStats, effects *[]schemas.SimpleEffectSchema, com
 		if isStatCode(e.Code) {
 			addToStats(acc, e.Code, sign*e.Value)
 		} else if isCombatEffect(e.Code) {
-			*combat = append(*combat,
-				EffectEntry{Code: e.Code, Value: sign * e.Value})
+			*combat = append(*combat, EffectEntry{
+				Code:  e.Code,
+				Value: sign * e.Value,
+			})
 		}
 	}
 }

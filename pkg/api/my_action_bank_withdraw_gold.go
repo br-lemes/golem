@@ -21,7 +21,6 @@ func MyActionBankWithdrawGold(name string, quantity int) (schemas.BankGoldTransa
 	}
 	cache.UpdateBankGold(data.Data.Bank.Quantity)
 	cache.SaveCharacter(name, data.Data.Character)
-	handleCooldown(data.Data.Cooldown.TotalSeconds,
-		string(data.Data.Cooldown.Reason))
+	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

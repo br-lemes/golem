@@ -53,12 +53,8 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(accountsAchievementsCmd)
-	accountsAchievementsCmd.Flags().Bool("completed", false,
-		"Filter by completed achievements.")
-	accountsAchievementsCmd.Flags().Int("page", 0,
-		"Page number")
-	accountsAchievementsCmd.Flags().Int("size", 0,
-		"Page size")
-	accountsAchievementsCmd.Flags().String("type", "",
-		"Type of achievements.")
+	accountsAchievementsCmd.Flags().Bool("completed", false, "Filter by completed achievements.")
+	accountsAchievementsCmd.Flags().Int("page", 0, "Page number")
+	accountsAchievementsCmd.Flags().Int("size", 0, "Page size")
+	accountsAchievementsCmd.Flags().String("type", "", "Type of achievements.")
 }

@@ -38,13 +38,11 @@ Arguments:
 		code := args[1]
 		validCharacters := utils.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v",
-				name, validCharacters)
+			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 		}
 		validItems := completion.GetBankItems()
 		if !slices.Contains(validItems, code) {
-			return fmt.Errorf("invalid item %q: allowed values are %v",
-				code, validItems)
+			return fmt.Errorf("invalid item %q: allowed values are %v", code, validItems)
 		}
 		if sellFlags.price <= 0 {
 			return fmt.Errorf("price must be greater than 0")
@@ -71,16 +69,16 @@ Arguments:
 			for _, item := range *sellData.character.Inventory {
 				if item.Code == code {
 					sellData.inventoryItem = schemas.SimpleItemSchema{
-						Code: item.Code, Quantity: item.Quantity}
+						Code:     item.Code,
+						Quantity: item.Quantity,
+					}
 					break
 				}
 			}
 		}
-		totalAvailable := sellData.bankItem.Quantity +
-			sellData.inventoryItem.Quantity
+		totalAvailable := sellData.bankItem.Quantity + sellData.inventoryItem.Quantity
 		if sellFlags.quantity > totalAvailable {
-			return fmt.Errorf("not enough items: required %d, available %d",
-				sellFlags.quantity, totalAvailable)
+			return fmt.Errorf("not enough items: required %d, available %d", sellFlags.quantity, totalAvailable)
 		}
 		return nil
 	},
@@ -93,36 +91,33 @@ Arguments:
 			remaining := sellFlags.quantity - totalSold
 			if sellData.inventoryItem.Quantity == 0 {
 				var err error
-				sellData.character, err =
-					routine.Move(sellData.character, "bank")
+				sellData.character, err = routine.Move(sellData.character, "bank")
 				if err != nil {
 					return err
 				}
 				items := routine.GetInventoryItems(sellData.character, nil)
 				if len(items) > 0 {
-					depositData, err := api.MyActionBankDepositItem(
-						sellData.character.Name, items)
+					depositData, err := api.MyActionBankDepositItem(sellData.character.Name, items)
 					if err != nil {
 						return err
 					}
 					sellData.character = depositData.Character
 				}
-				withdrawQuantity := min(remaining,
-					sellData.character.InventoryMaxItems)
-				withdrawItem := schemas.SimpleItemSchema{
-					Code: code, Quantity: withdrawQuantity}
-				withdrawData, err := api.MyActionBankWithdrawItem(name,
-					[]schemas.SimpleItemSchema{withdrawItem})
+				withdrawQuantity := min(remaining, sellData.character.InventoryMaxItems)
+				withdrawData, err := api.MyActionBankWithdrawItem(name, []schemas.SimpleItemSchema{
+					{Code: code, Quantity: withdrawQuantity},
+				})
 				if err != nil {
 					return err
 				}
 				sellData.character = withdrawData.Character
 				sellData.inventoryItem = schemas.SimpleItemSchema{
-					Code: code, Quantity: withdrawQuantity}
+					Code:     code,
+					Quantity: withdrawQuantity,
+				}
 			}
 			var err error
-			sellData.character, err =
-				routine.Move(sellData.character, "grand_exchange")
+			sellData.character, err = routine.Move(sellData.character, "grand_exchange")
 			if err != nil {
 				return err
 			}
@@ -131,8 +126,7 @@ Arguments:
 				Price:    sellFlags.price,
 				Quantity: min(remaining, sellData.inventoryItem.Quantity, 100),
 			}
-			orderData, err :=
-				api.MyActionGrandexchangeCreateSellOrder(name, order)
+			orderData, err := api.MyActionGrandexchangeCreateSellOrder(name, order)
 			if err != nil {
 				return err
 			}
@@ -146,8 +140,6 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(sellCmd)
-	sellCmd.Flags().IntVarP(&sellFlags.price, "price", "p", 0,
-		"Item price per unit")
-	sellCmd.Flags().IntVarP(&sellFlags.quantity, "quantity", "q", 0,
-		"Item quantity")
+	sellCmd.Flags().IntVarP(&sellFlags.price, "price", "p", 0, "Item price per unit")
+	sellCmd.Flags().IntVarP(&sellFlags.quantity, "quantity", "q", 0, "Item quantity")
 }

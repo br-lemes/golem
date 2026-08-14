@@ -55,8 +55,7 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 		}
 		req, err := ctx.newRequest()
 		if err != nil {
-			cache.APILog(ctx.method, ctx.path, string(ctx.body), err.Error(), 0,
-				0)
+			cache.APILog(ctx.method, ctx.path, string(ctx.body), err.Error(), 0, 0)
 			return nil, err
 		}
 
@@ -90,16 +89,14 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 
 		errMsg := gjson.GetBytes(respBytes, "error.message")
 		if errMsg.Exists() {
-			cache.APILog(ctx.method, ctx.path, string(ctx.body),
-				string(respBytes), resp.StatusCode, 0)
+			cache.APILog(ctx.method, ctx.path, string(ctx.body), string(respBytes), resp.StatusCode, 0)
 			return nil, fmt.Errorf("%s", errMsg.String())
 		}
 
 		cdResult := gjson.GetBytes(respBytes, "data.cooldown.total_seconds")
 		cd := int(cdResult.Int())
 
-		cache.APILog(ctx.method, ctx.path, string(ctx.body), string(respBytes),
-			resp.StatusCode, cd)
+		cache.APILog(ctx.method, ctx.path, string(ctx.body), string(respBytes), resp.StatusCode, cd)
 
 		if cooldown && cd > 0 {
 			reason := gjson.GetBytes(respBytes, "data.cooldown.reason")
@@ -111,8 +108,7 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 }
 
 func (ctx *requestCtx) newRequest() (*http.Request, error) {
-	req, err := http.NewRequest(ctx.method, ctx.baseURL+ctx.path,
-		bytes.NewReader(ctx.body))
+	req, err := http.NewRequest(ctx.method, ctx.baseURL+ctx.path, bytes.NewReader(ctx.body))
 	if err != nil {
 		return nil, err
 	}
@@ -145,8 +141,7 @@ func (ctx *requestCtx) handleClientError(resp *http.Response, respBytes []byte) 
 	} else {
 		message += resp.Status
 	}
-	cache.APILog(ctx.method, ctx.path, string(ctx.body), string(respBytes),
-		resp.StatusCode, 0)
+	cache.APILog(ctx.method, ctx.path, string(ctx.body), string(respBytes), resp.StatusCode, 0)
 	return fmt.Errorf("%s (Status: %d)", message, resp.StatusCode)
 }
 
@@ -164,8 +159,7 @@ func (ctx *requestCtx) handleBackoff(resp *http.Response, respBytes []byte, curr
 
 	format := "%s (Status: %d). Retrying in %v...\n"
 	logMessage := fmt.Sprintf(format, message, resp.StatusCode, currentWait)
-	cache.APILog(ctx.method, ctx.path, string(ctx.body), logMessage,
-		resp.StatusCode, 0)
+	cache.APILog(ctx.method, ctx.path, string(ctx.body), logMessage, resp.StatusCode, 0)
 	console.Errorf(format, message, resp.StatusCode, currentWait)
 	time.Sleep(currentWait)
 

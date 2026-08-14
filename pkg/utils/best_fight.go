@@ -110,12 +110,9 @@ func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema)
 				}
 				slots[s] = best
 			}
-			chooseGroup(slots,
-				ringSlots, pools["ring1"], owned, worn, evaluate)
-			chooseGroup(slots,
-				artifactSlots, pools["artifact1"], nil, worn, evaluate)
-			chooseGroup(slots,
-				utilitySlots, pools["utility1"], nil, worn, evaluate)
+			chooseGroup(slots, ringSlots, pools["ring1"], owned, worn, evaluate)
+			chooseGroup(slots, artifactSlots, pools["artifact1"], nil, worn, evaluate)
+			chooseGroup(slots, utilitySlots, pools["utility1"], nil, worn, evaluate)
 		}
 
 		f, sc, safe := evaluate(slots)
@@ -352,8 +349,7 @@ func makeFightEvaluator(base EffectiveStats, monster schemas.MonsterSchema, worn
 		tiebreak := float64(filled)*1e-3 + float64(keep)*1e-4
 
 		if !f.Win || f.TimedOut {
-			return f, -1e12 + float64(f.Turns)*1000 + float64(f.HpRemaining) +
-				tiebreak, false
+			return f, -1e12 + float64(f.Turns)*1000 + float64(f.HpRemaining) + tiebreak, false
 		}
 		worst := Simulate(fighter, monster, SimOptions{Pessimistic: true})
 		score := float64(f.HpRemaining)*1000 - float64(f.Turns) + tiebreak

@@ -57,10 +57,7 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(achievementsCmd)
-	achievementsCmd.Flags().Int("page", 0,
-		"Page number")
-	achievementsCmd.Flags().Int("size", 0,
-		"Page size")
-	achievementsCmd.Flags().String("type", "",
-		"Type of achievements.")
+	achievementsCmd.Flags().Int("page", 0, "Page number")
+	achievementsCmd.Flags().Int("size", 0, "Page size")
+	achievementsCmd.Flags().String("type", "", "Type of achievements.")
 }

@@ -53,8 +53,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionGiveGoldCmd)
-	myActionGiveGoldCmd.Flags().String("character", "",
-		"Character name. The name of the character who will receive the gold.")
-	myActionGiveGoldCmd.Flags().Int("quantity", 0,
-		"Gold quantity.")
+	myActionGiveGoldCmd.Flags().String("character", "", "Character name. The name of the character who will receive the gold.")
+	myActionGiveGoldCmd.Flags().Int("quantity", 0, "Gold quantity.")
 }

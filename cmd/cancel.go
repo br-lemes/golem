@@ -32,8 +32,7 @@ Arguments:
 		id := args[1]
 		validCharacters := utils.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v",
-				name, validCharacters)
+			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 		}
 		if id == "" {
 			return fmt.Errorf("id must not be empty")
@@ -65,8 +64,7 @@ Arguments:
 		id := args[1]
 
 		var err error
-		cancelData.character, err =
-			routine.Move(cancelData.character, "grand_exchange")
+		cancelData.character, err = routine.Move(cancelData.character, "grand_exchange")
 		if err != nil {
 			return err
 		}

@@ -49,8 +49,6 @@ var eventsActiveCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(eventsActiveCmd)
-	eventsActiveCmd.Flags().Int("page", 0,
-		"Page number")
-	eventsActiveCmd.Flags().Int("size", 0,
-		"Page size")
+	eventsActiveCmd.Flags().Int("page", 0, "Page number")
+	eventsActiveCmd.Flags().Int("size", 0, "Page size")
 }

@@ -40,14 +40,12 @@ Arguments:
 		code := args[1]
 		validCharacters := utils.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v",
-				name, validCharacters)
+			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 		}
 		var exists bool
 		npcBuyData.item, exists = database.NpcsItems.Get(code)
 		if npcBuyData.item == nil || !exists {
-			return fmt.Errorf("invalid item %q: allowed values are %v",
-				args[1], completion.GetNPCBuyItems())
+			return fmt.Errorf("invalid item %q: allowed values are %v", args[1], completion.GetNPCBuyItems())
 		}
 		if npcBuyData.item.BuyPrice == nil || *npcBuyData.item.BuyPrice <= 0 {
 			return fmt.Errorf("item %q does not have a buy price", code)
@@ -60,12 +58,8 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		if npcBuyData.item.Currency != "gold" &&
-			*npcBuyData.item.BuyPrice > npcBuyData.character.InventoryMaxItems {
-			return fmt.Errorf(
-				"not enough inventory space: required %d, available %d",
-				*npcBuyData.item.BuyPrice,
-				npcBuyData.character.InventoryMaxItems)
+		if npcBuyData.item.Currency != "gold" && *npcBuyData.item.BuyPrice > npcBuyData.character.InventoryMaxItems {
+			return fmt.Errorf("not enough inventory space: required %d, available %d", *npcBuyData.item.BuyPrice, npcBuyData.character.InventoryMaxItems)
 		}
 		if npcBuyData.item.Currency == "gold" {
 			bank, err := api.MyBank()
@@ -76,8 +70,7 @@ Arguments:
 			totalGold := npcBuyData.character.Gold + npcBuyData.bankGold
 			requiredGold := npcBuyFlags.quantity * *npcBuyData.item.BuyPrice
 			if totalGold < requiredGold {
-				return fmt.Errorf("not enough gold: required %d, available %d",
-					requiredGold, totalGold)
+				return fmt.Errorf("not enough gold: required %d, available %d", requiredGold, totalGold)
 			}
 			return nil
 		}
@@ -95,16 +88,16 @@ Arguments:
 		for _, item := range inventoryItems() {
 			if item.Code == npcBuyData.item.Currency {
 				npcBuyData.inventoryItem = schemas.SimpleItemSchema{
-					Code: item.Code, Quantity: item.Quantity}
+					Code:     item.Code,
+					Quantity: item.Quantity,
+				}
 				break
 			}
 		}
-		totalAvailable := npcBuyData.bankItem.Quantity +
-			npcBuyData.inventoryItem.Quantity
+		totalAvailable := npcBuyData.bankItem.Quantity + npcBuyData.inventoryItem.Quantity
 		totalNeeded := npcBuyFlags.quantity * *npcBuyData.item.BuyPrice
 		if totalAvailable < totalNeeded {
-			return fmt.Errorf("not enough items: required %d, available %d",
-				totalNeeded, totalAvailable)
+			return fmt.Errorf("not enough items: required %d, available %d", totalNeeded, totalAvailable)
 		}
 		return nil
 	},
@@ -132,8 +125,7 @@ Arguments:
 			remaining := npcBuyFlags.quantity - totalBought
 			quantity := min(remaining, npcBuyData.character.InventoryMaxItems)
 			if npcBuyData.item.Currency != "gold" {
-				maxByCurrency := npcBuyData.character.InventoryMaxItems /
-					*npcBuyData.item.BuyPrice
+				maxByCurrency := npcBuyData.character.InventoryMaxItems / *npcBuyData.item.BuyPrice
 				quantity = min(quantity, maxByCurrency)
 			}
 			cost := quantity * *npcBuyData.item.BuyPrice
@@ -154,8 +146,7 @@ Arguments:
 			} else {
 				needBank := false
 				for _, invItem := range inventoryItems() {
-					if invItem.Code != "" &&
-						invItem.Code != npcBuyData.item.Currency {
+					if invItem.Code != "" && invItem.Code != npcBuyData.item.Currency {
 						needBank = true
 						break
 					}
@@ -191,8 +182,7 @@ Arguments:
 
 func init() {
 	npcCmd.AddCommand(npcBuyCmd)
-	npcBuyCmd.Flags().IntVarP(&npcBuyFlags.quantity, "quantity", "q", 0,
-		"Item quantity")
+	npcBuyCmd.Flags().IntVarP(&npcBuyFlags.quantity, "quantity", "q", 0, "Item quantity")
 }
 
 func inventoryItems() []schemas.InventorySlotSchema {
@@ -210,8 +200,7 @@ func moveBank() error {
 
 func moveNpc() error {
 	var err error
-	npcBuyData.character, err = routine.Move(npcBuyData.character,
-		npcBuyData.item.Npc)
+	npcBuyData.character, err = routine.Move(npcBuyData.character, npcBuyData.item.Npc)
 	return err
 }
 
@@ -241,8 +230,9 @@ func withdrawGold(quantity int) error {
 
 func withdrawItem(quantity int) error {
 	name := npcBuyData.character.Name
-	items := []schemas.SimpleItemSchema{{
-		Code: npcBuyData.item.Currency, Quantity: quantity}}
+	items := []schemas.SimpleItemSchema{
+		{Code: npcBuyData.item.Currency, Quantity: quantity},
+	}
 	withdrawData, err := api.MyActionBankWithdrawItem(name, items)
 	if err != nil {
 		return err

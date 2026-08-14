@@ -49,6 +49,5 @@ var gemsShopSpawnEventCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(gemsShopSpawnEventCmd)
-	gemsShopSpawnEventCmd.Flags().String("code", "",
-		"Code of the event to spawn")
+	gemsShopSpawnEventCmd.Flags().String("code", "", "Code of the event to spawn")
 }

@@ -21,8 +21,7 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	for _, item := range bankItems {
 		bankQty[item.Code] += item.Quantity
 	}
-	needsUtility, err :=
-		utilityCheck(character, opts.Utility1, opts.Utility2, bankQty)
+	needsUtility, err := utilityCheck(character, opts.Utility1, opts.Utility2, bankQty)
 	if err != nil {
 		return character, err
 	}
@@ -43,8 +42,7 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 		}
 		character = depositData.Character
 	}
-	character, err =
-		utilityRestock(d, character, opts.Utility1, opts.Utility2, bankQty)
+	character, err = utilityRestock(d, character, opts.Utility1, opts.Utility2, bankQty)
 	if err != nil {
 		return character, err
 	}

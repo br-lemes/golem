@@ -41,8 +41,7 @@ Arguments:
 			return err
 		}
 		if character.TaskType != "" && character.TaskType != "items" {
-			return fmt.Errorf("has another task type: %s %s",
-				character.TaskType, character.Task)
+			return fmt.Errorf("has another task type: %s %s", character.TaskType, character.Task)
 		}
 		routine.Cooldown(character)
 
@@ -60,8 +59,7 @@ Arguments:
 				character = newTask.Character
 			}
 			if character.TaskType != "items" {
-				return fmt.Errorf("has another task type: %s %s",
-					character.TaskType, character.Task)
+				return fmt.Errorf("has another task type: %s %s", character.TaskType, character.Task)
 			}
 			bankItems, err := api.MyBankItems()
 			if err != nil {
@@ -71,8 +69,7 @@ Arguments:
 			bankQty := taskItemBankQty(bankItems, character.Task)
 			needed := character.TaskTotal - character.TaskProgress
 			if !cancelMissing && !isForbidden && bankQty < needed {
-				return fmt.Errorf("missing item: %s (have %d, need %d)",
-					character.Task, bankQty, needed)
+				return fmt.Errorf("missing item: %s (have %d, need %d)", character.Task, bankQty, needed)
 			}
 			if !isForbidden && bankQty >= needed {
 				cancelsInARow = 0
@@ -82,8 +79,7 @@ Arguments:
 						return err
 					}
 					remaining := character.TaskTotal - character.TaskProgress
-					toWithdraw := min(remaining,
-						taskItemInvSpace(character, tasksCoinBuffer))
+					toWithdraw := min(remaining, taskItemInvSpace(character, tasksCoinBuffer))
 					withdraw := []schemas.SimpleItemSchema{
 						{Code: character.Task, Quantity: toWithdraw},
 					}
@@ -92,25 +88,22 @@ Arguments:
 						coinsInBank := taskItemBankQty(bankItems, tasksCoin)
 						topUp := min(tasksCoinBuffer-coinsHeld, coinsInBank)
 						if topUp > 0 {
-							withdraw = append(withdraw,
-								schemas.SimpleItemSchema{
-									Code:     tasksCoin,
-									Quantity: topUp,
-								})
+							withdraw = append(withdraw, schemas.SimpleItemSchema{
+								Code:     tasksCoin,
+								Quantity: topUp,
+							})
 						}
 					}
-					bankData, err :=
-						api.MyActionBankWithdrawItem(name, withdraw)
+					bankData, err := api.MyActionBankWithdrawItem(name, withdraw)
 					if err != nil {
 						return err
 					}
 					character = bankData.Character
 					if coinsHeld > tasksCoinBuffer {
 						excess := coinsHeld - tasksCoinBuffer
-						bankData, err = api.MyActionBankDepositItem(name,
-							[]schemas.SimpleItemSchema{
-								{Code: tasksCoin, Quantity: excess},
-							})
+						bankData, err = api.MyActionBankDepositItem(name, []schemas.SimpleItemSchema{
+							{Code: tasksCoin, Quantity: excess},
+						})
 						if err != nil {
 							return err
 						}
@@ -120,11 +113,10 @@ Arguments:
 					if err != nil {
 						return err
 					}
-					trade, err := api.MyActionTaskTrade(name,
-						schemas.SimpleItemSchema{
-							Code:     character.Task,
-							Quantity: toWithdraw,
-						})
+					trade, err := api.MyActionTaskTrade(name, schemas.SimpleItemSchema{
+						Code:     character.Task,
+						Quantity: toWithdraw,
+					})
 					if err != nil {
 						return err
 					}
@@ -138,18 +130,16 @@ Arguments:
 				continue
 			}
 			if cancelsInARow >= tasksMaxCancel {
-				return fmt.Errorf("reached %d consecutive task cancellations",
-					tasksMaxCancel)
+				return fmt.Errorf("reached %d consecutive task cancellations", tasksMaxCancel)
 			}
 			if taskItemInvQty(character, tasksCoin) < 1 {
 				character, err = routine.Move(character, "bank")
 				if err != nil {
 					return err
 				}
-				bankData, err := api.MyActionBankWithdrawItem(name,
-					[]schemas.SimpleItemSchema{
-						{Code: tasksCoin, Quantity: tasksCoinBuffer},
-					})
+				bankData, err := api.MyActionBankWithdrawItem(name, []schemas.SimpleItemSchema{
+					{Code: tasksCoin, Quantity: tasksCoinBuffer},
+				})
 				if err != nil {
 					return err
 				}
@@ -170,13 +160,10 @@ Arguments:
 }
 
 func init() {
-	taskItemCmd.Flags().IntP("coin-buffer", "b", 3,
-		"Buffer of coins to keep in inventory")
-	taskItemCmd.Flags().IntP("max-cancel", "c", 3,
-		"Maximum consecutive task cancellations")
-	taskItemCmd.Flags().Bool("cancel-missing", false,
-		"Cancel task if required items are missing in bank")
 	taskCmd.AddCommand(taskItemCmd)
+	taskItemCmd.Flags().IntP("coin-buffer", "b", 3, "Buffer of coins to keep in inventory")
+	taskItemCmd.Flags().IntP("max-cancel", "c", 3, "Maximum consecutive task cancellations")
+	taskItemCmd.Flags().Bool("cancel-missing", false, "Cancel task if required items are missing in bank")
 }
 
 func taskItemBankQty(items []schemas.SimpleItemSchema, code string) int {

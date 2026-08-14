@@ -53,10 +53,7 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionMoveCmd)
-	myActionMoveCmd.Flags().Int("map_id", 0,
-		"The map ID of the destination.")
-	myActionMoveCmd.Flags().Int("x", 0,
-		"The x coordinate of the destination.")
-	myActionMoveCmd.Flags().Int("y", 0,
-		"The y coordinate of the destination.")
+	myActionMoveCmd.Flags().Int("map_id", 0, "The map ID of the destination.")
+	myActionMoveCmd.Flags().Int("x", 0, "The x coordinate of the destination.")
+	myActionMoveCmd.Flags().Int("y", 0, "The y coordinate of the destination.")
 }

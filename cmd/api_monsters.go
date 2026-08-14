@@ -57,16 +57,10 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(monstersCmd)
-	monstersCmd.Flags().String("drop", "",
-		"Item code of the drop.")
-	monstersCmd.Flags().Int("max_level", 0,
-		"Maximum level.")
-	monstersCmd.Flags().Int("min_level", 0,
-		"Minimum level.")
-	monstersCmd.Flags().String("name", "",
-		"Name of the monster.")
-	monstersCmd.Flags().Int("page", 0,
-		"Page number")
-	monstersCmd.Flags().Int("size", 0,
-		"Page size")
+	monstersCmd.Flags().String("drop", "", "Item code of the drop.")
+	monstersCmd.Flags().Int("max_level", 0, "Maximum level.")
+	monstersCmd.Flags().Int("min_level", 0, "Minimum level.")
+	monstersCmd.Flags().String("name", "", "Name of the monster.")
+	monstersCmd.Flags().Int("page", 0, "Page number")
+	monstersCmd.Flags().Int("size", 0, "Page size")
 }

@@ -53,10 +53,7 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionEquipCmd)
-	myActionEquipCmd.Flags().String("code", "",
-		"Item code.")
-	myActionEquipCmd.Flags().Int("quantity", 0,
-		"Item quantity. Applicable to utilities only.")
-	myActionEquipCmd.Flags().String("slot", "",
-		"Item slot.")
+	myActionEquipCmd.Flags().String("code", "", "Item code.")
+	myActionEquipCmd.Flags().Int("quantity", 0, "Item quantity. Applicable to utilities only.")
+	myActionEquipCmd.Flags().String("slot", "", "Item slot.")
 }

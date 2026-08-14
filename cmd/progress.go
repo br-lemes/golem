@@ -79,11 +79,9 @@ func progressFormat(achievements []schemas.AccountAchievementSchema) map[string]
 			if objective.Progress != nil {
 				progressVal = *objective.Progress
 			}
-			result[name] = append(result[name],
-				map[schemas.AchievementType]string{
-					objective.Type: fmt.Sprintf("%s (%d/%d)",
-						targetVal, progressVal, objective.Total),
-				})
+			result[name] = append(result[name], map[schemas.AchievementType]string{
+				objective.Type: fmt.Sprintf("%s (%d/%d)", targetVal, progressVal, objective.Total),
+			})
 		}
 	}
 	return result

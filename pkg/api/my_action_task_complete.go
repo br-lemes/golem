@@ -20,7 +20,6 @@ func MyActionTaskComplete(name string) (schemas.RewardDataSchema, error) {
 		return schemas.RewardDataSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
-	handleCooldown(data.Data.Cooldown.TotalSeconds,
-		string(data.Data.Cooldown.Reason))
+	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

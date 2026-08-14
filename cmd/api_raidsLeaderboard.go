@@ -53,8 +53,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(raidsLeaderboardCmd)
-	raidsLeaderboardCmd.Flags().Int("page", 0,
-		"Page number")
-	raidsLeaderboardCmd.Flags().Int("size", 0,
-		"Page size")
+	raidsLeaderboardCmd.Flags().Int("page", 0, "Page number")
+	raidsLeaderboardCmd.Flags().Int("size", 0, "Page size")
 }

@@ -24,9 +24,7 @@ func AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, e
 	result := []schemas.AccountAchievementSchema{}
 	page := 1
 	for {
-		resp, err := Get(
-			fmt.Sprintf("/accounts/%s/achievements?page=%d&size=%d",
-				account, page, AccountsAchievementsSize), nil)
+		resp, err := Get(fmt.Sprintf("/accounts/%s/achievements?page=%d&size=%d", account, page, AccountsAchievementsSize), nil)
 		if err != nil {
 			return nil, err
 		}

@@ -49,12 +49,8 @@ var myGrandexchangeOrdersCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(myGrandexchangeOrdersCmd)
-	myGrandexchangeOrdersCmd.Flags().String("code", "",
-		"The code of the item.")
-	myGrandexchangeOrdersCmd.Flags().Int("page", 0,
-		"Page number")
-	myGrandexchangeOrdersCmd.Flags().Int("size", 0,
-		"Page size")
-	myGrandexchangeOrdersCmd.Flags().String("type", "",
-		"Filter by order type (sell or buy).")
+	myGrandexchangeOrdersCmd.Flags().String("code", "", "The code of the item.")
+	myGrandexchangeOrdersCmd.Flags().Int("page", 0, "Page number")
+	myGrandexchangeOrdersCmd.Flags().Int("size", 0, "Page size")
+	myGrandexchangeOrdersCmd.Flags().String("type", "", "Filter by order type (sell or buy).")
 }

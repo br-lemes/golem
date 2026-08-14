@@ -12,8 +12,7 @@ func (b *CompletionBuilder) Build() func(*cobra.Command, []string, string) ([]st
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		currentOffset := 0
 		for _, validator := range b.validators {
-			suggestions, consumed, matched :=
-				validator(cmd, args, toComplete, currentOffset)
+			suggestions, consumed, matched := validator(cmd, args, toComplete, currentOffset)
 			if matched {
 				return suggestions, cobra.ShellCompDirectiveNoFileComp
 			}

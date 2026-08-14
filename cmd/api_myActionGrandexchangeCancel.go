@@ -53,6 +53,5 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionGrandexchangeCancelCmd)
-	myActionGrandexchangeCancelCmd.Flags().String("id", "",
-		"Order id.")
+	myActionGrandexchangeCancelCmd.Flags().String("id", "", "Order id.")
 }

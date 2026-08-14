@@ -37,13 +37,11 @@ Arguments:
 		code := args[1]
 		validCharacters := utils.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v",
-				name, validCharacters)
+			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 		}
 		validItems := completion.GetBankItems()
 		if !slices.Contains(validItems, code) {
-			return fmt.Errorf("invalid item %q: allowed values are %v",
-				code, validItems)
+			return fmt.Errorf("invalid item %q: allowed values are %v", code, validItems)
 		}
 		if relistFlags.price <= 0 {
 			return fmt.Errorf("price must be greater than 0")
@@ -88,8 +86,7 @@ Arguments:
 			qtyToCancel := min(remaining, order.Quantity)
 
 			var err error
-			relistData.character, err =
-				routine.Move(relistData.character, "grand_exchange")
+			relistData.character, err = routine.Move(relistData.character, "grand_exchange")
 			if err != nil {
 				return err
 			}
@@ -104,9 +101,11 @@ Arguments:
 			oldQtyToRecreate := order.Quantity - qtyToCancel
 			if oldQtyToRecreate > 0 {
 				oldOrder := schemas.GEOrderCreationSchema{
-					Code: code, Price: order.Price, Quantity: oldQtyToRecreate}
-				createOldData, err :=
-					api.MyActionGrandexchangeCreateSellOrder(name, oldOrder)
+					Code:     code,
+					Price:    order.Price,
+					Quantity: oldQtyToRecreate,
+				}
+				createOldData, err := api.MyActionGrandexchangeCreateSellOrder(name, oldOrder)
 				if err != nil {
 					return err
 				}
@@ -114,9 +113,11 @@ Arguments:
 			}
 
 			newOrder := schemas.GEOrderCreationSchema{
-				Code: code, Price: relistFlags.price, Quantity: qtyToCancel}
-			createNewData, err :=
-				api.MyActionGrandexchangeCreateSellOrder(name, newOrder)
+				Code:     code,
+				Price:    relistFlags.price,
+				Quantity: qtyToCancel,
+			}
+			createNewData, err := api.MyActionGrandexchangeCreateSellOrder(name, newOrder)
 			if err != nil {
 				return err
 			}
@@ -130,8 +131,6 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(relistCmd)
-	relistCmd.Flags().IntVarP(&relistFlags.price, "price", "p", 0,
-		"Item price per unit")
-	relistCmd.Flags().IntVarP(&relistFlags.quantity, "quantity", "q", 0,
-		"Item quantity (0 for all)")
+	relistCmd.Flags().IntVarP(&relistFlags.price, "price", "p", 0, "Item price per unit")
+	relistCmd.Flags().IntVarP(&relistFlags.quantity, "quantity", "q", 0, "Item quantity (0 for all)")
 }

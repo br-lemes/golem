@@ -35,7 +35,11 @@ Arguments:
 		}
 
 		items, err := utils.BestFinder(character, skill, map[string]int{
-			skill: 16, "prospecting": 8, "wisdom": 4, "inventory_space": 2})
+			skill:             16,
+			"prospecting":     8,
+			"wisdom":          4,
+			"inventory_space": 2,
+		})
 		if err != nil {
 			return err
 		}

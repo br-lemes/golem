@@ -57,8 +57,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(badgesCmd)
-	badgesCmd.Flags().Int("page", 0,
-		"Page number")
-	badgesCmd.Flags().Int("size", 0,
-		"Page size")
+	badgesCmd.Flags().Int("page", 0, "Page number")
+	badgesCmd.Flags().Int("size", 0, "Page size")
 }

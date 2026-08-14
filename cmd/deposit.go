@@ -34,8 +34,7 @@ Arguments:
 		}
 		items := routine.GetInventoryItems(character, keepTypes)
 		if len(items) > 0 {
-			_, err = api.MyActionBankDepositItem(character.Name,
-				routine.GetInventoryItems(character, keepTypes))
+			_, err = api.MyActionBankDepositItem(character.Name, routine.GetInventoryItems(character, keepTypes))
 			if err != nil {
 				return err
 			}
@@ -52,8 +51,7 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(depositCmd)
-	depositCmd.Flags().StringSliceVarP(&keepTypes, "keep", "k", []string{},
-		"Types of items to keep in inventory")
+	depositCmd.Flags().StringSliceVarP(&keepTypes, "keep", "k", []string{}, "Types of items to keep in inventory")
 	err := depositCmd.RegisterFlagCompletionFunc("keep", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		types := database.GetItemTypes()
 		types = append(types, "gold")

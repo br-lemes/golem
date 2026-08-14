@@ -22,8 +22,7 @@ Arguments:
   name           Name of your character.
   code           The code of the boss.
   participants   Names of other characters in your account to fight alongside.`,
-	ValidArgsFunction: completion.CharacterName(1).Boss(1).CharacterName(2).
-		Build(),
+	ValidArgsFunction: completion.CharacterName(1).Boss(1).CharacterName(2).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
@@ -31,17 +30,14 @@ Arguments:
 		switch len(participants) {
 		case 1:
 			if participants[0] == name {
-				return fmt.Errorf(
-					"participants cannot include the main character")
+				return fmt.Errorf("participants cannot include the main character")
 			}
 		case 2:
 			if participants[0] == participants[1] {
-				return fmt.Errorf(
-					"participants cannot include the same character twice")
+				return fmt.Errorf("participants cannot include the same character twice")
 			}
 			if participants[0] == name || participants[1] == name {
-				return fmt.Errorf(
-					"participants cannot include the main character")
+				return fmt.Errorf("participants cannot include the main character")
 			}
 		}
 		boss, found := database.GetMonster(code)
@@ -74,8 +70,7 @@ Arguments:
 			}
 		}
 		if minLevel < boss.Level {
-			console.Printf("Your minimum level %d < boss level %d\n",
-				minLevel, boss.Level)
+			console.Printf("Your minimum level %d < boss level %d\n", minLevel, boss.Level)
 			if !console.Confirm("Do you want to continue?") {
 				cmd.SilenceUsage = true
 				return fmt.Errorf("operation cancelled")
@@ -111,8 +106,6 @@ func init() {
 	rootCmd.AddCommand(bossCmd)
 	bossCmd.Flags().String("food", "", "auto-stock food from bank")
 	bossCmd.Flags().Lookup("food").NoOptDefVal = "auto"
-	bossCmd.Flags().String("utility1", "",
-		"item code to auto-refill in utility1 slot")
-	bossCmd.Flags().String("utility2", "",
-		"item code to auto-refill in utility2 slot")
+	bossCmd.Flags().String("utility1", "", "item code to auto-refill in utility1 slot")
+	bossCmd.Flags().String("utility2", "", "item code to auto-refill in utility2 slot")
 }

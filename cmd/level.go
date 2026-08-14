@@ -39,21 +39,18 @@ Arguments:
 			}
 		}
 		if !slices.Contains(levelGroups, levelFlags.group) {
-			return fmt.Errorf("invalid group %q: allowed values are %v",
-				levelFlags.group, levelGroups)
+			return fmt.Errorf("invalid group %q: allowed values are %v", levelFlags.group, levelGroups)
 		}
 		validSkills := database.GetEnum("CharacterLeaderboardType")
 		for _, skill := range levelFlags.skill {
 			if !slices.Contains(validSkills, skill) {
-				return fmt.Errorf("invalid skill %q: allowed values are %v",
-					skill, validSkills)
+				return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
 			}
 		}
 		validCharacters := utils.GetCharacters()
 		for _, character := range levelFlags.character {
 			if !slices.Contains(validCharacters, character) {
-				return fmt.Errorf("invalid character %q: allowed values are %v",
-					character, validCharacters)
+				return fmt.Errorf("invalid character %q: allowed values are %v", character, validCharacters)
 			}
 		}
 		return nil
@@ -84,13 +81,9 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(levelCmd)
-	levelCmd.Flags().StringVarP(&levelFlags.group, "group", "g", "",
-		`Group by "skill" or "character"`+
-			` (defaults to "character" with --character, else "skill")`)
-	levelCmd.Flags().StringSliceVarP(&levelFlags.skill, "skill", "k",
-		[]string{}, "Show the level of specific skills")
-	levelCmd.Flags().StringSliceVarP(&levelFlags.character, "character", "c",
-		[]string{}, "Show the level of specific characters")
+	levelCmd.Flags().StringVarP(&levelFlags.group, "group", "g", "", `Group by "skill" or "character" (defaults to "character" with --character, else "skill")`)
+	levelCmd.Flags().StringSliceVarP(&levelFlags.skill, "skill", "k", []string{}, "Show the level of specific skills")
+	levelCmd.Flags().StringSliceVarP(&levelFlags.character, "character", "c", []string{}, "Show the level of specific characters")
 	err := levelCmd.RegisterFlagCompletionFunc("group", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return levelGroups, cobra.ShellCompDirectiveNoFileComp
 	})
@@ -152,8 +145,7 @@ func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) e
 	for _, skill := range skills {
 		levels[skill] = map[string]int{}
 		for _, character := range characters {
-			levels[skill][character.Name] =
-				utils.GetCharacterSkillLevel(character, skill)
+			levels[skill][character.Name] = utils.GetCharacterSkillLevel(character, skill)
 		}
 	}
 	return console.Auto(levels)
@@ -170,8 +162,7 @@ func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []strin
 	for _, character := range characters {
 		levels[character.Name] = map[string]int{}
 		for _, skill := range skills {
-			levels[character.Name][skill] =
-				utils.GetCharacterSkillLevel(character, skill)
+			levels[character.Name][skill] = utils.GetCharacterSkillLevel(character, skill)
 		}
 	}
 	return console.Auto(levels)

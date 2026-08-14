@@ -49,8 +49,6 @@ var gameAssistantAskCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(gameAssistantAskCmd)
-	gameAssistantAskCmd.Flags().Bool("pay_with_gems", false,
-		"Spend 1 gem if no free member question is available.")
-	gameAssistantAskCmd.Flags().String("question", "",
-		"Your question")
+	gameAssistantAskCmd.Flags().Bool("pay_with_gems", false, "Spend 1 gem if no free member question is available.")
+	gameAssistantAskCmd.Flags().String("question", "", "Your question")
 }

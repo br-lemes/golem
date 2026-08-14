@@ -57,16 +57,10 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(npcsDetailsCmd)
-	npcsDetailsCmd.Flags().String("currency", "",
-		"Currency code to filter NPCs that trade with this currency.")
-	npcsDetailsCmd.Flags().String("item", "",
-		"Item code to filter NPCs that trade this item.")
-	npcsDetailsCmd.Flags().String("name", "",
-		"NPC name.")
-	npcsDetailsCmd.Flags().Int("page", 0,
-		"Page number")
-	npcsDetailsCmd.Flags().Int("size", 0,
-		"Page size")
-	npcsDetailsCmd.Flags().String("type", "",
-		"Type of NPCs.")
+	npcsDetailsCmd.Flags().String("currency", "", "Currency code to filter NPCs that trade with this currency.")
+	npcsDetailsCmd.Flags().String("item", "", "Item code to filter NPCs that trade this item.")
+	npcsDetailsCmd.Flags().String("name", "", "NPC name.")
+	npcsDetailsCmd.Flags().Int("page", 0, "Page number")
+	npcsDetailsCmd.Flags().Int("size", 0, "Page size")
+	npcsDetailsCmd.Flags().String("type", "", "Type of NPCs.")
 }

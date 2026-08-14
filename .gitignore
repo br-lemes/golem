@@ -1,6 +1,7 @@
 /cmd/test.go
 /coverage.html
 /coverage.out
+/custom-gcl
 /golem-linux-amd64
 /golem-linux-arm64
 /golem-windows-amd64.exe

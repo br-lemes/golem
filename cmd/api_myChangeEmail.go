@@ -49,8 +49,6 @@ var myChangeEmailCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(myChangeEmailCmd)
-	myChangeEmailCmd.Flags().String("current_email", "",
-		"Your current email.")
-	myChangeEmailCmd.Flags().String("new_email", "",
-		"New email.")
+	myChangeEmailCmd.Flags().String("current_email", "", "Your current email.")
+	myChangeEmailCmd.Flags().String("new_email", "", "New email.")
 }

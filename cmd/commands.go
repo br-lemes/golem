@@ -17,8 +17,7 @@ var commandsCmd = &cobra.Command{
 
 Arguments:
   command   Name of a specific command to inspect.`,
-	ValidArgsFunction: completion.Custom(1, utils.GetCommandsCompletion).
-		Build(),
+	ValidArgsFunction: completion.Custom(1, utils.GetCommandsCompletion).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		commands, err := utils.GetCommands()
 		if err != nil {
@@ -53,6 +52,5 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(commandsCmd)
-	commandsCmd.Flags().BoolP("missing", "m", false,
-		"Show only commands with missing implementation")
+	commandsCmd.Flags().BoolP("missing", "m", false, "Show only commands with missing implementation")
 }

@@ -10,8 +10,9 @@ import (
 )
 
 func MyActionFight(name string, participants []string) (schemas.CharacterFightDataSchema, error) {
-	resp, err := PostNoCooldown(fmt.Sprintf("/my/%s/action/fight", name),
-		schemas.FightRequestSchema{Participants: &participants})
+	resp, err := PostNoCooldown(fmt.Sprintf("/my/%s/action/fight", name), schemas.FightRequestSchema{
+		Participants: &participants,
+	})
 	if err != nil {
 		return schemas.CharacterFightDataSchema{}, err
 	}
@@ -38,7 +39,6 @@ func MyActionFight(name string, participants []string) (schemas.CharacterFightDa
 	} else {
 		console.Printf("💀 Fight lost!\n")
 	}
-	handleCooldown(data.Data.Cooldown.TotalSeconds,
-		string(data.Data.Cooldown.Reason))
+	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

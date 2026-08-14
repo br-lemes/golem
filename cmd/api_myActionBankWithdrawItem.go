@@ -53,8 +53,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionBankWithdrawItemCmd)
-	myActionBankWithdrawItemCmd.Flags().String("code", "",
-		"Item code.")
-	myActionBankWithdrawItemCmd.Flags().Int("quantity", 0,
-		"Item quantity.")
+	myActionBankWithdrawItemCmd.Flags().String("code", "", "Item code.")
+	myActionBankWithdrawItemCmd.Flags().Int("quantity", 0, "Item quantity.")
 }

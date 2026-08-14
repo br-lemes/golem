@@ -53,8 +53,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionCraftingCmd)
-	myActionCraftingCmd.Flags().String("code", "",
-		"Craft code.")
-	myActionCraftingCmd.Flags().Int("quantity", 0,
-		"Quantity of items to craft.")
+	myActionCraftingCmd.Flags().String("code", "", "Craft code.")
+	myActionCraftingCmd.Flags().Int("quantity", 0, "Quantity of items to craft.")
 }

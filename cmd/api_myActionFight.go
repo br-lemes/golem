@@ -36,9 +36,7 @@ Arguments:
 			participants = args[1:]
 		}
 
-		params := map[string][]string{
-			"participants": participants,
-		}
+		params := map[string][]string{"participants": participants}
 
 		resp, err := api.Post(path, params)
 		if err != nil {

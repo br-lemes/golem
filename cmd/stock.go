@@ -59,16 +59,13 @@ var stockCmd = &cobra.Command{
 		maxSkillLevel := map[string]int{}
 		for _, character := range characters {
 			for _, skill := range skills {
-				maxSkillLevel[skill] = max(maxSkillLevel[skill],
-					utils.GetCharacterSkillLevel(character, skill))
+				maxSkillLevel[skill] = max(maxSkillLevel[skill], utils.GetCharacterSkillLevel(character, skill))
 			}
 		}
 		tasks := database.GetTasksList()
 		result := map[string]ItemStock{}
 		for _, task := range tasks {
-			if task.Skill == nil || task.Type != "items" ||
-				task.Level > maxSkillLevel[*task.Skill] ||
-				slices.Contains(forbiddenTaskItem, task.Code) {
+			if task.Skill == nil || task.Type != "items" || task.Level > maxSkillLevel[*task.Skill] || slices.Contains(forbiddenTaskItem, task.Code) {
 				continue
 			}
 			var itemQuantity int

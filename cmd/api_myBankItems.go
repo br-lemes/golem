@@ -49,10 +49,7 @@ var myBankItemsCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(myBankItemsCmd)
-	myBankItemsCmd.Flags().String("item_code", "",
-		"Item to search in your bank.")
-	myBankItemsCmd.Flags().Int("page", 0,
-		"Page number")
-	myBankItemsCmd.Flags().Int("size", 0,
-		"Page size")
+	myBankItemsCmd.Flags().String("item_code", "", "Item to search in your bank.")
+	myBankItemsCmd.Flags().Int("page", 0, "Page number")
+	myBankItemsCmd.Flags().Int("size", 0, "Page size")
 }

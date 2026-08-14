@@ -27,8 +27,7 @@ Arguments:
 		}
 		err := cobra.ExactArgs(2)(cmd, args)
 		if err != nil {
-			return errors.New("positional usage requires exactly 2 arguments:" +
-				" <name> <type>. Otherwise, use --name and --type flags")
+			return errors.New("positional usage requires exactly 2 arguments: <name> <type>. Otherwise, use --name and --type flags")
 		}
 		err = validateEquipmentType(args[1])
 		if err != nil {
@@ -63,10 +62,9 @@ Arguments:
 }
 
 func init() {
-	missingCmd.Flags().StringSliceP("name", "n", []string{},
-		"Character names to analyze")
-	missingCmd.Flags().StringSliceP("type", "t", []string{},
-		"Equipment types to filter")
+	rootCmd.AddCommand(missingCmd)
+	missingCmd.Flags().StringSliceP("name", "n", []string{}, "Character names to analyze")
+	missingCmd.Flags().StringSliceP("type", "t", []string{}, "Equipment types to filter")
 	err := missingCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 	})
@@ -79,7 +77,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	rootCmd.AddCommand(missingCmd)
 }
 
 func validateEquipmentType(t string) error {

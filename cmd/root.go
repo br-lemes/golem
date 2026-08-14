@@ -37,15 +37,10 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false,
-		"Enable debug mode")
-	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto",
-		"Output format: auto, json or yaml")
-	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "",
-		"Output file path (default: stdout)")
-	rootCmd.PersistentFlags().
-		StringVarP(&console.Style, "style", "s", "monokai",
-			"The style to use for syntax highlighting")
+	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false, "Enable debug mode")
+	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto", "Output format: auto, json or yaml")
+	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "", "Output file path (default: stdout)")
+	rootCmd.PersistentFlags().StringVarP(&console.Style, "style", "s", "monokai", "The style to use for syntax highlighting")
 }
 
 func Execute(version string) error {

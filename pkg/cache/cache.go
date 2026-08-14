@@ -49,8 +49,7 @@ func isNameFresh(dest any, name string, minutes int) bool {
 		return false
 	}
 
-	result := cache.Where("name = ? AND updated_at >= ?", name, limit(minutes)).
-		Limit(1).Find(dest)
+	result := cache.Where("name = ? AND updated_at >= ?", name, limit(minutes)).Limit(1).Find(dest)
 	if result.Error != nil || result.RowsAffected == 0 {
 		return false
 	}
@@ -71,8 +70,7 @@ func isTableFresh(dest any, minutes int) bool {
 
 func isStatusFresh() bool {
 	var statusCache models.Cache
-	result := cache.Where("name = ? AND updated_at >= ?", "status", limit(5)).
-		Limit(1).Find(&statusCache)
+	result := cache.Where("name = ? AND updated_at >= ?", "status", limit(5)).Limit(1).Find(&statusCache)
 	if result.Error != nil || result.RowsAffected == 0 {
 		return false
 	}

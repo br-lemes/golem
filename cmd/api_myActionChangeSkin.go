@@ -53,6 +53,5 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionChangeSkinCmd)
-	myActionChangeSkinCmd.Flags().String("skin", "",
-		"Your desired skin.")
+	myActionChangeSkinCmd.Flags().String("skin", "", "Your desired skin.")
 }

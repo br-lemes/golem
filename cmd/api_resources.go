@@ -57,16 +57,10 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(resourcesCmd)
-	resourcesCmd.Flags().String("drop", "",
-		"Item code of the drop.")
-	resourcesCmd.Flags().Int("max_level", 0,
-		"Maximum level.")
-	resourcesCmd.Flags().Int("min_level", 0,
-		"Minimum level.")
-	resourcesCmd.Flags().Int("page", 0,
-		"Page number")
-	resourcesCmd.Flags().Int("size", 0,
-		"Page size")
-	resourcesCmd.Flags().String("skill", "",
-		"Skill of resources.")
+	resourcesCmd.Flags().String("drop", "", "Item code of the drop.")
+	resourcesCmd.Flags().Int("max_level", 0, "Maximum level.")
+	resourcesCmd.Flags().Int("min_level", 0, "Minimum level.")
+	resourcesCmd.Flags().Int("page", 0, "Page number")
+	resourcesCmd.Flags().Int("size", 0, "Page size")
+	resourcesCmd.Flags().String("skill", "", "Skill of resources.")
 }

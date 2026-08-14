@@ -37,8 +37,7 @@ func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.Character
 			continue
 		}
 		item, found := database.GetItem(slot.Code)
-		if !found || item.Type != "consumable" || item.Subtype != "food" ||
-			item.Level > character.Level || item.Effects == nil {
+		if !found || item.Type != "consumable" || item.Subtype != "food" || item.Level > character.Level || item.Effects == nil {
 			//+gocover:ignore:block should not happen
 			continue
 		}
@@ -76,8 +75,10 @@ func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.Character
 		if qtyToUse <= 0 { //+gocover:ignore:block should not happen
 			continue
 		}
-		useData, err := d.myActionUse(character.Name,
-			schemas.SimpleItemSchema{Code: food.Code, Quantity: qtyToUse})
+		useData, err := d.myActionUse(character.Name, schemas.SimpleItemSchema{
+			Code:     food.Code,
+			Quantity: qtyToUse,
+		})
 		if err != nil {
 			return schemas.CharacterSchema{}, err
 		}

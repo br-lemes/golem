@@ -57,20 +57,12 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(itemsCmd)
-	itemsCmd.Flags().String("craft_material", "",
-		"Item code of items used as material for crafting.")
-	itemsCmd.Flags().String("craft_skill", "",
-		"Skill to craft items.")
-	itemsCmd.Flags().Int("max_level", 0,
-		"Maximum level.")
-	itemsCmd.Flags().Int("min_level", 0,
-		"Minimum level.")
-	itemsCmd.Flags().String("name", "",
-		"Name of the item.")
-	itemsCmd.Flags().Int("page", 0,
-		"Page number")
-	itemsCmd.Flags().Int("size", 0,
-		"Page size")
-	itemsCmd.Flags().String("type", "",
-		"Type of items.")
+	itemsCmd.Flags().String("craft_material", "", "Item code of items used as material for crafting.")
+	itemsCmd.Flags().String("craft_skill", "", "Skill to craft items.")
+	itemsCmd.Flags().Int("max_level", 0, "Maximum level.")
+	itemsCmd.Flags().Int("min_level", 0, "Minimum level.")
+	itemsCmd.Flags().String("name", "", "Name of the item.")
+	itemsCmd.Flags().Int("page", 0, "Page number")
+	itemsCmd.Flags().Int("size", 0, "Page size")
+	itemsCmd.Flags().String("type", "", "Type of items.")
 }

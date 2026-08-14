@@ -13,8 +13,7 @@ func Items() ([]schemas.ItemSchema, error) {
 	result := []schemas.ItemSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/items?page=%d&size=%d",
-			page, ItemsSize), nil)
+		resp, err := Get(fmt.Sprintf("/items?page=%d&size=%d", page, ItemsSize), nil)
 		if err != nil {
 			return nil, err
 		}

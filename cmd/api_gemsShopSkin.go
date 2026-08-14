@@ -49,6 +49,5 @@ var gemsShopSkinCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(gemsShopSkinCmd)
-	gemsShopSkinCmd.Flags().String("code", "",
-		"Code of the skin to purchase.")
+	gemsShopSkinCmd.Flags().String("code", "", "Code of the skin to purchase.")
 }

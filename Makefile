@@ -25,6 +25,16 @@ coverage:
 		sed -i '/cmd\/api/d' coverage.out && \
 		go run $(GOCOVER) full --cover-profile=coverage.out
 
+custom-gcl:
+	@if command -v golangci-lint >/dev/null 2>&1; then \
+		golangci-lint custom -v; \
+	else \
+		echo "Warning: 'golangci-lint' is not installed. Skipping."; \
+	fi
+
+lint: custom-gcl
+	@if [ -f ./custom-gcl ]; then ./custom-gcl run; fi
+
 pkg/database/openapi.json:
 	@curl https://api.artifactsmmo.com/openapi.json -o $@
 	@sd -F '"anyOf":[{"type":"boolean"},{"type":"null"}]' \
@@ -38,7 +48,7 @@ pkg/schemas/schemas.go: pkg/database/openapi.json
 	@sd 'Path\s+\[\]\[\]int' 'Path [][2]int' $@
 	@gofmt -w $@
 
-$(PLATFORMS): pkg/schemas/schemas.go test
+$(PLATFORMS): pkg/schemas/schemas.go lint test
 	@$(eval GOOS := $(word 1,$(subst -, ,$@)))
 	@$(eval GOARCH := $(word 2,$(subst -, ,$@)))
 	@$(eval OUTPUT := $(TARGET)-$@$(if $(filter windows,$(GOOS)),.exe))

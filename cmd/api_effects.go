@@ -57,8 +57,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(effectsCmd)
-	effectsCmd.Flags().Int("page", 0,
-		"Page number")
-	effectsCmd.Flags().Int("size", 0,
-		"Page size")
+	effectsCmd.Flags().Int("page", 0, "Page number")
+	effectsCmd.Flags().Int("size", 0, "Page size")
 }

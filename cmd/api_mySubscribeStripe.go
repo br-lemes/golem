@@ -49,6 +49,6 @@ var mySubscribeStripeCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(mySubscribeStripeCmd)
-	mySubscribeStripeCmd.Flags().String("plan", "",
-		"Recurring Stripe subscription plan to purchase.")
+	mySubscribeStripeCmd.Flags().String("plan", "", "Stripe membership plan to purchase.")
+	mySubscribeStripeCmd.Flags().Bool("recurring", false, "Whether to create a recurring Stripe subscription. Set to false to buy membership time once.")
 }

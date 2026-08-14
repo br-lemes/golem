@@ -40,8 +40,7 @@ Arguments:
 }
 
 func init() {
-	recyclingCmd.Flags().IntP("quantity", "q", 0,
-		"Amount of items to recycle (0 for all available)")
+	recyclingCmd.Flags().IntP("quantity", "q", 0, "Amount of items to recycle (0 for all available)")
 	rootCmd.AddCommand(recyclingCmd)
 }
 
@@ -83,9 +82,7 @@ func StartRecyclingBot(name string, code string, qty int) error {
 	}
 
 	if targetQty > totalItemsAvailable {
-		return fmt.Errorf(
-			"requested to recycle %d items, but only %d are available",
-			targetQty, totalItemsAvailable)
+		return fmt.Errorf("requested to recycle %d items, but only %d are available", targetQty, totalItemsAvailable)
 	}
 
 	totalItemsInRecipe := 0
@@ -196,8 +193,7 @@ func StartRecyclingBot(name string, code string, qty int) error {
 		}
 
 		if batchSize <= 0 {
-			return fmt.Errorf(
-				"inventory is completely full or no items left in bank")
+			return fmt.Errorf("inventory is completely full or no items left in bank")
 		}
 
 		var withdrawList []schemas.SimpleItemSchema
@@ -224,11 +220,10 @@ func StartRecyclingBot(name string, code string, qty int) error {
 	var finalDepositList []schemas.SimpleItemSchema
 	for _, invItem := range *character.Inventory {
 		if invItem.Code != "" {
-			finalDepositList = append(finalDepositList,
-				schemas.SimpleItemSchema{
-					Code:     invItem.Code,
-					Quantity: invItem.Quantity,
-				})
+			finalDepositList = append(finalDepositList, schemas.SimpleItemSchema{
+				Code:     invItem.Code,
+				Quantity: invItem.Quantity,
+			})
 		}
 	}
 

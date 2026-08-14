@@ -106,8 +106,6 @@ func combatXP(character schemas.CharacterSchema, monster schemas.MonsterSchema) 
 	}
 
 	wisdomBonus := 1 + float64(character.Wisdom)*0.001
-	base := (float64(monster.Level)/float64(character.Level))*20 +
-		float64(monster.Hp)*0.04
-	return int(math.Round(
-		base * levelPenalty * monsterMultiplier * wisdomBonus))
+	base := (float64(monster.Level)/float64(character.Level))*20 + float64(monster.Hp)*0.04
+	return int(math.Round(base * levelPenalty * monsterMultiplier * wisdomBonus))
 }

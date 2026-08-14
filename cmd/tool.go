@@ -49,8 +49,7 @@ Arguments:
 		code := args[1]
 
 		if !slices.Contains(validSkills, code) {
-			return fmt.Errorf("invalid skill code: %s (valid options: %s)",
-				code, strings.Join(validSkills, ", "))
+			return fmt.Errorf("invalid skill code: %s (valid options: %s)", code, strings.Join(validSkills, ", "))
 		}
 
 		character, err := api.Characters(name)

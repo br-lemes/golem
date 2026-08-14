@@ -40,10 +40,7 @@ Arguments:
 		params := map[string]interface{}{
 			"character": character,
 			"items": []map[string]interface{}{
-				{
-					"code":     code,
-					"quantity": quantity,
-				},
+				{"code": code, "quantity": quantity},
 			},
 		}
 
@@ -57,10 +54,7 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionGiveItemCmd)
-	myActionGiveItemCmd.Flags().String("character", "",
-		"Character name. The name of the character who will receive the items.")
-	myActionGiveItemCmd.Flags().String("code", "",
-		"Item code.")
-	myActionGiveItemCmd.Flags().Int("quantity", 0,
-		"Item quantity.")
+	myActionGiveItemCmd.Flags().String("character", "", "Character name. The name of the character who will receive the items.")
+	myActionGiveItemCmd.Flags().String("code", "", "Item code.")
+	myActionGiveItemCmd.Flags().Int("quantity", 0, "Item quantity.")
 }

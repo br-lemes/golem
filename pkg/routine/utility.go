@@ -97,8 +97,9 @@ func utilityRestock(d deps, character schemas.CharacterSchema, utility1, utility
 		}
 		if s.curCode != "" && s.curCode != s.code {
 			qty := s.curQty
-			unequipData, err := d.myActionUnequip(character.Name,
-				[]schemas.UnequipSchema{{Slot: s.slot, Quantity: &qty}})
+			unequipData, err := d.myActionUnequip(character.Name, []schemas.UnequipSchema{
+				{Slot: s.slot, Quantity: &qty},
+			})
 			if err != nil {
 				return character, err
 			}
@@ -111,9 +112,7 @@ func utilityRestock(d deps, character schemas.CharacterSchema, utility1, utility
 		for remaining > 0 && bankQty[s.code] > 0 {
 			freeSpace := character.InventoryMaxItems - totalItems(character)
 			if freeSpace <= 0 {
-				console.Printf(
-					"No inventory space to withdraw more %s for %s\n",
-					s.code, s.slot)
+				console.Printf("No inventory space to withdraw more %s for %s\n", s.code, s.slot)
 				break
 			}
 			chunk := remaining
@@ -123,19 +122,17 @@ func utilityRestock(d deps, character schemas.CharacterSchema, utility1, utility
 			if freeSpace < chunk {
 				chunk = freeSpace
 			}
-			withdrawData, err := d.myActionBankWithdrawItem(character.Name,
-				[]schemas.SimpleItemSchema{{Code: s.code, Quantity: chunk}})
+			withdrawData, err := d.myActionBankWithdrawItem(character.Name, []schemas.SimpleItemSchema{
+				{Code: s.code, Quantity: chunk},
+			})
 			if err != nil {
 				return character, err
 			}
 			character = withdrawData.Character
 			bankQty[s.code] -= chunk
-			equipData, err := d.myActionEquip(character.Name,
-				[]schemas.EquipSchema{{
-					Code:     s.code,
-					Quantity: &chunk,
-					Slot:     s.slot,
-				}})
+			equipData, err := d.myActionEquip(character.Name, []schemas.EquipSchema{
+				{Code: s.code, Quantity: &chunk, Slot: s.slot},
+			})
 			if err != nil {
 				return character, err
 			}
@@ -144,8 +141,7 @@ func utilityRestock(d deps, character schemas.CharacterSchema, utility1, utility
 			filled += chunk
 		}
 		if remaining > 0 {
-			console.Printf("  Only %d/%d %s filled for %s\n",
-				filled, utilityMaxStack-s.curQty, s.code, s.slot)
+			console.Printf("  Only %d/%d %s filled for %s\n", filled, utilityMaxStack-s.curQty, s.code, s.slot)
 		}
 	}
 	return character, nil

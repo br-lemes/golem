@@ -53,8 +53,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionNpcSellCmd)
-	myActionNpcSellCmd.Flags().String("code", "",
-		"Item code.")
-	myActionNpcSellCmd.Flags().Int("quantity", 0,
-		"Item quantity.")
+	myActionNpcSellCmd.Flags().String("code", "", "Item code.")
+	myActionNpcSellCmd.Flags().Int("quantity", 0, "Item quantity.")
 }

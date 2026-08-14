@@ -60,8 +60,9 @@ Arguments:
 			} else {
 				for _, item := range items {
 					if item.Code == code {
-						result = append(result,
-							map[string]int{"bank": item.Quantity})
+						result = append(result, map[string]int{
+							"bank": item.Quantity,
+						})
 					}
 				}
 			}
@@ -69,8 +70,9 @@ Arguments:
 			for _, character := range characters {
 				if code == "gold" {
 					if character.Gold > 0 {
-						result = append(result,
-							map[string]int{character.Name: character.Gold})
+						result = append(result, map[string]int{
+							character.Name: character.Gold,
+						})
 						continue
 					}
 				}
@@ -86,8 +88,7 @@ Arguments:
 				}
 				qty += countInSlots(character, code)
 				if qty > 0 {
-					result = append(result,
-						map[string]int{character.Name: qty})
+					result = append(result, map[string]int{character.Name: qty})
 				}
 			}
 
@@ -116,8 +117,7 @@ func countInSlots(character schemas.CharacterSchema, code string) int {
 	t := v.Type()
 	for i := 0; i < v.NumField(); i++ {
 		fieldName := t.Field(i).Name
-		if !strings.HasSuffix(fieldName, "Slot") ||
-			t.Field(i).Type.Kind() != reflect.String {
+		if !strings.HasSuffix(fieldName, "Slot") || t.Field(i).Type.Kind() != reflect.String {
 			continue
 		}
 		if v.Field(i).String() != code {

@@ -20,8 +20,7 @@ func grandexchangeOrdersAll() ([]schemas.GEOrderSchema, error) {
 	result := []schemas.GEOrderSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/grandexchange/orders?page=%d&size=%d",
-			page, GrandexchangeOrdersSize), nil)
+		resp, err := Get(fmt.Sprintf("/grandexchange/orders?page=%d&size=%d", page, GrandexchangeOrdersSize), nil)
 		if err != nil {
 			return nil, err
 		}

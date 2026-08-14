@@ -56,43 +56,32 @@ func parseCliEquipment(arg string) (schemas.EquipSchema, error) {
 
 	item, exists := database.GetItem(itemCode)
 	if !exists {
-		return schemas.EquipSchema{},
-			fmt.Errorf("item not found in database: %s", itemCode)
+		return schemas.EquipSchema{}, fmt.Errorf("item not found in database: %s", itemCode)
 	}
 	slots, ok := database.EquipmentTypeToSlots[item.Type]
 	if !ok {
-		return schemas.EquipSchema{},
-			fmt.Errorf("item type cannot be equipped: %s", item.Type)
+		return schemas.EquipSchema{}, fmt.Errorf("item type cannot be equipped: %s", item.Type)
 	}
 	if hasSlot && slotNum <= 0 {
-		return schemas.EquipSchema{},
-			fmt.Errorf("invalid slot number %d for item %s", slotNum, itemCode)
+		return schemas.EquipSchema{}, fmt.Errorf("invalid slot number %d for item %s", slotNum, itemCode)
 	}
 	if len(slots) > 1 {
 		if !hasSlot {
-			return schemas.EquipSchema{},
-				fmt.Errorf("must specify slot (e.g. @1 or @2) for item with"+
-					" multiple slots: %s", itemCode)
+			return schemas.EquipSchema{}, fmt.Errorf("must specify slot (e.g. @1 or @2) for item with multiple slots: %s", itemCode)
 		}
 		if slotNum > len(slots) {
-			return schemas.EquipSchema{},
-				fmt.Errorf("invalid slot number %d for item %s", slotNum,
-					itemCode)
+			return schemas.EquipSchema{}, fmt.Errorf("invalid slot number %d for item %s", slotNum, itemCode)
 		}
 	}
 	if len(slots) == 1 && hasSlot {
-		return schemas.EquipSchema{},
-			fmt.Errorf("cannot specify slot number for item with single slot:"+
-				" %s", itemCode)
+		return schemas.EquipSchema{}, fmt.Errorf("cannot specify slot number for item with single slot: %s", itemCode)
 	}
 	targetSlotStr := slots[0]
 	if slotNum > 0 && slotNum <= len(slots) {
 		targetSlotStr = slots[slotNum-1]
 	}
 	if qty > 1 && !strings.HasPrefix(targetSlotStr, "utility") {
-		return schemas.EquipSchema{},
-			fmt.Errorf("cannot specify quantity for non-utility slot: %s",
-				targetSlotStr)
+		return schemas.EquipSchema{}, fmt.Errorf("cannot specify quantity for non-utility slot: %s", targetSlotStr)
 	}
 
 	return schemas.EquipSchema{

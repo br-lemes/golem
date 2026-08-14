@@ -57,10 +57,7 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(seasonRewardsCmd)
-	seasonRewardsCmd.Flags().Int("page", 0,
-		"Page number")
-	seasonRewardsCmd.Flags().Int("size", 0,
-		"Page size")
-	seasonRewardsCmd.Flags().String("type", "",
-		"Filter by reward type.")
+	seasonRewardsCmd.Flags().Int("page", 0, "Page number")
+	seasonRewardsCmd.Flags().Int("size", 0, "Page size")
+	seasonRewardsCmd.Flags().String("type", "", "Filter by reward type.")
 }

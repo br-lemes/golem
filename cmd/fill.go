@@ -38,8 +38,7 @@ Arguments:
 		id := args[1]
 		validCharacters := utils.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v",
-				name, validCharacters)
+			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 		}
 		if id == "" {
 			return fmt.Errorf("id must not be empty")
@@ -56,13 +55,10 @@ Arguments:
 		}
 		fillData.order = orders[0]
 		if fillData.order.Type != "buy" {
-			return fmt.Errorf("order %q is not a buy order: type %q",
-				id, fillData.order.Type)
+			return fmt.Errorf("order %q is not a buy order: type %q", id, fillData.order.Type)
 		}
 		if fillFlags.quantity > fillData.order.Quantity {
-			return fmt.Errorf(
-				"not enough quantity in order %q: required %d, available %d",
-				id, fillFlags.quantity, fillData.order.Quantity)
+			return fmt.Errorf("not enough quantity in order %q: required %d, available %d", id, fillFlags.quantity, fillData.order.Quantity)
 		}
 		code := fillData.order.Code
 		items, err := api.MyBankItems()
@@ -84,16 +80,16 @@ Arguments:
 			for _, item := range *fillData.character.Inventory {
 				if item.Code == code {
 					fillData.inventoryItem = schemas.SimpleItemSchema{
-						Code: item.Code, Quantity: item.Quantity}
+						Code:     item.Code,
+						Quantity: item.Quantity,
+					}
 					break
 				}
 			}
 		}
-		totalAvailable := fillData.bankItem.Quantity +
-			fillData.inventoryItem.Quantity
+		totalAvailable := fillData.bankItem.Quantity + fillData.inventoryItem.Quantity
 		if fillFlags.quantity > totalAvailable {
-			return fmt.Errorf("not enough items: required %d, available %d",
-				fillFlags.quantity, totalAvailable)
+			return fmt.Errorf("not enough items: required %d, available %d", fillFlags.quantity, totalAvailable)
 		}
 		return nil
 	},
@@ -107,36 +103,33 @@ Arguments:
 			remaining := fillFlags.quantity - totalFilled
 			if fillData.inventoryItem.Quantity == 0 {
 				var err error
-				fillData.character, err =
-					routine.Move(fillData.character, "bank")
+				fillData.character, err = routine.Move(fillData.character, "bank")
 				if err != nil {
 					return err
 				}
 				items := routine.GetInventoryItems(fillData.character, nil)
 				if len(items) > 0 {
-					depositData, err := api.MyActionBankDepositItem(
-						fillData.character.Name, items)
+					depositData, err := api.MyActionBankDepositItem(fillData.character.Name, items)
 					if err != nil {
 						return err
 					}
 					fillData.character = depositData.Character
 				}
-				withdrawQuantity := min(remaining,
-					fillData.character.InventoryMaxItems)
-				withdrawItem := schemas.SimpleItemSchema{
-					Code: code, Quantity: withdrawQuantity}
-				withdrawData, err := api.MyActionBankWithdrawItem(name,
-					[]schemas.SimpleItemSchema{withdrawItem})
+				withdrawQuantity := min(remaining, fillData.character.InventoryMaxItems)
+				withdrawData, err := api.MyActionBankWithdrawItem(name, []schemas.SimpleItemSchema{
+					{Code: code, Quantity: withdrawQuantity},
+				})
 				if err != nil {
 					return err
 				}
 				fillData.character = withdrawData.Character
 				fillData.inventoryItem = schemas.SimpleItemSchema{
-					Code: code, Quantity: withdrawQuantity}
+					Code:     code,
+					Quantity: withdrawQuantity,
+				}
 			}
 			var err error
-			fillData.character, err =
-				routine.Move(fillData.character, "grand_exchange")
+			fillData.character, err = routine.Move(fillData.character, "grand_exchange")
 			if err != nil {
 				return err
 			}
@@ -158,6 +151,5 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(fillCmd)
-	fillCmd.Flags().IntVarP(&fillFlags.quantity, "quantity", "q", 0,
-		"Item quantity")
+	fillCmd.Flags().IntVarP(&fillFlags.quantity, "quantity", "q", 0, "Item quantity")
 }

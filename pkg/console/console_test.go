@@ -56,8 +56,7 @@ func TestAuto(t *testing.T) {
 			if !tt.wantErr {
 				gotOutput := strings.TrimSpace(buf.String())
 				if !strings.Contains(gotOutput, tt.wantInOutput) {
-					t.Errorf("Auto() got = %q, want to contain %q",
-						gotOutput, tt.wantInOutput)
+					t.Errorf("Auto() got = %q, want to contain %q", gotOutput, tt.wantInOutput)
 				}
 			}
 		})
@@ -87,8 +86,7 @@ func TestConfirm(t *testing.T) {
 			gotResult := Confirm("Proceed?")
 
 			if gotResult != tt.wantResult {
-				t.Errorf("Confirm() for input %q got = %v, want = %v",
-					tt.userInput, gotResult, tt.wantResult)
+				t.Errorf("Confirm() for input %q got = %v, want = %v", tt.userInput, gotResult, tt.wantResult)
 			}
 		})
 	}

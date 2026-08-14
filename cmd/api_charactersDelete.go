@@ -49,6 +49,5 @@ var charactersDeleteCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(charactersDeleteCmd)
-	charactersDeleteCmd.Flags().String("name", "",
-		"Character name.")
+	charactersDeleteCmd.Flags().String("name", "", "Character name.")
 }

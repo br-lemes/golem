@@ -38,9 +38,8 @@ Arguments:
 }
 
 func init() {
-	craftingCmd.Flags().IntP("quantity", "q", 0,
-		"Amount of items to craft (0 for infinite/max available)")
 	rootCmd.AddCommand(craftingCmd)
+	craftingCmd.Flags().IntP("quantity", "q", 0, "Amount of items to craft (0 for infinite/max available)")
 }
 
 func StartCraftingBot(name string, code string, qty int) error {
@@ -60,9 +59,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 
 	skillLevel := getCraftSkill(character, *item.Craft.Skill)
 	if skillLevel < *item.Craft.Level {
-		return fmt.Errorf(
-			"character %s level too low. Required: %d, Current: %d",
-			name, *item.Craft.Level, skillLevel)
+		return fmt.Errorf("character %s level too low. Required: %d, Current: %d", name, *item.Craft.Level, skillLevel)
 	}
 
 	bankInventory, err := fetchAllBankItems()
@@ -73,8 +70,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	totalInventory := make(map[string]int)
 	for _, invItem := range *character.Inventory {
 		if invItem.Code != "" {
-			totalInventory[invItem.Code] =
-				totalInventory[invItem.Code] + invItem.Quantity
+			totalInventory[invItem.Code] = totalInventory[invItem.Code] + invItem.Quantity
 		}
 	}
 	for code, amount := range bankInventory {
@@ -94,8 +90,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	maxYieldPossible := maxActionsPossible * recipeOutputQty
 
 	if maxYieldPossible == 0 {
-		return fmt.Errorf("insufficient materials in inventory and bank to "+
-			"craft even %d %s", recipeOutputQty, item.Code)
+		return fmt.Errorf("insufficient materials in inventory and bank to craft even %d %s", recipeOutputQty, item.Code)
 	}
 
 	targetQty := qty
@@ -104,8 +99,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	}
 
 	if targetQty > maxYieldPossible {
-		return fmt.Errorf("requested %d items, but combined inventory and "+
-			"bank can only produce %d", targetQty, maxYieldPossible)
+		return fmt.Errorf("requested %d items, but combined inventory and bank can only produce %d", targetQty, maxYieldPossible)
 	}
 
 	craftedSoFar := 0
@@ -123,8 +117,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 		}
 
 		remainingToCraft := targetQty - craftedSoFar
-		neededActions := int(math.Ceil(float64(remainingToCraft) /
-			float64(recipeOutputQty)))
+		neededActions := int(math.Ceil(float64(remainingToCraft) / float64(recipeOutputQty)))
 
 		batchActionsPossible := math.MaxInt32
 		for _, req := range *item.Craft.Items {
@@ -153,8 +146,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 				return err
 			}
 
-			craftedSoFar = craftedSoFar +
-				(batchActionsPossible * recipeOutputQty)
+			craftedSoFar = craftedSoFar + (batchActionsPossible * recipeOutputQty)
 			continue
 		}
 
@@ -211,8 +203,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 		}
 
 		remainingToCraft = targetQty - craftedSoFar
-		neededActions = int(math.Ceil(float64(remainingToCraft) /
-			float64(recipeOutputQty)))
+		neededActions = int(math.Ceil(float64(remainingToCraft) / float64(recipeOutputQty)))
 
 		freeSpace := character.InventoryMaxItems - totalItemsInInventory
 		freeSlots := 20 - slotsUsed
@@ -239,8 +230,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 			if stillNeeds > 0 {
 				bankAvailable := bankInventory[req.Code]
 				if bankAvailable < stillNeeds {
-					currentBatchActions = (bankAvailable + alreadyHas) /
-						req.Quantity
+					currentBatchActions = (bankAvailable + alreadyHas) / req.Quantity
 				}
 			}
 		}
@@ -262,14 +252,12 @@ func StartCraftingBot(name string, code string, qty int) error {
 
 			currentBatchActions = currentBatchActions - 1
 			if currentBatchActions == 0 {
-				return fmt.Errorf("not enough inventory weight capacity to " +
-					"withdraw ingredients for even 1 item action")
+				return fmt.Errorf("not enough inventory weight capacity to withdraw ingredients for even 1 item action")
 			}
 		}
 
 		if currentBatchActions == 0 {
-			return fmt.Errorf("unexpected calculation error or missing " +
-				"materials in bank")
+			return fmt.Errorf("unexpected calculation error or missing materials in bank")
 		}
 
 		var withdrawList []schemas.SimpleItemSchema
@@ -305,11 +293,10 @@ func StartCraftingBot(name string, code string, qty int) error {
 	var finalDepositList []schemas.SimpleItemSchema
 	for _, invItem := range *character.Inventory {
 		if invItem.Code == item.Code {
-			finalDepositList = append(finalDepositList,
-				schemas.SimpleItemSchema{
-					Code:     invItem.Code,
-					Quantity: invItem.Quantity,
-				})
+			finalDepositList = append(finalDepositList, schemas.SimpleItemSchema{
+				Code:     invItem.Code,
+				Quantity: invItem.Quantity,
+			})
 		}
 	}
 
@@ -359,7 +346,5 @@ func getCraftSkill(character schemas.CharacterSchema, skill schemas.CraftSkill) 
 }
 
 func isCraftable(item schemas.ItemSchema) bool {
-	return item.Craft != nil && item.Craft.Items != nil &&
-		len(*item.Craft.Items) > 0 && item.Craft.Level != nil &&
-		*item.Craft.Quantity >= 1 && item.Craft.Skill != nil
+	return item.Craft != nil && item.Craft.Items != nil && len(*item.Craft.Items) > 0 && item.Craft.Level != nil && *item.Craft.Quantity >= 1 && item.Craft.Skill != nil
 }

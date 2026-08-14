@@ -13,8 +13,7 @@ func Monsters() ([]schemas.MonsterSchema, error) {
 	result := []schemas.MonsterSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/monsters?page=%d&size=%d",
-			page, MonstersSize), nil)
+		resp, err := Get(fmt.Sprintf("/monsters?page=%d&size=%d", page, MonstersSize), nil)
 		if err != nil {
 			return nil, err
 		}

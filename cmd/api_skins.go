@@ -57,8 +57,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(skinsCmd)
-	skinsCmd.Flags().Int("page", 0,
-		"Page number")
-	skinsCmd.Flags().Int("size", 0,
-		"Page size")
+	skinsCmd.Flags().Int("page", 0, "Page number")
+	skinsCmd.Flags().Int("size", 0, "Page size")
 }

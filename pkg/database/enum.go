@@ -49,21 +49,20 @@ func getEnum(name string) []string {
 }
 
 var initEnumsList = sync.OnceFunc(func() {
-	gjson.GetBytes(openapi, "components.schemas").
-		ForEach(func(key, value gjson.Result) bool {
-			if value.Get("type").String() != "string" {
-				return true
-			}
-			if !value.Get("enum").IsArray() {
-				return true
-			}
-			var result []string
-			for _, v := range value.Get("enum").Array() {
-				result = append(result, v.String())
-			}
-			name := key.String()
-			enumCache.Store(name, result)
-			enumList = append(enumList, key.String())
+	gjson.GetBytes(openapi, "components.schemas").ForEach(func(key, value gjson.Result) bool {
+		if value.Get("type").String() != "string" {
 			return true
-		})
+		}
+		if !value.Get("enum").IsArray() {
+			return true
+		}
+		var result []string
+		for _, v := range value.Get("enum").Array() {
+			result = append(result, v.String())
+		}
+		name := key.String()
+		enumCache.Store(name, result)
+		enumList = append(enumList, key.String())
+		return true
+	})
 })

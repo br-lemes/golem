@@ -49,6 +49,5 @@ var gemsShopBuyCustomDesignCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(gemsShopBuyCustomDesignCmd)
-	gemsShopBuyCustomDesignCmd.Flags().String("code", "",
-		"Code of the custom design to purchase.")
+	gemsShopBuyCustomDesignCmd.Flags().String("code", "", "Code of the custom design to purchase.")
 }

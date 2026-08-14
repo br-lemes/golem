@@ -49,8 +49,6 @@ var myPendingItemsCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(myPendingItemsCmd)
-	myPendingItemsCmd.Flags().Int("page", 0,
-		"Page number")
-	myPendingItemsCmd.Flags().Int("size", 0,
-		"Page size")
+	myPendingItemsCmd.Flags().Int("page", 0, "Page number")
+	myPendingItemsCmd.Flags().Int("size", 0, "Page size")
 }

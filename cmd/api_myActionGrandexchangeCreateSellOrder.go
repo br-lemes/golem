@@ -53,10 +53,7 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionGrandexchangeCreateSellOrderCmd)
-	myActionGrandexchangeCreateSellOrderCmd.Flags().String("code", "",
-		"Item code.")
-	myActionGrandexchangeCreateSellOrderCmd.Flags().Int("price", 0,
-		"Item price per unit.")
-	myActionGrandexchangeCreateSellOrderCmd.Flags().Int("quantity", 0,
-		"Item quantity.")
+	myActionGrandexchangeCreateSellOrderCmd.Flags().String("code", "", "Item code.")
+	myActionGrandexchangeCreateSellOrderCmd.Flags().Int("price", 0, "Item price per unit.")
+	myActionGrandexchangeCreateSellOrderCmd.Flags().Int("quantity", 0, "Item quantity.")
 }

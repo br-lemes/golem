@@ -47,8 +47,7 @@ func foodCandidates(character schemas.CharacterSchema, food string, bankQty map[
 			continue
 		}
 		item, found := database.GetItem(code)
-		if !found || item.Type != "consumable" || item.Subtype != "food" ||
-			item.Level > character.Level || item.Effects == nil {
+		if !found || item.Type != "consumable" || item.Subtype != "food" || item.Level > character.Level || item.Effects == nil {
 			continue
 		}
 		heal := 0
@@ -91,8 +90,7 @@ func foodRestock(d deps, character schemas.CharacterSchema, food string, bankQty
 		console.Printf("  No suitable food available in bank\n")
 		return character, nil
 	}
-	target := (character.InventoryMaxItems - totalItems(character)) *
-		foodFillPercent / 100
+	target := (character.InventoryMaxItems - totalItems(character)) * foodFillPercent / 100
 	if target <= 0 {
 		return character, nil
 	}
@@ -112,8 +110,9 @@ func foodRestock(d deps, character schemas.CharacterSchema, food string, bankQty
 			if space < chunk {
 				chunk = space
 			}
-			withdrawData, err := d.myActionBankWithdrawItem(character.Name,
-				[]schemas.SimpleItemSchema{{Code: code, Quantity: chunk}})
+			withdrawData, err := d.myActionBankWithdrawItem(character.Name, []schemas.SimpleItemSchema{
+				{Code: code, Quantity: chunk},
+			})
 			if err != nil {
 				return character, err
 			}

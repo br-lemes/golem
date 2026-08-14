@@ -39,17 +39,14 @@ Arguments:
 		code := args[1]
 		validCharacters := utils.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v",
-				name, validCharacters)
+			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 		}
 		var exists bool
 		npcSellData.item, exists = database.NpcsItems.Get(code)
 		if npcSellData.item == nil || !exists {
-			return fmt.Errorf("invalid item %q: allowed values are %v",
-				args[1], completion.GetNPCSellItems())
+			return fmt.Errorf("invalid item %q: allowed values are %v", args[1], completion.GetNPCSellItems())
 		}
-		if npcSellData.item.SellPrice == nil ||
-			*npcSellData.item.SellPrice <= 0 {
+		if npcSellData.item.SellPrice == nil || *npcSellData.item.SellPrice <= 0 {
 			return fmt.Errorf("item %q does not have a sell price", code)
 		}
 		if npcSellFlags.quantity <= 0 {
@@ -74,15 +71,15 @@ Arguments:
 		for _, item := range npcSellInventoryItems() {
 			if item.Code == npcSellData.item.Code {
 				npcSellData.inventoryItem = schemas.SimpleItemSchema{
-					Code: item.Code, Quantity: item.Quantity}
+					Code:     item.Code,
+					Quantity: item.Quantity,
+				}
 				break
 			}
 		}
-		totalAvailable := npcSellData.bankItem.Quantity +
-			npcSellData.inventoryItem.Quantity
+		totalAvailable := npcSellData.bankItem.Quantity + npcSellData.inventoryItem.Quantity
 		if totalAvailable < npcSellFlags.quantity {
-			return fmt.Errorf("not enough items: required %d, available %d",
-				npcSellFlags.quantity, totalAvailable)
+			return fmt.Errorf("not enough items: required %d, available %d", npcSellFlags.quantity, totalAvailable)
 		}
 		return nil
 	},
@@ -129,8 +126,7 @@ Arguments:
 
 func init() {
 	npcCmd.AddCommand(npcSellCmd)
-	npcSellCmd.Flags().IntVarP(&npcSellFlags.quantity, "quantity", "q", 0,
-		"Item quantity")
+	npcSellCmd.Flags().IntVarP(&npcSellFlags.quantity, "quantity", "q", 0, "Item quantity")
 }
 
 func npcSellInventoryItems() []schemas.InventorySlotSchema {
@@ -148,8 +144,7 @@ func npcSellMoveBank() error {
 
 func npcSellMoveNpc() error {
 	var err error
-	npcSellData.character, err = routine.Move(npcSellData.character,
-		npcSellData.item.Npc)
+	npcSellData.character, err = routine.Move(npcSellData.character, npcSellData.item.Npc)
 	return err
 }
 
@@ -169,8 +164,9 @@ func npcSellDepositAll() error {
 
 func npcSellWithdrawItem(quantity int) error {
 	name := npcSellData.character.Name
-	items := []schemas.SimpleItemSchema{{
-		Code: npcSellData.item.Code, Quantity: quantity}}
+	items := []schemas.SimpleItemSchema{
+		{Code: npcSellData.item.Code, Quantity: quantity},
+	}
 	withdrawData, err := api.MyActionBankWithdrawItem(name, items)
 	if err != nil {
 		return err

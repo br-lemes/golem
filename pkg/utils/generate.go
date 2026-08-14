@@ -94,9 +94,7 @@ func BuildTemplateData(targetCmd string) (TemplateData, error) {
 
 			existingRoute, exists := data.Routes[argCount]
 			if exists {
-				return data, fmt.Errorf("route conflict: both %s %s and %s %s"+
-					" require %d positional arguments", existingRoute.Method,
-					existingRoute.Path, method, path, argCount)
+				return data, fmt.Errorf("route conflict: both %s %s and %s %s require %d positional arguments", existingRoute.Method, existingRoute.Path, method, path, argCount)
 			}
 
 			tRoute := TemplateRoute{
@@ -162,8 +160,7 @@ func (fc *flagCollector) collectFlag(field FieldInfo) error {
 		return nil
 	}
 
-	return fmt.Errorf("flag '%s' type conflict: %s vs %s",
-		field.Name, existingFlag.Type, field.Type)
+	return fmt.Errorf("flag '%s' type conflict: %s vs %s", field.Name, existingFlag.Type, field.Type)
 }
 
 func (d *TemplateData) formatArguments(descriptions map[string]string) {
@@ -196,10 +193,7 @@ func (d *TemplateData) formatArguments(descriptions map[string]string) {
 					seenArgs[arg] = true
 					desc := descriptions[arg]
 					padding := strings.Repeat(" ", maxArgLength-len(arg))
-					longArgsLines = append(
-						longArgsLines,
-						fmt.Sprintf("  %s%s   %s", arg, padding, desc),
-					)
+					longArgsLines = append(longArgsLines, fmt.Sprintf("  %s%s   %s", arg, padding, desc))
 				}
 			}
 		}

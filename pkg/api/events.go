@@ -13,8 +13,7 @@ func Events() ([]schemas.EventSchema, error) {
 	result := []schemas.EventSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/events?page=%d&size=%d",
-			page, EventsSize), nil)
+		resp, err := Get(fmt.Sprintf("/events?page=%d&size=%d", page, EventsSize), nil)
 		if err != nil {
 			return nil, err
 		}

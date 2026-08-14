@@ -50,7 +50,9 @@ type combatant struct {
 	burnActive     bool
 }
 
-type elementHits struct{ fire, earth, water, air float64 }
+type elementHits struct {
+	fire, earth, water, air float64
+}
 
 func (h elementHits) sum() float64 { return h.fire + h.earth + h.water + h.air }
 
@@ -65,14 +67,10 @@ func elementDamage(atk, dmgPct, resPct int) float64 {
 
 func playerHits(stats EffectiveStats, boostDmg elementHits, monster schemas.MonsterSchema) elementHits {
 	return elementHits{
-		fire: elementDamage(stats.AttackFire,
-			stats.Dmg+stats.DmgFire+int(boostDmg.fire), monster.ResFire),
-		earth: elementDamage(stats.AttackEarth,
-			stats.Dmg+stats.DmgEarth+int(boostDmg.earth), monster.ResEarth),
-		water: elementDamage(stats.AttackWater,
-			stats.Dmg+stats.DmgWater+int(boostDmg.water), monster.ResWater),
-		air: elementDamage(stats.AttackAir,
-			stats.Dmg+stats.DmgAir+int(boostDmg.air), monster.ResAir),
+		fire:  elementDamage(stats.AttackFire, stats.Dmg+stats.DmgFire+int(boostDmg.fire), monster.ResFire),
+		earth: elementDamage(stats.AttackEarth, stats.Dmg+stats.DmgEarth+int(boostDmg.earth), monster.ResEarth),
+		water: elementDamage(stats.AttackWater, stats.Dmg+stats.DmgWater+int(boostDmg.water), monster.ResWater),
+		air:   elementDamage(stats.AttackAir, stats.Dmg+stats.DmgAir+int(boostDmg.air), monster.ResAir),
 	}
 }
 
@@ -120,10 +118,8 @@ func Simulate(player Fighter, monster schemas.MonsterSchema, opts SimOptions) Fi
 		mCrit = 1
 	}
 
-	pTotalAtk := float64(player.Stats.AttackFire + player.Stats.AttackEarth +
-		player.Stats.AttackWater + player.Stats.AttackAir)
-	mTotalAtk := float64(monster.AttackFire + monster.AttackEarth +
-		monster.AttackWater + monster.AttackAir)
+	pTotalAtk := float64(player.Stats.AttackFire + player.Stats.AttackEarth + player.Stats.AttackWater + player.Stats.AttackAir)
+	mTotalAtk := float64(monster.AttackFire + monster.AttackEarth + monster.AttackWater + monster.AttackAir)
 
 	pHits := playerHits(player.Stats, boostDmg, monster)
 	mHits := monsterHits(monster, pRes)

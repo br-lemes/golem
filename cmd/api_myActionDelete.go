@@ -53,8 +53,6 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionDeleteCmd)
-	myActionDeleteCmd.Flags().String("code", "",
-		"Item code.")
-	myActionDeleteCmd.Flags().Int("quantity", 0,
-		"Item quantity.")
+	myActionDeleteCmd.Flags().String("code", "", "Item code.")
+	myActionDeleteCmd.Flags().Int("quantity", 0, "Item quantity.")
 }

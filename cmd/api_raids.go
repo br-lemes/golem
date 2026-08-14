@@ -57,12 +57,8 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(raidsCmd)
-	raidsCmd.Flags().Bool("active", false,
-		"Filter raids by active status.")
-	raidsCmd.Flags().String("name", "",
-		"Name of the raid.")
-	raidsCmd.Flags().Int("page", 0,
-		"Page number")
-	raidsCmd.Flags().Int("size", 0,
-		"Page size")
+	raidsCmd.Flags().Bool("active", false, "Filter raids by active status.")
+	raidsCmd.Flags().String("name", "", "Name of the raid.")
+	raidsCmd.Flags().Int("page", 0, "Page number")
+	raidsCmd.Flags().Int("size", 0, "Page size")
 }

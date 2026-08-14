@@ -53,6 +53,5 @@ Arguments:
 
 func init() {
 	apiCmd.AddCommand(myActionRenameCmd)
-	myActionRenameCmd.Flags().String("name", "",
-		"Your desired character name. It's unique and all players can see it.")
+	myActionRenameCmd.Flags().String("name", "", "Your desired character name. It's unique and all players can see it.")
 }

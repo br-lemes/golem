@@ -49,12 +49,8 @@ var myGrandexchangeHistoryCmd = &cobra.Command{
 
 func init() {
 	apiCmd.AddCommand(myGrandexchangeHistoryCmd)
-	myGrandexchangeHistoryCmd.Flags().String("code", "",
-		"Item to search in your history.")
-	myGrandexchangeHistoryCmd.Flags().String("id", "",
-		"Order ID to search in your history.")
-	myGrandexchangeHistoryCmd.Flags().Int("page", 0,
-		"Page number")
-	myGrandexchangeHistoryCmd.Flags().Int("size", 0,
-		"Page size")
+	myGrandexchangeHistoryCmd.Flags().String("code", "", "Item to search in your history.")
+	myGrandexchangeHistoryCmd.Flags().String("id", "", "Order ID to search in your history.")
+	myGrandexchangeHistoryCmd.Flags().Int("page", 0, "Page number")
+	myGrandexchangeHistoryCmd.Flags().Int("size", 0, "Page size")
 }
