@@ -19,6 +19,8 @@ var (
 	itemTypesList []string
 )
 
+var Items = newStore(jsonLoader[schemas.ItemSchema](items), func(item *schemas.ItemSchema) string { return item.Code })
+
 func GetItems() []schemas.ItemSchema {
 	initItemsCache()
 	return itemsList

@@ -145,7 +145,7 @@ func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) e
 	for _, skill := range skills {
 		levels[skill] = map[string]int{}
 		for _, character := range characters {
-			levels[skill][character.Name] = utils.GetCharacterSkillLevel(character, skill)
+			levels[skill][character.Name], _ = utils.GetCharacterSkillLevel(character, skill)
 		}
 	}
 	return console.Auto(levels)
@@ -162,7 +162,7 @@ func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []strin
 	for _, character := range characters {
 		levels[character.Name] = map[string]int{}
 		for _, skill := range skills {
-			levels[character.Name][skill] = utils.GetCharacterSkillLevel(character, skill)
+			levels[character.Name][skill], _ = utils.GetCharacterSkillLevel(character, skill)
 		}
 	}
 	return console.Auto(levels)

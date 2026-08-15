@@ -59,7 +59,8 @@ var stockCmd = &cobra.Command{
 		maxSkillLevel := map[string]int{}
 		for _, character := range characters {
 			for _, skill := range skills {
-				maxSkillLevel[skill] = max(maxSkillLevel[skill], utils.GetCharacterSkillLevel(character, skill))
+				level, _ := utils.GetCharacterSkillLevel(character, skill)
+				maxSkillLevel[skill] = max(maxSkillLevel[skill], level)
 			}
 		}
 		tasks := database.GetTasksList()

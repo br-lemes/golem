@@ -11,28 +11,28 @@ func GetCharacters() []string {
 	return characters
 }
 
-func GetCharacterSkillLevel(character schemas.CharacterSchema, skill string) int {
+func GetCharacterSkillLevel(character schemas.CharacterSchema, skill string) (int, bool) {
 	switch skill {
 	case "alchemy":
-		return character.AlchemyLevel
+		return character.AlchemyLevel, true
 	case "combat":
-		return character.Level
+		return character.Level, true
 	case "cooking":
-		return character.CookingLevel
+		return character.CookingLevel, true
 	case "fishing":
-		return character.FishingLevel
+		return character.FishingLevel, true
 	case "gearcrafting":
-		return character.GearcraftingLevel
+		return character.GearcraftingLevel, true
 	case "jewelrycrafting":
-		return character.JewelrycraftingLevel
+		return character.JewelrycraftingLevel, true
 	case "mining":
-		return character.MiningLevel
+		return character.MiningLevel, true
 	case "weaponcrafting":
-		return character.WeaponcraftingLevel
+		return character.WeaponcraftingLevel, true
 	case "woodcutting":
-		return character.WoodcuttingLevel
+		return character.WoodcuttingLevel, true
 	default:
-		return character.Level
+		return 0, false
 	}
 }
 
