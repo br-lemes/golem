@@ -25,7 +25,7 @@ coverage:
 		sed -i '/cmd\/api/d' coverage.out && \
 		go run $(GOCOVER) full --cover-profile=coverage.out
 
-custom-gcl:
+custom-gcl: .custom-gcl.yml
 	@if command -v golangci-lint >/dev/null 2>&1; then \
 		golangci-lint custom -v; \
 	else \
