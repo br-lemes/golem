@@ -24,8 +24,13 @@ func newStore[T any, K comparable](loader func() []T, keyExtractor func(*T) K) *
 		byKey := make(map[K]*T, len(items))
 		for index := range items {
 			itemPtr := &items[index]
+			key := keyExtractor(itemPtr)
+			_, exists := byKey[key]
+			if exists {
+				panic(fmt.Sprintf("duplicate catalog key: %v", key))
+			}
 			itemsPtr[index] = itemPtr
-			byKey[keyExtractor(itemPtr)] = itemPtr
+			byKey[key] = itemPtr
 		}
 		return &storeState[T, K]{items: itemsPtr, byKey: byKey}
 	})
