@@ -15,12 +15,12 @@ var enumCmd = &cobra.Command{
 
 Arguments:
   name   The name of the enum.`,
-	ValidArgsFunction: completion.Custom(1, database.GetEnumNames).Build(),
+	ValidArgsFunction: completion.Custom(1, database.EnumNames).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return console.Auto(database.GetEnumNames())
+			return console.Auto(database.EnumNames())
 		}
-		return console.Auto(database.GetEnum(args[0]))
+		return console.Auto(database.Enum(args[0]))
 	},
 }
 

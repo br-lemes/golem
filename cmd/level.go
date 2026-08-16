@@ -41,7 +41,7 @@ Arguments:
 		if !slices.Contains(levelGroups, levelFlags.group) {
 			return fmt.Errorf("invalid group %q: allowed values are %v", levelFlags.group, levelGroups)
 		}
-		validSkills := database.GetEnum("CharacterLeaderboardType")
+		validSkills := database.Enum("CharacterLeaderboardType")
 		for _, skill := range levelFlags.skill {
 			if !slices.Contains(validSkills, skill) {
 				return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
@@ -91,7 +91,7 @@ func init() {
 		panic(err)
 	}
 	err = levelCmd.RegisterFlagCompletionFunc("skill", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		skills := database.GetEnum("CharacterLeaderboardType")
+		skills := database.Enum("CharacterLeaderboardType")
 		idx := strings.LastIndex(toComplete, ",")
 		if idx == -1 {
 			return skills, cobra.ShellCompDirectiveNoFileComp
@@ -135,7 +135,7 @@ func init() {
 }
 
 func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) error {
-	skills := database.GetEnum("CharacterLeaderboardType")
+	skills := database.Enum("CharacterLeaderboardType")
 	if len(filterSkills) > 0 {
 		skills = slices.DeleteFunc(skills, func(s string) bool {
 			return !slices.Contains(filterSkills, s)
@@ -152,7 +152,7 @@ func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) e
 }
 
 func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []string) error {
-	skills := database.GetEnum("CharacterLeaderboardType")
+	skills := database.Enum("CharacterLeaderboardType")
 	if len(filterSkills) > 0 {
 		skills = slices.DeleteFunc(skills, func(s string) bool {
 			return !slices.Contains(filterSkills, s)

@@ -1,3 +1,4 @@
+// +gocover:ignore:file only returns embedded data
 package database
 
 import _ "embed"

@@ -6,63 +6,43 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-var (
-	enumCache sync.Map
-	enumList  []string
-)
-
-func GetEnumNames() []string {
-	initEnumsList()
-	return enumList
+type enumData struct {
+	values map[string][]string
+	names  []string
 }
 
-func GetEnum(name string) []string {
-	cached, exists := enumCache.Load(name)
-	if exists {
-		if cached == nil {
-			return nil
-		}
-		return cached.([]string)
-	}
-	result := getEnum(name)
-	actual, _ := enumCache.LoadOrStore(name, result)
-	if actual == nil {
-		return nil
-	}
-	return actual.([]string)
-}
+var enums = sync.OnceValue(func() enumData {
+	data := enumData{values: make(map[string][]string)}
 
-func getEnum(name string) []string {
-	schema := gjson.GetBytes(openapi, "components.schemas."+name)
-	if schema.Get("type").String() != "string" {
-		return nil
-	}
-	enum := schema.Get("enum")
-	if !enum.IsArray() {
-		return nil
-	}
-	var result []string
-	for _, v := range enum.Array() {
-		result = append(result, v.String())
-	}
-	return result
-}
-
-var initEnumsList = sync.OnceFunc(func() {
 	gjson.GetBytes(openapi, "components.schemas").ForEach(func(key, value gjson.Result) bool {
 		if value.Get("type").String() != "string" {
 			return true
 		}
-		if !value.Get("enum").IsArray() {
+
+		values := value.Get("enum")
+		if !values.IsArray() {
+			//+gocover:ignore:block OpenAPI always contain an enum array
 			return true
 		}
-		var result []string
-		for _, v := range value.Get("enum").Array() {
-			result = append(result, v.String())
-		}
+
 		name := key.String()
-		enumCache.Store(name, result)
-		enumList = append(enumList, key.String())
+		result := make([]string, 0, len(values.Array()))
+		for _, value := range values.Array() {
+			result = append(result, value.String())
+		}
+
+		data.values[name] = result
+		data.names = append(data.names, name)
 		return true
 	})
+
+	return data
 })
+
+func EnumNames() []string {
+	return enums().names
+}
+
+func Enum(name string) []string {
+	return enums().values[name]
+}

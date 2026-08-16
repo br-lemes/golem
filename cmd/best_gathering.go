@@ -25,7 +25,7 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		skill := args[1]
-		validSkills := database.GetEnum("GatheringSkill")
+		validSkills := database.Enum("GatheringSkill")
 		if !slices.Contains(validSkills, skill) {
 			return fmt.Errorf("invalid skill: %s", skill)
 		}
