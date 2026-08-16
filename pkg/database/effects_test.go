@@ -3,10 +3,7 @@ package database
 import "testing"
 
 func TestEffectsSmoke(t *testing.T) {
-	if len(GetEffects()) == 0 {
-		t.Error("effects list is empty")
-	}
-	if len(GetEffectCodes()) == 0 {
-		t.Error("effect codes are empty")
+	if len(Effects.All()) == 0 {
+		t.Fatal("effects catalog is empty")
 	}
 }

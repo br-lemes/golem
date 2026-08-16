@@ -24,7 +24,7 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		monsterCode := args[1]
-		monster, exists := database.GetMonster(monsterCode)
+		monster, exists := database.Monsters.Get(monsterCode)
 		if !exists {
 			return fmt.Errorf("invalid monster: %s", monsterCode)
 		}
@@ -45,7 +45,7 @@ Arguments:
 			overrides[slot] = v
 		}
 
-		report, err := utils.FightSimulate(character, monster, overrides)
+		report, err := utils.FightSimulate(character, *monster, overrides)
 		if err != nil {
 			return err
 		}
@@ -58,7 +58,7 @@ func init() {
 		usage := fmt.Sprintf("Override the %s slot for this simulation", slot)
 		simulateCmd.Flags().String(slot, "", usage)
 		err := simulateCmd.RegisterFlagCompletionFunc(slot, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			return database.GetItemCodes(), cobra.ShellCompDirectiveNoFileComp
+			return database.Items.Keys(), cobra.ShellCompDirectiveNoFileComp
 		})
 		if err != nil {
 			panic(err)

@@ -36,7 +36,7 @@ func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.Character
 		if slot.Quantity <= 0 { //+gocover:ignore:block should not happen
 			continue
 		}
-		item, found := database.GetItem(slot.Code)
+		item, found := database.Items.Get(slot.Code)
 		if !found || item.Type != "consumable" || item.Subtype != "food" || item.Level > character.Level || item.Effects == nil {
 			//+gocover:ignore:block should not happen
 			continue

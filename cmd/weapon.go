@@ -28,7 +28,7 @@ Arguments:
 			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
 		}
 		if len(args) == 1 {
-			monsters := database.GetMonsterCodes()
+			monsters := database.Monsters.Keys()
 			return monsters, cobra.ShellCompDirectiveNoFileComp
 		}
 		return nil, cobra.ShellCompDirectiveNoFileComp
@@ -37,7 +37,7 @@ Arguments:
 		name := args[0]
 		monsterCode := args[1]
 
-		monster, found := database.GetMonster(monsterCode)
+		monster, found := database.Monsters.Get(monsterCode)
 		if !found {
 			return fmt.Errorf("monster not found")
 		}
@@ -47,7 +47,7 @@ Arguments:
 			return fmt.Errorf("failed to get character: %w", err)
 		}
 
-		return console.Auto(GetBestWeaponForMonster(character, monster, database.GetItems()))
+		return console.Auto(GetBestWeaponForMonster(character, *monster, database.Items.All()))
 	},
 }
 
@@ -55,7 +55,7 @@ func init() {
 	rootCmd.AddCommand(weaponCmd)
 }
 
-func GetBestWeaponForMonster(character schemas.CharacterSchema, monster schemas.MonsterSchema, items []schemas.ItemSchema) []string {
+func GetBestWeaponForMonster(character schemas.CharacterSchema, monster schemas.MonsterSchema, items []*schemas.ItemSchema) []string {
 	var filteredItems []schemas.ItemSchema
 
 	for _, item := range items {
@@ -77,7 +77,7 @@ func GetBestWeaponForMonster(character schemas.CharacterSchema, monster schemas.
 				}
 
 				if canEquip {
-					filteredItems = append(filteredItems, item)
+					filteredItems = append(filteredItems, *item)
 				}
 			}
 		}

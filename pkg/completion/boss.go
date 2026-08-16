@@ -8,5 +8,5 @@ func Boss(count int) *CompletionBuilder {
 }
 
 func (b *CompletionBuilder) Boss(count int) *CompletionBuilder {
-	return b.Custom(count, database.GetBossCodes)
+	return b.Custom(count, database.Bosses.Keys)
 }

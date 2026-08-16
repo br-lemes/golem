@@ -8,5 +8,5 @@ func Equipment(count int) *CompletionBuilder {
 }
 
 func (b *CompletionBuilder) Equipment(count int) *CompletionBuilder {
-	return b.Custom(count, database.GetEquipments)
+	return b.Custom(count, database.Equipments)
 }

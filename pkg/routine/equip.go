@@ -64,7 +64,7 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 		if equipment.Code == "" || equipment.Slot == "" {
 			return fmt.Errorf("invalid equipment request: missing code or slot")
 		}
-		item, exists := database.GetItem(equipment.Code)
+		item, exists := database.Items.Get(equipment.Code)
 		if !exists {
 			return fmt.Errorf("item not found in database: %s", equipment.Code)
 		}
@@ -93,7 +93,7 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 
 func checkLevelRequirements(character schemas.CharacterSchema, equipments []schemas.EquipSchema) error {
 	for _, equipment := range equipments {
-		item, _ := database.GetItem(equipment.Code)
+		item, _ := database.Items.Get(equipment.Code)
 		currentLevel := character.Level
 		if item.Subtype == "tool" && item.Effects != nil {
 			for _, effect := range *item.Effects {

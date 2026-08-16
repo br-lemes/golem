@@ -25,7 +25,7 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
-		monster, found := database.GetMonster(code)
+		monster, found := database.Monsters.Get(code)
 		if !found {
 			return fmt.Errorf("monster %s not found", code)
 		}
@@ -48,7 +48,7 @@ Arguments:
 		utility1, _ := cmd.Flags().GetString("utility1")
 		utility2, _ := cmd.Flags().GetString("utility2")
 		for {
-			err = prepare(character, monster, food, utility1, utility2)
+			err = prepare(character, *monster, food, utility1, utility2)
 			if err != nil {
 				return err
 			}

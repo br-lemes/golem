@@ -8,5 +8,5 @@ func Monster(count int) *CompletionBuilder {
 }
 
 func (b *CompletionBuilder) Monster(count int) *CompletionBuilder {
-	return b.Custom(count, database.GetMonsterCodes)
+	return b.Custom(count, database.Monsters.Keys)
 }

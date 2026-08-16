@@ -20,7 +20,7 @@ func foodCurrentQty(character schemas.CharacterSchema) int {
 		if slot.Quantity <= 0 {
 			continue
 		}
-		item, found := database.GetItem(slot.Code)
+		item, found := database.Items.Get(slot.Code)
 		if !found || item.Type != "consumable" || item.Subtype != "food" {
 			continue
 		}
@@ -46,7 +46,7 @@ func foodCandidates(character schemas.CharacterSchema, food string, bankQty map[
 		if qty <= 0 {
 			continue
 		}
-		item, found := database.GetItem(code)
+		item, found := database.Items.Get(code)
 		if !found || item.Type != "consumable" || item.Subtype != "food" || item.Level > character.Level || item.Effects == nil {
 			continue
 		}

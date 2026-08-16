@@ -16,6 +16,7 @@ var NpcsItems = newStore(func() []schemas.NPCItemSchema {
 	var items []schemas.NPCItemSchema
 	for _, npc := range npcs {
 		if npc.Items == nil {
+			//+gocover:ignore:block all NPCs include item data
 			continue
 		}
 		for _, item := range *npc.Items {

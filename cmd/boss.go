@@ -40,7 +40,7 @@ Arguments:
 				return fmt.Errorf("participants cannot include the main character")
 			}
 		}
-		boss, found := database.GetMonster(code)
+		boss, found := database.Bosses.Get(code)
 		if !found {
 			return fmt.Errorf("boss %s not found", code)
 		}
@@ -82,9 +82,9 @@ Arguments:
 		utility2, _ := cmd.Flags().GetString("utility2")
 		for {
 			var g errgroup.Group
-			g.Go(func() error { return prepare(charMap[name], boss, food, utility1, utility2) })
+			g.Go(func() error { return prepare(charMap[name], *boss, food, utility1, utility2) })
 			for _, p := range participants {
-				g.Go(func() error { return prepare(charMap[p], boss, food, utility1, utility2) })
+				g.Go(func() error { return prepare(charMap[p], *boss, food, utility1, utility2) })
 			}
 			err := g.Wait()
 			if err != nil {

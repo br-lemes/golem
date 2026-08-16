@@ -158,8 +158,7 @@ func getEventPoints(code string) EventPoints {
 		return EventPoints{}
 	}
 
-	initEventContentCodes()
-	if !slices.Contains(eventsContentCodesList, code) {
+	if !slices.Contains(EventContentCodes(), code) {
 		return EventPoints{}
 	}
 

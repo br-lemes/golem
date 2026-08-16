@@ -2,82 +2,39 @@ package database
 
 import (
 	_ "embed"
-	"encoding/json"
 	"sync"
 
 	"github.com/br-lemes/golem/pkg/schemas"
-	"github.com/tidwall/gjson"
 )
 
-var (
-	//go:embed events.json
-	events []byte
+//go:embed events.json
+var events []byte
 
-	eventsList             []schemas.EventSchema
-	eventsCache            map[string]schemas.EventSchema
-	eventCodesList         []string
-	eventsContentCodesList []string
-)
+var Events = newStore(jsonLoader[schemas.EventSchema](events), func(event *schemas.EventSchema) string {
+	return event.Code
+})
 
-func GetEvents() []schemas.EventSchema {
-	initEventsCache()
-	return eventsList
-}
+var eventContentCodes = sync.OnceValue(func() []string {
+	seen := make(map[string]struct{})
+	var codes []string
 
-func GetEvent(code string) (schemas.EventSchema, bool) {
-	initEventsCache()
-	event, exists := eventsCache[code]
-	return event, exists
-}
-
-func GetEventByContent(code string) (schemas.EventSchema, bool) {
-	initEventsCache()
-	for _, event := range eventsList {
-		if event.Content.Code == code {
-			return event, true
+	for _, event := range Events.All() {
+		code := event.Content.Code
+		if code == "" {
+			//+gocover:ignore:block all event contents have codes
+			continue
 		}
-	}
-	return schemas.EventSchema{}, false
-}
-
-func GetEventCodes() []string {
-	initEventCodes()
-	return eventCodesList
-}
-
-func GetEventContentCodes() []string {
-	initEventContentCodes()
-	return eventsContentCodesList
-}
-
-var initEventsCache = sync.OnceFunc(func() {
-	eventsCache = make(map[string]schemas.EventSchema)
-	err := json.Unmarshal(events, &eventsList)
-	if err != nil {
-		panic("failed to unmarshal events: " + err.Error())
-	}
-	for _, event := range eventsList {
-		eventsCache[event.Code] = event
-	}
-})
-
-var initEventCodes = sync.OnceFunc(func() {
-	gjson.GetBytes(events, "#.code").ForEach(func(_, value gjson.Result) bool {
-		eventCodesList = append(eventCodesList, value.String())
-		return true
-	})
-})
-
-var initEventContentCodes = sync.OnceFunc(func() {
-	uniqueContentCodes := make(map[string]struct{})
-	gjson.GetBytes(events, "#.content.code").ForEach(func(_, value gjson.Result) bool {
-		s := value.String()
-		if s != "" {
-			uniqueContentCodes[s] = struct{}{}
+		_, exists := seen[code]
+		if exists {
+			//+gocover:ignore:block event content codes are unique
+			continue
 		}
-		return true
-	})
-	for code := range uniqueContentCodes {
-		eventsContentCodesList = append(eventsContentCodesList, code)
+		seen[code] = struct{}{}
+		codes = append(codes, code)
 	}
+	return codes
 })
+
+func EventContentCodes() []string {
+	return eventContentCodes()
+}

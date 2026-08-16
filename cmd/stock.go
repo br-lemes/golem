@@ -30,7 +30,7 @@ var stockCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		taskCodes := database.GetTasksCodes()
+		taskCodes := database.Tasks.Keys()
 		itemsMap := map[string]*schemas.SimpleItemSchema{}
 		for _, item := range bankItems {
 			if slices.Contains(taskCodes, item.Code) {
@@ -55,7 +55,7 @@ var stockCmd = &cobra.Command{
 				itemsMap[slot.Code].Quantity += slot.Quantity
 			}
 		}
-		skills := database.GetTasksSkills()
+		skills := database.TaskSkills()
 		maxSkillLevel := map[string]int{}
 		for _, character := range characters {
 			for _, skill := range skills {
@@ -63,9 +63,8 @@ var stockCmd = &cobra.Command{
 				maxSkillLevel[skill] = max(maxSkillLevel[skill], level)
 			}
 		}
-		tasks := database.GetTasksList()
 		result := map[string]ItemStock{}
-		for _, task := range tasks {
+		for _, task := range database.Tasks.All() {
 			if task.Skill == nil || task.Type != "items" || task.Level > maxSkillLevel[*task.Skill] || slices.Contains(forbiddenTaskItem, task.Code) {
 				continue
 			}

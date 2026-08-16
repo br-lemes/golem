@@ -22,14 +22,14 @@ var countCmd = &cobra.Command{
 Arguments:
   code      The code of the item (or 'gold' for gold).`,
 	ValidArgsFunction: completion.Custom(0, func() []string {
-		return append(database.GetItemCodes(), "gold")
+		return append(database.Items.Keys(), "gold")
 	}).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		for _, code := range args {
 			if code == "gold" {
 				continue
 			}
-			_, found := database.GetItem(code)
+			_, found := database.Items.Get(code)
 			if !found {
 				return fmt.Errorf("item %s not found", code)
 			}

@@ -5,8 +5,6 @@ import (
 	"sync"
 )
 
-var equipmentList []string
-
 var (
 	EquipmentTypes = []string{
 		"amulet",
@@ -59,14 +57,10 @@ var (
 	}
 )
 
-func GetEquipments() []string {
-	initEquipmentList()
-	return equipmentList
-}
+var equipments = sync.OnceValue(func() []string {
+	var result []string
 
-var initEquipmentList = sync.OnceFunc(func() {
-	initItemsCache()
-	for _, item := range itemsList {
+	for _, item := range Items.All() {
 		slot, exists := EquipmentTypeToSlots[item.Type]
 		if !exists {
 			continue
@@ -74,10 +68,15 @@ var initEquipmentList = sync.OnceFunc(func() {
 		if len(slot) > 1 {
 			for i := range slot {
 				code := fmt.Sprintf("%s@%d", item.Code, i+1)
-				equipmentList = append(equipmentList, code)
+				result = append(result, code)
 			}
 			continue
 		}
-		equipmentList = append(equipmentList, item.Code)
+		result = append(result, item.Code)
 	}
+	return result
 })
+
+func Equipments() []string {
+	return equipments()
+}

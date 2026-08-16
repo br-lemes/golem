@@ -24,7 +24,7 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		monsterCode := args[1]
-		monster, exists := database.GetMonster(monsterCode)
+		monster, exists := database.Monsters.Get(monsterCode)
 		if !exists {
 			return fmt.Errorf("invalid monster: %s", monsterCode)
 		}
@@ -32,7 +32,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		items, err := utils.BestFight(character, monster)
+		items, err := utils.BestFight(character, *monster)
 		if err != nil {
 			return err
 		}

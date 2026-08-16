@@ -9,6 +9,6 @@ func Map(count int) *CompletionBuilder {
 
 func (b *CompletionBuilder) Map(count int) *CompletionBuilder {
 	return b.Custom(count, func() []string {
-		return append(database.GetMapCodes(), database.GetEventContentCodes()...)
+		return append(database.GetMapCodes(), database.EventContentCodes()...)
 	})
 }

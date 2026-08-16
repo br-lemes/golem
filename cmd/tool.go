@@ -57,7 +57,7 @@ Arguments:
 			return fmt.Errorf("failed to get character: %w", err)
 		}
 
-		return console.Auto(GetBestEquipmentForSkill(character, code, database.GetItems()))
+		return console.Auto(GetBestEquipmentForSkill(character, code, database.Items.All()))
 	},
 }
 
@@ -88,7 +88,7 @@ func getCharacterSkillLevel(character schemas.CharacterSchema, skill string) int
 	}
 }
 
-func GetBestEquipmentForSkill(character schemas.CharacterSchema, skill string, items []schemas.ItemSchema) []string {
+func GetBestEquipmentForSkill(character schemas.CharacterSchema, skill string, items []*schemas.ItemSchema) []string {
 	var filteredItems []schemas.ItemSchema
 	characterLevel := getCharacterSkillLevel(character, skill)
 
@@ -130,7 +130,7 @@ func GetBestEquipmentForSkill(character schemas.CharacterSchema, skill string, i
 					}
 
 					if canEquip {
-						filteredItems = append(filteredItems, item)
+						filteredItems = append(filteredItems, *item)
 					}
 				}
 			}

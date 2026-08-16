@@ -53,7 +53,7 @@ func init() {
 	rootCmd.AddCommand(depositCmd)
 	depositCmd.Flags().StringSliceVarP(&keepTypes, "keep", "k", []string{}, "Types of items to keep in inventory")
 	err := depositCmd.RegisterFlagCompletionFunc("keep", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		types := database.GetItemTypes()
+		types := database.ItemTypes()
 		types = append(types, "gold")
 		return types, cobra.ShellCompDirectiveNoFileComp
 	})

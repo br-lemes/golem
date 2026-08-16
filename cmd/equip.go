@@ -54,7 +54,7 @@ func parseCliEquipment(arg string) (schemas.EquipSchema, error) {
 		}
 	}
 
-	item, exists := database.GetItem(itemCode)
+	item, exists := database.Items.Get(itemCode)
 	if !exists {
 		return schemas.EquipSchema{}, fmt.Errorf("item not found in database: %s", itemCode)
 	}

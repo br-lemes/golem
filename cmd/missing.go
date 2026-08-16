@@ -116,7 +116,7 @@ func executeMissing(names []string, equipTypes []string) error {
 	} else {
 		targets = database.EquipmentTypes
 	}
-	allItems := database.GetItems()
+	allItems := database.Items.All()
 	var filteredCodes []string
 	for _, character := range charactersToProcess {
 		if character.Inventory != nil {
@@ -174,7 +174,7 @@ func executeMissing(names []string, equipTypes []string) error {
 				continue
 			}
 			if isTool {
-				canEquip := hasRequiredSkillLevel(character, item)
+				canEquip := hasRequiredSkillLevel(character, *item)
 				if !canEquip {
 					continue
 				}

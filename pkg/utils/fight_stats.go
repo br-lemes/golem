@@ -160,7 +160,7 @@ func baseStats(c schemas.CharacterSchema) EffectiveStats {
 		if code == "" {
 			continue
 		}
-		it, ok := database.GetItem(code)
+		it, ok := database.Items.Get(code)
 		if !ok {
 			continue
 		}
@@ -195,7 +195,7 @@ func applyGear(base EffectiveStats, codes []string) Fighter {
 		if code == "" {
 			continue
 		}
-		it, ok := database.GetItem(code)
+		it, ok := database.Items.Get(code)
 		if !ok {
 			continue
 		}

@@ -133,11 +133,11 @@ func BestFight(character schemas.CharacterSchema, monster schemas.MonsterSchema)
 		if code == "" || code == worn[s] {
 			continue
 		}
-		it, ok := database.GetItem(code)
+		it, ok := database.Items.Get(code)
 		if !ok {
 			continue
 		}
-		equipment[s] = bestResult{Code: code, Value: formatAllEffects(it)}
+		equipment[s] = bestResult{Code: code, Value: formatAllEffects(*it)}
 	}
 	return bestFightResult{
 		Win:       bestForecast.Win,
@@ -187,7 +187,7 @@ func buildFightPools(character schemas.CharacterSchema, monster schemas.MonsterS
 		if qty <= 0 {
 			continue
 		}
-		it, ok := database.GetItem(code)
+		it, ok := database.Items.Get(code)
 		if !ok {
 			continue
 		}
@@ -195,7 +195,7 @@ func buildFightPools(character schemas.CharacterSchema, monster schemas.MonsterS
 		if !ok {
 			continue
 		}
-		if !canEquipItem(character, it) {
+		if !canEquipItem(character, *it) {
 			continue
 		}
 		for _, s := range slots {
@@ -224,9 +224,9 @@ func capPool(codes []string, cap int, monster schemas.MonsterSchema) []string {
 	}
 	ranked := append([]string{}, codes...)
 	sort.Slice(ranked, func(i, j int) bool {
-		ii, _ := database.GetItem(ranked[i])
-		jj, _ := database.GetItem(ranked[j])
-		hi, hj := fightHeuristic(ii, monster), fightHeuristic(jj, monster)
+		ii, _ := database.Items.Get(ranked[i])
+		jj, _ := database.Items.Get(ranked[j])
+		hi, hj := fightHeuristic(*ii, monster), fightHeuristic(*jj, monster)
 		if hi != hj {
 			return hi > hj
 		}

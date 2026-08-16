@@ -90,7 +90,7 @@ func (c *bestCtx) fetchItems() error {
 }
 
 func (c *bestCtx) filterAndSort() {
-	allItems := database.GetItems()
+	allItems := database.Items.All()
 	c.ItemValues = make(map[string]int)
 	for _, item := range allItems {
 		if c.Skill != "" && item.Type == "weapon" && item.Subtype == "tool" {
@@ -113,11 +113,11 @@ func (c *bestCtx) filterAndSort() {
 				continue
 			}
 		}
-		val := c.evaluateItem(item)
+		val := c.evaluateItem(*item)
 		if val == 0 {
 			continue
 		}
-		c.ValidItems = append(c.ValidItems, item)
+		c.ValidItems = append(c.ValidItems, *item)
 		c.ItemValues[item.Code] = val
 	}
 	slices.SortFunc(c.ValidItems, func(i, j schemas.ItemSchema) int {
