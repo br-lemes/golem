@@ -4,7 +4,56 @@ import "github.com/br-lemes/golem/pkg/schemas"
 
 type mapLookup func(Point) (*schemas.MapSchema, bool)
 
-func findClosest(maps mapLookup, character schemas.CharacterSchema, code string, eventPoints EventPoints) *SearchResult {
+type navigationContext struct {
+	Maps             mapLookup
+	Character        schemas.CharacterSchema
+	Code             string
+	EventPoints      EventPoints
+	LoadAchievements func(string) ([]schemas.AccountAchievementSchema, error)
+}
+
+func findClosest(context navigationContext) *SearchResult {
+	maps := context.Maps
+	character := context.Character
+	code := context.Code
+	eventPoints := context.EventPoints
+	var achievements []schemas.AccountAchievementSchema
+	achievementsLoaded := false
+	load := func() bool {
+		if achievementsLoaded {
+			return achievements != nil
+		}
+		achievementsLoaded = true
+		if context.LoadAchievements == nil {
+			return false
+		}
+		var err error
+		achievements, err = context.LoadAchievements(character.Account)
+		return err == nil
+	}
+	hasAchievement := func(code string) bool {
+		if !load() {
+			return false
+		}
+		for _, achievement := range achievements {
+			if achievement.Code == code && achievement.CompletedAt != nil {
+				return true
+			}
+		}
+		return false
+	}
+	conditionsSatisfied := func(conditions *[]schemas.ConditionSchema) bool {
+		if conditions == nil {
+			return true
+		}
+		for _, condition := range *conditions {
+			if condition.Operator == schemas.AchievementUnlocked && !hasAchievement(condition.Code) {
+				return false
+			}
+		}
+		return true
+	}
+
 	startPoint := Point{X: character.X, Y: character.Y, Layer: character.Layer}
 	startNode := SearchNode{Point: startPoint}
 
@@ -35,7 +84,7 @@ func findClosest(maps mapLookup, character schemas.CharacterSchema, code string,
 				}
 			}
 
-			if isTarget {
+			if isTarget && conditionsSatisfied(currentTile.Access.Conditions) {
 				return &SearchResult{
 					Target:      *currentTile,
 					Transitions: current.Transitions,
@@ -50,7 +99,7 @@ func findClosest(maps mapLookup, character schemas.CharacterSchema, code string,
 					Layer: transition.Layer,
 				}
 
-				if !visited[nextPoint] {
+				if !visited[nextPoint] && conditionsSatisfied(transition.Conditions) {
 					visited[nextPoint] = true
 
 					nextTransitions := make([]schemas.MapSchema, len(current.Transitions), len(current.Transitions)+1)
@@ -75,7 +124,7 @@ func findClosest(maps mapLookup, character schemas.CharacterSchema, code string,
 			if !visited[nextPoint] {
 				nextTile, tileExists := maps(nextPoint)
 				if tileExists {
-					if nextTile.Access.Type != "blocked" {
+					if nextTile.Access.Type != "blocked" && conditionsSatisfied(nextTile.Access.Conditions) {
 						visited[nextPoint] = true
 						queue = append(queue, SearchNode{
 							Point:       nextPoint,

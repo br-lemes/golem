@@ -41,7 +41,13 @@ var Maps = newStore(jsonLoader[schemas.MapSchema](maps), func(tile *schemas.MapS
 func FindClosest(character schemas.CharacterSchema, code string) *SearchResult {
 	//+gocover:ignore:block production wrapper over tested logic
 	eventPoints := getEventPoints(code, MapCodes(), EventContentCodes(), api.EventsActive)
-	return findClosest(Maps.Get, character, code, eventPoints)
+	return findClosest(navigationContext{
+		Maps:             Maps.Get,
+		Character:        character,
+		Code:             code,
+		EventPoints:      eventPoints,
+		LoadAchievements: api.AccountsAchievements,
+	})
 }
 
 func getEventPoints(code string, mapCodes, eventCodes []string, load func() ([]schemas.ActiveEventSchema, error)) EventPoints {
