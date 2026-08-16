@@ -9,7 +9,9 @@ func TestDerivedStringListsAreNonEmptyAndUnique(t *testing.T) {
 	}{
 		{name: "item types", list: ItemTypes},
 		{name: "event content codes", list: EventContentCodes},
+		{name: "map codes", list: MapCodes},
 		{name: "task skills", list: TaskSkills},
+		{name: "equipments", list: Equipments},
 	}
 
 	for _, test := range tests {

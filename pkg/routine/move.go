@@ -16,18 +16,18 @@ func move(d deps, character schemas.CharacterSchema, code string) (schemas.Chara
 	if result == nil {
 		return character, fmt.Errorf("no coordinates found for code %s", code)
 	}
-	if result.Transition == nil {
-		return makeMove(d, character, result.Target)
+	for _, transition := range result.Transitions {
+		character, err := makeMove(d, character, transition)
+		if err != nil {
+			return character, err
+		}
+		transitionData, err := d.myActionTransition(character.Name)
+		if err != nil {
+			return character, err
+		}
+		character = transitionData.Character
 	}
-	character, err := makeMove(d, character, *result.Transition)
-	if err != nil {
-		return character, err
-	}
-	transitionData, err := d.myActionTransition(character.Name)
-	if err != nil {
-		return character, err
-	}
-	return makeMove(d, transitionData.Character, result.Target)
+	return makeMove(d, character, result.Target)
 }
 
 func makeMove(d deps, character schemas.CharacterSchema, target schemas.MapSchema) (schemas.CharacterSchema, error) {
