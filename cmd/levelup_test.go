@@ -26,11 +26,11 @@ func TestSkillLevelupRequirements(t *testing.T) {
 
 	result := skillLevelupRequirements(characters)
 
-	if result["low"]["combat"] != "11 -> 20" {
-		t.Fatalf("low combat requirement = %q, want %q", result["low"]["combat"], "11 -> 20")
+	if result["low"]["combat"] != 11 {
+		t.Fatalf("low combat level = %d, want 11", result["low"]["combat"])
 	}
-	if result["low"]["alchemy"] != "1 -> 20" {
-		t.Fatalf("low alchemy requirement = %q, want %q", result["low"]["alchemy"], "1 -> 20")
+	if result["low"]["alchemy"] != 1 {
+		t.Fatalf("low alchemy level = %d, want 1", result["low"]["alchemy"])
 	}
 	_, exists := result["low"]["mining"]
 	if exists {

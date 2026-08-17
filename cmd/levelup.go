@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
@@ -46,7 +45,7 @@ func init() {
 	rootCmd.AddCommand(levelupCmd)
 }
 
-func skillLevelupRequirements(characters []schemas.CharacterSchema) map[string]map[string]string {
+func skillLevelupRequirements(characters []schemas.CharacterSchema) map[string]map[string]int {
 	skills := slices.DeleteFunc(slices.Clone(database.Enum("CharacterLeaderboardType")), func(skill string) bool {
 		return slices.Contains(levelupExcludedSkills, skill)
 	})
@@ -63,7 +62,7 @@ func skillLevelupRequirements(characters []schemas.CharacterSchema) map[string]m
 		targets[skill] = (maxLevel / 10) * 10
 	}
 
-	result := map[string]map[string]string{}
+	result := map[string]map[string]int{}
 	for _, character := range characters {
 		for skill, target := range targets {
 			level, _ := utils.GetCharacterSkillLevel(character, skill)
@@ -71,9 +70,9 @@ func skillLevelupRequirements(characters []schemas.CharacterSchema) map[string]m
 				continue
 			}
 			if result[character.Name] == nil {
-				result[character.Name] = map[string]string{}
+				result[character.Name] = map[string]int{}
 			}
-			result[character.Name][skill] = fmt.Sprintf("%d -> %d", level, target)
+			result[character.Name][skill] = level
 		}
 	}
 	return result
