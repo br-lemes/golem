@@ -124,7 +124,7 @@ func findClosest(context navigationContext) *SearchResult {
 			if !visited[nextPoint] {
 				nextTile, tileExists := maps(nextPoint)
 				if tileExists {
-					if nextTile.Access.Type != "blocked" && conditionsSatisfied(nextTile.Access.Conditions) {
+					if nextTile.Access.Type != "blocked" {
 						visited[nextPoint] = true
 						queue = append(queue, SearchNode{
 							Point:       nextPoint,

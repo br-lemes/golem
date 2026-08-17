@@ -266,6 +266,14 @@ func TestFindClosestSkipsConditionalTargetWithoutAchievement(t *testing.T) {
 				Content: &schemas.MapContentSchema{Code: "bank"},
 			},
 		},
+		{X: 0, Y: 1}: {
+			X:      0,
+			Y:      1,
+			Access: schemas.AccessSchema{Conditions: &conditions},
+			Interactions: schemas.InteractionSchema{
+				Content: &schemas.MapContentSchema{Code: "bank"},
+			},
+		},
 	}
 	loads := 0
 
@@ -404,6 +412,46 @@ func TestFindClosestDoesNotLoadAchievementsWithoutConditions(t *testing.T) {
 	})
 	if result == nil {
 		t.Fatal("findClosest() returned nil")
+	}
+	if loads != 0 {
+		t.Fatalf("achievement loads = %d, want 0", loads)
+	}
+}
+
+func TestFindClosestDoesNotCheckConditionsOnPathTiles(t *testing.T) {
+	conditions := []schemas.ConditionSchema{{
+		Code:     "secure_the_island",
+		Operator: schemas.AchievementUnlocked,
+		Value:    1,
+	}}
+	maps := map[Point]schemas.MapSchema{
+		{X: 0, Y: 0}: {X: 0, Y: 0},
+		{X: 1, Y: 0}: {
+			X:      1,
+			Y:      0,
+			Access: schemas.AccessSchema{Conditions: &conditions},
+		},
+		{X: 2, Y: 0}: {
+			X: 2,
+			Y: 0,
+			Interactions: schemas.InteractionSchema{
+				Content: &schemas.MapContentSchema{Code: "sheep"},
+			},
+		},
+	}
+	loads := 0
+
+	result := findClosest(navigationContext{
+		Maps:      testMapLookup(maps),
+		Character: schemas.CharacterSchema{Account: "account", X: 0, Y: 0},
+		Code:      "sheep",
+		LoadAchievements: func(string) ([]schemas.AccountAchievementSchema, error) {
+			loads++
+			return nil, nil
+		},
+	})
+	if result == nil || result.Target.X != 2 || result.Target.Y != 0 {
+		t.Fatalf("findClosest() = %#v, want sheep at (2, 0)", result)
 	}
 	if loads != 0 {
 		t.Fatalf("achievement loads = %d, want 0", loads)
