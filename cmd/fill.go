@@ -46,14 +46,11 @@ Arguments:
 		if fillFlags.quantity <= 0 {
 			return fmt.Errorf("quantity must be greater than 0")
 		}
-		orders, err := api.GrandexchangeOrders(id)
+		order, err := api.GrandexchangeOrder(id)
 		if err != nil {
 			return err
 		}
-		if len(orders) == 0 {
-			return fmt.Errorf("order %q not found", id)
-		}
-		fillData.order = orders[0]
+		fillData.order = order
 		if fillData.order.Type != "buy" {
 			return fmt.Errorf("order %q is not a buy order: type %q", id, fillData.order.Type)
 		}

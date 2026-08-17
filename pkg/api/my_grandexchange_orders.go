@@ -3,23 +3,30 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/google/go-querystring/query"
 )
 
 const MyGrandexchangeOrdersSize = 100
 
-func MyGrandexchangeOrders(code string, orderType string) ([]schemas.GEOrderSchema, error) {
+type MyGrandexchangeOrdersOptions struct {
+	Code string `url:"code,omitempty"`
+	Type string `url:"type,omitempty"`
+}
+
+func MyGrandexchangeOrders(options MyGrandexchangeOrdersOptions) ([]schemas.GEOrderSchema, error) {
 	result := []schemas.GEOrderSchema{}
+	params, err := query.Values(options)
+	if err != nil {
+		return nil, err
+	}
 	page := 1
 	for {
-		path := fmt.Sprintf("/my/grandexchange/orders?page=%d&size=%d", page, MyGrandexchangeOrdersSize)
-		if code != "" {
-			path += fmt.Sprintf("&code=%s", code)
-		}
-		if orderType != "" {
-			path += fmt.Sprintf("&type=%s", orderType)
-		}
+		params.Set("page", strconv.Itoa(page))
+		params.Set("size", strconv.Itoa(MyGrandexchangeOrdersSize))
+		path := fmt.Sprintf("/my/grandexchange/orders?%s", params.Encode())
 		resp, err := Get(path, nil)
 		if err != nil {
 			return nil, err

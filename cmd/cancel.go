@@ -37,7 +37,7 @@ Arguments:
 		if id == "" {
 			return fmt.Errorf("id must not be empty")
 		}
-		orders, err := api.MyGrandexchangeOrders("", "")
+		orders, err := api.MyGrandexchangeOrders(api.MyGrandexchangeOrdersOptions{})
 		if err != nil {
 			return err
 		}

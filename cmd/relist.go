@@ -49,7 +49,10 @@ Arguments:
 		if relistFlags.quantity < 0 {
 			return fmt.Errorf("quantity must be greater than or equal to 0")
 		}
-		orders, err := api.MyGrandexchangeOrders(code, "sell")
+		orders, err := api.MyGrandexchangeOrders(api.MyGrandexchangeOrdersOptions{
+			Code: code,
+			Type: "sell",
+		})
 		if err != nil {
 			return err
 		}

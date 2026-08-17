@@ -7,6 +7,7 @@ require (
 	github.com/getkin/kin-openapi v0.140.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/goccy/go-yaml v1.19.2
+	github.com/google/go-querystring v1.2.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/oapi-codegen/runtime v1.4.2
 	github.com/spf13/cobra v1.10.2
