@@ -12,6 +12,13 @@ var lowerIsBetter = map[string]bool{
 	"woodcutting": true,
 }
 
+var elementalDamageEffects = []string{
+	"dmg_fire",
+	"dmg_water",
+	"dmg_earth",
+	"dmg_air",
+}
+
 func Dominates(superior, inferior schemas.ItemSchema) bool {
 	superiorEffects := effectValues(superior)
 	inferiorEffects := effectValues(inferior)
@@ -79,6 +86,12 @@ func effectValues(item schemas.ItemSchema) map[string]int {
 		return values
 	}
 	for _, effect := range *item.Effects {
+		if effect.Code == "dmg" {
+			for _, elementalEffect := range elementalDamageEffects {
+				values[elementalEffect] += effect.Value
+			}
+			continue
+		}
 		values[effect.Code] += effect.Value
 	}
 	return values

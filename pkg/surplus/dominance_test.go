@@ -28,6 +28,51 @@ func TestDominatesConsidersAllEffects(t *testing.T) {
 	}
 }
 
+func TestDominatesTreatsGlobalDamageAsElementalDamage(t *testing.T) {
+	global := itemWithEffects("global", "dmg", 10)
+	fire := itemWithEffects("fire", "dmg_fire", 10)
+
+	if !Dominates(global, fire) {
+		t.Fatal("global damage should dominate equal fire damage")
+	}
+	if Dominates(fire, global) {
+		t.Fatal("fire damage should not dominate global damage")
+	}
+}
+
+func TestDominatesTreatsEquivalentGlobalAndElementalDamageAsEqual(t *testing.T) {
+	global := itemWithEffects("global", "dmg", 10)
+	elemental := itemWithEffects("elemental", "dmg_fire", 10, "dmg_water", 10, "dmg_earth", 10, "dmg_air", 10)
+
+	if Dominates(global, elemental) || Dominates(elemental, global) {
+		t.Fatal("equivalent global and elemental damage should not dominate each other")
+	}
+}
+
+func TestDominatesRealGlobalDamageOverSingleElementalDamage(t *testing.T) {
+	global := catalogItem(t, "gold_ring")
+	elemental := catalogItem(t, "fire_ring")
+
+	if !Dominates(global, elemental) {
+		t.Fatal("gold_ring should dominate fire_ring through global damage")
+	}
+	if Dominates(elemental, global) {
+		t.Fatal("fire_ring should not dominate gold_ring")
+	}
+}
+
+func TestRealGlobalAndElementalDamageAreCombined(t *testing.T) {
+	combined := catalogItem(t, "topaz_ring")
+	values := effectValues(combined)
+
+	if values["dmg_earth"] != 24 {
+		t.Errorf("topaz_ring earth damage = %d, want 24", values["dmg_earth"])
+	}
+	if values["dmg_fire"] != 17 || values["dmg_water"] != 17 || values["dmg_air"] != 17 {
+		t.Errorf("topaz_ring non-earth damage = %#v, want 17 for each element", values)
+	}
+}
+
 func TestDominatesHandlesCooldownReduction(t *testing.T) {
 	superior := itemWithEffects("superior", "woodcutting", -20)
 	inferior := itemWithEffects("inferior", "woodcutting", -10)
