@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 	"slices"
-	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -15,11 +15,13 @@ import (
 
 var levelGroups = []string{"skill", "character"}
 
-var levelFlags struct {
-	group     string
-	skill     []string
-	character []string
+type levelFlags struct {
+	Group string   `flag:"group" shorthand:"g" desc:"Group by \"skill\" or \"character\" (defaults to \"character\" with --name, else \"skill\")"`
+	Skill []string `flag:"skill" shorthand:"k" desc:"Show the level of specific skills"`
+	Name  []string `flag:"name" shorthand:"n" desc:"Show the level of specific characters"`
 }
+
+var levelOptions levelFlags
 
 var levelCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
@@ -29,33 +31,40 @@ var levelCmd = &cobra.Command{
 
 Arguments:
   account   The name of the account (optional).`,
+	ValidArgsFunction: completion.NoArgs,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+		levelOptions, err = utils.ReadFlags[levelFlags](cmd)
+		if err != nil {
+			return err
+		}
 		groupChanged := cmd.Flags().Changed("group")
 		if !groupChanged {
-			if len(levelFlags.character) > 0 {
-				levelFlags.group = "character"
+			if len(levelOptions.Name) > 0 {
+				levelOptions.Group = "character"
 			} else {
-				levelFlags.group = "skill"
+				levelOptions.Group = "skill"
 			}
 		}
-		if !slices.Contains(levelGroups, levelFlags.group) {
-			return fmt.Errorf("invalid group %q: allowed values are %v", levelFlags.group, levelGroups)
+		if !slices.Contains(levelGroups, levelOptions.Group) {
+			return fmt.Errorf("invalid group %q: allowed values are %v", levelOptions.Group, levelGroups)
 		}
 		validSkills := database.Enum("CharacterLeaderboardType")
-		for _, skill := range levelFlags.skill {
+		for _, skill := range levelOptions.Skill {
 			if !slices.Contains(validSkills, skill) {
 				return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
 			}
 		}
 		validCharacters := utils.GetCharacters()
-		for _, character := range levelFlags.character {
-			if !slices.Contains(validCharacters, character) {
-				return fmt.Errorf("invalid character %q: allowed values are %v", character, validCharacters)
+		for _, name := range levelOptions.Name {
+			if !slices.Contains(validCharacters, name) {
+				return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 			}
 		}
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		account := ""
 		if len(args) > 0 {
 			account = args[0]
@@ -64,16 +73,16 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		if len(levelFlags.character) > 0 {
+		if len(levelOptions.Name) > 0 {
 			characters = slices.DeleteFunc(characters, func(c schemas.CharacterSchema) bool {
-				return !slices.Contains(levelFlags.character, c.Name)
+				return !slices.Contains(levelOptions.Name, c.Name)
 			})
 		}
-		switch levelFlags.group {
+		switch levelOptions.Group {
 		case "character":
-			return groupByCharacter(characters, levelFlags.skill)
+			return groupByCharacter(characters, levelOptions.Skill)
 		case "skill":
-			return groupBySkill(characters, levelFlags.skill)
+			return groupBySkill(characters, levelOptions.Skill)
 		}
 		return nil
 	},
@@ -81,54 +90,23 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(levelCmd)
-	levelCmd.Flags().StringVarP(&levelFlags.group, "group", "g", "", `Group by "skill" or "character" (defaults to "character" with --character, else "skill")`)
-	levelCmd.Flags().StringSliceVarP(&levelFlags.skill, "skill", "k", []string{}, "Show the level of specific skills")
-	levelCmd.Flags().StringSliceVarP(&levelFlags.character, "character", "c", []string{}, "Show the level of specific characters")
-	err := levelCmd.RegisterFlagCompletionFunc("group", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	err := utils.RegisterFlags[levelFlags](levelCmd)
+	if err != nil {
+		panic(err)
+	}
+	err = levelCmd.RegisterFlagCompletionFunc("group", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return levelGroups, cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)
 	}
-	err = levelCmd.RegisterFlagCompletionFunc("skill", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		skills := database.Enum("CharacterLeaderboardType")
-		idx := strings.LastIndex(toComplete, ",")
-		if idx == -1 {
-			return skills, cobra.ShellCompDirectiveNoFileComp
-		}
-		prefix := toComplete[:idx]
-		last := toComplete[idx+1:]
-		suggestions := make([]string, 0, len(skills))
-		for _, skill := range skills {
-			hasPrefix := strings.HasPrefix(skill, last)
-			if hasPrefix {
-				suggestion := prefix + "," + skill
-				suggestions = append(suggestions, suggestion)
-			}
-		}
-		return suggestions, cobra.ShellCompDirectiveNoFileComp
-	})
+	err = levelCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
+		return database.Enum("CharacterLeaderboardType")
+	}))
 	if err != nil {
 		panic(err)
 	}
-	err = levelCmd.RegisterFlagCompletionFunc("character", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		characters := utils.GetCharacters()
-		idx := strings.LastIndex(toComplete, ",")
-		if idx == -1 {
-			return characters, cobra.ShellCompDirectiveNoFileComp
-		}
-		prefix := toComplete[:idx]
-		last := toComplete[idx+1:]
-		suggestions := make([]string, 0, len(characters))
-		for _, character := range characters {
-			hasPrefix := strings.HasPrefix(character, last)
-			if hasPrefix {
-				suggestion := prefix + "," + character
-				suggestions = append(suggestions, suggestion)
-			}
-		}
-		return suggestions, cobra.ShellCompDirectiveNoFileComp
-	})
+	err = levelCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(utils.GetCharacters))
 	if err != nil {
 		panic(err)
 	}
