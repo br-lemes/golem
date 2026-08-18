@@ -17,7 +17,7 @@ var surplusCmd = &cobra.Command{
 	Long: `List surplus items or show equipment details
 
 Arguments:
-  code      The code of the item.`,
+  code   The code of the item.`,
 	ValidArgsFunction: completion.Item(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		evaluate, _ := cmd.Flags().GetBool("evaluate")

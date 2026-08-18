@@ -12,6 +12,7 @@
 		"craftable",
 		"debuff",
 		"Debugf",
+		"equippable",
 		"errgroup",
 		"gearcrafting",
 		"getkin",

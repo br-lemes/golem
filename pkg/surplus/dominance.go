@@ -49,7 +49,17 @@ func CanReplace(superior, inferior schemas.ItemSchema, character schemas.Charact
 	if !compatibleItems(superior, inferior) {
 		return false
 	}
-	if !canUse(superior, character) || !canUse(inferior, character) {
+	if !CanUse(superior, character) || !CanUse(inferior, character) {
+		return false
+	}
+	if superior.Subtype == "tool" {
+		return toolEffectValue(superior) < toolEffectValue(inferior)
+	}
+	return Dominates(superior, inferior)
+}
+
+func DominatesEquipment(superior, inferior schemas.ItemSchema) bool {
+	if !compatibleItems(superior, inferior) {
 		return false
 	}
 	if superior.Subtype == "tool" {
@@ -90,7 +100,7 @@ func toolEffectValue(item schemas.ItemSchema) int {
 	return effectValues(item)[skill]
 }
 
-func canUse(item schemas.ItemSchema, character schemas.CharacterSchema) bool {
+func CanUse(item schemas.ItemSchema, character schemas.CharacterSchema) bool {
 	if item.Subtype == "tool" {
 		skill := toolSkill(item)
 		level, ok := utils.GetCharacterSkillLevel(character, skill)

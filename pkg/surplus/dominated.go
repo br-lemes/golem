@@ -100,7 +100,7 @@ func itemPositions(item schemas.ItemSchema, characters []schemas.CharacterSchema
 
 	positions := []int{}
 	for i, character := range characters {
-		if !canUse(item, character) {
+		if !CanUse(item, character) {
 			continue
 		}
 		for range capacity {

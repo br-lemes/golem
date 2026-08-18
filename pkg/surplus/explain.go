@@ -59,7 +59,7 @@ func Explain(input Input, code string) Explanation {
 				dominatedBy = append(dominatedBy, Comparison{
 					Code:    superiorCode,
 					Level:   superior.Item.Level,
-					Effects: compareEffects(item.Item, superior.Item),
+					Effects: CompareEffects(item.Item, superior.Item),
 				})
 			}
 			reason := fmt.Sprintf("%d owned, %d needed", result.Total, result.Total-result.Surplus)
@@ -86,7 +86,7 @@ func Explain(input Input, code string) Explanation {
 		comparisons = append(comparisons, Comparison{
 			Code:    superiorCode,
 			Level:   superior.Item.Level,
-			Effects: compareEffects(item.Item, superior.Item),
+			Effects: CompareEffects(item.Item, superior.Item),
 		})
 	}
 	sort.Slice(comparisons, func(i, j int) bool { return comparisons[i].Code < comparisons[j].Code })
@@ -121,7 +121,7 @@ func Evaluate(input Input, code string) Explanation {
 	return result
 }
 
-func compareEffects(item, other schemas.ItemSchema) map[string]string {
+func CompareEffects(item, other schemas.ItemSchema) map[string]string {
 	itemEffects, otherEffects := effectValues(item), effectValues(other)
 	codes := make(map[string]struct{}, len(itemEffects)+len(otherEffects))
 	for code := range itemEffects {
