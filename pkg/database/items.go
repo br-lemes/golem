@@ -14,6 +14,10 @@ var Items = newStore(jsonLoader[schemas.ItemSchema](items), func(item *schemas.I
 	return item.Code
 })
 
+var Tradeables = Items.View(func(item *schemas.ItemSchema) bool {
+	return item.Tradeable
+})
+
 var itemTypes = sync.OnceValue(func() []string {
 	seen := make(map[string]struct{})
 	var types []string
