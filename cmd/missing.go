@@ -1,89 +1,73 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/surplus"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
-var missingCmd = &cobra.Command{
-	Use:   "missing [<name> <type> | --name name,name --type type,type]",
-	Short: "Determine missing progression gear for characters",
-	Long: `Determine missing progression gear for characters
+type missingFlags struct {
+	Name          []string `flag:"name" shorthand:"n" desc:"Character names to analyze"`
+	EquipmentType []string `flag:"type" shorthand:"t" desc:"Equipment types to filter"`
+}
 
-Arguments:
-  name   The name of the character.
-  type   The type of equipment.`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return nil
-		}
-		err := cobra.ExactArgs(2)(cmd, args)
-		if err != nil {
-			return errors.New("positional usage requires exactly 2 arguments: <name> <type>. Otherwise, use --name and --type flags")
-		}
-		err = validateEquipmentType(args[1])
+var missingOptions missingFlags
+
+var missingCmd = &cobra.Command{
+	Args:  cobra.NoArgs,
+	Use:   "missing",
+	Short: "Determine missing progression gear for characters",
+
+	ValidArgsFunction: completion.NoArgs,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+		missingOptions, err = utils.ReadFlags[missingFlags](cmd)
 		if err != nil {
 			return err
 		}
-		return nil
-	},
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		if len(args) == 0 {
-			return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-		}
-		if len(args) == 1 {
-			return database.EquipmentTypes, cobra.ShellCompDirectiveNoFileComp
-		}
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	},
-	RunE: func(cmd *cobra.Command, args []string) error {
-		characterNames, _ := cmd.Flags().GetStringSlice("name")
-		equipmentTypes, _ := cmd.Flags().GetStringSlice("type")
-		if len(args) == 2 {
-			characterNames = []string{args[0]}
-			equipmentTypes = []string{args[1]}
-		}
-		for _, t := range equipmentTypes {
-			err := validateEquipmentType(t)
-			if err != nil {
-				return err
+		validCharacters := utils.GetCharacters()
+		for _, name := range missingOptions.Name {
+			if !slices.Contains(validCharacters, name) {
+				return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 			}
 		}
-		return executeMissing(characterNames, equipmentTypes)
+		for _, equipmentType := range missingOptions.EquipmentType {
+			if !slices.Contains(database.EquipmentTypes, equipmentType) {
+				return fmt.Errorf("invalid equipment type specified: %s", equipmentType)
+			}
+		}
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
+		return executeMissing(missingOptions.Name, missingOptions.EquipmentType)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(missingCmd)
-	missingCmd.Flags().StringSliceP("name", "n", []string{}, "Character names to analyze")
-	missingCmd.Flags().StringSliceP("type", "t", []string{}, "Equipment types to filter")
-	err := missingCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return utils.GetCharacters(), cobra.ShellCompDirectiveNoFileComp
-	})
+	err := utils.RegisterFlags[missingFlags](missingCmd)
 	if err != nil {
 		panic(err)
 	}
-	err = missingCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.EquipmentTypes, cobra.ShellCompDirectiveNoFileComp
-	})
+	err = missingCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(utils.GetCharacters))
 	if err != nil {
 		panic(err)
 	}
-}
-
-func validateEquipmentType(t string) error {
-	if !slices.Contains(database.EquipmentTypes, t) {
-		return fmt.Errorf("invalid equipment type specified: %s", t)
+	err = missingCmd.RegisterFlagCompletionFunc("type", completion.StringSlice(func() []string {
+		return database.EquipmentTypes
+	}))
+	if err != nil {
+		panic(err)
 	}
-	return nil
 }
 
 func executeMissing(names []string, equipTypes []string) error {
@@ -106,23 +90,14 @@ func executeMissing(names []string, equipTypes []string) error {
 	if err != nil {
 		return err
 	}
-	ownedItems := make(map[string]bool)
+	ownedItems := make(map[string]int)
 	for _, item := range bankItems {
-		ownedItems[item.Code] = true
+		ownedItems[item.Code] += item.Quantity
 	}
-	var targets []string
-	if len(equipTypes) > 0 {
-		targets = equipTypes
-	} else {
-		targets = database.EquipmentTypes
-	}
-	allItems := database.Items.All()
-	var filteredCodes []string
 	for _, character := range charactersToProcess {
 		if character.Inventory != nil {
-			inventorySlots := *character.Inventory
-			for _, item := range inventorySlots {
-				ownedItems[item.Code] = true
+			for _, item := range *character.Inventory {
+				ownedItems[item.Code] += item.Quantity
 			}
 		}
 		slots := [...]string{
@@ -142,18 +117,25 @@ func executeMissing(names []string, equipTypes []string) error {
 			character.Utility2Slot,
 			character.WeaponSlot,
 		}
-		for _, slotItem := range slots {
-			if slotItem != "" {
-				ownedItems[slotItem] = true
+		for _, item := range slots {
+			if item != "" {
+				ownedItems[item]++
 			}
 		}
+	}
+	var targets []string
+	if len(equipTypes) > 0 {
+		targets = equipTypes
+	} else {
+		targets = database.EquipmentTypes
+	}
+	allItems := database.Items.All()
+	requiredItems := make(map[string]int)
+	for _, character := range charactersToProcess {
+		var candidates []schemas.ItemSchema
 		for _, item := range allItems {
-			hasStaff := ownedItems["wooden_staff"]
+			hasStaff := ownedItems["wooden_staff"] > 0
 			if item.Code == "wooden_stick" && hasStaff {
-				continue
-			}
-			hasItem := ownedItems[item.Code]
-			if hasItem {
 				continue
 			}
 			matchedType := false
@@ -174,21 +156,26 @@ func executeMissing(names []string, equipTypes []string) error {
 				continue
 			}
 			if isTool {
-				canEquip := hasRequiredSkillLevel(character, *item)
-				if !canEquip {
+				if !hasRequiredSkillLevel(character, *item) {
 					continue
 				}
-			} else {
-				if item.Level > character.Level {
-					continue
-				}
+			} else if item.Level > character.Level {
+				continue
 			}
-			if !slices.Contains(filteredCodes, item.Code) {
-				filteredCodes = append(filteredCodes, item.Code)
-			}
+			candidates = append(candidates, *item)
+		}
+		for _, item := range surplus.NonDominated(candidates, character) {
+			requiredItems[item.Code]++
 		}
 	}
-	return console.Auto(filteredCodes)
+	missingItems := make(map[string]int)
+	for code, required := range requiredItems {
+		missing := required - ownedItems[code]
+		if missing > 0 {
+			missingItems[code] = missing
+		}
+	}
+	return console.Auto(missingItems)
 }
 
 func hasRequiredSkillLevel(character schemas.CharacterSchema, item schemas.ItemSchema) bool {
@@ -197,25 +184,24 @@ func hasRequiredSkillLevel(character schemas.CharacterSchema, item schemas.ItemS
 	}
 	conditions := *item.Conditions
 	for _, condition := range conditions {
-		currentLevel := getSkillLevel(character, condition.Code)
-		if currentLevel > 0 && currentLevel < condition.Value {
+		currentLevel, _ := utils.GetCharacterConditionLevel(character, condition.Code)
+		if currentLevel == 0 {
+			continue
+		}
+		satisfied := true
+		switch condition.Operator {
+		case schemas.Gt:
+			satisfied = currentLevel > condition.Value
+		case schemas.Eq:
+			satisfied = currentLevel == condition.Value
+		case schemas.Lt:
+			satisfied = currentLevel < condition.Value
+		case schemas.Ne:
+			satisfied = currentLevel != condition.Value
+		}
+		if !satisfied {
 			return false
 		}
 	}
 	return true
-}
-
-func getSkillLevel(character schemas.CharacterSchema, code string) int {
-	switch code {
-	case "alchemy_level":
-		return character.AlchemyLevel
-	case "fishing_level":
-		return character.FishingLevel
-	case "mining_level":
-		return character.MiningLevel
-	case "woodcutting_level":
-		return character.WoodcuttingLevel
-	default:
-		return 0
-	}
 }

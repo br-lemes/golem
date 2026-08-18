@@ -33,3 +33,22 @@ func TestGetCharacterSkillLevel(t *testing.T) {
 		}
 	}
 }
+
+func TestGetCharacterConditionLevel(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 12, MiningLevel: 8}
+	tests := []struct {
+		code  string
+		level int
+		ok    bool
+	}{
+		{code: "level", level: 12, ok: true},
+		{code: "mining_level", level: 8, ok: true},
+		{code: "unknown", level: 0, ok: false},
+	}
+	for _, test := range tests {
+		level, ok := GetCharacterConditionLevel(character, test.code)
+		if level != test.level || ok != test.ok {
+			t.Errorf("GetCharacterConditionLevel(%q) = (%d, %t), want (%d, %t)", test.code, level, ok, test.level, test.ok)
+		}
+	}
+}

@@ -36,6 +36,31 @@ func GetCharacterSkillLevel(character schemas.CharacterSchema, skill string) (in
 	}
 }
 
+func GetCharacterConditionLevel(character schemas.CharacterSchema, code string) (int, bool) {
+	switch code {
+	case "level":
+		return character.Level, true
+	case "alchemy_level":
+		return character.AlchemyLevel, true
+	case "cooking_level":
+		return character.CookingLevel, true
+	case "fishing_level":
+		return character.FishingLevel, true
+	case "gearcrafting_level":
+		return character.GearcraftingLevel, true
+	case "jewelrycrafting_level":
+		return character.JewelrycraftingLevel, true
+	case "mining_level":
+		return character.MiningLevel, true
+	case "weaponcrafting_level":
+		return character.WeaponcraftingLevel, true
+	case "woodcutting_level":
+		return character.WoodcuttingLevel, true
+	default:
+		return 0, false
+	}
+}
+
 func init() {
 	characters = cache.GetCharacters()
 }

@@ -58,6 +58,26 @@ func CanReplace(superior, inferior schemas.ItemSchema, character schemas.Charact
 	return Dominates(superior, inferior)
 }
 
+func NonDominated(items []schemas.ItemSchema, character schemas.CharacterSchema) []schemas.ItemSchema {
+	result := make([]schemas.ItemSchema, 0, len(items))
+	for index, item := range items {
+		dominated := false
+		for otherIndex, other := range items {
+			if index == otherIndex {
+				continue
+			}
+			if CanReplace(other, item, character) {
+				dominated = true
+				break
+			}
+		}
+		if !dominated {
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
 func compatibleItems(first, second schemas.ItemSchema) bool {
 	if first.Subtype == "tool" || second.Subtype == "tool" {
 		return first.Subtype == "tool" && second.Subtype == "tool" && toolSkill(first) != "" && toolSkill(first) == toolSkill(second)

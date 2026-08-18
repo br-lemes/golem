@@ -163,6 +163,17 @@ func TestCanReplaceDoesNotMixToolSkills(t *testing.T) {
 	}
 }
 
+func TestNonDominatedRemovesReplaceableItems(t *testing.T) {
+	goldSword := catalogItem(t, "gold_sword")
+	ironSword := catalogItem(t, "iron_sword")
+	character := schemas.CharacterSchema{Level: 30}
+
+	result := NonDominated([]schemas.ItemSchema{ironSword, goldSword}, character)
+	if len(result) != 1 || result[0].Code != "gold_sword" {
+		t.Fatalf("NonDominated() = %#v, want only gold_sword", result)
+	}
+}
+
 func TestFindExcludesUtilities(t *testing.T) {
 	results := Find(Input{
 		BankItems: []schemas.SimpleItemSchema{
