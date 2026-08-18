@@ -2,49 +2,65 @@ package cmd
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var bestGatheringCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
-	Use:   "gathering <name> <skill>",
+	Use:   "gathering <name> <code>",
 	Short: "Find the best equipment for gathering",
 	Long: `Find the best equipment for gathering
 
 Arguments:
   name   Name of your character.
-  skill  The gathering skill (alchemy, fishing, mining, woodcutting).`,
-	ValidArgsFunction: completion.CharacterName(1).GatheringSkill(1).Build(),
+  code   The code of the resource.`,
+	ValidArgsFunction: completion.CharacterName(1).Resource(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
-		skill := args[1]
-		validSkills := database.Enum("GatheringSkill")
-		if !slices.Contains(validSkills, skill) {
-			return fmt.Errorf("invalid skill: %s", skill)
+		code := args[1]
+
+		resource, ok := database.Resources.Get(code)
+		if !ok {
+			return fmt.Errorf("resource not found: %s", args[1])
 		}
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}
 
-		items, err := utils.BestFinder(character, skill, map[string]int{
-			skill:             16,
-			"prospecting":     8,
-			"wisdom":          4,
-			"inventory_space": 2,
-		})
+		cmd.SilenceUsage = true
+		skill := string(resource.Skill)
+		priorities := []string{skill, "prospecting"}
+		if gatheringSkillLevel(character, skill)-resource.Level <= 10 {
+			priorities = []string{skill, "wisdom", "prospecting"}
+		}
+		items, err := utils.BestFinder(character, priorities...)
 		if err != nil {
 			return err
 		}
 		return console.Auto(items)
 	},
+}
+
+func gatheringSkillLevel(c schemas.CharacterSchema, skill string) int {
+	switch skill {
+	case "alchemy":
+		return c.AlchemyLevel
+	case "fishing":
+		return c.FishingLevel
+	case "mining":
+		return c.MiningLevel
+	case "woodcutting":
+		return c.WoodcuttingLevel
+	}
+	return 0
 }
 
 func init() {

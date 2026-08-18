@@ -60,3 +60,28 @@ func TestBestGroupDoesNotReuseUniqueUtilities(t *testing.T) {
 		t.Fatalf("unique utility used %d times in %#v", count, got)
 	}
 }
+
+func TestEvaluateItemAccountsForInventoryPenaltyAgainstWisdom(t *testing.T) {
+	ctx := &bestCtx{
+		Weights: map[string]int{"wisdom": 10000, "inventory_space": 1},
+	}
+
+	penalized := schemas.ItemSchema{
+		Effects: &[]schemas.SimpleEffectSchema{
+			{Code: "wisdom", Value: 25},
+			{Code: "inventory_space", Value: -5},
+		},
+	}
+	plain := schemas.ItemSchema{
+		Effects: &[]schemas.SimpleEffectSchema{{Code: "wisdom", Value: 24}},
+	}
+
+	got := ctx.evaluateItem(penalized)
+	want := 25*10000 - 5*10000 - 5
+	if got != want {
+		t.Fatalf("penalized item score = %d, want %d", got, want)
+	}
+	if ctx.evaluateItem(penalized) >= ctx.evaluateItem(plain) {
+		t.Fatal("small wisdom gain should not outweigh inventory loss")
+	}
+}

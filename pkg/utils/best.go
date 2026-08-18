@@ -29,9 +29,25 @@ type bestCtx struct {
 	Weights         map[string]int
 }
 
-func BestFinder(character schemas.CharacterSchema, skill string, weights map[string]int) (map[string]bestResult, error) {
+func BestFinder(character schemas.CharacterSchema, priorities ...string) (map[string]bestResult, error) {
+	priorities, err := NormalizeBestPriorities(priorities)
+	if err != nil {
+		return nil, err
+	}
+	skill := ""
+	if len(priorities) > 0 && slices.Contains(database.Enum("GatheringSkill"), priorities[0]) {
+		skill = priorities[0]
+	}
+	weights := make(map[string]int, len(priorities))
+	// Effects are compared lexicographically: a later effect can only decide
+	// when all preceding effects are tied.
+	weight := 1
+	for i := len(priorities) - 1; i >= 0; i-- {
+		weights[priorities[i]] = weight
+		weight *= 10000
+	}
 	ctx := &bestCtx{Character: character, Skill: skill, Weights: weights}
-	err := ctx.fetchItems()
+	err = ctx.fetchItems()
 	if err != nil {
 		return nil, err
 	}
@@ -199,17 +215,35 @@ func (c *bestCtx) evaluateItem(item schemas.ItemSchema) int {
 	if item.Effects == nil {
 		return 0
 	}
-	score := 0
+	effects := make(map[string]int, len(*item.Effects))
 	for _, effect := range *item.Effects {
-		weight, exists := c.Weights[effect.Code]
-		if !exists {
-			continue
-		}
 		val := effect.Value
 		if effect.Code == c.Skill {
 			val = -val
 		}
-		score += val * weight
+		effects[effect.Code] += val
+	}
+	inventory := effects["inventory_space"]
+	if inventory < 0 {
+		// Losing inventory space is an equivalent penalty to wisdom or
+		// prospecting, but only for the highest-priority one present.
+		stat := ""
+		if effects["wisdom"] != 0 && c.Weights["wisdom"] >= c.Weights["prospecting"] {
+			stat = "wisdom"
+		} else if effects["prospecting"] != 0 {
+			stat = "prospecting"
+		}
+		if stat != "" {
+			effects[stat] += inventory
+		}
+	}
+	score := 0
+	for code, value := range effects {
+		weight, exists := c.Weights[code]
+		if !exists {
+			continue
+		}
+		score += value * weight
 	}
 	return score
 }
