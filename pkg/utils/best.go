@@ -129,42 +129,70 @@ func (c *bestCtx) matchEquipment() {
 	slots := slices.Collect(maps.Keys(database.EquipmentSlotToTypes))
 	slices.Sort(slots)
 	c.Result = make(map[string]bestResult)
-	usedUniqueItems := make(map[string]bool)
-	for _, slot := range slots {
-		itemType := database.EquipmentSlotToTypes[slot]
-		isRingSlot := strings.HasPrefix(slot, "ring")
-		equippedCode := c.Equipped[slot]
-		for _, item := range c.ValidItems {
-			if item.Type != itemType {
+	for i := 0; i < len(slots); {
+		itemType := database.EquipmentSlotToTypes[slots[i]]
+		j := i
+		for j < len(slots) && database.EquipmentSlotToTypes[slots[j]] == itemType {
+			j++
+		}
+		chosen := c.bestGroup(slots[i:j], itemType)
+		for slot, code := range chosen {
+			if code == "" || code == c.Equipped[slot] {
 				continue
 			}
-			if c.OwnedItems[item.Code] <= 0 {
-				continue
-			}
-			if !isRingSlot && usedUniqueItems[item.Code] {
-				continue
-			}
-			isCurrentlyEquippedElsewhere := c.AlreadyEquipped[item.Code] > 0
-			if isCurrentlyEquippedElsewhere {
-				if item.Code != equippedCode {
-					c.AlreadyEquipped[item.Code]--
-					c.OwnedItems[item.Code]--
-					usedUniqueItems[item.Code] = true
-					continue
-				}
-			}
-			if item.Code != equippedCode {
-				c.Result[slot] = bestResult{
-					Code:  item.Code,
-					Value: c.formatItem(item),
-				}
-			}
-			c.AlreadyEquipped[item.Code]--
-			c.OwnedItems[item.Code]--
-			usedUniqueItems[item.Code] = true
-			break
+			item, _ := database.Items.Get(code)
+			c.Result[slot] = bestResult{Code: code, Value: c.formatItem(*item)}
+		}
+		i = j
+	}
+}
+
+// bestGroup solves the assignment jointly because a slot-local greedy choice
+// can produce unstable recommendations after equipping the suggested items.
+func (c *bestCtx) bestGroup(slots []string, itemType string) map[string]string {
+	available := make(map[string]int)
+	for _, item := range c.ValidItems {
+		if item.Type == itemType && c.OwnedItems[item.Code] > 0 {
+			available[item.Code] = c.OwnedItems[item.Code]
 		}
 	}
+	bestScore := -1
+	bestMatches := -1
+	best := map[string]string{}
+	var visit func(int, int, map[string]string)
+	visit = func(pos, score int, current map[string]string) {
+		if pos == len(slots) {
+			matches := 0
+			for slot, code := range current {
+				if code != "" && code == c.Equipped[slot] {
+					matches++
+				}
+			}
+			if score > bestScore || (score == bestScore && matches > bestMatches) {
+				bestScore = score
+				bestMatches = matches
+				best = maps.Clone(current)
+			}
+			return
+		}
+		slot := slots[pos]
+		visit(pos+1, score, current) // leave the slot unchanged/empty
+		for _, item := range c.ValidItems {
+			if item.Type != itemType || available[item.Code] == 0 {
+				continue
+			}
+			if itemType != "ring" && slices.ContainsFunc(slots[:pos], func(s string) bool { return current[s] == item.Code }) {
+				continue
+			}
+			available[item.Code]--
+			current[slot] = item.Code
+			visit(pos+1, score+c.ItemValues[item.Code], current)
+			delete(current, slot)
+			available[item.Code]++
+		}
+	}
+	visit(0, 0, map[string]string{})
+	return best
 }
 
 func (c *bestCtx) evaluateItem(item schemas.ItemSchema) int {
