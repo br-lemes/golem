@@ -8,7 +8,7 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func MyActionRecycling(name string, item schemas.SimpleItemSchema) (schemas.RecyclingDataSchema, error) {
+func MyActionRecycling(name string, item schemas.RecyclingSchema) (schemas.RecyclingDataSchema, error) {
 	path := fmt.Sprintf("/my/%s/action/recycling", name)
 	resp, err := PostNoCooldown(path, item)
 	if err != nil {

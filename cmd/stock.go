@@ -22,6 +22,10 @@ var stockCmd = &cobra.Command{
 	Use:   "stock",
 	Short: "Stock",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		stockUseTarget, err := cmd.Flags().GetBool("target")
+		if err != nil {
+			return err
+		}
 		characters, err := api.AccountsCharacters("")
 		if err != nil {
 			return err
@@ -81,10 +85,14 @@ var stockCmd = &cobra.Command{
 			} else {
 				safety *= 10
 			}
-			if itemQuantity >= safety {
+			target := safety + safety/3
+			threshold := safety
+			if stockUseTarget {
+				threshold = target
+			}
+			if itemQuantity >= threshold {
 				continue
 			}
-			target := safety + safety/3
 			result[task.Code] = ItemStock{
 				Current: itemQuantity,
 				Needed:  target - itemQuantity,
@@ -98,4 +106,5 @@ var stockCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(stockCmd)
+	stockCmd.Flags().Bool("target", false, "Filter items below the target quantity instead of safety")
 }

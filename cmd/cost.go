@@ -29,13 +29,47 @@ Arguments:
 		if !found {
 			return fmt.Errorf("item not found: %s", code)
 		}
-		if !isCraftable(*item) {
-			return fmt.Errorf("item is not craftable: %s", code)
-		}
 
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
+		}
+
+		if !isCraftable(*item) {
+			npcItem, found := database.NpcsItems.Get(code)
+			if !found || npcItem.BuyPrice == nil || *npcItem.BuyPrice <= 0 {
+				return fmt.Errorf("item is not craftable or available from an NPC: %s", code)
+			}
+
+			bankInventory, err := fetchAllBankItems()
+			if err != nil {
+				return err
+			}
+			available := 0
+			if npcItem.Currency == "gold" {
+				bank, err := api.MyBank()
+				if err != nil {
+					return err
+				}
+				available = bank.Gold + character.Gold
+			} else {
+				available = bankInventory[npcItem.Currency]
+				for _, invItem := range *character.Inventory {
+					if invItem.Code == npcItem.Currency {
+						available += invItem.Quantity
+					}
+				}
+			}
+
+			cost := *npcItem.BuyPrice
+			return console.Auto(map[string]interface{}{
+				"item":               item.Code,
+				"npc":                npcItem.Npc,
+				"currency":           npcItem.Currency,
+				"cost_per_unit":      cost,
+				"currency_available": available,
+				"max_exchange":       available / cost,
+			})
 		}
 
 		skillLevel := getCraftSkill(character, *item.Craft.Skill)

@@ -29,8 +29,12 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		enhanced, err := cmd.Flags().GetBool("enhanced")
+		if err != nil {
+			return err
+		}
 
-		err = StartRecyclingBot(name, code, qty)
+		err = StartRecyclingBot(name, code, qty, enhanced)
 		if err != nil {
 			return err
 		}
@@ -41,10 +45,11 @@ Arguments:
 
 func init() {
 	recyclingCmd.Flags().IntP("quantity", "q", 0, "Amount of items to recycle (0 for all available)")
+	recyclingCmd.Flags().Bool("enhanced", false, "Use enhanced recycling (costs gold for 30% more resources)")
 	rootCmd.AddCommand(recyclingCmd)
 }
 
-func StartRecyclingBot(name string, code string, qty int) error {
+func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 	item, found := database.Items.Get(code)
 	if !found {
 		return fmt.Errorf("item not found: %s", code)
@@ -95,6 +100,47 @@ func StartRecyclingBot(name string, code string, qty int) error {
 		resourcesReturnedPerItem = 1
 	}
 
+	goldPerIngredient := 0
+	if enhanced {
+		switch {
+		case item.Level <= 20:
+			goldPerIngredient = 5
+		case item.Level <= 30:
+			goldPerIngredient = 10
+		case item.Level <= 40:
+			goldPerIngredient = 15
+		case item.Level <= 45:
+			goldPerIngredient = 20
+		default:
+			goldPerIngredient = 25
+		}
+		requiredGold := totalItemsInRecipe * targetQty * goldPerIngredient
+		if character.Gold < requiredGold {
+			bank, bankErr := api.MyBank()
+			if bankErr != nil {
+				return bankErr
+			}
+			if character.Gold+bank.Gold < requiredGold {
+				return fmt.Errorf("not enough gold for enhanced recycling: required %d, available %d", requiredGold, character.Gold+bank.Gold)
+			}
+			character, err = routine.Move(character, "bank")
+			if err != nil {
+				return err
+			}
+			_, err = api.MyActionBankWithdrawGold(name, requiredGold-character.Gold)
+			if err != nil {
+				return fmt.Errorf("failed to withdraw gold for enhanced recycling: %w", err)
+			}
+			character, err = api.Characters(name)
+			if err != nil {
+				return err
+			}
+			if character.Gold < requiredGold {
+				return fmt.Errorf("not enough gold for enhanced recycling: required %d, available %d", requiredGold, character.Gold)
+			}
+		}
+	}
+
 	recycledSoFar := 0
 	for recycledSoFar < targetQty {
 		character, err = api.Characters(name)
@@ -131,9 +177,12 @@ func StartRecyclingBot(name string, code string, qty int) error {
 					return err
 				}
 
-				_, err = api.MyActionRecycling(name, schemas.SimpleItemSchema{
+				enhancedPayload := enhanced
+				quantityPayload := batchToRecycle
+				_, err = api.MyActionRecycling(name, schemas.RecyclingSchema{
 					Code:     item.Code,
-					Quantity: batchToRecycle,
+					Quantity: &quantityPayload,
+					Enhanced: &enhancedPayload,
 				})
 				if err != nil {
 					return err

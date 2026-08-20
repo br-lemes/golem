@@ -45,6 +45,10 @@ var priceCmd = &cobra.Command{
 	ValidArgsFunction: completion.Tradeables(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		code := args[0]
+		includeOwnOrders, err := cmd.Flags().GetBool("include-own-orders")
+		if err != nil {
+			return err
+		}
 		item, exists := database.Tradeables.Get(code)
 		if !exists {
 			return fmt.Errorf("item %q not found", code)
@@ -54,6 +58,15 @@ var priceCmd = &cobra.Command{
 		})
 		if err != nil {
 			return err
+		}
+		if !includeOwnOrders {
+			ownOrders, err := api.MyGrandexchangeOrders(api.MyGrandexchangeOrdersOptions{
+				Code: code,
+			})
+			if err != nil {
+				return err
+			}
+			orders = excludeOrders(orders, ownOrders)
 		}
 		var buys, sells []schemas.GEOrderSchema
 		for _, order := range orders {
@@ -102,6 +115,21 @@ func summarizeOrders(orders []schemas.GEOrderSchema) priceMarketSummary {
 	return result
 }
 
+func excludeOrders(orders, excluded []schemas.GEOrderSchema) []schemas.GEOrderSchema {
+	excludedIDs := make(map[string]struct{}, len(excluded))
+	for _, order := range excluded {
+		excludedIDs[order.Id] = struct{}{}
+	}
+	filtered := make([]schemas.GEOrderSchema, 0, len(orders))
+	for _, order := range orders {
+		_, excluded := excludedIDs[order.Id]
+		if !excluded {
+			filtered = append(filtered, order)
+		}
+	}
+	return filtered
+}
+
 func summarizeHistory(history []schemas.GEOrderHistorySchema) priceHistorySummary {
 	result := priceHistorySummary{Sales: len(history)}
 	if len(history) == 0 {
@@ -139,4 +167,5 @@ func similarPriceItems(item *schemas.ItemSchema, items []*schemas.ItemSchema) []
 
 func init() {
 	rootCmd.AddCommand(priceCmd)
+	priceCmd.Flags().Bool("include-own-orders", false, "Include your own open orders in the market statistics.")
 }
