@@ -99,6 +99,12 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 	if resourcesReturnedPerItem < 1 {
 		resourcesReturnedPerItem = 1
 	}
+	if enhanced {
+		// Enhanced recycling returns 30% more resources, rounded to the
+		// nearest whole resource and capped by the recipe's ingredients.
+		resourcesReturnedPerItem = (resourcesReturnedPerItem*13 + 5) / 10
+		resourcesReturnedPerItem = min(resourcesReturnedPerItem, totalItemsInRecipe)
+	}
 
 	goldPerIngredient := 0
 	if enhanced {
