@@ -81,6 +81,14 @@ func foodCandidates(character schemas.CharacterSchema, food string, bankQty map[
 	return codes
 }
 
+func SelectFood(character schemas.CharacterSchema, bankQty map[string]int) string {
+	candidates := foodCandidates(character, "", bankQty)
+	if len(candidates) == 0 {
+		return ""
+	}
+	return candidates[0]
+}
+
 func foodRestock(d deps, character schemas.CharacterSchema, food string, bankQty map[string]int) (schemas.CharacterSchema, error) {
 	if food == "" {
 		return character, nil

@@ -25,86 +25,90 @@ Arguments:
 		return append(database.Items.Keys(), "gold")
 	}).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		for _, code := range args {
-			if code == "gold" {
-				continue
-			}
-			_, found := database.Items.Get(code)
-			if !found {
-				return fmt.Errorf("item %s not found", code)
-			}
-		}
-
-		bank, err := api.MyBank()
-		if err != nil {
-			return err
-		}
-		items, err := api.MyBankItems()
-		if err != nil {
-			return err
-		}
-		characters, err := api.AccountsCharacters("")
-		if err != nil {
-			return err
-		}
-
-		output := map[string][]map[string]int{}
-
-		for _, code := range args {
-			result := []map[string]int{}
-
-			if code == "gold" {
-				if bank.Gold > 0 {
-					result = append(result, map[string]int{"bank": bank.Gold})
-				}
-			} else {
-				for _, item := range items {
-					if item.Code == code {
-						result = append(result, map[string]int{
-							"bank": item.Quantity,
-						})
-					}
-				}
-			}
-
-			for _, character := range characters {
-				if code == "gold" {
-					if character.Gold > 0 {
-						result = append(result, map[string]int{
-							character.Name: character.Gold,
-						})
-						continue
-					}
-				}
-				inventory := []schemas.InventorySlotSchema{}
-				if character.Inventory != nil {
-					inventory = *character.Inventory
-				}
-				qty := 0
-				for _, item := range inventory {
-					if item.Code == code {
-						qty += item.Quantity
-					}
-				}
-				qty += countInSlots(character, code)
-				if qty > 0 {
-					result = append(result, map[string]int{character.Name: qty})
-				}
-			}
-
-			total := 0
-			for _, entry := range result {
-				for _, qty := range entry {
-					total += qty
-				}
-			}
-			result = append(result, map[string]int{"total": total})
-
-			output[code] = result
-		}
-
-		return console.Auto(output)
+		return outputItemCounts(args)
 	},
+}
+
+func outputItemCounts(args []string) error {
+	for _, code := range args {
+		if code == "gold" {
+			continue
+		}
+		_, found := database.Items.Get(code)
+		if !found {
+			return fmt.Errorf("item %s not found", code)
+		}
+	}
+
+	bank, err := api.MyBank()
+	if err != nil {
+		return err
+	}
+	items, err := api.MyBankItems()
+	if err != nil {
+		return err
+	}
+	characters, err := api.AccountsCharacters("")
+	if err != nil {
+		return err
+	}
+
+	output := map[string][]map[string]int{}
+
+	for _, code := range args {
+		result := []map[string]int{}
+
+		if code == "gold" {
+			if bank.Gold > 0 {
+				result = append(result, map[string]int{"bank": bank.Gold})
+			}
+		} else {
+			for _, item := range items {
+				if item.Code == code {
+					result = append(result, map[string]int{
+						"bank": item.Quantity,
+					})
+				}
+			}
+		}
+
+		for _, character := range characters {
+			if code == "gold" {
+				if character.Gold > 0 {
+					result = append(result, map[string]int{
+						character.Name: character.Gold,
+					})
+					continue
+				}
+			}
+			inventory := []schemas.InventorySlotSchema{}
+			if character.Inventory != nil {
+				inventory = *character.Inventory
+			}
+			qty := 0
+			for _, item := range inventory {
+				if item.Code == code {
+					qty += item.Quantity
+				}
+			}
+			qty += countInSlots(character, code)
+			if qty > 0 {
+				result = append(result, map[string]int{character.Name: qty})
+			}
+		}
+
+		total := 0
+		for _, entry := range result {
+			for _, qty := range entry {
+				total += qty
+			}
+		}
+		result = append(result, map[string]int{"total": total})
+
+		output[code] = result
+	}
+
+	return console.Auto(output)
 }
 
 func init() {
