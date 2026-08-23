@@ -9981,7 +9981,7 @@
 		"level": 40,
 		"name": "Enchanted Mushroom",
 		"recyclable": false,
-		"subtype": "mob",
+		"subtype": "alchemy",
 		"tradeable": true,
 		"type": "resource"
 	},

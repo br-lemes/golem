@@ -1985,13 +1985,11 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": {
-			"content": { "code": "corrupted_ogre", "type": "monster" }
-		},
+		"interactions": { "content": { "code": "ogre", "type": "monster" } },
 		"layer": "overworld",
 		"map_id": 193,
 		"name": "Forest",
-		"skin": "forest_corruptedogre2",
+		"skin": "forest_ogre2",
 		"x": 8,
 		"y": -2
 	},
@@ -9101,13 +9099,11 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": {
-			"content": { "code": "cultist_emperor", "type": "monster" }
-		},
+		"interactions": {},
 		"layer": "overworld",
 		"map_id": 880,
 		"name": "Forest",
-		"skin": "forest_cultistemperor1",
+		"skin": "forest_cultis1",
 		"x": -1,
 		"y": 12
 	},
@@ -9646,7 +9642,7 @@
 					"value": 1
 				}
 			],
-			"type": "standard"
+			"type": "conditional"
 		},
 		"interactions": {
 			"content": { "code": "rosenblood", "type": "monster" }

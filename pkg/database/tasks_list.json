@@ -948,7 +948,7 @@
 		"type": "items"
 	},
 	{
-		"code": "laval_fish",
+		"code": "lava_fish",
 		"level": 50,
 		"max_quantity": 400,
 		"min_quantity": 100,
