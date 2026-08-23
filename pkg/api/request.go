@@ -17,7 +17,7 @@ const baseURL = "https://api.artifactsmmo.com"
 
 var (
 	token         string
-	defaultClient = &http.Client{Timeout: 30 * time.Second}
+	defaultClient = &http.Client{Timeout: 5 * time.Minute}
 )
 
 type requestCtx struct {
