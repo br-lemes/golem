@@ -21,8 +21,6 @@ type levelFlags struct {
 	Name  []string `flag:"name" shorthand:"n" desc:"Show the level of specific characters"`
 }
 
-var levelOptions levelFlags
-
 var levelCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
 	Use:   "level [account]",
@@ -32,60 +30,106 @@ var levelCmd = &cobra.Command{
 Arguments:
   account   The name of the account (optional).`,
 	ValidArgsFunction: completion.NoArgs,
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		var err error
-		levelOptions, err = utils.ReadFlags[levelFlags](cmd)
-		if err != nil {
-			return err
-		}
-		groupChanged := cmd.Flags().Changed("group")
-		if !groupChanged {
-			if len(levelOptions.Name) > 0 {
-				levelOptions.Group = "character"
-			} else {
-				levelOptions.Group = "skill"
-			}
-		}
-		if !slices.Contains(levelGroups, levelOptions.Group) {
-			return fmt.Errorf("invalid group %q: allowed values are %v", levelOptions.Group, levelGroups)
-		}
-		validSkills := database.Enum("CharacterLeaderboardType")
-		for _, skill := range levelOptions.Skill {
-			if !slices.Contains(validSkills, skill) {
-				return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
-			}
-		}
-		validCharacters := utils.GetCharacters()
-		for _, name := range levelOptions.Name {
-			if !slices.Contains(validCharacters, name) {
-				return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
-			}
-		}
-		return nil
-	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cmd.SilenceUsage = true
 		account := ""
 		if len(args) > 0 {
 			account = args[0]
 		}
-		characters, err := api.AccountsCharacters(account)
+		options, err := utils.ReadFlags[levelFlags](cmd)
 		if err != nil {
 			return err
 		}
-		if len(levelOptions.Name) > 0 {
-			characters = slices.DeleteFunc(characters, func(c schemas.CharacterSchema) bool {
-				return !slices.Contains(levelOptions.Name, c.Name)
-			})
+		if !cmd.Flags().Changed("group") {
+			if len(options.Name) > 0 {
+				options.Group = "character"
+			} else {
+				options.Group = "skill"
+			}
 		}
-		switch levelOptions.Group {
-		case "character":
-			return groupByCharacter(characters, levelOptions.Skill)
-		case "skill":
-			return groupBySkill(characters, levelOptions.Skill)
+		err = levelValidate(options)
+		if err != nil {
+			return err
 		}
-		return nil
+		cmd.SilenceUsage = true
+		return levelRun(account, options)
 	},
+}
+
+func levelValidate(options levelFlags) error {
+	if !slices.Contains(levelGroups, options.Group) {
+		return fmt.Errorf("invalid group %q: allowed values are %v", options.Group, levelGroups)
+	}
+	validSkills := database.Enum("CharacterLeaderboardType")
+	for _, skill := range options.Skill {
+		if !slices.Contains(validSkills, skill) {
+			return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
+		}
+	}
+	return nil
+}
+
+func levelRun(account string, levelOptions levelFlags) error {
+	characters, err := api.AccountsCharacters(account)
+	if err != nil {
+		return err
+	}
+	if len(levelOptions.Name) > 0 {
+		availableCharacters := make(map[string]struct{}, len(characters))
+		for _, character := range characters {
+			availableCharacters[character.Name] = struct{}{}
+		}
+		for _, name := range levelOptions.Name {
+			_, found := availableCharacters[name]
+			if !found {
+				return fmt.Errorf("character %q not found in account %q", name, account)
+			}
+		}
+		characters = slices.DeleteFunc(characters, func(c schemas.CharacterSchema) bool {
+			return !slices.Contains(levelOptions.Name, c.Name)
+		})
+	}
+	switch levelOptions.Group {
+	case "character":
+		return groupByCharacter(characters, levelOptions.Skill)
+	case "skill":
+		return groupBySkill(characters, levelOptions.Skill)
+	}
+	return nil
+}
+
+func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) error {
+	return console.Auto(levelsBySkill(characters, filterSkills))
+}
+
+func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []string) error {
+	bySkill := levelsBySkill(characters, filterSkills)
+	levels := map[string]map[string]int{}
+	for skill, characterLevels := range bySkill {
+		for character, level := range characterLevels {
+			if levels[character] == nil {
+				levels[character] = map[string]int{}
+			}
+			levels[character][skill] = level
+		}
+	}
+	return console.Auto(levels)
+}
+
+func levelsBySkill(characters []schemas.CharacterSchema, filterSkills []string) map[string]map[string]int {
+	skills := slices.Clone(database.Enum("CharacterLeaderboardType"))
+	if len(filterSkills) > 0 {
+		skills = slices.DeleteFunc(skills, func(s string) bool {
+			return !slices.Contains(filterSkills, s)
+		})
+	}
+	levels := map[string]map[string]int{}
+	for _, skill := range skills {
+		levels[skill] = map[string]int{}
+		for _, character := range characters {
+			levels[skill][character.Name], _ = utils.GetCharacterSkillLevel(character, skill)
+		}
+	}
+	return levels
 }
 
 func init() {
@@ -110,38 +154,4 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func groupBySkill(characters []schemas.CharacterSchema, filterSkills []string) error {
-	skills := database.Enum("CharacterLeaderboardType")
-	if len(filterSkills) > 0 {
-		skills = slices.DeleteFunc(skills, func(s string) bool {
-			return !slices.Contains(filterSkills, s)
-		})
-	}
-	levels := map[string]map[string]int{}
-	for _, skill := range skills {
-		levels[skill] = map[string]int{}
-		for _, character := range characters {
-			levels[skill][character.Name], _ = utils.GetCharacterSkillLevel(character, skill)
-		}
-	}
-	return console.Auto(levels)
-}
-
-func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []string) error {
-	skills := database.Enum("CharacterLeaderboardType")
-	if len(filterSkills) > 0 {
-		skills = slices.DeleteFunc(skills, func(s string) bool {
-			return !slices.Contains(filterSkills, s)
-		})
-	}
-	levels := map[string]map[string]int{}
-	for _, character := range characters {
-		levels[character.Name] = map[string]int{}
-		for _, skill := range skills {
-			levels[character.Name][skill], _ = utils.GetCharacterSkillLevel(character, skill)
-		}
-	}
-	return console.Auto(levels)
 }

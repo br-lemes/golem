@@ -186,7 +186,7 @@ func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom i
 	var levelPenalty float64
 	levelPenalty = 1.0
 
-	if playerLevel-itemLevel >= 10 {
+	if playerLevel-itemLevel > 10 {
 		levelPenalty = 0.0
 	}
 
