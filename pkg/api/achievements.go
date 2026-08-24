@@ -3,36 +3,35 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"strconv"
 
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/google/go-querystring/query"
 )
 
-const GrandexchangeHistorySize = 100
+const AchievementsSize = 10000
 
-type GrandexchangeHistoryOptions struct {
-	Account string `url:"account,omitempty"`
+type AchievementsOptions struct {
+	Type string `url:"type,omitempty"`
 }
 
-func GrandexchangeHistory(code string, options GrandexchangeHistoryOptions) ([]schemas.GEOrderHistorySchema, error) {
+func Achievements(options AchievementsOptions) ([]schemas.AchievementSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		return nil, err
 	}
 
-	result := []schemas.GEOrderHistorySchema{}
+	result := []schemas.AchievementSchema{}
 	page := 1
 	for {
 		params.Set("page", strconv.Itoa(page))
-		params.Set("size", strconv.Itoa(GrandexchangeHistorySize))
-		path := fmt.Sprintf("/grandexchange/history/%s?%s", url.PathEscape(code), params.Encode())
+		params.Set("size", strconv.Itoa(AchievementsSize))
+		path := fmt.Sprintf("/achievements?%s", params.Encode())
 		resp, err := Get(path, nil)
 		if err != nil {
 			return nil, err
 		}
-		var data schemas.DataPageGEOrderHistorySchema
+		var data schemas.StaticDataPageAchievementSchema
 		err = json.Unmarshal(resp, &data)
 		if err != nil {
 			return nil, err

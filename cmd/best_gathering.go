@@ -25,28 +25,43 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
-
-		resource, ok := database.Resources.Get(code)
-		if !ok {
-			return fmt.Errorf("resource not found: %s", args[1])
-		}
-		character, err := api.Characters(name)
+		flags, err := utils.ReadFlags[bestFlags](cmd)
 		if err != nil {
 			return err
 		}
-
+		err = bestGatheringValidate(code)
+		if err != nil {
+			return err
+		}
 		cmd.SilenceUsage = true
-		skill := string(resource.Skill)
-		priorities := []string{skill, "prospecting"}
-		if gatheringSkillLevel(character, skill)-resource.Level <= 10 {
-			priorities = []string{skill, "wisdom", "prospecting"}
-		}
-		items, err := utils.BestFinder(character, priorities...)
-		if err != nil {
-			return err
-		}
-		return console.Auto(items)
+		return bestGatheringRun(name, code, flags)
 	},
+}
+
+func bestGatheringValidate(code string) error {
+	_, ok := database.Resources.Get(code)
+	if !ok {
+		return fmt.Errorf("resource not found: %s", code)
+	}
+	return nil
+}
+
+func bestGatheringRun(name, code string, flags bestFlags) error {
+	resource, _ := database.Resources.Get(code)
+	character, err := api.Characters(name)
+	if err != nil {
+		return err
+	}
+	skill := string(resource.Skill)
+	priorities := []string{skill, "prospecting"}
+	if gatheringSkillLevel(character, skill)-resource.Level <= 10 {
+		priorities = []string{skill, "wisdom", "prospecting"}
+	}
+	items, err := utils.BestFinder(character, !flags.AllowDuplicateAdeptRing, priorities...)
+	if err != nil {
+		return err
+	}
+	return console.Auto(items)
 }
 
 func gatheringSkillLevel(c schemas.CharacterSchema, skill string) int {
@@ -65,4 +80,8 @@ func gatheringSkillLevel(c schemas.CharacterSchema, skill string) int {
 
 func init() {
 	bestCmd.AddCommand(bestGatheringCmd)
+	err := utils.RegisterFlags[bestFlags](bestGatheringCmd)
+	if err != nil {
+		panic(err)
+	}
 }

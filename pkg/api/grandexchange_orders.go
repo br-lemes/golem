@@ -39,7 +39,7 @@ func GrandexchangeOrders(options GrandexchangeOrdersOptions) ([]schemas.GEOrderS
 		return nil, err
 	}
 
-	var result []schemas.GEOrderSchema
+	result := []schemas.GEOrderSchema{}
 	page := 1
 	for {
 		params.Set("page", strconv.Itoa(page))

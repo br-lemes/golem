@@ -25,29 +25,44 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
-
-		item, ok := database.Items.Get(code)
-		if !ok || item.Craft == nil || item.Craft.Skill == nil {
-			return fmt.Errorf("item not found or is not craftable: %s", args[1])
-		}
-		character, err := api.Characters(name)
+		flags, err := utils.ReadFlags[bestFlags](cmd)
 		if err != nil {
 			return err
 		}
-
+		err = bestCraftingValidate(code)
+		if err != nil {
+			return err
+		}
 		cmd.SilenceUsage = true
-		skill := string(*item.Craft.Skill)
-		skillLevel := craftSkillLevel(character, skill)
-		priorities := []string{"inventory_space"}
-		if skillLevel-item.Level <= 10 && skillLevel > 0 {
-			priorities = []string{"wisdom", "inventory_space"}
-		}
-		items, err := utils.BestFinder(character, priorities...)
-		if err != nil {
-			return err
-		}
-		return console.Auto(items)
+		return bestCraftingRun(name, code, flags)
 	},
+}
+
+func bestCraftingValidate(code string) error {
+	item, ok := database.Items.Get(code)
+	if !ok || item.Craft == nil || item.Craft.Skill == nil {
+		return fmt.Errorf("item not found or is not craftable: %s", code)
+	}
+	return nil
+}
+
+func bestCraftingRun(name, code string, flags bestFlags) error {
+	item, _ := database.Items.Get(code)
+	character, err := api.Characters(name)
+	if err != nil {
+		return err
+	}
+	skill := string(*item.Craft.Skill)
+	skillLevel := craftSkillLevel(character, skill)
+	priorities := []string{"inventory_space"}
+	if skillLevel-item.Level <= 10 && skillLevel > 0 {
+		priorities = []string{"wisdom", "inventory_space"}
+	}
+	items, err := utils.BestFinder(character, !flags.AllowDuplicateAdeptRing, priorities...)
+	if err != nil {
+		return err
+	}
+	return console.Auto(items)
 }
 
 func craftSkillLevel(c schemas.CharacterSchema, skill string) int {
@@ -72,4 +87,8 @@ func craftSkillLevel(c schemas.CharacterSchema, skill string) int {
 
 func init() {
 	bestCmd.AddCommand(bestCraftingCmd)
+	err := utils.RegisterFlags[bestFlags](bestCraftingCmd)
+	if err != nil {
+		panic(err)
+	}
 }

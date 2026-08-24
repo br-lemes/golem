@@ -61,27 +61,85 @@ func TestBestGroupDoesNotReuseUniqueUtilities(t *testing.T) {
 	}
 }
 
-func TestEvaluateItemAccountsForInventoryPenaltyAgainstWisdom(t *testing.T) {
+func TestBestGroupKeepsEquippedAdeptRing(t *testing.T) {
 	ctx := &bestCtx{
-		Weights: map[string]int{"wisdom": 10000, "inventory_space": 1},
+		ItemValues: map[string]int{
+			"ring_of_the_adept": 30,
+			"ring_of_chance":    30,
+		},
+		OwnedItems: map[string]int{"ring_of_the_adept": 1, "ring_of_chance": 1},
+		Equipped: map[string]string{
+			"ring1": "ring_of_chance",
+			"ring2": "ring_of_the_adept",
+		},
+		AlreadyEquipped: map[string]int{
+			"ring_of_chance":    1,
+			"ring_of_the_adept": 1,
+		},
+		UniqueAdeptRing: true,
+		ValidItems: []schemas.ItemSchema{
+			{Code: "ring_of_the_adept", Type: "ring"},
+			{Code: "ring_of_chance", Type: "ring"},
+		},
 	}
 
-	penalized := schemas.ItemSchema{
+	got := ctx.bestGroup([]string{"ring1", "ring2"}, "ring")
+	if got["ring1"] != "ring_of_chance" || got["ring2"] != "ring_of_the_adept" {
+		t.Fatalf("equipped rings were changed: %#v", got)
+	}
+}
+
+func TestHasNegativeInventorySpace(t *testing.T) {
+	item := schemas.ItemSchema{
 		Effects: &[]schemas.SimpleEffectSchema{
 			{Code: "wisdom", Value: 25},
 			{Code: "inventory_space", Value: -5},
 		},
 	}
-	plain := schemas.ItemSchema{
-		Effects: &[]schemas.SimpleEffectSchema{{Code: "wisdom", Value: 24}},
+	if !hasNegativeInventorySpace(item) {
+		t.Fatal("item with negative inventory space was not rejected")
+	}
+	item.Effects = &[]schemas.SimpleEffectSchema{
+		{Code: "inventory_space", Value: 0},
+	}
+	if hasNegativeInventorySpace(item) {
+		t.Fatal("item without negative inventory space was rejected")
+	}
+}
+
+func TestFilterAndSortExcludesNegativeInventorySpaceItems(t *testing.T) {
+	ctx := &bestCtx{
+		Character: schemas.CharacterSchema{Level: 50},
+		Weights: map[string]int{
+			"attack_earth":    1,
+			"critical_strike": 1,
+			"inventory_space": 1,
+		},
 	}
 
-	got := ctx.evaluateItem(penalized)
-	want := 25*10000 - 5*10000 - 5
-	if got != want {
-		t.Fatalf("penalized item score = %d, want %d", got, want)
+	ctx.filterAndSort()
+	for _, item := range ctx.ValidItems {
+		if item.Code == "obsidian_battleaxe" {
+			t.Fatal("obsidian battleaxe was included despite negative inventory space")
+		}
 	}
-	if ctx.evaluateItem(penalized) >= ctx.evaluateItem(plain) {
-		t.Fatal("small wisdom gain should not outweigh inventory loss")
+}
+
+func TestBestGroupRecommendsAlternativeForEquippedNegativeInventoryItem(t *testing.T) {
+	ctx := &bestCtx{
+		Character: schemas.CharacterSchema{Level: 50},
+		Weights: map[string]int{
+			"attack_earth":    1,
+			"critical_strike": 1,
+			"inventory_space": 1,
+		},
+	}
+	ctx.filterAndSort()
+	ctx.OwnedItems = map[string]int{"obsidian_battleaxe": 1, "wooden_stick": 1}
+	ctx.Equipped = map[string]string{"weapon": "obsidian_battleaxe"}
+	ctx.AlreadyEquipped = map[string]int{"obsidian_battleaxe": 1}
+	got := ctx.bestGroup([]string{"weapon"}, "weapon")
+	if got["weapon"] != "wooden_stick" {
+		t.Fatalf("equipped negative inventory item was not replaced: %#v", got)
 	}
 }

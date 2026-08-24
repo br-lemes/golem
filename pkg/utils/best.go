@@ -27,9 +27,10 @@ type bestCtx struct {
 	Skill           string
 	ValidItems      []schemas.ItemSchema
 	Weights         map[string]int
+	UniqueAdeptRing bool
 }
 
-func BestFinder(character schemas.CharacterSchema, priorities ...string) (map[string]bestResult, error) {
+func BestFinder(character schemas.CharacterSchema, uniqueAdeptRing bool, priorities ...string) (map[string]bestResult, error) {
 	priorities, err := NormalizeBestPriorities(priorities)
 	if err != nil {
 		return nil, err
@@ -46,7 +47,12 @@ func BestFinder(character schemas.CharacterSchema, priorities ...string) (map[st
 		weights[priorities[i]] = weight
 		weight *= 10000
 	}
-	ctx := &bestCtx{Character: character, Skill: skill, Weights: weights}
+	ctx := &bestCtx{
+		Character:       character,
+		Skill:           skill,
+		Weights:         weights,
+		UniqueAdeptRing: uniqueAdeptRing,
+	}
 	err = ctx.fetchItems()
 	if err != nil {
 		return nil, err
@@ -109,6 +115,9 @@ func (c *bestCtx) filterAndSort() {
 	allItems := database.Items.All()
 	c.ItemValues = make(map[string]int)
 	for _, item := range allItems {
+		if hasNegativeInventorySpace(*item) {
+			continue
+		}
 		if c.Skill != "" && item.Type == "weapon" && item.Subtype == "tool" {
 			skillLevel := 0
 			switch c.Skill {
@@ -197,6 +206,14 @@ func (c *bestCtx) bestGroup(slots []string, itemType string) map[string]string {
 			if item.Type != itemType || available[item.Code] == 0 {
 				continue
 			}
+			if c.UniqueAdeptRing && item.Code == "ring_of_the_adept" {
+				if c.AlreadyEquipped[item.Code] > 0 && c.Equipped[slot] != item.Code {
+					continue
+				}
+				if slices.ContainsFunc(slots[:pos], func(s string) bool { return current[s] == item.Code }) {
+					continue
+				}
+			}
 			if itemType != "ring" && slices.ContainsFunc(slots[:pos], func(s string) bool { return current[s] == item.Code }) {
 				continue
 			}
@@ -223,20 +240,6 @@ func (c *bestCtx) evaluateItem(item schemas.ItemSchema) int {
 		}
 		effects[effect.Code] += val
 	}
-	inventory := effects["inventory_space"]
-	if inventory < 0 {
-		// Losing inventory space is an equivalent penalty to wisdom or
-		// prospecting, but only for the highest-priority one present.
-		stat := ""
-		if effects["wisdom"] != 0 && c.Weights["wisdom"] >= c.Weights["prospecting"] {
-			stat = "wisdom"
-		} else if effects["prospecting"] != 0 {
-			stat = "prospecting"
-		}
-		if stat != "" {
-			effects[stat] += inventory
-		}
-	}
 	score := 0
 	for code, value := range effects {
 		weight, exists := c.Weights[code]
@@ -246,6 +249,18 @@ func (c *bestCtx) evaluateItem(item schemas.ItemSchema) int {
 		score += value * weight
 	}
 	return score
+}
+
+func hasNegativeInventorySpace(item schemas.ItemSchema) bool {
+	if item.Effects == nil {
+		return false
+	}
+	for _, effect := range *item.Effects {
+		if effect.Code == "inventory_space" && effect.Value < 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *bestCtx) formatItem(item schemas.ItemSchema) string {
