@@ -1,4 +1,4 @@
-package utils
+package best
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 )
 
-func NormalizeBestPriorities(priorities []string) ([]string, error) {
+func NormalizePriorities(priorities []string) ([]string, error) {
 	validEffects := database.Effects().Equipments().Keys()
 	gatheringSkills := database.Enum("GatheringSkill")
 	seen := make(map[string]bool, len(priorities))

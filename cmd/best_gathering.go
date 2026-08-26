@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
@@ -57,7 +58,7 @@ func bestGatheringRun(name, code string, flags bestFlags) error {
 	if gatheringSkillLevel(character, skill)-resource.Level <= 10 {
 		priorities = []string{skill, "wisdom", "prospecting"}
 	}
-	items, err := utils.BestFinder(character, !flags.AllowDuplicateAdeptRing, priorities...)
+	items, err := best.FindEquipment(character, !flags.AllowDuplicateAdeptRing, priorities...)
 	if err != nil {
 		return err
 	}

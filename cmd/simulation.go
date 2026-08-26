@@ -6,12 +6,11 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/fight"
 	"github.com/br-lemes/golem/pkg/schemas"
-	"github.com/br-lemes/golem/pkg/simulation"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
-type simulationScalarFlags struct {
+type simulationFlags struct {
 	File                 string `flag:"file" desc:"JSON array file containing one simulation character"`
 	Name                 string `flag:"name" desc:"Use a real character as the base"`
 	Iterations           int    `flag:"iterations" default:"10" desc:"Number of simulations to run"`
@@ -21,6 +20,26 @@ type simulationScalarFlags struct {
 	MonsterCritical      int    `flag:"monster-critical" default:"-1" desc:"Override monster critical chance (0-100)"`
 	Utility1SlotQuantity int    `flag:"utility1_slot_quantity" default:"1" desc:"Utility 1 quantity"`
 	Utility2SlotQuantity int    `flag:"utility2_slot_quantity" default:"1" desc:"Utility 2 quantity"`
+	WeaponSlot           string `flag:"weapon_slot" default:"wooden_stick" desc:"Item code for the weapon slot"`
+	RuneSlot             string `flag:"rune_slot" desc:"Item code for the rune slot"`
+	ShieldSlot           string `flag:"shield_slot" desc:"Item code for the shield slot"`
+	HelmetSlot           string `flag:"helmet_slot" desc:"Item code for the helmet slot"`
+	BodyArmorSlot        string `flag:"body_armor_slot" desc:"Item code for the body armor slot"`
+	LegArmorSlot         string `flag:"leg_armor_slot" desc:"Item code for the leg armor slot"`
+	BootsSlot            string `flag:"boots_slot" desc:"Item code for the boots slot"`
+	Ring1Slot            string `flag:"ring1_slot" desc:"Item code for the first ring slot"`
+	Ring2Slot            string `flag:"ring2_slot" desc:"Item code for the second ring slot"`
+	AmuletSlot           string `flag:"amulet_slot" desc:"Item code for the amulet slot"`
+	Artifact1Slot        string `flag:"artifact1_slot" desc:"Item code for the first artifact slot"`
+	Artifact2Slot        string `flag:"artifact2_slot" desc:"Item code for the second artifact slot"`
+	Artifact3Slot        string `flag:"artifact3_slot" desc:"Item code for the third artifact slot"`
+	Utility1Slot         string `flag:"utility1_slot" desc:"Item code for the first utility slot"`
+	Utility2Slot         string `flag:"utility2_slot" desc:"Item code for the second utility slot"`
+}
+
+var simulationCmd = &cobra.Command{
+	Use:   "simulation",
+	Short: "Run combat simulations",
 }
 
 var simulationSlotNames = []string{
@@ -41,31 +60,48 @@ var simulationSlotNames = []string{
 	"utility2",
 }
 
-var simulationCmd = &cobra.Command{
-	Use:   "simulation",
-	Short: "Run combat simulations",
+type simulationInput struct {
+	Monster   schemas.MonsterSchema
+	Character schemas.FakeCharacterSchema
+	Flags     simulationFlags
 }
 
-type simulationCommandOutput struct {
-	Results     []schemas.CombatResultSchema `json:"results"`
-	Wins        int                          `json:"wins"`
-	Losses      int                          `json:"losses"`
-	Winrate     float32                      `json:"winrate"`
-	Diagnostics simulationDiagnostics        `json:"diagnostics"`
-}
-
-func init() {
-	rootCmd.AddCommand(simulationCmd)
-	err := registerSimulationScalarFlags(simulationCmd)
+func readSimulationInput(cmd *cobra.Command, monster string, allowCriticalOverrides bool) (simulationInput, error) {
+	flags, err := utils.ReadFlags[simulationFlags](cmd)
 	if err != nil {
-		panic(err)
+		return simulationInput{}, err
 	}
-	registerSimulationSlotFlags(simulationCmd, make(map[string]*string), true)
-}
+	err = validateSimulationFlags(flags)
+	if err != nil {
+		return simulationInput{}, err
+	}
+	if !allowCriticalOverrides && (cmd.Flags().Changed("player-critical") || cmd.Flags().Changed("monster-critical")) {
+		return simulationInput{}, fmt.Errorf("critical overrides are supported by simulation local, compare, and critical, but not by the API")
+	}
+	monsterData, ok := database.Monsters.Get(monster)
+	if !ok {
+		return simulationInput{}, fmt.Errorf("invalid monster: %s", monster)
+	}
 
-func resolveSimulationCharacter(cmd *cobra.Command, flags simulationScalarFlags) (schemas.FakeCharacterSchema, error) {
 	explicitSlots := map[string]string{}
-	for slot, value := range readSimulationSlotFlags(cmd) {
+	slotValues := map[string]string{
+		"weapon":     flags.WeaponSlot,
+		"rune":       flags.RuneSlot,
+		"shield":     flags.ShieldSlot,
+		"helmet":     flags.HelmetSlot,
+		"body_armor": flags.BodyArmorSlot,
+		"leg_armor":  flags.LegArmorSlot,
+		"boots":      flags.BootsSlot,
+		"ring1":      flags.Ring1Slot,
+		"ring2":      flags.Ring2Slot,
+		"amulet":     flags.AmuletSlot,
+		"artifact1":  flags.Artifact1Slot,
+		"artifact2":  flags.Artifact2Slot,
+		"artifact3":  flags.Artifact3Slot,
+		"utility1":   flags.Utility1Slot,
+		"utility2":   flags.Utility2Slot,
+	}
+	for slot, value := range slotValues {
 		if cmd.Flags().Changed(slot + "_slot") {
 			explicitSlots[slot] = value
 		}
@@ -77,34 +113,24 @@ func resolveSimulationCharacter(cmd *cobra.Command, flags simulationScalarFlags)
 	if cmd.Flags().Changed("utility2_slot_quantity") {
 		explicitQuantities["utility2"] = flags.Utility2SlotQuantity
 	}
-	return simulation.ResolveCharacter(simulation.CharacterOptions{
+	character, err := fight.ResolveCharacter(fight.CharacterOptions{
 		File:              flags.File,
 		Name:              flags.Name,
 		Level:             flags.Level,
 		ExplicitSlots:     explicitSlots,
 		UtilityQuantities: explicitQuantities,
 	})
+	if err != nil {
+		return simulationInput{}, err
+	}
+	return simulationInput{
+		Monster:   *monsterData,
+		Character: character,
+		Flags:     flags,
+	}, nil
 }
 
-func registerSimulationScalarFlags(cmd *cobra.Command) error {
-	flags := cmd.PersistentFlags()
-	flags.String("file", "", "JSON array file containing one simulation character")
-	flags.String("name", "", "Use a real character as the base")
-	flags.Int("iterations", 10, "Number of simulations to run")
-	flags.Int("level", 1, "Fake character level (1-50)")
-	flags.Bool("logs", false, "Include combat logs in the output")
-	flags.Int("player-critical", -1, "Override player critical chance (0-100)")
-	flags.Int("monster-critical", -1, "Override monster critical chance (0-100)")
-	flags.Int("utility1_slot_quantity", 1, "Utility 1 quantity")
-	flags.Int("utility2_slot_quantity", 1, "Utility 2 quantity")
-	return nil
-}
-
-func readSimulationScalarFlags(cmd *cobra.Command) (simulationScalarFlags, error) {
-	return utils.ReadFlags[simulationScalarFlags](cmd)
-}
-
-func validateSimulationScalarFlags(flags simulationScalarFlags) error {
+func validateSimulationFlags(flags simulationFlags) error {
 	if flags.Iterations < 1 {
 		return fmt.Errorf("iterations must be at least 1")
 	}
@@ -120,7 +146,16 @@ func validateSimulationScalarFlags(flags simulationScalarFlags) error {
 	return nil
 }
 
-func simulationCriticalOptions(flags simulationScalarFlags) fight.SimulationOptions {
+func simulationRequest(monster string, character schemas.FakeCharacterSchema, flags simulationFlags) (schemas.CombatSimulationRequestSchema, error) {
+	request := schemas.CombatSimulationRequestSchema{
+		Characters: []schemas.FakeCharacterSchema{character},
+		Monster:    monster,
+		Iterations: flags.Iterations,
+	}
+	return request, fight.ValidateRequest(request)
+}
+
+func simulationCriticalOptions(flags simulationFlags) fight.SimulationOptions {
 	options := fight.SimulationOptions{}
 	if flags.PlayerCritical >= 0 {
 		options.Critical.PlayerChance = &flags.PlayerCritical
@@ -131,28 +166,23 @@ func simulationCriticalOptions(flags simulationScalarFlags) fight.SimulationOpti
 	return options
 }
 
-func registerSimulationSlotFlags(cmd *cobra.Command, values map[string]*string, defaults bool) {
+func registerSimulationFlags(cmd *cobra.Command) error {
+	err := utils.RegisterFlags[simulationFlags](cmd)
+	if err != nil {
+		return err
+	}
 	for _, slot := range simulationSlotNames {
-		value := ""
-		if defaults && slot == "weapon" {
-			value = "wooden_stick"
-		}
-		values[slot] = &value
 		flagName := slot + "_slot"
-		cmd.PersistentFlags().StringVar(&value, flagName, value, "Item code for the "+slot+" slot")
-		_ = cmd.RegisterFlagCompletionFunc(flagName, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		err = cmd.RegisterFlagCompletionFunc(flagName, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			return database.Items.Keys(), cobra.ShellCompDirectiveNoFileComp
 		})
-	}
-}
-
-func readSimulationSlotFlags(cmd *cobra.Command) map[string]string {
-	result := map[string]string{}
-	for _, slot := range simulationSlotNames {
-		value, err := cmd.Flags().GetString(slot + "_slot")
-		if err == nil && value != "" {
-			result[slot] = value
+		if err != nil {
+			return err
 		}
 	}
-	return result
+	return nil
+}
+
+func init() {
+	rootCmd.AddCommand(simulationCmd)
 }

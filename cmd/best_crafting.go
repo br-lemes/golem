@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
@@ -58,7 +59,7 @@ func bestCraftingRun(name, code string, flags bestFlags) error {
 	if skillLevel-item.Level <= 10 && skillLevel > 0 {
 		priorities = []string{"wisdom", "inventory_space"}
 	}
-	items, err := utils.BestFinder(character, !flags.AllowDuplicateAdeptRing, priorities...)
+	items, err := best.FindEquipment(character, !flags.AllowDuplicateAdeptRing, priorities...)
 	if err != nil {
 		return err
 	}

@@ -73,6 +73,18 @@ func TestConsumeUtilityRestoresHPAndRemovesPoison(t *testing.T) {
 	}
 }
 
+func TestConsumeAntidoteReturnsConfiguredReduction(t *testing.T) {
+	utilities := []Utility{{Code: "antidote", Antipoison: 50, Quantity: 1}}
+	logs := []string{}
+	got := consumeAntidote(&utilities, &logs, 2)
+	if got != 50 {
+		t.Fatalf("antidote reduction = %d, want 50", got)
+	}
+	if !strings.Contains(logs[0], "removed 50 poison") {
+		t.Fatalf("antidote log = %q", logs[0])
+	}
+}
+
 func TestSimulateBurnTicksAndDecays(t *testing.T) {
 	effects := &[]schemas.SimpleEffectSchema{{Code: "burn", Value: 10}}
 	fighter := Fighter{Stats: Stats{HP: 1000, Initiative: 1}}

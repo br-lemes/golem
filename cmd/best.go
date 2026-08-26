@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
@@ -31,7 +32,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		effects, err := utils.NormalizeBestPriorities(args[1:])
+		effects, err := best.NormalizePriorities(args[1:])
 		if err != nil {
 			return err
 		}
@@ -45,7 +46,7 @@ func bestRun(name string, flags bestFlags, effects []string) error {
 	if err != nil {
 		return err
 	}
-	items, err := utils.BestFinder(character, !flags.AllowDuplicateAdeptRing, effects...)
+	items, err := best.FindEquipment(character, !flags.AllowDuplicateAdeptRing, effects...)
 	if err != nil {
 		return fmt.Errorf("find best equipment: %w", err)
 	}

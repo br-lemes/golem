@@ -1,4 +1,4 @@
-package utils
+package best
 
 import (
 	"cmp"
@@ -30,8 +30,8 @@ type bestCtx struct {
 	UniqueAdeptRing bool
 }
 
-func BestFinder(character schemas.CharacterSchema, uniqueAdeptRing bool, priorities ...string) (map[string]bestResult, error) {
-	priorities, err := NormalizeBestPriorities(priorities)
+func FindEquipment(character schemas.CharacterSchema, uniqueAdeptRing bool, priorities ...string) (map[string]bestResult, error) {
+	priorities, err := NormalizePriorities(priorities)
 	if err != nil {
 		return nil, err
 	}

@@ -396,8 +396,15 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 					logs = append(logs, fmt.Sprintf("Turn %d: Character_1 heals %d HP from Healing effect. HP: %d/%d", turn, healed, int(math.Round(p.hp)), player.Stats.HP))
 				}
 			}
-			if poisonApplied && consumeUtility(&utilities, true, &p, player.Stats.HP, &logs, turn) {
-				poisonApplied = false
+			if poisonApplied {
+				poisonReduction := consumeAntidote(&utilities, &logs, turn)
+				if poisonReduction > 0 {
+					poison -= poisonReduction
+					if poison <= 0 {
+						poison = 0
+						poisonApplied = false
+					}
+				}
 			}
 			consumeUtility(&utilities, false, &p, player.Stats.HP, &logs, turn)
 		} else {
@@ -672,6 +679,19 @@ func consumeUtility(utilities *[]Utility, antidoteOnly bool, player *combatant, 
 		return antidoteOnly
 	}
 	return false
+}
+
+func consumeAntidote(utilities *[]Utility, logs *[]string, turn int) int {
+	for i := range *utilities {
+		u := &(*utilities)[i]
+		if u.Quantity <= 0 || u.Antipoison == 0 {
+			continue
+		}
+		u.Quantity--
+		*logs = append(*logs, fmt.Sprintf("Turn %d: Character_1 used %s and removed %d poison.", turn, u.Code, u.Antipoison))
+		return u.Antipoison
+	}
+	return 0
 }
 
 type combatant struct {

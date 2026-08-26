@@ -1,4 +1,4 @@
-package simulation
+package fight
 
 import (
 	"fmt"
