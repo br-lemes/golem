@@ -112,6 +112,7 @@ func executeMissing(names []string, equipTypes []string) error {
 			character.LegArmorSlot,
 			character.Ring1Slot,
 			character.Ring2Slot,
+			character.RuneSlot,
 			character.ShieldSlot,
 			character.Utility1Slot,
 			character.Utility2Slot,

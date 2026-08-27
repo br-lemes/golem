@@ -20,7 +20,7 @@ var countCmd = &cobra.Command{
 	Long: `Show the total quantity of items in the account
 
 Arguments:
-  code      The code of the item (or 'gold' for gold).`,
+  code   The code of the item (or 'gold' for gold).`,
 	ValidArgsFunction: completion.Custom(0, func() []string {
 		return append(database.Items.Keys(), "gold")
 	}).Build(),
