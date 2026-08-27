@@ -5,7 +5,7 @@ import "time"
 type FightSimulation struct {
 	CreatedAt             time.Time
 	UpdatedAt             time.Time
-	Name                  string `gorm:"primaryKey"`
+	Key                   string `gorm:"primaryKey"`
 	Version               int
 	Winrate               float32
 	AverageTurns          float32

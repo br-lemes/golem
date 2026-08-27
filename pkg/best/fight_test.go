@@ -55,11 +55,11 @@ func TestFindWithAvailableDoesNotDependOnInitialEquipment(t *testing.T) {
 	second.Wisdom = itemMeta(second.BootsSlot, "wisdom")
 	second.Prospecting = itemMeta(second.BootsSlot, "prospecting")
 
-	firstResult, err := findWithAvailable(first, *monster, available, false, false)
+	firstResult, err := FindFightWithAvailable(first, *monster, available, false, false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	secondResult, err := findWithAvailable(second, *monster, available, false, false)
+	secondResult, err := FindFightWithAvailable(second, *monster, available, false, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +156,7 @@ func TestCatalogLevel50BeamCandidates(t *testing.T) {
 		if !ok {
 			t.Fatalf("%s not found", code)
 		}
-		result, err := findWithAvailable(character, *monster, available, false, false)
+		result, err := FindFightWithAvailable(character, *monster, available, false, false)
 		if err != nil {
 			t.Fatal(err)
 		}

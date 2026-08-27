@@ -18,6 +18,10 @@ import (
 	"github.com/br-lemes/golem/pkg/surplus"
 )
 
+// CACHE_VERSION / ACTION REQUIRED: increment when the fight optimizer or
+// simulation can produce different results for the same inputs.
+const bestFightSimulationCacheVersion = 1
+
 type Result struct {
 	Winrate               float32           `json:"winrate"`
 	AverageTurns          float32           `json:"average_turns"`
@@ -41,6 +45,9 @@ type Result struct {
 	ContextScore          int               `json:"-"`
 	Equipment             map[string]string `json:"equipment"`
 	Utilities             map[string]string `json:"utilities,omitempty"`
+	// FinalEquipment is the complete final loadout. It is kept out of the
+	// serialized result so existing commands continue to expose only changes.
+	FinalEquipment map[string]string `json:"-"`
 }
 
 var simulationBestSlots = []string{
@@ -64,9 +71,8 @@ var simulationRingSlots = []string{"ring1", "ring2"}
 var simulationArtifactSlots = []string{"artifact1", "artifact2", "artifact3"}
 
 const (
-	candidateSimulationIterations   = 10
-	finalSimulationIterations       = 50
-	bestFightSimulationCacheVersion = 1
+	candidateSimulationIterations = 10
+	finalSimulationIterations     = 50
 )
 
 var processSimulationCache map[string]cachedSimulationResult
@@ -104,7 +110,7 @@ func findFight(character schemas.CharacterSchema, monster schemas.MonsterSchema,
 			available[code]++
 		}
 	}
-	return findWithAvailable(character, monster, available, includeUnowned, allowDuplicateAdeptRing)
+	return FindFightWithAvailable(character, monster, available, includeUnowned, allowDuplicateAdeptRing)
 }
 
 func FindFightByName(name string, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
@@ -121,7 +127,7 @@ func FindFightAtLevel(level int, monster schemas.MonsterSchema, includeUnowned, 
 		return Result{}, err
 	}
 	character := schemas.CharacterSchema{Level: level}
-	return findWithAvailable(character, monster, available, includeUnowned, allowDuplicateAdeptRing)
+	return FindFightWithAvailable(character, monster, available, includeUnowned, allowDuplicateAdeptRing)
 }
 
 func bankAvailable() (map[string]int, error) {
@@ -136,7 +142,7 @@ func bankAvailable() (map[string]int, error) {
 	return available, nil
 }
 
-func findWithAvailable(character schemas.CharacterSchema, monster schemas.MonsterSchema, available map[string]int, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.MonsterSchema, available map[string]int, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
 	processSimulationCache = make(map[string]cachedSimulationResult)
 	ownedCodes := make(map[string]bool, len(available))
 	for code := range available {
@@ -166,7 +172,7 @@ func findWithAvailable(character schemas.CharacterSchema, monster schemas.Monste
 		if !isEquipment || item.Type == "utility" || item.Subtype == "tool" {
 			continue
 		}
-		if !simulationCanEquip(character, *item) {
+		if !CanEquip(character, *item) {
 			continue
 		}
 		validItems = append(validItems, *item)
@@ -289,6 +295,7 @@ func findWithAvailable(character schemas.CharacterSchema, monster schemas.Monste
 		Focus:                 focus,
 		Equipment:             equipment,
 		Utilities:             utilities,
+		FinalEquipment:        copyStringMap(current),
 	}
 	seenUnowned := make(map[string]bool)
 	for _, code := range equipment {
@@ -390,7 +397,7 @@ func refineWithUtilities(character schemas.CharacterSchema, monster schemas.Mons
 				continue
 			}
 			item, exists := database.Items.Get(code)
-			if exists && item.Type == "utility" && simulationCanEquip(character, *item) {
+			if exists && item.Type == "utility" && CanEquip(character, *item) {
 				options[slot] = append(options[slot], code)
 			}
 		}
@@ -779,9 +786,9 @@ func cachedSimulationResultFromModel(stored models.FightSimulation) cachedSimula
 	}
 }
 
-func fightSimulationFromResult(name string, result cachedSimulationResult) models.FightSimulation {
+func fightSimulationFromResult(key string, result cachedSimulationResult) models.FightSimulation {
 	return models.FightSimulation{
-		Name:                  name,
+		Key:                   key,
 		Version:               bestFightSimulationCacheVersion,
 		Winrate:               result.Winrate,
 		AverageTurns:          result.AverageTurns,
@@ -1080,7 +1087,7 @@ func itemFitsSlot(item schemas.ItemSchema, slot string) bool {
 	return false
 }
 
-func simulationCanEquip(c schemas.CharacterSchema, item schemas.ItemSchema) bool {
+func CanEquip(c schemas.CharacterSchema, item schemas.ItemSchema) bool {
 	if item.Conditions == nil {
 		return true
 	}

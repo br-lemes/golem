@@ -59,7 +59,10 @@ func bestCraftingRun(name, code string, flags bestFlags) error {
 	if skillLevel-item.Level <= 10 && skillLevel > 0 {
 		priorities = []string{"wisdom", "inventory_space"}
 	}
-	items, err := best.FindEquipment(character, !flags.AllowDuplicateAdeptRing, priorities...)
+	items, err := best.FindEquipment(character, best.EquipmentOptions{
+		UniqueAdeptRing: !flags.AllowDuplicateAdeptRing,
+		Priorities:      priorities,
+	})
 	if err != nil {
 		return err
 	}

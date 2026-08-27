@@ -30,8 +30,14 @@ type bestCtx struct {
 	UniqueAdeptRing bool
 }
 
-func FindEquipment(character schemas.CharacterSchema, uniqueAdeptRing bool, priorities ...string) (map[string]bestResult, error) {
-	priorities, err := NormalizePriorities(priorities)
+type EquipmentOptions struct {
+	UniqueAdeptRing bool
+	Owned           map[string]int
+	Priorities      []string
+}
+
+func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) (map[string]bestResult, error) {
+	priorities, err := NormalizePriorities(options.Priorities)
 	if err != nil {
 		return nil, err
 	}
@@ -51,9 +57,9 @@ func FindEquipment(character schemas.CharacterSchema, uniqueAdeptRing bool, prio
 		Character:       character,
 		Skill:           skill,
 		Weights:         weights,
-		UniqueAdeptRing: uniqueAdeptRing,
+		UniqueAdeptRing: options.UniqueAdeptRing,
 	}
-	err = ctx.fetchItems()
+	err = ctx.fetchItems(options.Owned)
 	if err != nil {
 		return nil, err
 	}
@@ -62,16 +68,20 @@ func FindEquipment(character schemas.CharacterSchema, uniqueAdeptRing bool, prio
 	return ctx.Result, nil
 }
 
-func (c *bestCtx) fetchItems() error {
-	bankItems, err := api.MyBankItems()
-	if err != nil {
-		return err
+func (c *bestCtx) fetchItems(owned map[string]int) error {
+	suppliedOwned := owned != nil
+	if owned == nil {
+		bankItems, err := api.MyBankItems()
+		if err != nil {
+			return err
+		}
+		owned = make(map[string]int)
+		for _, item := range bankItems {
+			owned[item.Code] += item.Quantity
+		}
 	}
-	c.OwnedItems = make(map[string]int)
-	for _, item := range bankItems {
-		c.OwnedItems[item.Code] += item.Quantity
-	}
-	if c.Character.Inventory != nil {
+	c.OwnedItems = maps.Clone(owned)
+	if !suppliedOwned && c.Character.Inventory != nil {
 		for _, item := range *c.Character.Inventory {
 			c.OwnedItems[item.Code] += item.Quantity
 		}
@@ -104,7 +114,9 @@ func (c *bestCtx) fetchItems() error {
 			case "utility2":
 				qty = c.Character.Utility2SlotQuantity
 			}
-			c.OwnedItems[code] += qty
+			if !suppliedOwned {
+				c.OwnedItems[code] += qty
+			}
 			c.AlreadyEquipped[code] += qty
 		}
 	}

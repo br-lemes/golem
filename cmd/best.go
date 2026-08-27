@@ -46,7 +46,10 @@ func bestRun(name string, flags bestFlags, effects []string) error {
 	if err != nil {
 		return err
 	}
-	items, err := best.FindEquipment(character, !flags.AllowDuplicateAdeptRing, effects...)
+	items, err := best.FindEquipment(character, best.EquipmentOptions{
+		UniqueAdeptRing: !flags.AllowDuplicateAdeptRing,
+		Priorities:      effects,
+	})
 	if err != nil {
 		return fmt.Errorf("find best equipment: %w", err)
 	}

@@ -38,7 +38,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{}, &models.FightSimulation{})
+	err = cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{}, &models.FightSimulation{}, &models.UsageCombat{})
 	if err != nil {
 		panic(err)
 	}

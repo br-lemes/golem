@@ -58,7 +58,10 @@ func bestGatheringRun(name, code string, flags bestFlags) error {
 	if gatheringSkillLevel(character, skill)-resource.Level <= 10 {
 		priorities = []string{skill, "wisdom", "prospecting"}
 	}
-	items, err := best.FindEquipment(character, !flags.AllowDuplicateAdeptRing, priorities...)
+	items, err := best.FindEquipment(character, best.EquipmentOptions{
+		UniqueAdeptRing: !flags.AllowDuplicateAdeptRing,
+		Priorities:      priorities,
+	})
 	if err != nil {
 		return err
 	}
