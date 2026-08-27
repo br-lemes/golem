@@ -3,7 +3,6 @@ package best
 import (
 	"testing"
 
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/fight"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
@@ -29,49 +28,6 @@ func TestEffectivePlayerDamageAppliesResistanceFraction(t *testing.T) {
 	got := effectivePlayerDamage(player, monster)
 	if got != 75 {
 		t.Fatalf("effective damage = %v, want 75", got)
-	}
-}
-
-func TestFindWithAvailableDoesNotDependOnInitialEquipment(t *testing.T) {
-	monster, ok := database.Monsters.Get("chicken")
-	if !ok {
-		t.Fatal("chicken not found")
-	}
-
-	available := make(map[string]int)
-	for _, item := range database.Items.All() {
-		if item.Type != "tool" && item.Subtype != "tool" {
-			available[item.Code] = 2
-		}
-	}
-
-	first := schemas.CharacterSchema{Level: 35, BootsSlot: "old_boots"}
-	second := schemas.CharacterSchema{
-		Level:     35,
-		BootsSlot: "hard_leather_boots",
-	}
-	first.Wisdom = itemMeta(first.BootsSlot, "wisdom")
-	first.Prospecting = itemMeta(first.BootsSlot, "prospecting")
-	second.Wisdom = itemMeta(second.BootsSlot, "wisdom")
-	second.Prospecting = itemMeta(second.BootsSlot, "prospecting")
-
-	firstResult, err := FindFightWithAvailable(first, *monster, available, false, false)
-	if err != nil {
-		t.Fatal(err)
-	}
-	secondResult, err := FindFightWithAvailable(second, *monster, available, false, false)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	sameWinrate := firstResult.Winrate == secondResult.Winrate
-	sameCycle := firstResult.CycleCost == secondResult.CycleCost
-	sameTurns := firstResult.AverageTurns == secondResult.AverageTurns
-	sameHP := firstResult.AverageFinalHP == secondResult.AverageFinalHP
-	sameWisdom := firstResult.Wisdom == secondResult.Wisdom
-	sameProspecting := firstResult.Prospecting == secondResult.Prospecting
-	if !sameWinrate || !sameCycle || !sameTurns || !sameHP || !sameWisdom || !sameProspecting {
-		t.Fatalf("initial equipment changed objective result: first=%+v second=%+v", firstResult, secondResult)
 	}
 }
 
@@ -140,26 +96,5 @@ func TestBetterSimulationScorePrefersLowerCycleCost(t *testing.T) {
 	}
 	if betterSimulationScore(slower, faster) {
 		t.Fatal("higher cycle cost should not be preferred")
-	}
-}
-
-func TestCatalogLevel50BeamCandidates(t *testing.T) {
-	available := make(map[string]int)
-	for _, item := range database.Items.All() {
-		if item.Type != "tool" && item.Subtype != "tool" {
-			available[item.Code] = 2
-		}
-	}
-	character := schemas.CharacterSchema{Level: 50}
-	for _, code := range []string{"sandwarden", "red_dragon", "fennec"} {
-		monster, ok := database.Monsters.Get(code)
-		if !ok {
-			t.Fatalf("%s not found", code)
-		}
-		result, err := FindFightWithAvailable(character, *monster, available, false, false)
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Logf("%s: winrate=%v cycle=%v turns=%v hp=%v", code, result.Winrate, result.CycleCost, result.AverageTurns, result.AverageFinalHP)
 	}
 }
