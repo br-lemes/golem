@@ -13,9 +13,3 @@ func APILog(method, path, body, response string, status, cooldown int) {
 		Cooldown: cooldown,
 	})
 }
-
-func GetAPILogs(limit int) []models.APILog {
-	var logs []models.APILog
-	cache.Limit(limit).Order("created_at desc").Find(&logs)
-	return logs
-}
