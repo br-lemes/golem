@@ -242,6 +242,142 @@ func TestEquipUsesAvailableInventoryItem(t *testing.T) {
 	}
 }
 
+func TestEquipWithdrawsMissingItem(t *testing.T) {
+	withdrawCalled := false
+	equipCalled := false
+	character := equipTestCharacter()
+	deps := deps{
+		characters: func(string) (schemas.CharacterSchema, error) {
+			return character, nil
+		},
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{{Code: "iron_sword", Quantity: 1}}, nil
+		},
+		myActionMove: func(_ string, _, _ int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionTransition: func(_ string) (schemas.CharacterTransitionDataSchema, error) {
+			return schemas.CharacterTransitionDataSchema{Character: character}, nil
+		},
+		myActionBankWithdrawItem: func(_ string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			withdrawCalled = len(items) == 1 && items[0].Code == "iron_sword"
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+		myActionEquip: func(_ string, _ []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error) {
+			equipCalled = true
+			return schemas.EquipmentTransactionSchema{Character: character}, nil
+		},
+	}
+
+	_, err := equip(deps, "hero", []schemas.EquipSchema{
+		{Code: "iron_sword", Slot: "weapon"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !withdrawCalled || !equipCalled {
+		t.Fatalf("withdraw called = %t, equip called = %t", withdrawCalled, equipCalled)
+	}
+}
+
+func TestEquipReturnsMoveErrorWhenWithdrawing(t *testing.T) {
+	wantErr := errors.New("move failed")
+	character := equipTestCharacter()
+	deps := deps{
+		characters: func(string) (schemas.CharacterSchema, error) {
+			return character, nil
+		},
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{{Code: "iron_sword", Quantity: 1}}, nil
+		},
+		myActionMove: func(_ string, _, _ int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{}, wantErr
+		},
+	}
+
+	_, err := equip(deps, "hero", []schemas.EquipSchema{
+		{Code: "iron_sword", Slot: "weapon"},
+	})
+	if !errors.Is(err, wantErr) {
+		t.Fatalf("equip() error = %v, want %v", err, wantErr)
+	}
+}
+
+func TestEquipReturnsWithdrawError(t *testing.T) {
+	wantErr := errors.New("withdraw failed")
+	character := equipTestCharacter()
+	deps := deps{
+		characters: func(string) (schemas.CharacterSchema, error) {
+			return character, nil
+		},
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{{Code: "iron_sword", Quantity: 1}}, nil
+		},
+		myActionMove: func(_ string, _, _ int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionTransition: func(_ string) (schemas.CharacterTransitionDataSchema, error) {
+			return schemas.CharacterTransitionDataSchema{Character: character}, nil
+		},
+		myActionBankWithdrawItem: func(_ string, _ []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			return schemas.BankItemTransactionSchema{}, wantErr
+		},
+	}
+
+	_, err := equip(deps, "hero", []schemas.EquipSchema{
+		{Code: "iron_sword", Slot: "weapon"},
+	})
+	if !errors.Is(err, wantErr) {
+		t.Fatalf("equip() error = %v, want %v", err, wantErr)
+	}
+}
+
+func TestFilterNeededEquipmentsUsesQuantities(t *testing.T) {
+	quantity := 2
+	character := schemas.CharacterSchema{
+		Utility1Slot:         "small_health_potion",
+		Utility1SlotQuantity: 1,
+	}
+	equipments := []schemas.EquipSchema{{
+		Code:     "small_health_potion",
+		Slot:     "utility1",
+		Quantity: &quantity,
+	}}
+	got := filterNeededEquipments(character, equipments)
+	if len(got) != 1 {
+		t.Fatalf("needed equipments = %#v, want one equipment", got)
+	}
+}
+
+func TestValidateTotalStockUsesInventory(t *testing.T) {
+	inventory := []schemas.InventorySlotSchema{
+		{Code: "iron_sword", Quantity: 1},
+	}
+	deps := deps{
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return nil, nil
+		},
+	}
+	character := schemas.CharacterSchema{Inventory: &inventory}
+	quantity := 1
+	err := validateTotalStock(deps, character, []schemas.EquipSchema{
+		{Code: "iron_sword", Slot: "weapon", Quantity: &quantity},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func equipTestCharacter() schemas.CharacterSchema {
+	return schemas.CharacterSchema{
+		Level: 10,
+		X:     3,
+		Y:     1,
+		MapId: 334,
+		Layer: "overworld",
+	}
+}
+
 func TestEquipReturnsInsufficientStockError(t *testing.T) {
 	deps := deps{
 		characters: func(string) (schemas.CharacterSchema, error) {

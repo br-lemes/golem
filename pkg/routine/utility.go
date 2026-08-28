@@ -17,6 +17,37 @@ type utilitySlot struct {
 	curQty  int
 }
 
+func ClearUtilities(character schemas.CharacterSchema, slots []schemas.ItemSlot) (schemas.CharacterSchema, error) {
+	return clearUtilities(defaultDeps, character, slots)
+}
+
+func clearUtilities(d deps, character schemas.CharacterSchema, slots []schemas.ItemSlot) (schemas.CharacterSchema, error) {
+	unequips := make([]schemas.UnequipSchema, 0, 2)
+	for _, slot := range slots {
+		code := character.Utility1Slot
+		quantity := character.Utility1SlotQuantity
+		if slot == schemas.Utility2 {
+			code = character.Utility2Slot
+			quantity = character.Utility2SlotQuantity
+		}
+		if code == "" {
+			continue
+		}
+		unequips = append(unequips, schemas.UnequipSchema{
+			Slot:     slot,
+			Quantity: &quantity,
+		})
+	}
+	if len(unequips) == 0 {
+		return character, nil
+	}
+	result, err := d.myActionUnequip(character.Name, unequips)
+	if err != nil {
+		return character, err
+	}
+	return result.Character, nil
+}
+
 func utilitySlots(character schemas.CharacterSchema, utility1, utility2 string) []*utilitySlot {
 	return []*utilitySlot{
 		{

@@ -8,7 +8,6 @@ import (
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
-	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -53,40 +52,14 @@ func bestCraftingRun(name, code string, flags bestFlags) error {
 	if err != nil {
 		return err
 	}
-	skill := string(*item.Craft.Skill)
-	skillLevel := craftSkillLevel(character, skill)
-	priorities := []string{"inventory_space"}
-	if skillLevel-item.Level <= 10 && skillLevel > 0 {
-		priorities = []string{"wisdom", "inventory_space"}
-	}
 	items, err := best.FindEquipment(character, best.EquipmentOptions{
 		UniqueAdeptRing: !flags.AllowDuplicateAdeptRing,
-		Priorities:      priorities,
+		Priorities:      best.CraftingPriorities(character, item),
 	})
 	if err != nil {
 		return err
 	}
 	return console.Auto(items)
-}
-
-func craftSkillLevel(c schemas.CharacterSchema, skill string) int {
-	switch skill {
-	case "alchemy":
-		return c.AlchemyLevel
-	case "cooking":
-		return c.CookingLevel
-	case "gearcrafting":
-		return c.GearcraftingLevel
-	case "jewelrycrafting":
-		return c.JewelrycraftingLevel
-	case "mining":
-		return c.MiningLevel
-	case "weaponcrafting":
-		return c.WeaponcraftingLevel
-	case "woodcutting":
-		return c.WoodcuttingLevel
-	}
-	return 0
 }
 
 func init() {

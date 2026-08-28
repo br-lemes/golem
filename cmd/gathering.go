@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/completion"
+	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/spf13/cobra"
 )
@@ -26,6 +28,18 @@ Arguments:
 			return err
 		}
 		routine.Cooldown(character)
+		resource, _ := database.Resources.Get(code)
+		equipments, err := best.FindEquipmentSchemas(character, best.EquipmentOptions{
+			UniqueAdeptRing: true,
+			Priorities:      best.GatheringPriorities(character, resource),
+		})
+		if err != nil {
+			return err
+		}
+		character, err = routine.Equip(name, equipments)
+		if err != nil {
+			return err
+		}
 
 		for {
 			character, err = routine.Inventory(character, []string{})

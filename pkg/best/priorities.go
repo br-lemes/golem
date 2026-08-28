@@ -5,7 +5,28 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 )
+
+func GatheringPriorities(c schemas.CharacterSchema, resource *schemas.ResourceSchema) []string {
+	skill := string(resource.Skill)
+	priorities := []string{skill, "prospecting"}
+	level, _ := utils.GetCharacterGatheringSkillLevel(c, skill)
+	if level-resource.Level <= 10 {
+		priorities = []string{skill, "wisdom", "prospecting"}
+	}
+	return priorities
+}
+
+func CraftingPriorities(c schemas.CharacterSchema, item *schemas.ItemSchema) []string {
+	skillLevel, _ := utils.GetCharacterCraftingSkillLevel(c, string(*item.Craft.Skill))
+	priorities := []string{"inventory_space"}
+	if skillLevel-item.Level <= 10 && skillLevel > 0 {
+		priorities = []string{"wisdom", "inventory_space"}
+	}
+	return priorities
+}
 
 func NormalizePriorities(priorities []string) ([]string, error) {
 	validEffects := database.Effects().Equipments().Keys()

@@ -5,10 +5,12 @@ import (
 	"math"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -60,6 +62,18 @@ func StartCraftingBot(name string, code string, qty int) error {
 	skillLevel := getCraftSkill(character, *item.Craft.Skill)
 	if skillLevel < *item.Craft.Level {
 		return fmt.Errorf("character %s level too low. Required: %d, Current: %d", name, *item.Craft.Level, skillLevel)
+	}
+
+	equipments, err := best.FindEquipmentSchemas(character, best.EquipmentOptions{
+		UniqueAdeptRing: true,
+		Priorities:      best.CraftingPriorities(character, item),
+	})
+	if err != nil {
+		return err
+	}
+	character, err = routine.Equip(name, equipments)
+	if err != nil {
+		return err
 	}
 
 	bankInventory, err := fetchAllBankItems()
@@ -323,26 +337,8 @@ func fetchAllBankItems() (map[string]int, error) {
 }
 
 func getCraftSkill(character schemas.CharacterSchema, skill schemas.CraftSkill) int {
-	switch skill {
-	case schemas.CraftSkill("alchemy"):
-		return character.AlchemyLevel
-	case schemas.CraftSkill("cooking"):
-		return character.CookingLevel
-	case schemas.CraftSkill("gearcrafting"):
-		return character.GearcraftingLevel
-	case schemas.CraftSkill("jewelrycrafting"):
-		return character.JewelrycraftingLevel
-	case schemas.CraftSkill("weaponcrafting"):
-		return character.WeaponcraftingLevel
-	case schemas.CraftSkill("woodcutting"):
-		return character.WoodcuttingLevel
-	case schemas.CraftSkill("mining"):
-		return character.MiningLevel
-	case schemas.CraftSkill("fishing"):
-		return character.FishingLevel
-	default:
-		return 0
-	}
+	level, _ := utils.GetCharacterCraftingSkillLevel(character, string(skill))
+	return level
 }
 
 func isCraftable(item schemas.ItemSchema) bool {

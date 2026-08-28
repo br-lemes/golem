@@ -8,7 +8,6 @@ import (
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
-	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -53,11 +52,7 @@ func bestGatheringRun(name, code string, flags bestFlags) error {
 	if err != nil {
 		return err
 	}
-	skill := string(resource.Skill)
-	priorities := []string{skill, "prospecting"}
-	if gatheringSkillLevel(character, skill)-resource.Level <= 10 {
-		priorities = []string{skill, "wisdom", "prospecting"}
-	}
+	priorities := best.GatheringPriorities(character, resource)
 	items, err := best.FindEquipment(character, best.EquipmentOptions{
 		UniqueAdeptRing: !flags.AllowDuplicateAdeptRing,
 		Priorities:      priorities,
@@ -66,20 +61,6 @@ func bestGatheringRun(name, code string, flags bestFlags) error {
 		return err
 	}
 	return console.Auto(items)
-}
-
-func gatheringSkillLevel(c schemas.CharacterSchema, skill string) int {
-	switch skill {
-	case "alchemy":
-		return c.AlchemyLevel
-	case "fishing":
-		return c.FishingLevel
-	case "mining":
-		return c.MiningLevel
-	case "woodcutting":
-		return c.WoodcuttingLevel
-	}
-	return 0
 }
 
 func init() {

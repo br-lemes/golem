@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"slices"
-
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/database"
@@ -28,24 +26,8 @@ Arguments:
 			return err
 		}
 		routine.Cooldown(character)
-		character, err = routine.Move(character, "bank")
-		if err != nil {
-			return err
-		}
-		items := routine.GetInventoryItems(character, keepTypes)
-		if len(items) > 0 {
-			_, err = api.MyActionBankDepositItem(character.Name, routine.GetInventoryItems(character, keepTypes))
-			if err != nil {
-				return err
-			}
-		}
-		if character.Gold > 0 && !slices.Contains(keepTypes, "gold") {
-			_, err = api.MyActionBankDepositGold(character.Name, character.Gold)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
+		_, err = routine.Deposit(character, keepTypes)
+		return err
 	},
 }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -53,7 +54,8 @@ func cheapestRun(skill string) error {
 	}
 	maxLevel := 0
 	for _, character := range characters {
-		maxLevel = max(maxLevel, craftSkillLevel(character, skill))
+		level, _ := utils.GetCharacterCraftingSkillLevel(character, skill)
+		maxLevel = max(maxLevel, level)
 	}
 	items := cheapestItems(skill, maxLevel, database.Items().All())
 	codes := make([]string, 0, len(items))

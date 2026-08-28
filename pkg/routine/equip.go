@@ -10,6 +10,7 @@ import (
 )
 
 func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
+	// +gocover:ignore:block production wrapper over tested implementation
 	return equip(defaultDeps, name, equipments)
 }
 
@@ -96,38 +97,11 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 func checkLevelRequirements(character schemas.CharacterSchema, equipments []schemas.EquipSchema) error {
 	for _, equipment := range equipments {
 		item, _ := database.Items().Get(equipment.Code)
-		if !meetsItemConditions(character, *item) {
+		if !utils.MeetsItemConditions(character, *item) {
 			return fmt.Errorf("does not meet requirement for %s", item.Name)
 		}
 	}
 	return nil
-}
-
-func meetsItemConditions(character schemas.CharacterSchema, item schemas.ItemSchema) bool {
-	if item.Conditions == nil {
-		return true
-	}
-	for _, condition := range *item.Conditions {
-		currentLevel, ok := utils.GetCharacterConditionLevel(character, condition.Code)
-		if !ok {
-			continue
-		}
-		satisfied := false
-		switch condition.Operator {
-		case schemas.Gt:
-			satisfied = currentLevel > condition.Value
-		case schemas.Eq:
-			satisfied = currentLevel == condition.Value
-		case schemas.Lt:
-			satisfied = currentLevel < condition.Value
-		case schemas.Ne:
-			satisfied = currentLevel != condition.Value
-		}
-		if !satisfied {
-			return false
-		}
-	}
-	return true
 }
 
 func filterNeededEquipments(character schemas.CharacterSchema, equipments []schemas.EquipSchema) []schemas.EquipSchema {

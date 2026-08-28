@@ -10,6 +10,7 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 )
 
 type bestResult struct {
@@ -66,6 +67,24 @@ func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) 
 	ctx.filterAndSort()
 	ctx.matchEquipment()
 	return ctx.Result, nil
+}
+
+func FindEquipmentSchemas(character schemas.CharacterSchema, options EquipmentOptions) ([]schemas.EquipSchema, error) {
+	result, err := FindEquipment(character, options)
+	if err != nil {
+		return nil, err
+	}
+	equipments := make([]schemas.EquipSchema, 0, len(result))
+	for slot, item := range result {
+		equipments = append(equipments, schemas.EquipSchema{
+			Code: item.Code,
+			Slot: schemas.ItemSlot(slot),
+		})
+	}
+	slices.SortFunc(equipments, func(i, j schemas.EquipSchema) int {
+		return cmp.Compare(i.Slot, j.Slot)
+	})
+	return equipments, nil
 }
 
 func (c *bestCtx) fetchItems(owned map[string]int) error {
@@ -130,25 +149,8 @@ func (c *bestCtx) filterAndSort() {
 		if hasNegativeInventorySpace(*item) {
 			continue
 		}
-		if c.Skill != "" && item.Type == "weapon" && item.Subtype == "tool" {
-			skillLevel := 0
-			switch c.Skill {
-			case "mining":
-				skillLevel = c.Character.MiningLevel
-			case "woodcutting":
-				skillLevel = c.Character.WoodcuttingLevel
-			case "fishing":
-				skillLevel = c.Character.FishingLevel
-			case "alchemy":
-				skillLevel = c.Character.AlchemyLevel
-			}
-			if item.Level > skillLevel {
-				continue
-			}
-		} else {
-			if item.Level > c.Character.Level {
-				continue
-			}
+		if !utils.MeetsItemConditions(c.Character, *item) {
+			continue
 		}
 		val := c.evaluateItem(*item)
 		if val == 0 {

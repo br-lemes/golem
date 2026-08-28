@@ -3,7 +3,6 @@ package cmd
 import (
 	"testing"
 
-	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -57,55 +56,5 @@ func TestBestGatheringValidate(t *testing.T) {
 	err = bestGatheringValidate("missing_resource")
 	if err == nil {
 		t.Fatal("missing resource accepted")
-	}
-}
-
-func TestCraftSkillLevel(t *testing.T) {
-	character := schemas.CharacterSchema{
-		AlchemyLevel:         1,
-		CookingLevel:         2,
-		GearcraftingLevel:    3,
-		JewelrycraftingLevel: 4,
-		MiningLevel:          5,
-		WeaponcraftingLevel:  6,
-		WoodcuttingLevel:     7,
-	}
-	levels := map[string]int{
-		"alchemy":         1,
-		"cooking":         2,
-		"gearcrafting":    3,
-		"jewelrycrafting": 4,
-		"mining":          5,
-		"weaponcrafting":  6,
-		"woodcutting":     7,
-		"unknown":         0,
-	}
-	for skill, want := range levels {
-		got := craftSkillLevel(character, skill)
-		if got != want {
-			t.Errorf("craftSkillLevel(%q) = %d, want %d", skill, got, want)
-		}
-	}
-}
-
-func TestGatheringSkillLevel(t *testing.T) {
-	character := schemas.CharacterSchema{
-		AlchemyLevel:     1,
-		FishingLevel:     2,
-		MiningLevel:      3,
-		WoodcuttingLevel: 4,
-	}
-	levels := map[string]int{
-		"alchemy":     1,
-		"fishing":     2,
-		"mining":      3,
-		"woodcutting": 4,
-		"unknown":     0,
-	}
-	for skill, want := range levels {
-		got := gatheringSkillLevel(character, skill)
-		if got != want {
-			t.Errorf("gatheringSkillLevel(%q) = %d, want %d", skill, got, want)
-		}
 	}
 }

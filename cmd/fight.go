@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
@@ -47,6 +48,48 @@ Arguments:
 		food, _ := cmd.Flags().GetString("food")
 		utility1, _ := cmd.Flags().GetString("utility1")
 		utility2, _ := cmd.Flags().GetString("utility2")
+		fightResult, err := best.FindFightByName(name, *monster, false, false)
+		if err != nil {
+			return err
+		}
+		if fightResult.Winrate < 100 {
+			return fmt.Errorf("cannot safely fight %s: simulated winrate is %.2f%%", monster.Code, fightResult.Winrate)
+		}
+		if !fightUtilitiesMatch(fightResult, utility1, utility2) {
+			return fmt.Errorf("fight utilities do not match the simulated configuration")
+		}
+		equipments := make([]schemas.EquipSchema, 0, len(fightResult.Equipment))
+		for slot, code := range fightResult.Equipment {
+			equipments = append(equipments, schemas.EquipSchema{
+				Code: code,
+				Slot: schemas.ItemSlot(slot),
+			})
+		}
+		character, err = routine.Deposit(character, nil)
+		if err != nil {
+			return err
+		}
+		character, err = routine.Equip(name, equipments)
+		if err != nil {
+			return err
+		}
+		clearSlots := make([]schemas.ItemSlot, 0, 2)
+		if fightResult.Utilities["utility1"] == "" && character.Utility1Slot != "" {
+			clearSlots = append(clearSlots, schemas.Utility1)
+		}
+		if fightResult.Utilities["utility2"] == "" && character.Utility2Slot != "" {
+			clearSlots = append(clearSlots, schemas.Utility2)
+		}
+		for _, slot := range clearSlots {
+			character, err = routine.ClearUtilities(character, []schemas.ItemSlot{slot})
+			if err != nil {
+				return err
+			}
+			character, err = routine.Deposit(character, nil)
+			if err != nil {
+				return err
+			}
+		}
 		for {
 			err = prepare(character, *monster, food, utility1, utility2)
 			if err != nil {
@@ -64,6 +107,10 @@ Arguments:
 			}
 		}
 	},
+}
+
+func fightUtilitiesMatch(result best.Result, utility1, utility2 string) bool {
+	return result.Utilities["utility1"] == utility1 && result.Utilities["utility2"] == utility2
 }
 
 func init() {

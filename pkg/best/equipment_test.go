@@ -1,10 +1,154 @@
 package best
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/schemas"
 )
+
+func TestFindEquipmentUsesOwnedItems(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50}
+	got, err := FindEquipment(character, EquipmentOptions{
+		Owned:      map[string]int{"iron_sword": 1},
+		Priorities: []string{"attack_earth"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["weapon"].Code != "iron_sword" {
+		t.Fatalf("weapon = %#v, want iron_sword", got["weapon"])
+	}
+}
+
+func TestFindEquipmentRejectsInvalidPriorities(t *testing.T) {
+	_, err := FindEquipment(schemas.CharacterSchema{}, EquipmentOptions{
+		Owned:      map[string]int{},
+		Priorities: []string{"unknown"},
+	})
+	if err == nil {
+		t.Fatal("invalid priorities were accepted")
+	}
+}
+
+func TestFindEquipmentUsesGatheringSkillForTools(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50, MiningLevel: 9}
+	got, err := FindEquipment(character, EquipmentOptions{
+		Owned:      map[string]int{"iron_pickaxe": 1},
+		Priorities: []string{"mining"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	weapon := got["weapon"]
+	if weapon.Code != "" {
+		t.Fatalf("weapon = %#v, want empty result", weapon)
+	}
+}
+
+func TestFindEquipmentSchemas(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50}
+	got, err := FindEquipmentSchemas(character, EquipmentOptions{
+		Owned:      map[string]int{"iron_sword": 1},
+		Priorities: []string{"attack_earth"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []schemas.EquipSchema{{Code: "iron_sword", Slot: "weapon"}}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("equipment = %#v, want %#v", got, want)
+	}
+}
+
+func TestFindEquipmentSchemasSortsBySlot(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50}
+	got, err := FindEquipmentSchemas(character, EquipmentOptions{
+		Owned:      map[string]int{"iron_sword": 1, "copper_boots": 1},
+		Priorities: []string{"attack_earth", "wisdom"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []schemas.EquipSchema{
+		{Code: "copper_boots", Slot: "boots"},
+		{Code: "iron_sword", Slot: "weapon"},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("equipment = %#v, want %#v", got, want)
+	}
+}
+
+func TestFindEquipmentSchemasReturnsPriorityError(t *testing.T) {
+	_, err := FindEquipmentSchemas(schemas.CharacterSchema{}, EquipmentOptions{
+		Owned:      map[string]int{},
+		Priorities: []string{"unknown"},
+	})
+	if err == nil {
+		t.Fatal("invalid priorities were accepted")
+	}
+}
+
+func TestFetchItemsCountsEquippedUtilities(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Utility1Slot:         "small_health_potion",
+		Utility1SlotQuantity: 7,
+		Utility2Slot:         "small_mana_potion",
+		Utility2SlotQuantity: 8,
+	}
+	ctx := bestCtx{Character: character}
+	err := ctx.fetchItems(map[string]int{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ctx.AlreadyEquipped["small_health_potion"] != 7 {
+		t.Fatalf("utility1 quantity = %d, want 7", ctx.AlreadyEquipped["small_health_potion"])
+	}
+	if ctx.AlreadyEquipped["small_mana_potion"] != 8 {
+		t.Fatalf("utility2 quantity = %d, want 8", ctx.AlreadyEquipped["small_mana_potion"])
+	}
+}
+
+func TestEvaluateItem(t *testing.T) {
+	ctx := bestCtx{
+		Skill:   "mining",
+		Weights: map[string]int{"wisdom": 100, "mining": 1},
+	}
+	item := schemas.ItemSchema{
+		Effects: &[]schemas.SimpleEffectSchema{
+			{Code: "wisdom", Value: 2},
+			{Code: "mining", Value: 3},
+			{Code: "unknown", Value: 100},
+		},
+	}
+	got := ctx.evaluateItem(item)
+	if got != 197 {
+		t.Fatalf("evaluateItem() = %d, want 197", got)
+	}
+	got = ctx.evaluateItem(schemas.ItemSchema{})
+	if got != 0 {
+		t.Fatalf("evaluateItem() without effects = %d, want 0", got)
+	}
+}
+
+func TestFormatItem(t *testing.T) {
+	ctx := bestCtx{Weights: map[string]int{"wisdom": 1, "attack": 1}}
+	item := schemas.ItemSchema{
+		Effects: &[]schemas.SimpleEffectSchema{
+			{Code: "wisdom", Value: 2},
+			{Code: "attack", Value: -3},
+			{Code: "unknown", Value: 4},
+		},
+	}
+	got := ctx.formatItem(item)
+	if got != "+2 wisdom, -3 attack" {
+		t.Fatalf("formatItem() = %q, want %q", got, "+2 wisdom, -3 attack")
+	}
+	got = ctx.formatItem(schemas.ItemSchema{})
+	if got != "" {
+		t.Fatalf("formatItem() without effects = %q, want empty", got)
+	}
+}
 
 func TestBestGroupCanMoveAnArtifactBetweenSlots(t *testing.T) {
 	ctx := &bestCtx{
@@ -39,6 +183,28 @@ func TestBestGroupDoesNotReuseUniqueArtifacts(t *testing.T) {
 	}
 	if count != 1 {
 		t.Fatalf("unique artifact used %d times in %#v", count, got)
+	}
+}
+
+func TestBestGroupDoesNotReuseUniqueAdeptRing(t *testing.T) {
+	ctx := &bestCtx{
+		ItemValues:      map[string]int{"ring_of_the_adept": 30},
+		OwnedItems:      map[string]int{"ring_of_the_adept": 2},
+		UniqueAdeptRing: true,
+		ValidItems: []schemas.ItemSchema{
+			{Code: "ring_of_the_adept", Type: "ring"},
+		},
+	}
+
+	got := ctx.bestGroup([]string{"ring1", "ring2"}, "ring")
+	count := 0
+	for _, code := range got {
+		if code == "ring_of_the_adept" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("unique adept ring used %d times in %#v", count, got)
 	}
 }
 
@@ -90,6 +256,9 @@ func TestBestGroupKeepsEquippedAdeptRing(t *testing.T) {
 }
 
 func TestHasNegativeInventorySpace(t *testing.T) {
+	if hasNegativeInventorySpace(schemas.ItemSchema{}) {
+		t.Fatal("item without effects was rejected")
+	}
 	item := schemas.ItemSchema{
 		Effects: &[]schemas.SimpleEffectSchema{
 			{Code: "wisdom", Value: 25},
@@ -141,5 +310,40 @@ func TestBestGroupRecommendsAlternativeForEquippedNegativeInventoryItem(t *testi
 	got := ctx.bestGroup([]string{"weapon"}, "weapon")
 	if got["weapon"] != "wooden_stick" {
 		t.Fatalf("equipped negative inventory item was not replaced: %#v", got)
+	}
+}
+
+func TestMatchEquipmentSkipsEmptyRecommendation(t *testing.T) {
+	ctx := &bestCtx{
+		OwnedItems: map[string]int{},
+		ValidItems: []schemas.ItemSchema{{Code: "iron_sword", Type: "weapon"}},
+		ItemValues: map[string]int{"iron_sword": 1},
+		Equipped:   map[string]string{},
+	}
+
+	ctx.matchEquipment()
+	if len(ctx.Result) != 0 {
+		t.Fatalf("result = %#v, want empty", ctx.Result)
+	}
+}
+
+func TestMatchEquipmentSkipsAlreadyEquippedRecommendation(t *testing.T) {
+	ctx := &bestCtx{
+		OwnedItems: map[string]int{"iron_sword": 1},
+		ValidItems: []schemas.ItemSchema{{
+			Code: "iron_sword",
+			Type: "weapon",
+			Effects: &[]schemas.SimpleEffectSchema{
+				{Code: "attack_earth", Value: 1},
+			},
+		}},
+		ItemValues: map[string]int{"iron_sword": 1},
+		Equipped:   map[string]string{"weapon": "iron_sword"},
+		Weights:    map[string]int{"attack_earth": 1},
+	}
+
+	ctx.matchEquipment()
+	if len(ctx.Result) != 0 {
+		t.Fatalf("result = %#v, want empty", ctx.Result)
 	}
 }
