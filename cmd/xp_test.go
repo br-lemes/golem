@@ -37,10 +37,14 @@ func TestXPValidate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "valid minimum", target: "1", options: valid,
+			name:    "valid minimum",
+			target:  "1",
+			options: valid,
 		},
 		{
-			name: "valid maximum", target: "50", options: valid,
+			name:    "valid maximum",
+			target:  "50",
+			options: valid,
 		},
 		{
 			name:    "invalid target",
