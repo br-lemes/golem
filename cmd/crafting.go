@@ -43,7 +43,7 @@ func init() {
 }
 
 func StartCraftingBot(name string, code string, qty int) error {
-	item, found := database.Items.Get(code)
+	item, found := database.Items().Get(code)
 	if !found {
 		return fmt.Errorf("item not found: %s", code)
 	}

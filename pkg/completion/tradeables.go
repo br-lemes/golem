@@ -8,5 +8,5 @@ func Tradeables(count int) *CompletionBuilder {
 }
 
 func (b *CompletionBuilder) Tradeables(count int) *CompletionBuilder {
-	return b.Custom(count, database.Tradeables.Keys)
+	return b.Custom(count, database.Items().Tradeables().Keys)
 }

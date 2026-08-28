@@ -124,7 +124,7 @@ func (c *bestCtx) fetchItems(owned map[string]int) error {
 }
 
 func (c *bestCtx) filterAndSort() {
-	allItems := database.Items.All()
+	allItems := database.Items().All()
 	c.ItemValues = make(map[string]int)
 	for _, item := range allItems {
 		if hasNegativeInventorySpace(*item) {
@@ -177,7 +177,7 @@ func (c *bestCtx) matchEquipment() {
 			if code == "" || code == c.Equipped[slot] {
 				continue
 			}
-			item, _ := database.Items.Get(code)
+			item, _ := database.Items().Get(code)
 			c.Result[slot] = bestResult{Code: code, Value: c.formatItem(*item)}
 		}
 		i = j

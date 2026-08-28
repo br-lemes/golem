@@ -149,7 +149,7 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 		ownedCodes[code] = true
 	}
 	if includeUnowned {
-		for _, item := range database.Items.All() {
+		for _, item := range database.Items().All() {
 			if item.Type == "tool" || item.Subtype == "tool" {
 				continue
 			}
@@ -164,7 +164,7 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 		if quantity < 1 {
 			continue
 		}
-		item, exists := database.Items.Get(code)
+		item, exists := database.Items().Get(code)
 		if !exists {
 			continue
 		}
@@ -396,7 +396,7 @@ func refineWithUtilities(character schemas.CharacterSchema, monster schemas.Mons
 			if quantity < 1 {
 				continue
 			}
-			item, exists := database.Items.Get(code)
+			item, exists := database.Items().Get(code)
 			if exists && item.Type == "utility" && CanEquip(character, *item) {
 				options[slot] = append(options[slot], code)
 			}
@@ -565,7 +565,7 @@ func heuristicSimulationLoadout(options map[string][]string, monster schemas.Mon
 					continue
 				}
 			}
-			item, ok := database.Items.Get(code)
+			item, ok := database.Items().Get(code)
 			if !ok {
 				continue
 			}
@@ -636,7 +636,7 @@ func simulationItemScore(item schemas.ItemSchema, monster schemas.MonsterSchema,
 }
 
 func weaponElement(code string) string {
-	item, ok := database.Items.Get(code)
+	item, ok := database.Items().Get(code)
 	if !ok || item.Effects == nil {
 		return ""
 	}
@@ -870,8 +870,8 @@ func chooseSimulationGroup(character schemas.CharacterSchema, monster schemas.Mo
 			if ranked[j] == "" {
 				return false
 			}
-			ii, _ := database.Items.Get(ranked[i])
-			jj, _ := database.Items.Get(ranked[j])
+			ii, _ := database.Items().Get(ranked[i])
+			jj, _ := database.Items().Get(ranked[j])
 			return simulationItemScore(*ii, monster, weaponElement(current["weapon"]), "damage") > simulationItemScore(*jj, monster, weaponElement(current["weapon"]), "damage")
 		})
 		options = append([]string{""}, ranked[:12]...)
@@ -1047,7 +1047,7 @@ func simulationLoadoutMeta(character schemas.CharacterSchema, slots map[string]s
 }
 
 func itemMeta(code, wanted string) int {
-	item, ok := database.Items.Get(code)
+	item, ok := database.Items().Get(code)
 	if !ok || item.Effects == nil {
 		return 0
 	}

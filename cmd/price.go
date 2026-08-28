@@ -49,7 +49,7 @@ var priceCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		item, exists := database.Tradeables.Get(code)
+		item, exists := database.Items().Tradeables().Get(code)
 		if !exists {
 			return fmt.Errorf("item %q not found", code)
 		}
@@ -88,7 +88,7 @@ var priceCmd = &cobra.Command{
 			History: summarizeHistory(history),
 		}
 		if result.Buy.Orders == 0 && result.Sell.Orders == 0 && result.History.Sales == 0 {
-			result.Suggestions = similarPriceItems(item, database.Tradeables.All())
+			result.Suggestions = similarPriceItems(item, database.Items().Tradeables().All())
 		}
 		return console.Auto(result)
 	},

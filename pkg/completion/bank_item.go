@@ -23,5 +23,5 @@ func GetBankItems() []string {
 		}
 		return result
 	}
-	return database.Items.Keys()
+	return database.Items().Keys()
 }

@@ -111,8 +111,8 @@ func itemPositions(item schemas.ItemSchema, characters []schemas.CharacterSchema
 }
 
 func collectEquipment(input Input) map[string]Result {
-	itemsByCode := make(map[string]Result, len(database.Items.All()))
-	for _, item := range database.Items.All() {
+	itemsByCode := make(map[string]Result, len(database.Items().All()))
+	for _, item := range database.Items().All() {
 		if item.Type == "utility" {
 			continue
 		}

@@ -18,7 +18,8 @@ func TestLevelValidate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "valid skill group", options: valid,
+			name:    "valid skill group",
+			options: valid,
 		},
 		{
 			name:    "valid character group",

@@ -8,5 +8,5 @@ func Item(count int) *CompletionBuilder {
 }
 
 func (b *CompletionBuilder) Item(count int) *CompletionBuilder {
-	return b.Custom(count, database.Items.Keys)
+	return b.Custom(count, database.Items().Keys)
 }

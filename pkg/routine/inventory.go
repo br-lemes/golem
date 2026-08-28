@@ -61,7 +61,7 @@ func shouldKeepItem(code string, keepTypes []string) bool {
 	if len(keepTypes) == 0 {
 		return false
 	}
-	item, found := database.Items.Get(code)
+	item, found := database.Items().Get(code)
 	if !found {
 		return false
 	}

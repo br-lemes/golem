@@ -61,7 +61,7 @@ func applyUtilities(result Fighter, utilities map[string]int) Fighter {
 		if quantity <= 0 {
 			continue
 		}
-		item, ok := database.Items.Get(code)
+		item, ok := database.Items().Get(code)
 		if !ok || item.Effects == nil {
 			continue
 		}
@@ -113,7 +113,7 @@ func applyItem(stats *Stats, code string, sign int) {
 	if code == "" {
 		return
 	}
-	item, ok := database.Items.Get(code)
+	item, ok := database.Items().Get(code)
 	if !ok || item.Effects == nil {
 		return
 	}

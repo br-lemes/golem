@@ -25,7 +25,7 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		item, found := database.Items.Get(code)
+		item, found := database.Items().Get(code)
 		if !found {
 			return fmt.Errorf("item not found: %s", code)
 		}

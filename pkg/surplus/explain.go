@@ -106,7 +106,7 @@ func Explain(input Input, code string) Explanation {
 }
 
 func Evaluate(input Input, code string) Explanation {
-	_, ok := database.Items.Get(code)
+	_, ok := database.Items().Get(code)
 	if !ok {
 		return Explanation{
 			Code:   code,

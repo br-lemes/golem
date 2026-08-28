@@ -40,7 +40,7 @@ Arguments:
 }
 
 func bestCraftingValidate(code string) error {
-	item, ok := database.Items.Get(code)
+	item, ok := database.Items().Get(code)
 	if !ok || item.Craft == nil || item.Craft.Skill == nil {
 		return fmt.Errorf("item not found or is not craftable: %s", code)
 	}
@@ -48,7 +48,7 @@ func bestCraftingValidate(code string) error {
 }
 
 func bestCraftingRun(name, code string, flags bestFlags) error {
-	item, _ := database.Items.Get(code)
+	item, _ := database.Items().Get(code)
 	character, err := api.Characters(name)
 	if err != nil {
 		return err

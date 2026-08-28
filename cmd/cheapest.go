@@ -55,7 +55,7 @@ func cheapestRun(skill string) error {
 	for _, character := range characters {
 		maxLevel = max(maxLevel, craftSkillLevel(character, skill))
 	}
-	items := cheapestItems(skill, maxLevel, database.Items.All())
+	items := cheapestItems(skill, maxLevel, database.Items().All())
 	codes := make([]string, 0, len(items))
 	for _, item := range items {
 		codes = append(codes, item.Code)
@@ -85,7 +85,7 @@ func craftCostLess(a, b craftCost) bool {
 }
 
 func itemCraftCost(code string, visiting map[string]bool) craftCost {
-	item, ok := database.Items.Get(code)
+	item, ok := database.Items().Get(code)
 	if !ok || item.Craft == nil || item.Craft.Items == nil {
 		return sourceCost(code)
 	}
@@ -200,7 +200,7 @@ func dependsOnTasksCoin(code string, visiting map[string]bool) bool {
 			return true
 		}
 	}
-	item, ok := database.Items.Get(code)
+	item, ok := database.Items().Get(code)
 	if !ok || item.Craft == nil || item.Craft.Items == nil {
 		return false
 	}

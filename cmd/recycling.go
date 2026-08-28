@@ -50,7 +50,7 @@ func init() {
 }
 
 func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
-	item, found := database.Items.Get(code)
+	item, found := database.Items().Get(code)
 	if !found {
 		return fmt.Errorf("item not found: %s", code)
 	}

@@ -2,9 +2,11 @@ package routine
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 )
 
 func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
@@ -24,10 +26,7 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
-	needed, err := filterNeededEquipments(character, equipments)
-	if err != nil {
-		return schemas.CharacterSchema{}, err
-	}
+	needed := filterNeededEquipments(character, equipments)
 	if len(needed) == 0 {
 		return character, nil
 	}
@@ -64,7 +63,7 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 		if equipment.Code == "" || equipment.Slot == "" {
 			return fmt.Errorf("invalid equipment request: missing code or slot")
 		}
-		item, exists := database.Items.Get(equipment.Code)
+		item, exists := database.Items().Get(equipment.Code)
 		if !exists {
 			return fmt.Errorf("item not found in database: %s", equipment.Code)
 		}
@@ -82,6 +81,9 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 		if !validSlot {
 			return fmt.Errorf("item %s cannot be equipped in slot %s", equipment.Code, equipment.Slot)
 		}
+		if equipment.Quantity != nil && *equipment.Quantity > 1 && !strings.HasPrefix(string(equipment.Slot), "utility") {
+			return fmt.Errorf("cannot specify quantity for non-utility slot: %s", equipment.Slot)
+		}
 		conflictingItem, reserved := slotsReserved[equipment.Slot]
 		if reserved {
 			return fmt.Errorf("slot conflict: both %s and %s are targeting %s", conflictingItem, equipment.Code, equipment.Slot)
@@ -93,30 +95,42 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 
 func checkLevelRequirements(character schemas.CharacterSchema, equipments []schemas.EquipSchema) error {
 	for _, equipment := range equipments {
-		item, _ := database.Items.Get(equipment.Code)
-		currentLevel := character.Level
-		if item.Subtype == "tool" && item.Effects != nil {
-			for _, effect := range *item.Effects {
-				switch effect.Code {
-				case "alchemy":
-					currentLevel = character.AlchemyLevel
-				case "fishing":
-					currentLevel = character.FishingLevel
-				case "mining":
-					currentLevel = character.MiningLevel
-				case "woodcutting":
-					currentLevel = character.WoodcuttingLevel
-				}
-			}
-		}
-		if currentLevel < item.Level {
-			return fmt.Errorf("does not meet requirement for %s (has %d, requires %d)", item.Name, currentLevel, item.Level)
+		item, _ := database.Items().Get(equipment.Code)
+		if !meetsItemConditions(character, *item) {
+			return fmt.Errorf("does not meet requirement for %s", item.Name)
 		}
 	}
 	return nil
 }
 
-func filterNeededEquipments(character schemas.CharacterSchema, equipments []schemas.EquipSchema) ([]schemas.EquipSchema, error) {
+func meetsItemConditions(character schemas.CharacterSchema, item schemas.ItemSchema) bool {
+	if item.Conditions == nil {
+		return true
+	}
+	for _, condition := range *item.Conditions {
+		currentLevel, ok := utils.GetCharacterConditionLevel(character, condition.Code)
+		if !ok {
+			continue
+		}
+		satisfied := false
+		switch condition.Operator {
+		case schemas.Gt:
+			satisfied = currentLevel > condition.Value
+		case schemas.Eq:
+			satisfied = currentLevel == condition.Value
+		case schemas.Lt:
+			satisfied = currentLevel < condition.Value
+		case schemas.Ne:
+			satisfied = currentLevel != condition.Value
+		}
+		if !satisfied {
+			return false
+		}
+	}
+	return true
+}
+
+func filterNeededEquipments(character schemas.CharacterSchema, equipments []schemas.EquipSchema) []schemas.EquipSchema {
 	currentSlots := map[schemas.ItemSlot]string{
 		"amulet":     character.AmuletSlot,
 		"artifact1":  character.Artifact1Slot,
@@ -157,7 +171,7 @@ func filterNeededEquipments(character schemas.CharacterSchema, equipments []sche
 		}
 		needed = append(needed, equipment)
 	}
-	return needed, nil
+	return needed
 }
 
 func validateTotalStock(d deps, character schemas.CharacterSchema, needed []schemas.EquipSchema) error {

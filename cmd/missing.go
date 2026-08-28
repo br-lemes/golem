@@ -130,7 +130,7 @@ func executeMissing(names []string, equipTypes []string) error {
 	} else {
 		targets = database.EquipmentTypes
 	}
-	allItems := database.Items.All()
+	allItems := database.Items().All()
 	requiredItems := make(map[string]int)
 	for _, character := range charactersToProcess {
 		var candidates []schemas.ItemSchema

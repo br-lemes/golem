@@ -174,7 +174,7 @@ func registerSimulationFlags(cmd *cobra.Command) error {
 	for _, slot := range simulationSlotNames {
 		flagName := slot + "_slot"
 		err = cmd.RegisterFlagCompletionFunc(flagName, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			return database.Items.Keys(), cobra.ShellCompDirectiveNoFileComp
+			return database.Items().Keys(), cobra.ShellCompDirectiveNoFileComp
 		})
 		if err != nil {
 			return err

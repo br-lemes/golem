@@ -37,7 +37,7 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 			if seen[code] {
 				continue
 			}
-			item, ok := database.Items.Get(code)
+			item, ok := database.Items().Get(code)
 			if !ok || !isEquipment(*item) {
 				return nil, fmt.Errorf("item is not equipment: %s", code)
 			}
@@ -75,7 +75,7 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 	combatAvailable := combatItems(simulationCharacter, owned)
 	result := make(map[string]Evaluation, len(codes))
 	for _, code := range codes {
-		item, ok := database.Items.Get(code)
+		item, ok := database.Items().Get(code)
 		if !ok || !isEquipment(*item) || !best.CanEquip(simulationCharacter, *item) {
 			continue
 		}
@@ -153,7 +153,7 @@ func canonicalAvailable(available map[string]int) string {
 	for code, quantity := range available {
 		if quantity > 0 {
 			canonicalQuantity := quantity
-			item, ok := database.Items.Get(code)
+			item, ok := database.Items().Get(code)
 			if ok {
 				if item.Type == "utility" {
 					canonicalQuantity = 1
@@ -265,7 +265,7 @@ func globalOwned(characters []schemas.CharacterSchema) (map[string]int, error) {
 func equipmentCodes(character schemas.CharacterSchema, owned map[string]int) []string {
 	codes := []string{}
 	for code := range owned {
-		item, ok := database.Items.Get(code)
+		item, ok := database.Items().Get(code)
 		if ok && isEquipment(*item) && best.CanEquip(character, *item) {
 			codes = append(codes, code)
 		}
@@ -277,7 +277,7 @@ func equipmentCodes(character schemas.CharacterSchema, owned map[string]int) []s
 func insufficientCodes(character schemas.CharacterSchema, owned map[string]int) []string {
 	codes := []string{}
 	for _, code := range equipmentCodes(character, owned) {
-		item, _ := database.Items.Get(code)
+		item, _ := database.Items().Get(code)
 		required := 5
 		if item.Type == "ring" {
 			required = 10
@@ -300,7 +300,7 @@ func isEquipment(item schemas.ItemSchema) bool {
 func combatItems(character schemas.CharacterSchema, owned map[string]int) map[string]int {
 	available := map[string]int{}
 	for code, quantity := range owned {
-		item, ok := database.Items.Get(code)
+		item, ok := database.Items().Get(code)
 		if !ok || quantity < 1 {
 			continue
 		}

@@ -62,7 +62,7 @@ func dominanceValidate(code string, flags dominanceFlags) error {
 	if !flags.By && !flags.Over {
 		return fmt.Errorf("at least one of --by or --over is required")
 	}
-	item, exists := database.Items.Get(code)
+	item, exists := database.Items().Get(code)
 	if !exists {
 		return fmt.Errorf("item not found in catalog: %s", code)
 	}
@@ -74,7 +74,7 @@ func dominanceValidate(code string, flags dominanceFlags) error {
 }
 
 func dominanceRun(code string, flags dominanceFlags) error {
-	item, _ := database.Items.Get(code)
+	item, _ := database.Items().Get(code)
 	characters, err := api.AccountsCharacters("")
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func dominanceRun(code string, flags dominanceFlags) error {
 
 func catalogEquipment() map[string]schemas.ItemSchema {
 	result := make(map[string]schemas.ItemSchema)
-	for _, item := range database.Items.All() {
+	for _, item := range database.Items().All() {
 		_, equipment := database.EquipmentTypeToSlots[item.Type]
 		if equipment {
 			result[item.Code] = *item
@@ -131,7 +131,7 @@ func catalogEquipment() map[string]schemas.ItemSchema {
 func ownedEquipment(bank []schemas.SimpleItemSchema, characters []schemas.CharacterSchema) map[string]schemas.ItemSchema {
 	owned := map[string]schemas.ItemSchema{}
 	add := func(code string) {
-		item, ok := database.Items.Get(code)
+		item, ok := database.Items().Get(code)
 		if ok {
 			_, equipment := database.EquipmentTypeToSlots[item.Type]
 			if equipment {
