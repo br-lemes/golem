@@ -330,6 +330,10 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 	monsterFrenzyNext := false
 	monsterFrenzyActive := false
 	playerGreedStacks := 0
+	// The API awakens character Greed after the first monster turn. The
+	// damage that triggered the awakening is not eligible for an immediate
+	// Greed update; thresholds are evaluated from the following monster turn.
+	playerGreedAwakened := player.Stats.Greed <= 0
 	if player.Stats.Greed > 0 {
 		logs = append(logs, fmt.Sprintf("Turn 1: Greed awakens. Character_1 gains +%d%% damage each time they lose 10%% max HP.", player.Stats.Greed))
 	}
@@ -573,12 +577,14 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 			playerFrenzyNext = true
 			logs = append(logs, fmt.Sprintf("Turn %d: Character_1's Frenzy triggers on critical. +%d%% damage will apply on each ally's next turn, active until the end of Character_1's next turn.", turn, player.Stats.Frenzy))
 		}
-		if !playerTurn && player.Stats.Greed > 0 {
-			thresholds := int(math.Floor((p.maxHP - p.hp) / (p.maxHP * 0.10)))
+		if !playerTurn && player.Stats.Greed > 0 && playerGreedAwakened {
+			thresholds := int(math.Floor(math.Max(0, p.maxHP-math.Max(0, p.hp))*10/p.maxHP + 1e-9))
 			if thresholds > playerGreedStacks {
 				playerGreedStacks = thresholds
 				logs = append(logs, fmt.Sprintf("Turn %d: Greed empowers Character_1 (+%d%% damage, total +%d%%).", turn, player.Stats.Greed, player.Stats.Greed*playerGreedStacks))
 			}
+		} else if !playerTurn && player.Stats.Greed > 0 {
+			playerGreedAwakened = true
 		}
 		if !playerTurn && monsterCriticalDamage > 0 && monsterFrenzy > 0 {
 			monsterFrenzyNext = true
@@ -608,7 +614,7 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 			monsterFrenzyActive = false
 		}
 		if playerTurn && greed > 0 {
-			thresholds := int(math.Floor((m.maxHP - m.hp) / (m.maxHP * 0.10)))
+			thresholds := int(math.Floor((m.maxHP-m.hp)*10/m.maxHP + 1e-9))
 			for greedStacks < thresholds {
 				greedStacks++
 				m.damageFactor = 1 + float64(greed*greedStacks)/100

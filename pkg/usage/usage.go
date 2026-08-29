@@ -22,7 +22,7 @@ import (
 // result format, or a dependency changes the selected combat loadouts.
 // This cache also depends on bestFightSimulationCacheVersion; increment this
 // version too whenever that simulator version is incremented.
-const combatCacheVersion = 1
+const combatCacheVersion = 2
 
 type Evaluation struct {
 	Needed   bool     `json:"needed"`

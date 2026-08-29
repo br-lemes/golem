@@ -104,6 +104,80 @@ func TestSimulateBurnTicksAndDecays(t *testing.T) {
 	}
 }
 
+func TestPlayerGreedAwakensBeforeEvaluatingDamageThresholds(t *testing.T) {
+	effects := &[]schemas.SimpleEffectSchema{{Code: "burn", Value: 20}}
+	fighter := Fighter{
+		Stats: Stats{HP: 100, AttackEarth: 1, Greed: 10, Initiative: 1},
+	}
+	monster := schemas.MonsterSchema{
+		Name:       "Flameche",
+		Hp:         1000,
+		AttackFire: 20,
+		Initiative: 10,
+		Effects:    effects,
+	}
+
+	zeroPlayerCritical, zeroMonsterCritical := 0, 0
+	result := Simulate(fighter, monster, SimulationOptions{
+		Critical: CriticalOptions{
+			PlayerChance:  &zeroPlayerCritical,
+			MonsterChance: &zeroMonsterCritical,
+		},
+	})
+	joined := strings.Join(result.Logs, "\n")
+	if strings.Contains(joined, "Turn 1: Greed empowers Character_1") {
+		t.Fatalf("Greed was applied during its awakening turn: %s", joined)
+	}
+	want := "Turn 3: Greed empowers Character_1 (+10% damage, total +40%)."
+	if !strings.Contains(joined, want) {
+		t.Fatalf("Greed activation log missing; got logs: %s", joined)
+	}
+}
+
+func TestGreedFlamecheReproduction(t *testing.T) {
+	fighter := FromLoadout(50, map[string]string{
+		"rune":       "powerful_rune",
+		"shield":     "fire_shield",
+		"helmet":     "obsidian_helmet",
+		"body_armor": "medic_armor",
+		"leg_armor":  "enchanter_pants",
+		"boots":      "adamantite_boots",
+		"ring1":      "mithril_ring",
+		"ring2":      "mithril_ring",
+		"amulet":     "heart_amulet",
+		"artifact1":  "life_crystal",
+		"artifact2":  "life_crystal",
+		"artifact3":  "sandwhisper_codex",
+	}, nil)
+	effects := &[]schemas.SimpleEffectSchema{{Code: "burn", Value: 20}}
+	monster := schemas.MonsterSchema{
+		Name:       "Flameche",
+		Hp:         2000,
+		AttackFire: 1250,
+		Initiative: 2000,
+		ResAir:     -50,
+		ResFire:    0,
+		ResWater:   -50,
+		Effects:    effects,
+	}
+	result := Simulate(fighter, monster, SimulationOptions{
+		CriticalSequence: []bool{false, false, false, true, false},
+	})
+	joined := strings.Join(result.Logs, "\n")
+	for _, want := range []string{
+		"Fight start: Character_1 HP: 2565/2565",
+		"Flameche used fire attack against Character_1 and dealt 563 damage",
+		"Character_1 suffers from burn and loses 250 HP. Character_1 HP: 1752/2565",
+		"Turn 3: Greed empowers Character_1 (+15% damage, total +75%).",
+		"Turn 5: Greed empowers Character_1 (+15% damage, total +120%).",
+		"Turn 7: Greed empowers Character_1 (+15% damage, total +150%).",
+	} {
+		if !strings.Contains(joined, want) {
+			t.Fatalf("reproduction log missing %q; got logs: %s", want, joined)
+		}
+	}
+}
+
 func TestDecayBurnDamageMatchesAPILogSequence(t *testing.T) {
 	want := []int{22, 20, 18, 16, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
 	for i, value := range want[:len(want)-1] {

@@ -20,7 +20,7 @@ import (
 
 // CACHE_VERSION / ACTION REQUIRED: increment when the fight optimizer or
 // simulation can produce different results for the same inputs.
-const bestFightSimulationCacheVersion = 1
+const bestFightSimulationCacheVersion = 2
 
 type Result struct {
 	Winrate               float32           `json:"winrate"`
