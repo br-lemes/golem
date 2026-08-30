@@ -68,42 +68,56 @@ Arguments:
 			isForbidden := slices.Contains(forbiddenTaskItem, character.Task)
 			bankQty := taskItemBankQty(bankItems, character.Task)
 			needed := character.TaskTotal - character.TaskProgress
-			if !cancelMissing && !isForbidden && bankQty < needed {
-				return fmt.Errorf("missing item: %s (have %d, need %d)", character.Task, bankQty, needed)
+			available := bankQty + taskItemInvQty(character, character.Task)
+			if !cancelMissing && !isForbidden && available < needed {
+				return fmt.Errorf("missing item: %s (have %d, need %d)", character.Task, available, needed)
 			}
-			if !isForbidden && bankQty >= needed {
+			if !isForbidden && available >= needed {
 				cancelsInARow = 0
 				for character.TaskProgress < character.TaskTotal {
-					character, err = routine.Move(character, "bank")
-					if err != nil {
-						return err
-					}
 					remaining := character.TaskTotal - character.TaskProgress
-					toWithdraw := min(remaining, taskItemInvSpace(character, tasksCoinBuffer))
-					withdraw := []schemas.SimpleItemSchema{
-						{Code: character.Task, Quantity: toWithdraw},
-					}
-					coinsHeld := taskItemInvQty(character, tasksCoin)
-					if coinsHeld < tasksCoinBuffer {
+					taskQuantity := taskItemInvQty(character, character.Task)
+					toTrade := min(remaining, taskQuantity)
+					if taskQuantity == 0 {
+						toTrade = min(remaining, max(0, character.InventoryMaxItems-tasksCoinBuffer))
+						character, err = routine.Move(character, "bank")
+						if err != nil {
+							return err
+						}
+						if character.Inventory != nil && len(*character.Inventory) > 0 {
+							items := make([]schemas.SimpleItemSchema, 0, len(*character.Inventory))
+							for _, item := range *character.Inventory {
+								if item.Code == "" || item.Quantity <= 0 {
+									continue
+								}
+								items = append(items, schemas.SimpleItemSchema{
+									Code:     item.Code,
+									Quantity: item.Quantity,
+								})
+							}
+							if len(items) > 0 {
+								bankData, err := api.MyActionBankDepositItem(name, items)
+								if err != nil {
+									return err
+								}
+								character = bankData.Character
+							}
+						}
+						bankItems, err = api.MyBankItems()
+						if err != nil {
+							return err
+						}
+						withdraw := []schemas.SimpleItemSchema{
+							{Code: character.Task, Quantity: toTrade},
+						}
 						coinsInBank := taskItemBankQty(bankItems, tasksCoin)
-						topUp := min(tasksCoinBuffer-coinsHeld, coinsInBank)
-						if topUp > 0 {
+						if tasksCoinBuffer > 0 && coinsInBank > 0 {
 							withdraw = append(withdraw, schemas.SimpleItemSchema{
 								Code:     tasksCoin,
-								Quantity: topUp,
+								Quantity: min(tasksCoinBuffer, coinsInBank),
 							})
 						}
-					}
-					bankData, err := api.MyActionBankWithdrawItem(name, withdraw)
-					if err != nil {
-						return err
-					}
-					character = bankData.Character
-					if coinsHeld > tasksCoinBuffer {
-						excess := coinsHeld - tasksCoinBuffer
-						bankData, err = api.MyActionBankDepositItem(name, []schemas.SimpleItemSchema{
-							{Code: tasksCoin, Quantity: excess},
-						})
+						bankData, err := api.MyActionBankWithdrawItem(name, withdraw)
 						if err != nil {
 							return err
 						}
@@ -115,7 +129,7 @@ Arguments:
 					}
 					trade, err := api.MyActionTaskTrade(name, schemas.SimpleItemSchema{
 						Code:     character.Task,
-						Quantity: toWithdraw,
+						Quantity: toTrade,
 					})
 					if err != nil {
 						return err
@@ -186,17 +200,4 @@ func taskItemInvQty(character schemas.CharacterSchema, code string) int {
 		}
 	}
 	return total
-}
-
-func taskItemInvSpace(character schemas.CharacterSchema, coinBuffer int) int {
-	used := coinBuffer
-	if character.Inventory != nil {
-		for _, slot := range *character.Inventory {
-			used += slot.Quantity
-			if slot.Code != tasksCoin {
-				used += slot.Quantity
-			}
-		}
-	}
-	return character.InventoryMaxItems - used
 }

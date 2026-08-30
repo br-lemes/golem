@@ -33,7 +33,7 @@ func (guard *interruptGuard) handleSignals() {
 		if guard.inAction {
 			guard.pending = true
 			guard.mu.Unlock()
-			console.Errorf("signal: interrupt ")
+			console.Errorf("signal: interrupt\n")
 			continue
 		}
 		guard.mu.Unlock()
