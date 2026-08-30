@@ -24,7 +24,7 @@ type xpFlags struct {
 var xpGroups = []string{"skill", "character"}
 
 var xpCmd = &cobra.Command{
-	Args:  cobra.MaximumNArgs(2),
+	Args:  cobra.RangeArgs(1, 2),
 	Use:   "xp <level> [account]",
 	Short: "Show the XP needed to reach a level",
 	Long: `Show the XP needed to reach a level
