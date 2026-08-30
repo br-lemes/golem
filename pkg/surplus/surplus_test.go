@@ -27,6 +27,24 @@ func TestFindSurplusTools(t *testing.T) {
 	}
 }
 
+func TestFindLimitsAchievementRingCoverage(t *testing.T) {
+	characters := make([]schemas.CharacterSchema, 5)
+	for i := range characters {
+		characters[i].Level = 40
+	}
+	got := Find(Input{
+		BankItems: []schemas.SimpleItemSchema{
+			{Code: "earth_ring", Quantity: 10},
+			{Code: "ring_of_the_adept", Quantity: 6},
+		},
+		Characters: characters,
+	})
+	results := resultsByCode(got)
+	if results["earth_ring"].Total != 10 || results["earth_ring"].Surplus != 5 {
+		t.Fatalf("Find(earth_ring) returned total %d and surplus %d, want 10 and 5", results["earth_ring"].Total, results["earth_ring"].Surplus)
+	}
+}
+
 func TestFindAllSkillsAndLocations(t *testing.T) {
 	characters := []schemas.CharacterSchema{
 		{

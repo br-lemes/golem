@@ -145,6 +145,12 @@ func collectEquipment(input Input) map[string]Result {
 		}
 	}
 
+	item, ok := itemsByCode["ring_of_the_adept"]
+	if ok {
+		item.Total = min(5, item.Total)
+		itemsByCode["ring_of_the_adept"] = item
+	}
+
 	result := map[string]Result{}
 	for code, item := range itemsByCode {
 		if item.Total > 0 {
