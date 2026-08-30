@@ -65,30 +65,9 @@ Arguments:
 				Slot: schemas.ItemSlot(slot),
 			})
 		}
-		character, err = routine.Deposit(character, nil)
-		if err != nil {
-			return err
-		}
 		character, err = routine.Equip(name, equipments)
 		if err != nil {
 			return err
-		}
-		clearSlots := make([]schemas.ItemSlot, 0, 2)
-		if fightResult.Utilities["utility1"] == "" && character.Utility1Slot != "" {
-			clearSlots = append(clearSlots, schemas.Utility1)
-		}
-		if fightResult.Utilities["utility2"] == "" && character.Utility2Slot != "" {
-			clearSlots = append(clearSlots, schemas.Utility2)
-		}
-		for _, slot := range clearSlots {
-			character, err = routine.ClearUtilities(character, []schemas.ItemSlot{slot})
-			if err != nil {
-				return err
-			}
-			character, err = routine.Deposit(character, nil)
-			if err != nil {
-				return err
-			}
 		}
 		for {
 			err = prepare(character, *monster, food, utility1, utility2)

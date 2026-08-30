@@ -27,35 +27,73 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
+	hadUtilities := character.Utility1Slot != "" || character.Utility2Slot != ""
+	character, err = clearUtilities(d, character, []schemas.ItemSlot{
+		schemas.Utility1,
+		schemas.Utility2,
+	})
+	if err != nil {
+		return character, err
+	}
 	needed := filterNeededEquipments(character, equipments)
-	if len(needed) == 0 {
+	hasEquipmentChanges := len(needed) > 0
+	if !hasEquipmentChanges && !hadUtilities {
 		return character, nil
 	}
-	err = validateTotalStock(d, character, needed)
-	if err != nil {
-		return schemas.CharacterSchema{}, err
+	if hasEquipmentChanges {
+		err = validateTotalStock(d, character, needed)
+		if err != nil {
+			return schemas.CharacterSchema{}, err
+		}
 	}
 
 	Cooldown(character)
 
 	missing := calculateMissingItems(character, needed)
-	if len(missing) > 0 {
-		character, err = move(d, character, "bank")
+	shouldPrepare := hadUtilities || len(missing) > 0
+	if shouldPrepare {
+		character, err = deposit(d, character, nil)
 		if err != nil {
 			return character, err
 		}
-		transaction, err := d.myActionBankWithdrawItem(name, missing)
+		if hasEquipmentChanges {
+			withdraw := equipmentItems(needed)
+			transaction, err := d.myActionBankWithdrawItem(name, withdraw)
+			if err != nil {
+				return character, err
+			}
+			character = transaction.Character
+		}
+	}
+	if hasEquipmentChanges {
+		result, err := d.myActionEquip(name, needed)
 		if err != nil {
 			return character, err
 		}
-		character = transaction.Character
+		character = result.Character
 	}
-	result, err := d.myActionEquip(name, needed)
-	if err != nil {
-		return character, err
+	if shouldPrepare {
+		character, err = deposit(d, character, nil)
+		if err != nil {
+			return character, err
+		}
 	}
-	character = result.Character
 	return character, nil
+}
+
+func equipmentItems(equipments []schemas.EquipSchema) []schemas.SimpleItemSchema {
+	items := make([]schemas.SimpleItemSchema, 0, len(equipments))
+	for _, equipment := range equipments {
+		quantity := 1
+		if equipment.Quantity != nil {
+			quantity = *equipment.Quantity
+		}
+		items = append(items, schemas.SimpleItemSchema{
+			Code:     equipment.Code,
+			Quantity: quantity,
+		})
+	}
+	return items
 }
 
 func validateEquipments(equipments []schemas.EquipSchema) error {
