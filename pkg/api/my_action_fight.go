@@ -10,6 +10,8 @@ import (
 )
 
 func MyActionFight(name string, participants []string) (schemas.CharacterFightDataSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	resp, err := PostNoCooldown(fmt.Sprintf("/my/%s/action/fight", name), schemas.FightRequestSchema{
 		Participants: &participants,
 	})
@@ -24,6 +26,7 @@ func MyActionFight(name string, participants []string) (schemas.CharacterFightDa
 	for _, character := range data.Data.Characters {
 		cache.SaveCharacter(character.Name, character)
 	}
+	release()
 	if data.Data.Fight.Result == "win" {
 		for _, character := range data.Data.Fight.Characters {
 			if len(data.Data.Fight.Characters) > 1 {

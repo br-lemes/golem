@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionUse(name string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/use", name)
 	resp, err := PostNoCooldown(path, item)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionUse(name string, item schemas.SimpleItemSchema) (schemas.UseItemSch
 		return schemas.UseItemSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

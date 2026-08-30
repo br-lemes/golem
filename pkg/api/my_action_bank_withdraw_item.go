@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionBankWithdrawItem(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/bank/withdraw/item", name)
 	resp, err := PostNoCooldown(path, items)
 	if err != nil {
@@ -21,6 +23,7 @@ func MyActionBankWithdrawItem(name string, items []schemas.SimpleItemSchema) (sc
 	}
 	cache.SaveBankItems(data.Data.Bank)
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

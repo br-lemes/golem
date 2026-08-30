@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionTransition(name string) (schemas.CharacterTransitionDataSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/transition", name)
 	resp, err := PostNoCooldown(path, nil)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionTransition(name string) (schemas.CharacterTransitionDataSchema, err
 		return schemas.CharacterTransitionDataSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

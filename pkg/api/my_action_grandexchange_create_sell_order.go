@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionGrandexchangeCreateSellOrder(name string, order schemas.GEOrderCreationSchema) (schemas.GEOrderTransactionSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/grandexchange/create_sell_order", name)
 	resp, err := PostNoCooldown(path, order)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionGrandexchangeCreateSellOrder(name string, order schemas.GEOrderCrea
 		return schemas.GEOrderTransactionSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

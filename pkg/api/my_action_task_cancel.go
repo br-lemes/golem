@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionTaskCancel(name string) (schemas.TaskCancelledSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/cancel", name)
 	resp, err := PostNoCooldown(path, nil)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionTaskCancel(name string) (schemas.TaskCancelledSchema, error) {
 		return schemas.TaskCancelledSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

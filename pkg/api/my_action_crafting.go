@@ -10,6 +10,8 @@ import (
 )
 
 func MyActionCrafting(name string, item schemas.SimpleItemSchema) (schemas.SkillDataSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/crafting", name)
 	resp, err := PostNoCooldown(path, item)
 	if err != nil {
@@ -21,6 +23,7 @@ func MyActionCrafting(name string, item schemas.SimpleItemSchema) (schemas.Skill
 		return schemas.SkillDataSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	console.Printf("XP gained: %d", data.Data.Details.Xp)
 	printDropSchema(data.Data.Details.Items)
 	console.Printf("\n")

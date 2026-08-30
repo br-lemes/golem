@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionRest(name string) (schemas.CharacterRestDataSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/rest", name)
 	resp, err := PostNoCooldown(path, nil)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionRest(name string) (schemas.CharacterRestDataSchema, error) {
 		return schemas.CharacterRestDataSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

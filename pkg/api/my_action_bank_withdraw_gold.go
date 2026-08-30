@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionBankWithdrawGold(name string, quantity int) (schemas.BankGoldTransactionSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/bank/withdraw/gold", name)
 	resp, err := PostNoCooldown(path, schemas.GoldSchema{Quantity: quantity})
 	if err != nil {
@@ -21,6 +23,7 @@ func MyActionBankWithdrawGold(name string, quantity int) (schemas.BankGoldTransa
 	}
 	cache.UpdateBankGold(data.Data.Bank.Quantity)
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

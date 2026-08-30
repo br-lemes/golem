@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionTaskTrade(name string, item schemas.SimpleItemSchema) (schemas.TaskTradeDataSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/trade", name)
 	resp, err := PostNoCooldown(path, item)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionTaskTrade(name string, item schemas.SimpleItemSchema) (schemas.Task
 		return schemas.TaskTradeDataSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

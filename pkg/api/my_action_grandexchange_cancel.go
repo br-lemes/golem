@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionGrandexchangeCancel(name string, cancel schemas.GECancelOrderSchema) (schemas.GETransactionListSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/grandexchange/cancel", name)
 	resp, err := PostNoCooldown(path, cancel)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionGrandexchangeCancel(name string, cancel schemas.GECancelOrderSchema
 		return schemas.GETransactionListSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

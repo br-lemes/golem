@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionEquip(name string, equips []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/equip", name)
 	resp, err := PostNoCooldown(path, equips)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionEquip(name string, equips []schemas.EquipSchema) (schemas.Equipment
 		return schemas.EquipmentTransactionSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

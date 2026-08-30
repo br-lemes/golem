@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionTaskComplete(name string) (schemas.RewardDataSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/complete", name)
 	resp, err := PostNoCooldown(path, nil)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionTaskComplete(name string) (schemas.RewardDataSchema, error) {
 		return schemas.RewardDataSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }

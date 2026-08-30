@@ -9,6 +9,8 @@ import (
 )
 
 func MyActionNPCBuy(name string, item schemas.SimpleItemSchema) (schemas.NpcMerchantTransactionSchema, error) {
+	release := beginCriticalAction()
+	defer release()
 	path := fmt.Sprintf("/my/%s/action/npc/buy", name)
 	resp, err := PostNoCooldown(path, item)
 	if err != nil {
@@ -20,6 +22,7 @@ func MyActionNPCBuy(name string, item schemas.SimpleItemSchema) (schemas.NpcMerc
 		return schemas.NpcMerchantTransactionSchema{}, err
 	}
 	cache.SaveCharacter(name, data.Data.Character)
+	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil
 }
