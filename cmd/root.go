@@ -35,7 +35,7 @@ var rootCmd = &cobra.Command{
 		console.Stdin = cmd.InOrStdin()
 		version := cmd.Root().Version
 		if !strings.HasPrefix(version, "v") {
-			fmt.Fprintf(cmd.ErrOrStderr(), "%s version %s\n", cmd.Root().Name(), version)
+			_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "%s version %s\n", cmd.Root().Name(), version)
 		}
 
 		cfg, err := config.Load(configFlag)
