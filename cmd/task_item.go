@@ -136,6 +136,10 @@ Arguments:
 					}
 					character = trade.Character
 				}
+				character, err = routine.Move(character, "items")
+				if err != nil {
+					return err
+				}
 				reward, err := api.MyActionTaskComplete(name)
 				if err != nil {
 					return err
