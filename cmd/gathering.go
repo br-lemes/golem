@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -22,13 +25,22 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+		resource, found := database.Resources.Get(code)
+		if !found {
+			return fmt.Errorf("resource %s not found", code)
+		}
 
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}
+
+		skillLevel, _ := utils.GetCharacterGatheringSkillLevel(character, string(resource.Skill))
+		if skillLevel < resource.Level {
+			return fmt.Errorf("character %s level too low. Required: %d, Current %d", name, resource.Level, skillLevel)
+		}
 		routine.Cooldown(character)
-		resource, _ := database.Resources.Get(code)
+
 		equipments, err := best.FindEquipmentSchemas(character, best.EquipmentOptions{
 			UniqueAdeptRing: true,
 			Priorities:      best.GatheringPriorities(character, resource),

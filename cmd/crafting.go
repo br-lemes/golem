@@ -57,12 +57,12 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
-	routine.Cooldown(character)
 
-	skillLevel := getCraftSkill(character, *item.Craft.Skill)
+	skillLevel, _ := utils.GetCharacterCraftingSkillLevel(character, string(*item.Craft.Skill))
 	if skillLevel < *item.Craft.Level {
 		return fmt.Errorf("character %s level too low. Required: %d, Current: %d", name, *item.Craft.Level, skillLevel)
 	}
+	routine.Cooldown(character)
 
 	equipments, err := best.FindEquipmentSchemas(character, best.EquipmentOptions{
 		UniqueAdeptRing: true,
@@ -334,11 +334,6 @@ func fetchAllBankItems() (map[string]int, error) {
 		result[item.Code] = result[item.Code] + item.Quantity
 	}
 	return result, nil
-}
-
-func getCraftSkill(character schemas.CharacterSchema, skill schemas.CraftSkill) int {
-	level, _ := utils.GetCharacterCraftingSkillLevel(character, string(skill))
-	return level
 }
 
 func isCraftable(item schemas.ItemSchema) bool {

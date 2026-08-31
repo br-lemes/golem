@@ -8,6 +8,7 @@ import (
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -72,7 +73,7 @@ Arguments:
 			})
 		}
 
-		skillLevel := getCraftSkill(character, *item.Craft.Skill)
+		skillLevel, _ := utils.GetCharacterCraftingSkillLevel(character, string(*item.Craft.Skill))
 		if skillLevel < *item.Craft.Level {
 			return fmt.Errorf("character %s level too low. Required: %d, Current: %d", name, *item.Craft.Level, skillLevel)
 		}
