@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
@@ -33,7 +34,7 @@ var missingCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		validCharacters := utils.GetCharacters()
+		validCharacters := cache.GetCharacters()
 		for _, name := range missingOptions.Name {
 			if !slices.Contains(validCharacters, name) {
 				return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
@@ -58,7 +59,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = missingCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(utils.GetCharacters))
+	err = missingCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
 	if err != nil {
 		panic(err)
 	}

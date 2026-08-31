@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
@@ -241,7 +242,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = xpCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(utils.GetCharacters))
+	err = xpCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
 	if err != nil {
 		panic(err)
 	}

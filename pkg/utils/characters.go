@@ -3,17 +3,9 @@ package utils
 import (
 	"slices"
 
-	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
-
-var characters []string
-
-func GetCharacters() []string {
-	// +gocover:ignore:block cache accessor
-	return characters
-}
 
 func GetCharacterSkillLevel(character schemas.CharacterSchema, skill string) (int, bool) {
 	switch skill {
@@ -105,8 +97,4 @@ func MeetsItemConditions(character schemas.CharacterSchema, item schemas.ItemSch
 		}
 	}
 	return true
-}
-
-func init() {
-	characters = cache.GetCharacters()
 }

@@ -1,7 +1,7 @@
 package completion
 
 import (
-	"github.com/br-lemes/golem/pkg/utils"
+	"github.com/br-lemes/golem/pkg/cache"
 )
 
 func CharacterName(count int) *CompletionBuilder {
@@ -10,5 +10,5 @@ func CharacterName(count int) *CompletionBuilder {
 }
 
 func (b *CompletionBuilder) CharacterName(count int) *CompletionBuilder {
-	return b.Custom(count, utils.GetCharacters)
+	return b.Custom(count, cache.GetCharacters)
 }
