@@ -31,9 +31,14 @@ func (guard *interruptGuard) handleSignals() {
 	for range guard.interrupt {
 		guard.mu.Lock()
 		if guard.inAction {
+			if guard.pending {
+				guard.mu.Unlock()
+				signal.Stop(guard.interrupt)
+				os.Exit(130)
+			}
 			guard.pending = true
 			guard.mu.Unlock()
-			console.Errorf("signal: interrupt\n")
+			console.Errorf("signal: press Ctrl+C again to exit immediately.\n")
 			continue
 		}
 		guard.mu.Unlock()
