@@ -1,10 +1,12 @@
 package cache
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/models"
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
@@ -12,36 +14,35 @@ import (
 
 var cache *gorm.DB
 
-func init() {
-	userCacheDir, err := os.UserCacheDir()
-	if err != nil {
-		panic(err)
+func Initialize(database config.Database) error {
+	if database.Driver != "sqlite" {
+		return fmt.Errorf("unsupported database driver: %s", database.Driver)
 	}
-	cacheDir := filepath.Join(userCacheDir, "golem")
-	err = os.MkdirAll(cacheDir, 0755)
+	cacheFile := config.ExpandPath(database.Path)
+	err := os.MkdirAll(filepath.Dir(cacheFile), 0755)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	cacheFile := filepath.Join(cacheDir, "season8.db")
 	cache, err = gorm.Open(sqlite.Open(cacheFile), &gorm.Config{
 		NowFunc: func() time.Time { return time.Now().UTC() },
 	})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = cache.Exec("PRAGMA journal_mode=WAL;").Error
 	if err != nil {
-		panic(err)
+		return err
 	}
 	err = cache.Exec("PRAGMA synchronous=NORMAL;").Error
 	if err != nil {
-		panic(err)
+		return err
 	}
 	err = cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{}, &models.FightSimulation{}, &models.UsageCombat{})
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 func findByName(dest any, name string) bool {

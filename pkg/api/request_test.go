@@ -4,9 +4,29 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
+
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/config"
 )
+
+func TestMain(m *testing.M) {
+	directory, err := os.MkdirTemp("", "golem-api-test-")
+	if err != nil {
+		panic(err)
+	}
+	database := config.Database{Driver: "sqlite", Path: directory + "/cache.db"}
+	err = cache.Initialize(database)
+	if err != nil {
+		_ = os.RemoveAll(directory)
+		panic(err)
+	}
+	code := m.Run()
+	_ = os.RemoveAll(directory)
+	os.Exit(code)
+}
 
 func TestExecuteSuccess(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -4,11 +4,16 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
+	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/spf13/cobra"
 )
 
+var configFlag string
 var outputFlag string
 var refreshFlag bool
 
@@ -28,8 +33,29 @@ var rootCmd = &cobra.Command{
 		}
 		console.Stderr = cmd.ErrOrStderr()
 		console.Stdin = cmd.InOrStdin()
+		version := cmd.Root().Version
+		if !strings.HasPrefix(version, "v") {
+			fmt.Fprintf(cmd.ErrOrStderr(), "%s version %s\n", cmd.Root().Name(), version)
+		}
 
-		err := validateFlags()
+		cfg, err := config.Load(configFlag)
+		if err != nil {
+			return err
+		}
+		err = cache.Initialize(cfg.Database)
+		if err != nil {
+			return fmt.Errorf("initialize cache: %w", err)
+		}
+		token, prompted := api.Initialize(cfg.API)
+		if prompted {
+			cfg.API.Token = token
+			err = config.Save(configFlag, cfg)
+			if err != nil {
+				return err
+			}
+		}
+
+		err = validateFlags()
 		if err != nil {
 			return err
 		}
@@ -41,6 +67,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	rootCmd.PersistentFlags().StringVar(&configFlag, "config", "", "Configuration file path")
 	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false, "Enable debug mode")
 	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto", "Output format: auto, json or yaml")
 	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "", "Output file path (default: stdout)")

@@ -1,51 +1,27 @@
 package api
 
 import (
-	"os"
-	"path/filepath"
-
+	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/spf13/viper"
 )
 
-var configDir string
-
-func init() {
-	userConfigDir, err := os.UserConfigDir()
-	if err != nil {
-		panic(err)
-	}
-	configDir = filepath.Join(userConfigDir, "golem")
-
-	tokenConfig := loadConfig("token")
-	token = tokenConfig.GetString("token")
+func Initialize(apiConfig config.API) (string, bool) {
+	token = apiConfig.Token
+	baseURL = apiURL(apiConfig.Environment)
 	if token == "" {
 		token = console.Input("Enter your token")
-		tokenConfig.Set("token", token)
-		err := tokenConfig.WriteConfig()
-		if err != nil {
-			panic(err)
-		}
+		return token, true
 	}
+	return token, false
 }
 
-func loadConfig(name string) *viper.Viper {
-	configFile := filepath.Join(configDir, name+".json")
-	_, err := os.Stat(configFile)
-	if os.IsNotExist(err) {
-		_ = os.MkdirAll(configDir, 0755)
-		err := viper.WriteConfigAs(configFile)
-		if err != nil {
-			panic(err)
-		}
+func apiURL(environment string) string {
+	switch environment {
+	case "sandbox":
+		return "https://api.sandbox.artifactsmmo.com"
+	case "beta":
+		return "https://api.beta.artifactsmmo.com"
+	default:
+		return "https://api.artifactsmmo.com"
 	}
-	config := viper.New()
-	config.AddConfigPath(configDir)
-	config.SetConfigName(name)
-	config.SetConfigType("json")
-	err = config.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-	return config
 }

@@ -1,6 +1,6 @@
 PLATFORMS := linux-amd64 linux-arm64 windows-amd64
 
-.PHONY: all build clean coverage release test version $(PLATFORMS)
+.PHONY: all clean coverage dev release test version $(PLATFORMS)
 
 TARGET := $(notdir $(shell go list -m 2>/dev/null))
 ifeq ($(TARGET),)
@@ -31,6 +31,9 @@ custom-gcl: .custom-gcl.yml
 	else \
 		echo "Warning: 'golangci-lint' is not installed. Skipping."; \
 	fi
+
+dev:
+	@go build -ldflags "-X 'main.version=$$(date '+%Y-%m-%d %H:%M:%S')'"
 
 lint: custom-gcl
 	@if [ -f ./custom-gcl ]; then ./custom-gcl run; fi

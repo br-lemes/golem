@@ -13,7 +13,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-const baseURL = "https://api.artifactsmmo.com"
+var baseURL = "https://api.artifactsmmo.com"
 
 var (
 	token         string
