@@ -23,7 +23,7 @@ func SaveAccount(account string) {
 
 func GetAccountCharacters() []schemas.CharacterSchema {
 	var charactersCache []models.Character
-	if !isTableFresh(&charactersCache, 10) || len(charactersCache) != 5 {
+	if !findTable(&charactersCache) {
 		return nil
 	}
 	characters := make([]schemas.CharacterSchema, 5)

@@ -5,15 +5,20 @@ import (
 
 	"github.com/br-lemes/golem/pkg/models"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"gorm.io/gorm"
 )
 
 func CleanCharacter(name string) {
 	cache.Where("name = ?", name).Delete(&models.Character{})
 }
 
+func CleanCharacters() {
+	cache.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Character{})
+}
+
 func GetCharacter(name string) *schemas.CharacterSchema {
 	var characterCache models.Character
-	if !isNameFresh(&characterCache, name, 10) {
+	if !findByName(&characterCache, name) {
 		return nil
 	}
 	var character schemas.CharacterSchema
@@ -32,6 +37,23 @@ func GetCharacters() []string {
 }
 
 func SaveCharacter(name string, character schemas.CharacterSchema) {
+	SaveCharacters([]schemas.CharacterSchema{character})
+}
+
+func SaveCharacters(characters []schemas.CharacterSchema) {
+	account := GetAccount()
+	for _, character := range characters {
+		if character.Account != account {
+			continue
+		}
+		saveCharacter(character.Name, character)
+	}
+}
+
+func saveCharacter(name string, character schemas.CharacterSchema) {
+	if character.Account == "" {
+		return
+	}
 	data, err := json.Marshal(character)
 	if err != nil {
 		return

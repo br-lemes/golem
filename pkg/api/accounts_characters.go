@@ -35,8 +35,6 @@ func AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, character := range data.Data {
-		cache.SaveCharacter(character.Name, character)
-	}
+	cache.SaveCharacters(data.Data)
 	return data.Data, nil
 }

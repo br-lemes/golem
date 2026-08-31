@@ -44,39 +44,18 @@ func init() {
 	}
 }
 
-func isNameFresh(dest any, name string, minutes int) bool {
-	if !isStatusFresh() {
-		return false
-	}
-
-	result := cache.Where("name = ? AND updated_at >= ?", name, limit(minutes)).Limit(1).Find(dest)
+func findByName(dest any, name string) bool {
+	result := cache.Where("name = ?", name).Limit(1).Find(dest)
 	if result.Error != nil || result.RowsAffected == 0 {
 		return false
 	}
 	return true
 }
 
-func isTableFresh(dest any, minutes int) bool {
-	if !isStatusFresh() {
-		return false
-	}
-
-	result := cache.Where("updated_at >= ?", limit(minutes)).Find(dest)
+func findTable(dest any) bool {
+	result := cache.Find(dest)
 	if result.Error != nil || result.RowsAffected == 0 {
 		return false
 	}
 	return true
-}
-
-func isStatusFresh() bool {
-	var statusCache models.Cache
-	result := cache.Where("name = ? AND updated_at >= ?", "status", limit(5)).Limit(1).Find(&statusCache)
-	if result.Error != nil || result.RowsAffected == 0 {
-		return false
-	}
-	return true
-}
-
-func limit(minutes int) time.Time {
-	return time.Now().UTC().Add(time.Duration(-minutes) * time.Minute)
 }
