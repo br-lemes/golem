@@ -6,6 +6,7 @@ import (
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/completion"
+	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
@@ -35,6 +36,7 @@ Arguments:
 		tasksCoinBuffer, _ := cmd.Flags().GetInt("coin-buffer")
 		tasksMaxCancel, _ := cmd.Flags().GetInt("max-cancel")
 		cancelMissing, _ := cmd.Flags().GetBool("cancel-missing")
+		cancelMissingLevel50, _ := cmd.Flags().GetBool("cancel-missing-level-50")
 
 		character, err := api.Characters(name)
 		if err != nil {
@@ -69,7 +71,9 @@ Arguments:
 			bankQty := taskItemBankQty(bankItems, character.Task)
 			needed := character.TaskTotal - character.TaskProgress
 			available := bankQty + taskItemInvQty(character, character.Task)
-			if !cancelMissing && !isForbidden && available < needed {
+			task, taskExists := database.Tasks.Get(character.Task)
+			canCancelMissing := cancelMissing || (cancelMissingLevel50 && taskExists && task.Level == 50)
+			if !canCancelMissing && !isForbidden && available < needed {
 				return fmt.Errorf("missing item: %s (have %d, need %d)", character.Task, available, needed)
 			}
 			if !isForbidden && available >= needed {
@@ -182,6 +186,7 @@ func init() {
 	taskItemCmd.Flags().IntP("coin-buffer", "b", 3, "Buffer of coins to keep in inventory")
 	taskItemCmd.Flags().IntP("max-cancel", "c", 3, "Maximum consecutive task cancellations")
 	taskItemCmd.Flags().Bool("cancel-missing", false, "Cancel task if required items are missing in bank")
+	taskItemCmd.Flags().Bool("cancel-missing-level-50", false, "Cancel missing items tasks at level 50")
 }
 
 func taskItemBankQty(items []schemas.SimpleItemSchema, code string) int {
