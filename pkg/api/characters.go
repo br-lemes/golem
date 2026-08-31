@@ -22,6 +22,6 @@ func Characters(name string) (schemas.CharacterSchema, error) {
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
-	cache.SaveCharacter(name, data.Data)
+	cache.SaveCharacter(data.Data)
 	return data.Data, nil
 }

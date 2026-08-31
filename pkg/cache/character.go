@@ -36,7 +36,7 @@ func GetCharacters() []string {
 	return names
 }
 
-func SaveCharacter(name string, character schemas.CharacterSchema) {
+func SaveCharacter(character schemas.CharacterSchema) {
 	SaveCharacters([]schemas.CharacterSchema{character})
 }
 

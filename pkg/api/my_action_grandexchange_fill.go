@@ -21,7 +21,7 @@ func MyActionGrandexchangeFill(name string, fill schemas.GEFillBuyOrderSchema) (
 	if err != nil {
 		return schemas.GETransactionListSchema{}, err
 	}
-	cache.SaveCharacter(name, data.Data.Character)
+	cache.SaveCharacter(data.Data.Character)
 	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil

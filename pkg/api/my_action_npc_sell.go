@@ -21,7 +21,7 @@ func MyActionNPCSell(name string, item schemas.SimpleItemSchema) (schemas.NpcMer
 	if err != nil {
 		return schemas.NpcMerchantTransactionSchema{}, err
 	}
-	cache.SaveCharacter(name, data.Data.Character)
+	cache.SaveCharacter(data.Data.Character)
 	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil

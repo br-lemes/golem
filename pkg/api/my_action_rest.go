@@ -21,7 +21,7 @@ func MyActionRest(name string) (schemas.CharacterRestDataSchema, error) {
 	if err != nil {
 		return schemas.CharacterRestDataSchema{}, err
 	}
-	cache.SaveCharacter(name, data.Data.Character)
+	cache.SaveCharacter(data.Data.Character)
 	release()
 	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
 	return data.Data, nil

@@ -22,7 +22,7 @@ func MyActionGathering(name string) (schemas.SkillDataSchema, error) {
 	if err != nil {
 		return schemas.SkillDataSchema{}, err
 	}
-	cache.SaveCharacter(name, data.Data.Character)
+	cache.SaveCharacter(data.Data.Character)
 	release()
 	console.Printf("XP gained: %d", data.Data.Details.Xp)
 	printDropSchema(data.Data.Details.Items)

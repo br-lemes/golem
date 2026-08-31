@@ -23,9 +23,7 @@ func MyActionFight(name string, participants []string) (schemas.CharacterFightDa
 	if err != nil {
 		return schemas.CharacterFightDataSchema{}, err
 	}
-	for _, character := range data.Data.Characters {
-		cache.SaveCharacter(character.Name, character)
-	}
+	cache.SaveCharacters(data.Data.Characters)
 	release()
 	if data.Data.Fight.Result == "win" {
 		for _, character := range data.Data.Fight.Characters {
