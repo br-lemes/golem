@@ -2,11 +2,11 @@ package completion
 
 import "github.com/br-lemes/golem/pkg/database"
 
-func Tradeables(count int) *CompletionBuilder {
+func Tradeable(count int) *CompletionBuilder {
 	builder := &CompletionBuilder{}
-	return builder.Tradeables(count)
+	return builder.Tradeable(count)
 }
 
-func (b *CompletionBuilder) Tradeables(count int) *CompletionBuilder {
+func (b *CompletionBuilder) Tradeable(count int) *CompletionBuilder {
 	return b.Custom(count, database.Items().Tradeables().Keys)
 }

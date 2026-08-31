@@ -7,6 +7,7 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/completion"
+	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
@@ -31,7 +32,7 @@ var relistCmd = &cobra.Command{
 Arguments:
   name   Name of your character.
   code   The code of the item.`,
-	ValidArgsFunction: completion.CharacterName(1).BankItem(1).Build(),
+	ValidArgsFunction: completion.CharacterName(1).Tradeable(1).Build(),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
@@ -39,9 +40,9 @@ Arguments:
 		if !slices.Contains(validCharacters, name) {
 			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
 		}
-		validItems := completion.GetBankItems()
-		if !slices.Contains(validItems, code) {
-			return fmt.Errorf("invalid item %q: allowed values are %v", code, validItems)
+		_, found := database.Items().Tradeables().Get(code)
+		if !found {
+			return fmt.Errorf("item %q not tradeable or not found", code)
 		}
 		if relistFlags.price <= 0 {
 			return fmt.Errorf("price must be greater than 0")

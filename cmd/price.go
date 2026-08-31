@@ -42,7 +42,7 @@ var priceCmd = &cobra.Command{
 	Use:   "price <item>",
 	Short: "Estimate useful Grand Exchange buy and sell prices",
 
-	ValidArgsFunction: completion.Tradeables(1).Build(),
+	ValidArgsFunction: completion.Tradeable(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		code := args[0]
 		includeOwnOrders, err := cmd.Flags().GetBool("include-own-orders")
@@ -51,7 +51,7 @@ var priceCmd = &cobra.Command{
 		}
 		item, exists := database.Items().Tradeables().Get(code)
 		if !exists {
-			return fmt.Errorf("item %q not found", code)
+			return fmt.Errorf("item %q not tradeable or not found", code)
 		}
 		orders, err := api.GrandexchangeOrders(api.GrandexchangeOrdersOptions{
 			Code: code,
