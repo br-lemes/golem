@@ -10,6 +10,7 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -21,9 +22,11 @@ var npcBuyData struct {
 	item          *schemas.NPCItemSchema
 }
 
-var npcBuyFlags struct {
-	quantity int
+type npcBuyFlags struct {
+	Quantity int `flag:"quantity" shorthand:"q" desc:"Item quantity"`
 }
+
+var npcBuyOptions npcBuyFlags
 
 var npcBuyCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
@@ -38,6 +41,13 @@ Arguments:
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+
+		flags, err := utils.ReadFlags[npcBuyFlags](cmd)
+		if err != nil {
+			return err
+		}
+		npcBuyOptions = flags
+
 		validCharacters := cache.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
 			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
@@ -50,10 +60,9 @@ Arguments:
 		if npcBuyData.item.BuyPrice == nil || *npcBuyData.item.BuyPrice <= 0 {
 			return fmt.Errorf("item %q does not have a buy price", code)
 		}
-		if npcBuyFlags.quantity <= 0 {
+		if npcBuyOptions.Quantity <= 0 {
 			return fmt.Errorf("quantity must be greater than 0")
 		}
-		var err error
 		npcBuyData.character, err = api.Characters(name)
 		if err != nil {
 			return err
@@ -68,7 +77,7 @@ Arguments:
 			}
 			npcBuyData.bankGold = bank.Gold
 			totalGold := npcBuyData.character.Gold + npcBuyData.bankGold
-			requiredGold := npcBuyFlags.quantity * *npcBuyData.item.BuyPrice
+			requiredGold := npcBuyOptions.Quantity * *npcBuyData.item.BuyPrice
 			if totalGold < requiredGold {
 				return fmt.Errorf("not enough gold: required %d, available %d", requiredGold, totalGold)
 			}
@@ -95,7 +104,7 @@ Arguments:
 			}
 		}
 		totalAvailable := npcBuyData.bankItem.Quantity + npcBuyData.inventoryItem.Quantity
-		totalNeeded := npcBuyFlags.quantity * *npcBuyData.item.BuyPrice
+		totalNeeded := npcBuyOptions.Quantity * *npcBuyData.item.BuyPrice
 		if totalAvailable < totalNeeded {
 			return fmt.Errorf("not enough items: required %d, available %d", totalNeeded, totalAvailable)
 		}
@@ -105,7 +114,7 @@ Arguments:
 		cmd.SilenceUsage = true
 		totalBought := 0
 		if npcBuyData.item.Currency == "gold" {
-			cost := npcBuyFlags.quantity * *npcBuyData.item.BuyPrice
+			cost := npcBuyOptions.Quantity * *npcBuyData.item.BuyPrice
 			if npcBuyData.character.Gold < cost {
 				err := moveBank()
 				if err != nil {
@@ -121,8 +130,8 @@ Arguments:
 				}
 			}
 		}
-		for totalBought < npcBuyFlags.quantity {
-			remaining := npcBuyFlags.quantity - totalBought
+		for totalBought < npcBuyOptions.Quantity {
+			remaining := npcBuyOptions.Quantity - totalBought
 			quantity := min(remaining, npcBuyData.character.InventoryMaxItems)
 			if npcBuyData.item.Currency != "gold" {
 				maxByCurrency := npcBuyData.character.InventoryMaxItems / *npcBuyData.item.BuyPrice
@@ -182,7 +191,10 @@ Arguments:
 
 func init() {
 	npcCmd.AddCommand(npcBuyCmd)
-	npcBuyCmd.Flags().IntVarP(&npcBuyFlags.quantity, "quantity", "q", 0, "Item quantity")
+	err := utils.RegisterFlags[npcBuyFlags](npcBuyCmd)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func inventoryItems() []schemas.InventorySlotSchema {

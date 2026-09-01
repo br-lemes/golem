@@ -9,6 +9,7 @@ import (
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -18,9 +19,11 @@ var buyData struct {
 	bankGold  int
 }
 
-var buyFlags struct {
-	quantity int
+type buyFlags struct {
+	Quantity int `flag:"quantity" shorthand:"q" desc:"Item quantity"`
 }
+
+var buyOptions buyFlags
 
 var buyCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
@@ -35,6 +38,13 @@ Arguments:
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		id := args[1]
+
+		flags, err := utils.ReadFlags[buyFlags](cmd)
+		if err != nil {
+			return err
+		}
+		buyOptions = flags
+
 		validCharacters := cache.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
 			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
@@ -42,7 +52,7 @@ Arguments:
 		if id == "" {
 			return fmt.Errorf("id must not be empty")
 		}
-		if buyFlags.quantity <= 0 {
+		if buyOptions.Quantity <= 0 {
 			return fmt.Errorf("quantity must be greater than 0")
 		}
 		order, err := api.GrandexchangeOrder(id)
@@ -53,8 +63,8 @@ Arguments:
 		if buyData.order.Type != "sell" {
 			return fmt.Errorf("order %q is not a sell order: type %q", id, buyData.order.Type)
 		}
-		if buyFlags.quantity > buyData.order.Quantity {
-			return fmt.Errorf("not enough quantity in order %q: required %d, available %d", id, buyFlags.quantity, buyData.order.Quantity)
+		if buyOptions.Quantity > buyData.order.Quantity {
+			return fmt.Errorf("not enough quantity in order %q: required %d, available %d", id, buyOptions.Quantity, buyData.order.Quantity)
 		}
 		bank, err := api.MyBank()
 		if err != nil {
@@ -66,7 +76,7 @@ Arguments:
 			return err
 		}
 		totalGold := buyData.character.Gold + buyData.bankGold
-		requiredGold := buyFlags.quantity * buyData.order.Price
+		requiredGold := buyOptions.Quantity * buyData.order.Price
 		if totalGold < requiredGold {
 			return fmt.Errorf("not enough gold: required %d, available %d", requiredGold, totalGold)
 		}
@@ -77,8 +87,8 @@ Arguments:
 		name := args[0]
 		id := args[1]
 		totalBought := 0
-		for totalBought < buyFlags.quantity {
-			remaining := buyFlags.quantity - totalBought
+		for totalBought < buyOptions.Quantity {
+			remaining := buyOptions.Quantity - totalBought
 			quantity := min(remaining, buyData.character.InventoryMaxItems, 100)
 			cost := quantity * buyData.order.Price
 
@@ -134,5 +144,8 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(buyCmd)
-	buyCmd.Flags().IntVarP(&buyFlags.quantity, "quantity", "q", 0, "Item quantity")
+	err := utils.RegisterFlags[buyFlags](buyCmd)
+	if err != nil {
+		panic(err)
+	}
 }

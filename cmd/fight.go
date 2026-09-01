@@ -10,8 +10,15 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
+
+type fightFlags struct {
+	Food     string `flag:"food" desc:"auto-stock food from bank"`
+	Utility1 string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
+	Utility2 string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
+}
 
 var fightCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
@@ -26,6 +33,12 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+
+		flags, err := utils.ReadFlags[fightFlags](cmd)
+		if err != nil {
+			return err
+		}
+
 		monster, found := database.Monsters.Get(code)
 		if !found {
 			return fmt.Errorf("monster %s not found", code)
@@ -45,9 +58,6 @@ Arguments:
 			}
 		}
 
-		food, _ := cmd.Flags().GetString("food")
-		utility1, _ := cmd.Flags().GetString("utility1")
-		utility2, _ := cmd.Flags().GetString("utility2")
 		fightResult, err := best.FindFightByName(name, *monster, false, false)
 		if err != nil {
 			return err
@@ -55,7 +65,7 @@ Arguments:
 		if fightResult.Winrate < 100 {
 			return fmt.Errorf("cannot safely fight %s: simulated winrate is %.2f%%", monster.Code, fightResult.Winrate)
 		}
-		if !fightUtilitiesMatch(fightResult, utility1, utility2) {
+		if !fightUtilitiesMatch(fightResult, flags.Utility1, flags.Utility2) {
 			return fmt.Errorf("fight utilities do not match the simulated configuration")
 		}
 		equipments := make([]schemas.EquipSchema, 0, len(fightResult.Equipment))
@@ -70,7 +80,7 @@ Arguments:
 			return err
 		}
 		for {
-			err = prepare(character, *monster, food, utility1, utility2)
+			err = prepare(character, *monster, flags.Food, flags.Utility1, flags.Utility2)
 			if err != nil {
 				return err
 			}
@@ -94,10 +104,11 @@ func fightUtilitiesMatch(result best.Result, utility1, utility2 string) bool {
 
 func init() {
 	rootCmd.AddCommand(fightCmd)
-	fightCmd.Flags().String("food", "", "auto-stock food from bank")
+	err := utils.RegisterFlags[fightFlags](fightCmd)
+	if err != nil {
+		panic(err)
+	}
 	fightCmd.Flags().Lookup("food").NoOptDefVal = "auto"
-	fightCmd.Flags().String("utility1", "", "item code to auto-refill in utility1 slot")
-	fightCmd.Flags().String("utility2", "", "item code to auto-refill in utility2 slot")
 }
 
 func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, food, utility1, utility2 string) error {

@@ -10,6 +10,7 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -18,10 +19,12 @@ var relistData struct {
 	orders    []schemas.GEOrderSchema
 }
 
-var relistFlags struct {
-	price    int
-	quantity int
+type relistFlags struct {
+	Price    int `flag:"price" shorthand:"p" desc:"Item price per unit"`
+	Quantity int `flag:"quantity" shorthand:"q" desc:"Item quantity (0 for all)"`
 }
+
+var relistOptions relistFlags
 
 var relistCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
@@ -36,6 +39,13 @@ Arguments:
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+
+		flags, err := utils.ReadFlags[relistFlags](cmd)
+		if err != nil {
+			return err
+		}
+		relistOptions = flags
+
 		validCharacters := cache.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
 			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
@@ -44,10 +54,10 @@ Arguments:
 		if !found {
 			return fmt.Errorf("item %q not tradeable or not found", code)
 		}
-		if relistFlags.price <= 0 {
+		if relistOptions.Price <= 0 {
 			return fmt.Errorf("price must be greater than 0")
 		}
-		if relistFlags.quantity < 0 {
+		if relistOptions.Quantity < 0 {
 			return fmt.Errorf("quantity must be greater than or equal to 0")
 		}
 		orders, err := api.MyGrandexchangeOrders(api.MyGrandexchangeOrdersOptions{
@@ -73,8 +83,8 @@ Arguments:
 		code := args[1]
 
 		totalToRelist := 0
-		if relistFlags.quantity > 0 {
-			totalToRelist = relistFlags.quantity
+		if relistOptions.Quantity > 0 {
+			totalToRelist = relistOptions.Quantity
 		} else {
 			for _, order := range relistData.orders {
 				totalToRelist += order.Quantity
@@ -118,7 +128,7 @@ Arguments:
 
 			newOrder := schemas.GEOrderCreationSchema{
 				Code:     code,
-				Price:    relistFlags.price,
+				Price:    relistOptions.Price,
 				Quantity: qtyToCancel,
 			}
 			createNewData, err := api.MyActionGrandexchangeCreateSellOrder(name, newOrder)
@@ -135,6 +145,8 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(relistCmd)
-	relistCmd.Flags().IntVarP(&relistFlags.price, "price", "p", 0, "Item price per unit")
-	relistCmd.Flags().IntVarP(&relistFlags.quantity, "quantity", "q", 0, "Item quantity (0 for all)")
+	err := utils.RegisterFlags[relistFlags](relistCmd)
+	if err != nil {
+		panic(err)
+	}
 }

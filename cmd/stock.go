@@ -18,11 +18,15 @@ type ItemStock struct {
 	Target  int `json:"target"`
 }
 
+type stockFlags struct {
+	Target bool `flag:"target" desc:"Filter items below the target quantity instead of safety"`
+}
+
 var stockCmd = &cobra.Command{
 	Use:   "stock",
 	Short: "Stock",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		stockUseTarget, err := cmd.Flags().GetBool("target")
+		flags, err := utils.ReadFlags[stockFlags](cmd)
 		if err != nil {
 			return err
 		}
@@ -87,7 +91,7 @@ var stockCmd = &cobra.Command{
 			}
 			target := safety + safety/3
 			threshold := safety
-			if stockUseTarget {
+			if flags.Target {
 				threshold = target
 			}
 			if itemQuantity >= threshold {
@@ -106,5 +110,8 @@ var stockCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(stockCmd)
-	stockCmd.Flags().Bool("target", false, "Filter items below the target quantity instead of safety")
+	err := utils.RegisterFlags[stockFlags](stockCmd)
+	if err != nil {
+		panic(err)
+	}
 }

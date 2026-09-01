@@ -9,6 +9,7 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -22,6 +23,13 @@ var forbiddenTaskItem = []string{
 	"strangold_bar",
 }
 
+type taskItemFlags struct {
+	CoinBuffer           int  `flag:"coin-buffer" shorthand:"b" default:"3" desc:"Buffer of coins to keep in inventory"`
+	MaxCancel            int  `flag:"max-cancel" shorthand:"c" default:"3" desc:"Maximum consecutive task cancellations"`
+	CancelMissing        bool `flag:"cancel-missing" desc:"Cancel task if required items are missing in bank"`
+	CancelMissingLevel50 bool `flag:"cancel-missing-level-50" desc:"Cancel missing items tasks at level 50"`
+}
+
 var taskItemCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Use:   "item <name>",
@@ -33,10 +41,11 @@ Arguments:
 	ValidArgsFunction: completion.CharacterName(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
-		tasksCoinBuffer, _ := cmd.Flags().GetInt("coin-buffer")
-		tasksMaxCancel, _ := cmd.Flags().GetInt("max-cancel")
-		cancelMissing, _ := cmd.Flags().GetBool("cancel-missing")
-		cancelMissingLevel50, _ := cmd.Flags().GetBool("cancel-missing-level-50")
+
+		flags, err := utils.ReadFlags[taskItemFlags](cmd)
+		if err != nil {
+			return err
+		}
 
 		character, err := api.Characters(name)
 		if err != nil {
@@ -72,7 +81,7 @@ Arguments:
 			needed := character.TaskTotal - character.TaskProgress
 			available := bankQty + taskItemInvQty(character, character.Task)
 			task, taskExists := database.Tasks.Get(character.Task)
-			canCancelMissing := cancelMissing || (cancelMissingLevel50 && taskExists && task.Level == 50)
+			canCancelMissing := flags.CancelMissing || (flags.CancelMissingLevel50 && taskExists && task.Level == 50)
 			if !canCancelMissing && !isForbidden && available < needed {
 				return fmt.Errorf("missing item: %s (have %d, need %d)", character.Task, available, needed)
 			}
@@ -83,7 +92,7 @@ Arguments:
 					taskQuantity := taskItemInvQty(character, character.Task)
 					toTrade := min(remaining, taskQuantity)
 					if taskQuantity == 0 {
-						toTrade = min(remaining, max(0, character.InventoryMaxItems-tasksCoinBuffer))
+						toTrade = min(remaining, max(0, character.InventoryMaxItems-flags.CoinBuffer))
 						character, err = routine.Move(character, "bank")
 						if err != nil {
 							return err
@@ -115,10 +124,10 @@ Arguments:
 							{Code: character.Task, Quantity: toTrade},
 						}
 						coinsInBank := taskItemBankQty(bankItems, tasksCoin)
-						if tasksCoinBuffer > 0 && coinsInBank > 0 {
+						if flags.CoinBuffer > 0 && coinsInBank > 0 {
 							withdraw = append(withdraw, schemas.SimpleItemSchema{
 								Code:     tasksCoin,
-								Quantity: min(tasksCoinBuffer, coinsInBank),
+								Quantity: min(flags.CoinBuffer, coinsInBank),
 							})
 						}
 						bankData, err := api.MyActionBankWithdrawItem(name, withdraw)
@@ -151,8 +160,8 @@ Arguments:
 				character = reward.Character
 				continue
 			}
-			if cancelsInARow >= tasksMaxCancel {
-				return fmt.Errorf("reached %d consecutive task cancellations", tasksMaxCancel)
+			if cancelsInARow >= flags.MaxCancel {
+				return fmt.Errorf("reached %d consecutive task cancellations", flags.MaxCancel)
 			}
 			if taskItemInvQty(character, tasksCoin) < 1 {
 				character, err = routine.Move(character, "bank")
@@ -160,7 +169,7 @@ Arguments:
 					return err
 				}
 				bankData, err := api.MyActionBankWithdrawItem(name, []schemas.SimpleItemSchema{
-					{Code: tasksCoin, Quantity: tasksCoinBuffer},
+					{Code: tasksCoin, Quantity: flags.CoinBuffer},
 				})
 				if err != nil {
 					return err
@@ -183,10 +192,10 @@ Arguments:
 
 func init() {
 	taskCmd.AddCommand(taskItemCmd)
-	taskItemCmd.Flags().IntP("coin-buffer", "b", 3, "Buffer of coins to keep in inventory")
-	taskItemCmd.Flags().IntP("max-cancel", "c", 3, "Maximum consecutive task cancellations")
-	taskItemCmd.Flags().Bool("cancel-missing", false, "Cancel task if required items are missing in bank")
-	taskItemCmd.Flags().Bool("cancel-missing-level-50", false, "Cancel missing items tasks at level 50")
+	err := utils.RegisterFlags[taskItemFlags](taskItemCmd)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func taskItemBankQty(items []schemas.SimpleItemSchema, code string) int {

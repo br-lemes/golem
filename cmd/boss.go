@@ -8,9 +8,16 @@ import (
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 )
+
+type bossFlags struct {
+	Food     string `flag:"food" desc:"auto-stock food from bank"`
+	Utility1 string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
+	Utility2 string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
+}
 
 var bossCmd = &cobra.Command{
 	Args:  cobra.RangeArgs(3, 4),
@@ -26,6 +33,12 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+
+		flags, err := utils.ReadFlags[bossFlags](cmd)
+		if err != nil {
+			return err
+		}
+
 		participants := args[2:]
 		switch len(participants) {
 		case 1:
@@ -77,14 +90,15 @@ Arguments:
 			}
 		}
 
-		food, _ := cmd.Flags().GetString("food")
-		utility1, _ := cmd.Flags().GetString("utility1")
-		utility2, _ := cmd.Flags().GetString("utility2")
 		for {
 			var g errgroup.Group
-			g.Go(func() error { return prepare(charMap[name], *boss, food, utility1, utility2) })
+			g.Go(func() error {
+				return prepare(charMap[name], *boss, flags.Food, flags.Utility1, flags.Utility2)
+			})
 			for _, p := range participants {
-				g.Go(func() error { return prepare(charMap[p], *boss, food, utility1, utility2) })
+				g.Go(func() error {
+					return prepare(charMap[p], *boss, flags.Food, flags.Utility1, flags.Utility2)
+				})
 			}
 			err := g.Wait()
 			if err != nil {
@@ -104,8 +118,9 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(bossCmd)
-	bossCmd.Flags().String("food", "", "auto-stock food from bank")
+	err := utils.RegisterFlags[bossFlags](bossCmd)
+	if err != nil {
+		panic(err)
+	}
 	bossCmd.Flags().Lookup("food").NoOptDefVal = "auto"
-	bossCmd.Flags().String("utility1", "", "item code to auto-refill in utility1 slot")
-	bossCmd.Flags().String("utility2", "", "item code to auto-refill in utility2 slot")
 }

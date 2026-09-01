@@ -8,8 +8,14 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
+
+type recyclingFlags struct {
+	Quantity int  `flag:"quantity" shorthand:"q" desc:"Amount of items to recycle (0 for all available)"`
+	Enhanced bool `flag:"enhanced" shorthand:"e" desc:"Use enhanced recycling (costs gold for 30% more resources)"`
+}
 
 var recyclingCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
@@ -25,16 +31,12 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		qty, err := cmd.Flags().GetInt("quantity")
-		if err != nil {
-			return err
-		}
-		enhanced, err := cmd.Flags().GetBool("enhanced")
+		flags, err := utils.ReadFlags[recyclingFlags](cmd)
 		if err != nil {
 			return err
 		}
 
-		err = StartRecyclingBot(name, code, qty, enhanced)
+		err = StartRecyclingBot(name, code, flags.Quantity, flags.Enhanced)
 		if err != nil {
 			return err
 		}
@@ -44,9 +46,11 @@ Arguments:
 }
 
 func init() {
-	recyclingCmd.Flags().IntP("quantity", "q", 0, "Amount of items to recycle (0 for all available)")
-	recyclingCmd.Flags().Bool("enhanced", false, "Use enhanced recycling (costs gold for 30% more resources)")
 	rootCmd.AddCommand(recyclingCmd)
+	err := utils.RegisterFlags[recyclingFlags](recyclingCmd)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {

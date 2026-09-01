@@ -9,6 +9,7 @@ import (
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -37,6 +38,10 @@ type priceStats struct {
 	Max     int `json:"max"`
 }
 
+type priceFlags struct {
+	IncludeOwnOrders bool `flag:"include-own-orders" desc:"Include your own open orders in the market statistics."`
+}
+
 var priceCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Use:   "price <item>",
@@ -45,10 +50,12 @@ var priceCmd = &cobra.Command{
 	ValidArgsFunction: completion.Tradeable(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		code := args[0]
-		includeOwnOrders, err := cmd.Flags().GetBool("include-own-orders")
+
+		flags, err := utils.ReadFlags[priceFlags](cmd)
 		if err != nil {
 			return err
 		}
+
 		item, exists := database.Items().Tradeables().Get(code)
 		if !exists {
 			return fmt.Errorf("item %q not tradeable or not found", code)
@@ -59,7 +66,7 @@ var priceCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		if !includeOwnOrders {
+		if !flags.IncludeOwnOrders {
 			ownOrders, err := api.MyGrandexchangeOrders(api.MyGrandexchangeOrdersOptions{
 				Code: code,
 			})
@@ -167,5 +174,8 @@ func similarPriceItems(item *schemas.ItemSchema, items []*schemas.ItemSchema) []
 
 func init() {
 	rootCmd.AddCommand(priceCmd)
-	priceCmd.Flags().Bool("include-own-orders", false, "Include your own open orders in the market statistics.")
+	err := utils.RegisterFlags[priceFlags](priceCmd)
+	if err != nil {
+		panic(err)
+	}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -19,10 +20,12 @@ var sellData struct {
 	inventoryItem schemas.SimpleItemSchema
 }
 
-var sellFlags struct {
-	price    int
-	quantity int
+type sellFlags struct {
+	Price    int `flag:"price" shorthand:"p" desc:"Item price per unit"`
+	Quantity int `flag:"quantity" shorthand:"q" desc:"Item quantity"`
 }
+
+var sellOptions sellFlags
 
 var sellCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
@@ -37,6 +40,13 @@ Arguments:
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+
+		flags, err := utils.ReadFlags[sellFlags](cmd)
+		if err != nil {
+			return err
+		}
+		sellOptions = flags
+
 		validCharacters := cache.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
 			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
@@ -45,10 +55,10 @@ Arguments:
 		if !found {
 			return fmt.Errorf("item %q not tradeable or not found", code)
 		}
-		if sellFlags.price <= 0 {
+		if sellOptions.Price <= 0 {
 			return fmt.Errorf("price must be greater than 0")
 		}
-		if sellFlags.quantity <= 0 {
+		if sellOptions.Quantity <= 0 {
 			return fmt.Errorf("quantity must be greater than 0")
 		}
 		items, err := api.MyBankItems()
@@ -78,8 +88,8 @@ Arguments:
 			}
 		}
 		totalAvailable := sellData.bankItem.Quantity + sellData.inventoryItem.Quantity
-		if sellFlags.quantity > totalAvailable {
-			return fmt.Errorf("not enough items: required %d, available %d", sellFlags.quantity, totalAvailable)
+		if sellOptions.Quantity > totalAvailable {
+			return fmt.Errorf("not enough items: required %d, available %d", sellOptions.Quantity, totalAvailable)
 		}
 		return nil
 	},
@@ -88,8 +98,8 @@ Arguments:
 		name := args[0]
 		code := args[1]
 		totalSold := 0
-		for totalSold < sellFlags.quantity {
-			remaining := sellFlags.quantity - totalSold
+		for totalSold < sellOptions.Quantity {
+			remaining := sellOptions.Quantity - totalSold
 			if sellData.inventoryItem.Quantity == 0 {
 				var err error
 				sellData.character, err = routine.Move(sellData.character, "bank")
@@ -124,7 +134,7 @@ Arguments:
 			}
 			order := schemas.GEOrderCreationSchema{
 				Code:     code,
-				Price:    sellFlags.price,
+				Price:    sellOptions.Price,
 				Quantity: min(remaining, sellData.inventoryItem.Quantity, 100),
 			}
 			orderData, err := api.MyActionGrandexchangeCreateSellOrder(name, order)
@@ -141,6 +151,8 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(sellCmd)
-	sellCmd.Flags().IntVarP(&sellFlags.price, "price", "p", 0, "Item price per unit")
-	sellCmd.Flags().IntVarP(&sellFlags.quantity, "quantity", "q", 0, "Item quantity")
+	err := utils.RegisterFlags[sellFlags](sellCmd)
+	if err != nil {
+		panic(err)
+	}
 }

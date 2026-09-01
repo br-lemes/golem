@@ -9,6 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type commandsFlags struct {
+	Missing bool `flag:"missing" shorthand:"m" desc:"Show only commands with missing implementation"`
+}
+
 var commandsCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
 	Use:   "commands [command]",
@@ -19,6 +23,11 @@ Arguments:
   command   Name of a specific command to inspect.`,
 	ValidArgsFunction: completion.Custom(1, utils.GetCommandsCompletion).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		flags, err := utils.ReadFlags[commandsFlags](cmd)
+		if err != nil {
+			return err
+		}
+
 		commands, err := utils.GetCommands()
 		if err != nil {
 			return err
@@ -32,8 +41,7 @@ Arguments:
 			}
 		}
 
-		missing, _ := cmd.Flags().GetBool("missing")
-		if missing {
+		if flags.Missing {
 			for _, command := range apiCmd.Commands() {
 				delete(commands, command.Name())
 			}
@@ -52,5 +60,8 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(commandsCmd)
-	commandsCmd.Flags().BoolP("missing", "m", false, "Show only commands with missing implementation")
+	err := utils.RegisterFlags[commandsFlags](commandsCmd)
+	if err != nil {
+		panic(err)
+	}
 }

@@ -7,8 +7,13 @@ import (
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/surplus"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
+
+type surplusFlags struct {
+	Evaluate bool `flag:"evaluate" desc:"Evaluate an item as if it were owned"`
+}
 
 var surplusCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
@@ -20,7 +25,10 @@ Arguments:
   code   The code of the item.`,
 	ValidArgsFunction: completion.Item(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		evaluate, _ := cmd.Flags().GetBool("evaluate")
+		flags, err := utils.ReadFlags[surplusFlags](cmd)
+		if err != nil {
+			return err
+		}
 		bankItems, err := api.MyBankItems()
 		if err != nil {
 			return err
@@ -33,12 +41,12 @@ Arguments:
 		input := surplus.Input{BankItems: bankItems, Characters: characters}
 
 		if len(args) == 1 {
-			if evaluate {
+			if flags.Evaluate {
 				return console.Auto(formatEquipmentExplanation(surplus.Evaluate(input, args[0])))
 			}
 			return console.Auto(formatEquipmentExplanation(surplus.Explain(input, args[0])))
 		}
-		if evaluate {
+		if flags.Evaluate {
 			return fmt.Errorf("--evaluate requires an equipment code")
 		}
 		items := surplus.Find(input)
@@ -94,5 +102,8 @@ func formatEquipmentExplanation(explanation surplus.Explanation) equipmentExplan
 
 func init() {
 	rootCmd.AddCommand(surplusCmd)
-	surplusCmd.Flags().Bool("evaluate", false, "Evaluate an item as if it were owned")
+	err := utils.RegisterFlags[surplusFlags](surplusCmd)
+	if err != nil {
+		panic(err)
+	}
 }

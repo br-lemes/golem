@@ -10,6 +10,7 @@ import (
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -20,9 +21,11 @@ var npcSellData struct {
 	item          *schemas.NPCItemSchema
 }
 
-var npcSellFlags struct {
-	quantity int
+type npcSellFlags struct {
+	Quantity int `flag:"quantity" shorthand:"q" desc:"Item quantity"`
 }
+
+var npcSellOptions npcSellFlags
 
 var npcSellCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
@@ -37,6 +40,13 @@ Arguments:
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+
+		flags, err := utils.ReadFlags[npcSellFlags](cmd)
+		if err != nil {
+			return err
+		}
+		npcSellOptions = flags
+
 		validCharacters := cache.GetCharacters()
 		if !slices.Contains(validCharacters, name) {
 			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
@@ -49,10 +59,9 @@ Arguments:
 		if npcSellData.item.SellPrice == nil || *npcSellData.item.SellPrice <= 0 {
 			return fmt.Errorf("item %q does not have a sell price", code)
 		}
-		if npcSellFlags.quantity <= 0 {
+		if npcSellOptions.Quantity <= 0 {
 			return fmt.Errorf("quantity must be greater than 0")
 		}
-		var err error
 		npcSellData.character, err = api.Characters(name)
 		if err != nil {
 			return err
@@ -78,16 +87,16 @@ Arguments:
 			}
 		}
 		totalAvailable := npcSellData.bankItem.Quantity + npcSellData.inventoryItem.Quantity
-		if totalAvailable < npcSellFlags.quantity {
-			return fmt.Errorf("not enough items: required %d, available %d", npcSellFlags.quantity, totalAvailable)
+		if totalAvailable < npcSellOptions.Quantity {
+			return fmt.Errorf("not enough items: required %d, available %d", npcSellOptions.Quantity, totalAvailable)
 		}
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
 		totalSold := 0
-		for totalSold < npcSellFlags.quantity {
-			remaining := npcSellFlags.quantity - totalSold
+		for totalSold < npcSellOptions.Quantity {
+			remaining := npcSellOptions.Quantity - totalSold
 			quantity := min(remaining, npcSellData.character.InventoryMaxItems)
 			needBank := false
 			for _, invItem := range npcSellInventoryItems() {
@@ -126,7 +135,10 @@ Arguments:
 
 func init() {
 	npcCmd.AddCommand(npcSellCmd)
-	npcSellCmd.Flags().IntVarP(&npcSellFlags.quantity, "quantity", "q", 0, "Item quantity")
+	err := utils.RegisterFlags[npcSellFlags](npcSellCmd)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func npcSellInventoryItems() []schemas.InventorySlotSchema {

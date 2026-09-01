@@ -14,6 +14,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type craftingFlags struct {
+	Quantity int `flag:"quantity" shorthand:"q" desc:"Amount of items to craft (0 for infinite/max available)"`
+}
+
 var craftingCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	Use:   "crafting <name> <code>",
@@ -28,9 +32,12 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		qty, _ := cmd.Flags().GetInt("quantity")
+		flags, err := utils.ReadFlags[craftingFlags](cmd)
+		if err != nil {
+			return err
+		}
 
-		err := StartCraftingBot(name, code, qty)
+		err = StartCraftingBot(name, code, flags.Quantity)
 		if err != nil {
 			return err
 		}
@@ -41,7 +48,10 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(craftingCmd)
-	craftingCmd.Flags().IntP("quantity", "q", 0, "Amount of items to craft (0 for infinite/max available)")
+	err := utils.RegisterFlags[craftingFlags](craftingCmd)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func StartCraftingBot(name string, code string, qty int) error {
