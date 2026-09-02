@@ -133,14 +133,6 @@ Arguments:
 	},
 }
 
-func init() {
-	npcCmd.AddCommand(npcSellCmd)
-	err := utils.RegisterFlags[npcSellFlags](npcSellCmd)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func npcSellInventoryItems() []schemas.InventorySlotSchema {
 	if npcSellData.character.Inventory == nil {
 		return nil
@@ -199,4 +191,12 @@ func npcSellSellItem(quantity int) error {
 	npcSellData.character = sellData.Character
 	npcSellData.inventoryItem.Quantity -= quantity
 	return nil
+}
+
+func init() {
+	npcCmd.AddCommand(npcSellCmd)
+	err := utils.RegisterFlags[npcSellFlags](npcSellCmd)
+	if err != nil {
+		panic(err)
+	}
 }

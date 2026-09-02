@@ -134,10 +134,6 @@ Arguments:
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(costCmd)
-}
-
 func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom int) int {
 	var baseXP float64
 	var coefficient float64
@@ -197,4 +193,8 @@ func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom i
 	finalXP := math.Round(calculatedXP)
 
 	return int(finalXP)
+}
+
+func init() {
+	rootCmd.AddCommand(costCmd)
 }

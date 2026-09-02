@@ -62,10 +62,6 @@ Arguments:
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(progressCmd)
-}
-
 func progressFormat(achievements []schemas.AccountAchievementSchema) map[string][]map[schemas.AchievementType]string {
 	result := map[string][]map[schemas.AchievementType]string{}
 	for _, achievement := range achievements {
@@ -85,4 +81,8 @@ func progressFormat(achievements []schemas.AccountAchievementSchema) map[string]
 		}
 	}
 	return result
+}
+
+func init() {
+	rootCmd.AddCommand(progressCmd)
 }

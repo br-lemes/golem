@@ -45,14 +45,6 @@ Arguments:
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(recyclingCmd)
-	err := utils.RegisterFlags[recyclingFlags](recyclingCmd)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 	item, found := database.Items().Get(code)
 	if !found {
@@ -305,5 +297,13 @@ func isRecyclable(item schemas.ItemSchema) bool {
 		return true
 	default:
 		return false
+	}
+}
+
+func init() {
+	rootCmd.AddCommand(recyclingCmd)
+	err := utils.RegisterFlags[recyclingFlags](recyclingCmd)
+	if err != nil {
+		panic(err)
 	}
 }

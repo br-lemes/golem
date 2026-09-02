@@ -53,24 +53,6 @@ var missingCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(missingCmd)
-	err := utils.RegisterFlags[missingFlags](missingCmd)
-	if err != nil {
-		panic(err)
-	}
-	err = missingCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
-	if err != nil {
-		panic(err)
-	}
-	err = missingCmd.RegisterFlagCompletionFunc("type", completion.StringSlice(func() []string {
-		return database.EquipmentTypes
-	}))
-	if err != nil {
-		panic(err)
-	}
-}
-
 func executeMissing(names []string, equipTypes []string) error {
 	characters, err := api.AccountsCharacters("")
 	if err != nil {
@@ -206,4 +188,22 @@ func hasRequiredSkillLevel(character schemas.CharacterSchema, item schemas.ItemS
 		}
 	}
 	return true
+}
+
+func init() {
+	rootCmd.AddCommand(missingCmd)
+	err := utils.RegisterFlags[missingFlags](missingCmd)
+	if err != nil {
+		panic(err)
+	}
+	err = missingCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
+	if err != nil {
+		panic(err)
+	}
+	err = missingCmd.RegisterFlagCompletionFunc("type", completion.StringSlice(func() []string {
+		return database.EquipmentTypes
+	}))
+	if err != nil {
+		panic(err)
+	}
 }

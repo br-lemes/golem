@@ -102,15 +102,6 @@ func fightUtilitiesMatch(result best.Result, utility1, utility2 string) bool {
 	return result.Utilities["utility1"] == utility1 && result.Utilities["utility2"] == utility2
 }
 
-func init() {
-	rootCmd.AddCommand(fightCmd)
-	err := utils.RegisterFlags[fightFlags](fightCmd)
-	if err != nil {
-		panic(err)
-	}
-	fightCmd.Flags().Lookup("food").NoOptDefVal = "auto"
-}
-
 func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, food, utility1, utility2 string) error {
 	routine.Cooldown(character)
 	minHp := monster.Hp + (monster.Hp * 20 / 100)
@@ -146,4 +137,13 @@ func taskCompleted(character schemas.CharacterSchema, code string) bool {
 		return true
 	}
 	return false
+}
+
+func init() {
+	rootCmd.AddCommand(fightCmd)
+	err := utils.RegisterFlags[fightFlags](fightCmd)
+	if err != nil {
+		panic(err)
+	}
+	fightCmd.Flags().Lookup("food").NoOptDefVal = "auto"
 }

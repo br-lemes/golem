@@ -111,10 +111,6 @@ func outputItemCounts(args []string) error {
 	return console.Auto(output)
 }
 
-func init() {
-	rootCmd.AddCommand(countCmd)
-}
-
 func countInSlots(character schemas.CharacterSchema, code string) int {
 	total := 0
 	v := reflect.ValueOf(character)
@@ -135,4 +131,8 @@ func countInSlots(character schemas.CharacterSchema, code string) int {
 		}
 	}
 	return total
+}
+
+func init() {
+	rootCmd.AddCommand(countCmd)
 }

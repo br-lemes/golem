@@ -190,14 +190,6 @@ Arguments:
 	},
 }
 
-func init() {
-	taskCmd.AddCommand(taskItemCmd)
-	err := utils.RegisterFlags[taskItemFlags](taskItemCmd)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func taskItemBankQty(items []schemas.SimpleItemSchema, code string) int {
 	for _, item := range items {
 		if item.Code == code {
@@ -218,4 +210,12 @@ func taskItemInvQty(character schemas.CharacterSchema, code string) int {
 		}
 	}
 	return total
+}
+
+func init() {
+	taskCmd.AddCommand(taskItemCmd)
+	err := utils.RegisterFlags[taskItemFlags](taskItemCmd)
+	if err != nil {
+		panic(err)
+	}
 }

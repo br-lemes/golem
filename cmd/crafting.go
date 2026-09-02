@@ -46,14 +46,6 @@ Arguments:
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(craftingCmd)
-	err := utils.RegisterFlags[craftingFlags](craftingCmd)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func StartCraftingBot(name string, code string, qty int) error {
 	item, found := database.Items().Get(code)
 	if !found {
@@ -348,4 +340,12 @@ func fetchAllBankItems() (map[string]int, error) {
 
 func isCraftable(item schemas.ItemSchema) bool {
 	return item.Craft != nil && item.Craft.Items != nil && len(*item.Craft.Items) > 0 && item.Craft.Level != nil && *item.Craft.Quantity >= 1 && item.Craft.Skill != nil
+}
+
+func init() {
+	rootCmd.AddCommand(craftingCmd)
+	err := utils.RegisterFlags[craftingFlags](craftingCmd)
+	if err != nil {
+		panic(err)
+	}
 }

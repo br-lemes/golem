@@ -41,10 +41,6 @@ Arguments:
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(levelupCmd)
-}
-
 func skillLevelupRequirements(characters []schemas.CharacterSchema) map[string]map[string]int {
 	skills := slices.DeleteFunc(slices.Clone(database.Enum("CharacterLeaderboardType")), func(skill string) bool {
 		return slices.Contains(levelupExcludedSkills, skill)
@@ -76,4 +72,8 @@ func skillLevelupRequirements(characters []schemas.CharacterSchema) map[string]m
 		}
 	}
 	return result
+}
+
+func init() {
+	rootCmd.AddCommand(levelupCmd)
 }

@@ -66,15 +66,6 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.PersistentFlags().StringVar(&configFlag, "config", "", "Configuration file path")
-	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false, "Enable debug mode")
-	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto", "Output format: auto, json or yaml")
-	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "", "Output file path (default: stdout)")
-	rootCmd.PersistentFlags().BoolVar(&refreshFlag, "refresh", false, "Refresh all caches before running the command")
-	rootCmd.PersistentFlags().StringVarP(&console.Style, "style", "s", "monokai", "The style to use for syntax highlighting")
-}
-
 func Execute(version string) error {
 	rootCmd.Version = version
 	err := rootCmd.Execute()
@@ -92,4 +83,13 @@ func validateFlags() error {
 		return fmt.Errorf("invalid format: %s", console.Format)
 	}
 	return nil
+}
+
+func init() {
+	rootCmd.PersistentFlags().StringVar(&configFlag, "config", "", "Configuration file path")
+	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false, "Enable debug mode")
+	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto", "Output format: auto, json or yaml")
+	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "", "Output file path (default: stdout)")
+	rootCmd.PersistentFlags().BoolVar(&refreshFlag, "refresh", false, "Refresh all caches before running the command")
+	rootCmd.PersistentFlags().StringVarP(&console.Style, "style", "s", "monokai", "The style to use for syntax highlighting")
 }

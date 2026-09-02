@@ -67,20 +67,6 @@ Arguments:
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(findCmd)
-	err := utils.RegisterFlags[findFlags](findCmd)
-	if err != nil {
-		panic(err)
-	}
-	err = findCmd.RegisterFlagCompletionFunc("layer", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.Enum("MapLayer"), cobra.ShellCompDirectiveNoFileComp
-	})
-	if err != nil {
-		panic(err)
-	}
-}
-
 func parseOrigin(value string) (int, int, error) {
 	parts := strings.Split(value, ",")
 	if len(parts) != 2 {
@@ -95,4 +81,18 @@ func parseOrigin(value string) (int, int, error) {
 		return 0, 0, fmt.Errorf("invalid origin %q: Y must be an integer", value)
 	}
 	return x, y, nil
+}
+
+func init() {
+	rootCmd.AddCommand(findCmd)
+	err := utils.RegisterFlags[findFlags](findCmd)
+	if err != nil {
+		panic(err)
+	}
+	err = findCmd.RegisterFlagCompletionFunc("layer", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return database.Enum("MapLayer"), cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		panic(err)
+	}
 }
