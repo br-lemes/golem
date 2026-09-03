@@ -23,6 +23,7 @@ var (
 	Stdout  io.Writer = os.Stdout
 	Style   string    = "monokai"
 	Exclude []string
+	Only    []string
 )
 
 func Auto(data any) error {
@@ -45,6 +46,13 @@ func Auto(data any) error {
 			return err
 		}
 	}
+	if len(Only) > 0 {
+		var err error
+		data, err = onlyPaths(data, Only)
+		if err != nil {
+			return err
+		}
+	}
 
 	if Format == "yaml" {
 		return Yaml(data, isTerminal)
@@ -55,6 +63,88 @@ func Auto(data any) error {
 		}
 	}
 	return Json(data, isTerminal)
+}
+
+func onlyPaths(data any, patterns []string) (any, error) {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	var value any
+	err = json.Unmarshal(bytes, &value)
+	if err != nil {
+		return nil, err
+	}
+	paths := make([][]string, 0, len(patterns))
+	for _, pattern := range patterns {
+		paths = append(paths, strings.Split(pattern, "."))
+	}
+	value, _ = onlyPath(value, paths)
+	return value, nil
+}
+
+func onlyPath(value any, paths [][]string) (any, bool) {
+	switch current := value.(type) {
+	case map[string]any:
+		for key, child := range current {
+			keep := false
+			var childPaths [][]string
+			for _, pathParts := range paths {
+				matched, err := path.Match(pathParts[0], key)
+				if err != nil || !matched {
+					continue
+				}
+				if len(pathParts) == 1 {
+					keep = true
+					break
+				}
+				childPaths = append(childPaths, pathParts[1:])
+			}
+			if !keep && len(childPaths) > 0 {
+				updated, childKeep := onlyPath(child, childPaths)
+				if childKeep {
+					current[key] = updated
+					keep = true
+				}
+			}
+			if !keep {
+				delete(current, key)
+			}
+		}
+		return current, true
+	case []any:
+		keepAny := false
+		for index := range current {
+			indexString := strconv.Itoa(index)
+			keep := false
+			var childPaths [][]string
+			for _, pathParts := range paths {
+				if pathParts[0] != "*" && pathParts[0] != indexString {
+					continue
+				}
+				if len(pathParts) == 1 {
+					keep = true
+					break
+				}
+				childPaths = append(childPaths, pathParts[1:])
+			}
+			if !keep && len(childPaths) > 0 {
+				updated, childKeep := onlyPath(current[index], childPaths)
+				if childKeep {
+					current[index] = updated
+					keep = true
+				}
+			}
+			if keep {
+				keepAny = true
+			} else {
+				current[index] = nil
+			}
+		}
+		return current, keepAny
+	default:
+		return value, false
+	}
 }
 
 func excludePaths(data any, patterns []string) (any, error) {
