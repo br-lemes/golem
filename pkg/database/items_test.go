@@ -22,6 +22,18 @@ func TestItemCatalogViews(t *testing.T) {
 		}
 	})
 
+	t.Run("potions", func(t *testing.T) {
+		potions := Items().Potions().All()
+		if len(potions) == 0 {
+			t.Fatal("potion view is empty")
+		}
+		for _, item := range potions {
+			if item.Subtype != "potion" {
+				t.Fatalf("potion view contains %q with subtype %q", item.Code, item.Subtype)
+			}
+		}
+	})
+
 	t.Run("tradeables", func(t *testing.T) {
 		tradeables := Items().Tradeables().All()
 		if len(tradeables) == 0 {
