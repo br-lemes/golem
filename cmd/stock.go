@@ -19,7 +19,8 @@ type ItemStock struct {
 }
 
 type stockFlags struct {
-	Target bool `flag:"target" desc:"Filter items below the target quantity instead of safety"`
+	Target         bool `flag:"target" desc:"Filter items below the target quantity instead of safety"`
+	IncludeLevel50 bool `flag:"include-level-50" desc:"Include level 50 tasks"`
 }
 
 var stockCmd = &cobra.Command{
@@ -73,7 +74,7 @@ var stockCmd = &cobra.Command{
 		}
 		result := map[string]ItemStock{}
 		for _, task := range database.Tasks.All() {
-			if task.Skill == nil || task.Type != "items" || task.Level > maxSkillLevel[*task.Skill] || slices.Contains(forbiddenTaskItem, task.Code) {
+			if !includeStockTask(task, flags, maxSkillLevel) {
 				continue
 			}
 			var itemQuantity int
@@ -106,6 +107,13 @@ var stockCmd = &cobra.Command{
 		}
 		return console.Auto(result)
 	},
+}
+
+func includeStockTask(task *schemas.TaskFullSchema, flags stockFlags, maxSkillLevel map[string]int) bool {
+	if task.Skill == nil || task.Type != "items" || (!flags.IncludeLevel50 && task.Level == 50) {
+		return false
+	}
+	return task.Level <= maxSkillLevel[*task.Skill] && !slices.Contains(forbiddenTaskItem, task.Code)
 }
 
 func init() {
