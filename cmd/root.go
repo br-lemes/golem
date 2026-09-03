@@ -88,6 +88,7 @@ func validateFlags() error {
 func init() {
 	rootCmd.PersistentFlags().StringVar(&configFlag, "config", "", "Configuration file path")
 	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false, "Enable debug mode")
+	rootCmd.PersistentFlags().StringSliceVar(&console.Exclude, "exclude", nil, "Exclude output paths")
 	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto", "Output format: auto, json or yaml")
 	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "", "Output file path (default: stdout)")
 	rootCmd.PersistentFlags().BoolVar(&refreshFlag, "refresh", false, "Refresh all caches before running the command")

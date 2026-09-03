@@ -63,16 +63,22 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 		return nil, err
 	}
 	allCodes := equipmentCodes(simulationCharacter, owned)
-	if len(codes) == 0 {
+	explicitCodes := len(codes) > 0
+	if !explicitCodes {
 		codes = allCodes
-	} else {
+	}
+	combatAvailable := combatItems(simulationCharacter, owned)
+	if explicitCodes {
 		for _, code := range codes {
-			if owned[code] < 1 {
-				return nil, fmt.Errorf("item is not owned: %s", code)
+			if combatAvailable[code] > 0 {
+				continue
+			}
+			item, ok := database.Items().Get(code)
+			if ok {
+				combatAvailable[code] = equipmentQuantityLimit(code, *item)
 			}
 		}
 	}
-	combatAvailable := combatItems(simulationCharacter, owned)
 	result := make(map[string]Evaluation, len(codes))
 	for _, code := range codes {
 		item, ok := database.Items().Get(code)

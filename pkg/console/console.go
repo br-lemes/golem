@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/chroma/v2/quick"
@@ -14,12 +16,13 @@ import (
 )
 
 var (
-	Debug  bool      = false
-	Format string    = "auto"
-	Stderr io.Writer = os.Stderr
-	Stdin  io.Reader = os.Stdin
-	Stdout io.Writer = os.Stdout
-	Style  string    = "monokai"
+	Debug   bool      = false
+	Format  string    = "auto"
+	Stderr  io.Writer = os.Stderr
+	Stdin   io.Reader = os.Stdin
+	Stdout  io.Writer = os.Stdout
+	Style   string    = "monokai"
+	Exclude []string
 )
 
 func Auto(data any) error {
@@ -35,6 +38,13 @@ func Auto(data any) error {
 		}
 		data = v
 	}
+	if len(Exclude) > 0 {
+		var err error
+		data, err = excludePaths(data, Exclude)
+		if err != nil {
+			return err
+		}
+	}
 
 	if Format == "yaml" {
 		return Yaml(data, isTerminal)
@@ -45,6 +55,69 @@ func Auto(data any) error {
 		}
 	}
 	return Json(data, isTerminal)
+}
+
+func excludePaths(data any, patterns []string) (any, error) {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	var value any
+	err = json.Unmarshal(bytes, &value)
+	if err != nil {
+		return nil, err
+	}
+	for _, pattern := range patterns {
+		parts := strings.Split(pattern, ".")
+		value, _ = excludePath(value, parts)
+	}
+	return value, nil
+}
+
+func excludePath(value any, parts []string) (any, bool) {
+	if len(parts) == 0 {
+		return nil, true
+	}
+	switch current := value.(type) {
+	case map[string]any:
+		for key, child := range current {
+			matched, err := path.Match(parts[0], key)
+			if err != nil || !matched {
+				continue
+			}
+			if len(parts) == 1 {
+				delete(current, key)
+				continue
+			}
+			updated, remove := excludePath(child, parts[1:])
+			if remove {
+				delete(current, key)
+			} else {
+				current[key] = updated
+			}
+		}
+	case []any:
+		if parts[0] == "*" {
+			if len(parts) == 1 {
+				return nil, true
+			}
+			for index, child := range current {
+				updated, _ := excludePath(child, parts[1:])
+				current[index] = updated
+			}
+		} else {
+			index, err := strconv.Atoi(parts[0])
+			if err != nil || index < 0 || index >= len(current) {
+				return value, false
+			}
+			if len(parts) == 1 {
+				return append(current[:index], current[index+1:]...), false
+			}
+			updated, _ := excludePath(current[index], parts[1:])
+			current[index] = updated
+		}
+	}
+	return value, false
 }
 
 func Json(data any, isTerminal bool) error {
