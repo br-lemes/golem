@@ -16,14 +16,15 @@ import (
 )
 
 var (
-	Debug   bool      = false
-	Format  string    = "auto"
-	Stderr  io.Writer = os.Stderr
-	Stdin   io.Reader = os.Stdin
-	Stdout  io.Writer = os.Stdout
-	Style   string    = "monokai"
-	Exclude []string
-	Only    []string
+	Debug     bool      = false
+	Format    string    = "auto"
+	Stderr    io.Writer = os.Stderr
+	Stdin     io.Reader = os.Stdin
+	Stdout    io.Writer = os.Stdout
+	Style     string    = "monokai"
+	Exclude   []string
+	Only      []string
+	ExcludeIf []string
 )
 
 func Auto(data any) error {
@@ -53,6 +54,13 @@ func Auto(data any) error {
 			return err
 		}
 	}
+	if len(ExcludeIf) > 0 {
+		var err error
+		data, err = excludeIfPaths(data, ExcludeIf)
+		if err != nil {
+			return err
+		}
+	}
 
 	if Format == "yaml" {
 		return Yaml(data, isTerminal)
@@ -63,6 +71,117 @@ func Auto(data any) error {
 		}
 	}
 	return Json(data, isTerminal)
+}
+
+func excludeIfPaths(data any, expressions []string) (any, error) {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	var value any
+	err = json.Unmarshal(bytes, &value)
+	if err != nil {
+		return nil, err
+	}
+	for _, expression := range expressions {
+		fields := strings.Fields(expression)
+		if len(fields) != 3 {
+			return nil, fmt.Errorf("invalid exclude-if expression: %s", expression)
+		}
+		parts := strings.Split(fields[0], ".")
+		if len(parts) < 2 {
+			return nil, fmt.Errorf("invalid exclude-if path: %s", fields[0])
+		}
+		value, err = excludeIfPath(value, parts, fields[1], fields[2])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return value, nil
+}
+
+func excludeIfPath(value any, parts []string, operator, expected string) (any, error) {
+	current, ok := value.(map[string]any)
+	if !ok {
+		return value, nil
+	}
+	for key, child := range current {
+		matched, err := path.Match(parts[0], key)
+		if err != nil {
+			return nil, err
+		}
+		if !matched {
+			continue
+		}
+		matches, err := conditionMatches(child, parts[1:], operator, expected)
+		if err != nil {
+			return nil, err
+		}
+		if matches {
+			delete(current, key)
+		}
+	}
+	return current, nil
+}
+
+func conditionMatches(value any, parts []string, operator, expected string) (bool, error) {
+	if len(parts) == 0 {
+		return compareValue(value, operator, expected)
+	}
+	switch current := value.(type) {
+	case map[string]any:
+		for key, child := range current {
+			matched, err := path.Match(parts[0], key)
+			if err != nil {
+				return false, err
+			}
+			if matched {
+				result, err := conditionMatches(child, parts[1:], operator, expected)
+				if result || err != nil {
+					return result, err
+				}
+			}
+		}
+	case []any:
+		if parts[0] == "*" {
+			for _, child := range current {
+				result, err := conditionMatches(child, parts[1:], operator, expected)
+				if result || err != nil {
+					return result, err
+				}
+			}
+		}
+	}
+	return false, nil
+}
+
+func compareValue(value any, operator, expected string) (bool, error) {
+	actual, ok := value.(float64)
+	want, numberErr := strconv.ParseFloat(expected, 64)
+	if ok && numberErr == nil {
+		switch operator {
+		case ">":
+			return actual > want, nil
+		case ">=":
+			return actual >= want, nil
+		case "<":
+			return actual < want, nil
+		case "<=":
+			return actual <= want, nil
+		case "==":
+			return actual == want, nil
+		case "!=":
+			return actual != want, nil
+		}
+	}
+	if operator == "==" || operator == "!=" {
+		matches := fmt.Sprint(value) == expected
+		if operator == "!=" {
+			return !matches, nil
+		}
+		return matches, nil
+	}
+	return false, fmt.Errorf("invalid exclude-if comparison: %s %s", operator, expected)
 }
 
 func onlyPaths(data any, patterns []string) (any, error) {

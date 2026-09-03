@@ -89,6 +89,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&configFlag, "config", "", "Configuration file path")
 	rootCmd.PersistentFlags().BoolVarP(&console.Debug, "debug", "d", false, "Enable debug mode")
 	rootCmd.PersistentFlags().StringSliceVar(&console.Exclude, "exclude", nil, "Exclude output paths")
+	rootCmd.PersistentFlags().StringSliceVar(&console.ExcludeIf, "exclude-if", nil, "Exclude output entries matching conditions")
 	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto", "Output format: auto, json or yaml")
 	rootCmd.PersistentFlags().StringSliceVar(&console.Only, "only", nil, "Keep only output paths")
 	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "", "Output file path (default: stdout)")
