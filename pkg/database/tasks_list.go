@@ -10,15 +10,31 @@ import (
 //go:embed tasks_list.json
 var tasksList []byte
 
-var Tasks = newStore(jsonLoader[schemas.TaskFullSchema](tasksList), func(task *schemas.TaskFullSchema) string {
-	return task.Code
-})
+type taskCatalog struct {
+	*store[schemas.TaskFullSchema, string]
+}
+
+func Tasks() *taskCatalog {
+	return tasksCatalog
+}
+
+func (c *taskCatalog) Skills() []string {
+	return taskSkills()
+}
+
+var tasksCatalog = func() *taskCatalog {
+	return &taskCatalog{
+		store: newStore(jsonLoader[schemas.TaskFullSchema](tasksList), func(task *schemas.TaskFullSchema) string {
+			return task.Code
+		}),
+	}
+}()
 
 var taskSkills = sync.OnceValue(func() []string {
 	seen := make(map[string]struct{})
 	var skills []string
 
-	for _, task := range Tasks.All() {
+	for _, task := range Tasks().All() {
 		if task.Skill == nil {
 			continue
 		}
@@ -31,7 +47,3 @@ var taskSkills = sync.OnceValue(func() []string {
 	}
 	return skills
 })
-
-func TaskSkills() []string {
-	return taskSkills()
-}

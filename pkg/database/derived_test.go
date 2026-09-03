@@ -2,19 +2,15 @@ package database
 
 import "testing"
 
-func testItemTypes() []string {
-	return Items().Types()
-}
-
 func TestDerivedStringListsAreNonEmptyAndUnique(t *testing.T) {
 	tests := []struct {
 		name string
 		list func() []string
 	}{
-		{name: "item types", list: testItemTypes},
+		{name: "item types", list: Items().Types},
 		{name: "event content codes", list: EventContentCodes},
 		{name: "map codes", list: MapCodes},
-		{name: "task skills", list: TaskSkills},
+		{name: "task skills", list: Tasks().Skills},
 	}
 
 	for _, test := range tests {

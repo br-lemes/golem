@@ -80,7 +80,7 @@ Arguments:
 			bankQty := taskItemBankQty(bankItems, character.Task)
 			needed := character.TaskTotal - character.TaskProgress
 			available := bankQty + taskItemInvQty(character, character.Task)
-			task, taskExists := database.Tasks.Get(character.Task)
+			task, taskExists := database.Tasks().Get(character.Task)
 			canCancelMissing := flags.CancelMissing || (flags.CancelMissingLevel50 && taskExists && task.Level == 50)
 			if !canCancelMissing && !isForbidden && available < needed {
 				return fmt.Errorf("missing item: %s (have %d, need %d)", character.Task, available, needed)
