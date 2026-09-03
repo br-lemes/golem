@@ -10,6 +10,8 @@ func TestDerivedStringListsAreNonEmptyAndUnique(t *testing.T) {
 		{name: "item types", list: Items().Types},
 		{name: "event content codes", list: EventContentCodes},
 		{name: "map codes", list: MapCodes},
+		{name: "task item codes", list: Tasks().Items},
+		{name: "task monster codes", list: Tasks().Monsters},
 		{name: "task skills", list: Tasks().Skills},
 	}
 

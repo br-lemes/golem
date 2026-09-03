@@ -14,6 +14,14 @@ type taskCatalog struct {
 	*store[schemas.TaskFullSchema, string]
 }
 
+func (c *taskCatalog) Items() []string {
+	return taskItemCodes()
+}
+
+func (c *taskCatalog) Monsters() []string {
+	return taskMonsterCodes()
+}
+
 func Tasks() *taskCatalog {
 	return tasksCatalog
 }
@@ -29,6 +37,14 @@ var tasksCatalog = func() *taskCatalog {
 		}),
 	}
 }()
+
+var taskItemCodes = sync.OnceValue(func() []string {
+	return taskCodes(schemas.Items)
+})
+
+var taskMonsterCodes = sync.OnceValue(func() []string {
+	return taskCodes(schemas.Monsters)
+})
 
 var taskSkills = sync.OnceValue(func() []string {
 	seen := make(map[string]struct{})
@@ -47,3 +63,13 @@ var taskSkills = sync.OnceValue(func() []string {
 	}
 	return skills
 })
+
+func taskCodes(taskType schemas.TaskType) []string {
+	var codes []string
+	for _, task := range Tasks().All() {
+		if task.Type == taskType {
+			codes = append(codes, task.Code)
+		}
+	}
+	return codes
+}
