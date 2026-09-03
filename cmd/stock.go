@@ -39,7 +39,7 @@ var stockCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		taskCodes := database.Tasks().Keys()
+		taskCodes := database.Tasks().Items()
 		itemsMap := map[string]*schemas.SimpleItemSchema{}
 		for _, item := range bankItems {
 			if slices.Contains(taskCodes, item.Code) {
