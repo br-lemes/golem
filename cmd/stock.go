@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -24,8 +25,13 @@ type stockFlags struct {
 }
 
 var stockCmd = &cobra.Command{
-	Use:   "stock",
-	Short: "Stock",
+	Use:   "stock [code...]",
+	Short: "Show stock requirements for task items",
+	Long: `Show stock requirements for task items
+
+Arguments:
+  code   The code of the task.`,
+	ValidArgsFunction: completion.Custom(0, database.Tasks().Items).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		flags, err := utils.ReadFlags[stockFlags](cmd)
 		if err != nil {
@@ -74,7 +80,7 @@ var stockCmd = &cobra.Command{
 		}
 		result := map[string]ItemStock{}
 		for _, task := range database.Tasks().All() {
-			if !includeStockTask(task, flags, maxSkillLevel) {
+			if !includeStockTask(task, args, flags, maxSkillLevel) {
 				continue
 			}
 			var itemQuantity int
@@ -109,11 +115,11 @@ var stockCmd = &cobra.Command{
 	},
 }
 
-func includeStockTask(task *schemas.TaskFullSchema, flags stockFlags, maxSkillLevel map[string]int) bool {
+func includeStockTask(task *schemas.TaskFullSchema, codes []string, flags stockFlags, maxSkillLevel map[string]int) bool {
 	if task.Skill == nil || task.Type != "items" || (!flags.IncludeLevel50 && task.Level == 50) {
 		return false
 	}
-	return task.Level <= maxSkillLevel[*task.Skill] && !slices.Contains(forbiddenTaskItem, task.Code)
+	return (len(codes) == 0 || slices.Contains(codes, task.Code)) && task.Level <= maxSkillLevel[*task.Skill] && !slices.Contains(forbiddenTaskItem, task.Code)
 }
 
 func init() {
