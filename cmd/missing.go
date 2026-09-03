@@ -149,7 +149,7 @@ func executeMissing(names []string, equipTypes []string) error {
 			candidates = append(candidates, *item)
 		}
 		for _, item := range surplus.NonDominated(candidates, character) {
-			requiredItems[item.Code]++
+			requiredItems[item.Code] += requiredEquipmentQuantity(item)
 		}
 	}
 	missingItems := make(map[string]int)
@@ -160,6 +160,13 @@ func executeMissing(names []string, equipTypes []string) error {
 		}
 	}
 	return console.Auto(missingItems)
+}
+
+func requiredEquipmentQuantity(item schemas.ItemSchema) int {
+	if item.Type == "ring" {
+		return 2
+	}
+	return 1
 }
 
 func hasRequiredSkillLevel(character schemas.CharacterSchema, item schemas.ItemSchema) bool {
