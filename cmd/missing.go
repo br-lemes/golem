@@ -18,6 +18,7 @@ import (
 type missingFlags struct {
 	Name          []string `flag:"name" shorthand:"n" desc:"Character names to analyze"`
 	EquipmentType []string `flag:"type" shorthand:"t" desc:"Equipment types to filter"`
+	Craftable     bool     `flag:"craftable" desc:"Only include items craftable by a character"`
 }
 
 var missingOptions missingFlags
@@ -49,19 +50,19 @@ var missingCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
-		return executeMissing(missingOptions.Name, missingOptions.EquipmentType)
+		return executeMissing(missingOptions)
 	},
 }
 
-func executeMissing(names []string, equipTypes []string) error {
+func executeMissing(flags missingFlags) error {
 	characters, err := api.AccountsCharacters("")
 	if err != nil {
 		return err
 	}
 	var charactersToProcess []schemas.CharacterSchema
-	if len(names) > 0 {
+	if len(flags.Name) > 0 {
 		for _, char := range characters {
-			hasChar := slices.Contains(names, char.Name)
+			hasChar := slices.Contains(flags.Name, char.Name)
 			if hasChar {
 				charactersToProcess = append(charactersToProcess, char)
 			}
@@ -108,13 +109,24 @@ func executeMissing(names []string, equipTypes []string) error {
 		}
 	}
 	var targets []string
-	if len(equipTypes) > 0 {
-		targets = equipTypes
+	if len(flags.EquipmentType) > 0 {
+		targets = flags.EquipmentType
 	} else {
 		targets = database.EquipmentTypes
 	}
 	allItems := database.Items().All()
 	requiredItems := make(map[string]int)
+	craftableItems := make(map[string]bool)
+	if flags.Craftable {
+		for _, item := range allItems {
+			for _, character := range characters {
+				if canCraft(character, *item) {
+					craftableItems[item.Code] = true
+					break
+				}
+			}
+		}
+	}
 	for _, character := range charactersToProcess {
 		var candidates []schemas.ItemSchema
 		for _, item := range allItems {
@@ -154,6 +166,9 @@ func executeMissing(names []string, equipTypes []string) error {
 	}
 	missingItems := make(map[string]int)
 	for code, required := range requiredItems {
+		if flags.Craftable && !craftableItems[code] {
+			continue
+		}
 		missing := required - ownedItems[code]
 		if missing > 0 {
 			missingItems[code] = missing
@@ -167,6 +182,14 @@ func requiredEquipmentQuantity(item schemas.ItemSchema) int {
 		return 2
 	}
 	return 1
+}
+
+func canCraft(character schemas.CharacterSchema, item schemas.ItemSchema) bool {
+	if item.Craft == nil || item.Craft.Skill == nil || item.Craft.Level == nil {
+		return false
+	}
+	level, exists := utils.GetCharacterCraftingSkillLevel(character, string(*item.Craft.Skill))
+	return exists && level >= *item.Craft.Level
 }
 
 func hasRequiredSkillLevel(character schemas.CharacterSchema, item schemas.ItemSchema) bool {
