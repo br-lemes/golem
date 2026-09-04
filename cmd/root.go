@@ -16,6 +16,7 @@ import (
 var configFlag string
 var outputFlag string
 var refreshFlag bool
+var noDBFilters bool
 
 var rootCmd = &cobra.Command{
 	Use:   "golem",
@@ -45,6 +46,21 @@ var rootCmd = &cobra.Command{
 		err = cache.Initialize(cfg.Database)
 		if err != nil {
 			return fmt.Errorf("initialize cache: %w", err)
+		}
+		if !noDBFilters {
+			filters := cache.GetOutputFilters(cmd.CommandPath())
+			if !cmd.Flags().Changed("exclude") {
+				console.Exclude = filters["exclude"]
+			}
+			if !cmd.Flags().Changed("exclude-if") {
+				console.ExcludeIf = filters["exclude-if"]
+			}
+			if !cmd.Flags().Changed("only") {
+				console.Only = filters["only"]
+			}
+		}
+		if len(console.Exclude) > 0 || len(console.ExcludeIf) > 0 || len(console.Only) > 0 {
+			console.Debugf("active output filters: command=%s exclude=%v exclude-if=%v only=%v\n", cmd.CommandPath(), console.Exclude, console.ExcludeIf, console.Only)
 		}
 		token, prompted := api.Initialize(cfg.API)
 		if prompted {
@@ -91,6 +107,7 @@ func init() {
 	rootCmd.PersistentFlags().StringSliceVar(&console.Exclude, "exclude", nil, "Exclude output paths")
 	rootCmd.PersistentFlags().StringSliceVar(&console.ExcludeIf, "exclude-if", nil, "Exclude output entries matching conditions")
 	rootCmd.PersistentFlags().StringVarP(&console.Format, "format", "f", "auto", "Output format: auto, json or yaml")
+	rootCmd.PersistentFlags().BoolVar(&noDBFilters, "no-db-filters", false, "Ignore output filters from the database")
 	rootCmd.PersistentFlags().StringSliceVar(&console.Only, "only", nil, "Keep only output paths")
 	rootCmd.PersistentFlags().StringVarP(&outputFlag, "output", "o", "", "Output file path (default: stdout)")
 	rootCmd.PersistentFlags().BoolVar(&refreshFlag, "refresh", false, "Refresh all caches before running the command")

@@ -38,7 +38,7 @@ func Initialize(database config.Database) error {
 	if err != nil {
 		return err
 	}
-	err = cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{}, &models.FightSimulation{}, &models.UsageCombat{})
+	err = cache.AutoMigrate(&models.APILog{}, &models.Cache{}, &models.Character{}, &models.FightSimulation{}, &models.OutputFilter{}, &models.UsageCombat{})
 	if err != nil {
 		return err
 	}
