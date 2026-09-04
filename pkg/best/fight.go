@@ -77,6 +77,10 @@ const (
 
 var processSimulationCache map[string]cachedSimulationResult
 
+func ResetSimulationCache() {
+	processSimulationCache = make(map[string]cachedSimulationResult)
+}
+
 type cachedSimulationResult struct {
 	Winrate               float32
 	AverageTurns          float32
@@ -143,7 +147,9 @@ func bankAvailable() (map[string]int, error) {
 }
 
 func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.MonsterSchema, available map[string]int, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
-	processSimulationCache = make(map[string]cachedSimulationResult)
+	if processSimulationCache == nil {
+		processSimulationCache = make(map[string]cachedSimulationResult)
+	}
 	ownedCodes := make(map[string]bool, len(available))
 	for code := range available {
 		ownedCodes[code] = true

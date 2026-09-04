@@ -31,6 +31,9 @@ type Evaluation struct {
 }
 
 func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
+	cache.BeginFightSimulationBatch()
+	defer cache.FlushFightSimulationBatch()
+	best.ResetSimulationCache()
 	if len(codes) > 0 {
 		seen := map[string]bool{}
 		for _, code := range codes {
