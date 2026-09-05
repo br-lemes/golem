@@ -12,7 +12,7 @@ func MyActionMove(name string, x, y int) (schemas.CharacterMovementDataSchema, e
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/move", name)
-	resp, err := PostNoCooldown(path, map[string]int{"x": x, "y": y})
+	resp, err := post(path, map[string]int{"x": x, "y": y})
 	if err != nil {
 		return schemas.CharacterMovementDataSchema{}, err
 	}

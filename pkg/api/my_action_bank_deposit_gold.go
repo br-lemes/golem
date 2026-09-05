@@ -12,7 +12,7 @@ func MyActionBankDepositGold(name string, quantity int) (schemas.BankGoldTransac
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/bank/deposit/gold", name)
-	resp, err := PostNoCooldown(path, schemas.GoldSchema{Quantity: quantity})
+	resp, err := post(path, schemas.GoldSchema{Quantity: quantity})
 	if err != nil {
 		return schemas.BankGoldTransactionSchema{}, err
 	}

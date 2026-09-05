@@ -12,7 +12,7 @@ func MyActionGrandexchangeCreateSellOrder(name string, order schemas.GEOrderCrea
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/grandexchange/create_sell_order", name)
-	resp, err := PostNoCooldown(path, order)
+	resp, err := post(path, order)
 	if err != nil {
 		return schemas.GEOrderTransactionSchema{}, err
 	}

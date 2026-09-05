@@ -9,5 +9,4 @@ type Request struct {
 	Body     string
 	Response string
 	Status   int `gorm:"index"`
-	Cooldown int
 }

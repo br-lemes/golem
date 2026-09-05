@@ -12,7 +12,7 @@ func MyActionTaskComplete(name string) (schemas.RewardDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/complete", name)
-	resp, err := PostNoCooldown(path, nil)
+	resp, err := post(path, nil)
 	if err != nil {
 		return schemas.RewardDataSchema{}, err
 	}

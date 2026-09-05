@@ -12,7 +12,7 @@ func MyActionUnequip(name string, unequips []schemas.UnequipSchema) (schemas.Equ
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/unequip", name)
-	resp, err := PostNoCooldown(path, unequips)
+	resp, err := post(path, unequips)
 	if err != nil {
 		return schemas.EquipmentTransactionSchema{}, err
 	}

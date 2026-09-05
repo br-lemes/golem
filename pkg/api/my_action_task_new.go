@@ -12,7 +12,7 @@ func MyActionTaskNew(name string) (schemas.TaskDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/new", name)
-	resp, err := PostNoCooldown(path, nil)
+	resp, err := post(path, nil)
 	if err != nil {
 		return schemas.TaskDataSchema{}, err
 	}

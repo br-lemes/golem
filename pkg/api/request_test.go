@@ -52,7 +52,7 @@ func TestExecuteSuccess(t *testing.T) {
 		path:        "/test",
 	}
 
-	resp, err := ctx.execute(false)
+	resp, err := ctx.execute()
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -80,7 +80,7 @@ func TestExecuteClientError(t *testing.T) {
 		path:        "/test",
 	}
 
-	_, err := ctx.execute(false)
+	_, err := ctx.execute()
 	if err == nil {
 		t.Fatal("expected client error, got nil")
 	}
@@ -110,7 +110,7 @@ func TestExecuteMaxRetriesReached(t *testing.T) {
 		path:        "/test",
 	}
 
-	_, err := ctx.execute(false)
+	_, err := ctx.execute()
 	if err == nil {
 		t.Fatal("expected error due to max retries, got nil")
 	}
@@ -140,7 +140,7 @@ func TestExecuteInvalidContentTypeBackoff(t *testing.T) {
 		path:        "/test",
 	}
 
-	_, err := ctx.execute(false)
+	_, err := ctx.execute()
 	if err == nil {
 		t.Fatal("expected error after non-json backoff retry limit, got nil")
 	}
@@ -161,7 +161,7 @@ func TestExecuteCooldownActivated(t *testing.T) {
 		initialWait: 1 * time.Millisecond,
 	}
 
-	_, err := ctx.execute(true)
+	_, err := ctx.execute()
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -181,8 +181,29 @@ func TestExecuteClientErrorFallback(t *testing.T) {
 		method:  http.MethodGet,
 	}
 
-	_, err := ctx.execute(false)
+	_, err := ctx.execute()
 	expectedMsg := "Client error: 418 I'm a teapot (Status: 418)"
+	if err == nil || err.Error() != expectedMsg {
+		t.Errorf("expected %q, got %v", expectedMsg, err)
+	}
+}
+
+func TestExecuteClientErrorForNonRetryableServerStatus(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusHTTPVersionNotSupported)
+		_, _ = w.Write([]byte(`{"error": {"message": "unsupported protocol"}}`))
+	}))
+	defer server.Close()
+
+	ctx := &requestCtx{
+		baseURL: server.URL,
+		client:  server.Client(),
+		method:  http.MethodGet,
+	}
+
+	_, err := ctx.execute()
+	expectedMsg := "Client error: unsupported protocol (Status: 505)"
 	if err == nil || err.Error() != expectedMsg {
 		t.Errorf("expected %q, got %v", expectedMsg, err)
 	}
@@ -205,7 +226,7 @@ func TestExecuteNetworkErrorRetry(t *testing.T) {
 		path:        "/test",
 	}
 
-	_, err := ctx.execute(false)
+	_, err := ctx.execute()
 	if err == nil {
 		t.Fatal("expected max retries error, got nil")
 	}
@@ -234,7 +255,7 @@ func TestExecuteResponseWithEmbeddedError(t *testing.T) {
 		path:        "/test",
 	}
 
-	_, err := ctx.execute(false)
+	_, err := ctx.execute()
 	if err == nil {
 		t.Fatal("expected embedded api error, got nil")
 	}
@@ -264,7 +285,7 @@ func TestExecuteBackoffCapping(t *testing.T) {
 		path:        "/test",
 	}
 
-	_, err := ctx.execute(false)
+	_, err := ctx.execute()
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

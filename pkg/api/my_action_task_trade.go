@@ -12,7 +12,7 @@ func MyActionTaskTrade(name string, item schemas.SimpleItemSchema) (schemas.Task
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/trade", name)
-	resp, err := PostNoCooldown(path, item)
+	resp, err := post(path, item)
 	if err != nil {
 		return schemas.TaskTradeDataSchema{}, err
 	}

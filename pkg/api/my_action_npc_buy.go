@@ -12,7 +12,7 @@ func MyActionNPCBuy(name string, item schemas.SimpleItemSchema) (schemas.NpcMerc
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/npc/buy", name)
-	resp, err := PostNoCooldown(path, item)
+	resp, err := post(path, item)
 	if err != nil {
 		return schemas.NpcMerchantTransactionSchema{}, err
 	}

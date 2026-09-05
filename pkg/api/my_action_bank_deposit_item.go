@@ -12,7 +12,7 @@ func MyActionBankDepositItem(name string, items []schemas.SimpleItemSchema) (sch
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/bank/deposit/item", name)
-	resp, err := PostNoCooldown(path, items)
+	resp, err := post(path, items)
 	if err != nil {
 		return schemas.BankItemTransactionSchema{}, err
 	}

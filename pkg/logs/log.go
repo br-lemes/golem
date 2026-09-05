@@ -35,7 +35,6 @@ type Event struct {
 	Body     string
 	Response string
 	Status   int
-	Cooldown int
 	Level    Level
 	Message  string
 }
@@ -63,7 +62,6 @@ func Record(event Event) {
 			Body:     event.Body,
 			Response: event.response(),
 			Status:   event.Status,
-			Cooldown: event.Cooldown,
 		}).Error
 	}
 

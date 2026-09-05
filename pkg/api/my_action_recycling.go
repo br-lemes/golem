@@ -12,7 +12,7 @@ func MyActionRecycling(name string, item schemas.RecyclingSchema) (schemas.Recyc
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/recycling", name)
-	resp, err := PostNoCooldown(path, item)
+	resp, err := post(path, item)
 	if err != nil {
 		return schemas.RecyclingDataSchema{}, err
 	}

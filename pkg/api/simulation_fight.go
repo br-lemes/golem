@@ -7,7 +7,7 @@ import (
 )
 
 func SimulationFight(request schemas.CombatSimulationRequestSchema) (schemas.CombatSimulationDataSchema, error) {
-	resp, err := PostNoCooldown("/simulation/fight", request)
+	resp, err := post("/simulation/fight", request)
 	if err != nil {
 		return schemas.CombatSimulationDataSchema{}, err
 	}

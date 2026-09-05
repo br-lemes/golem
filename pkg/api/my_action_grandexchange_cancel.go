@@ -12,7 +12,7 @@ func MyActionGrandexchangeCancel(name string, cancel schemas.GECancelOrderSchema
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/grandexchange/cancel", name)
-	resp, err := PostNoCooldown(path, cancel)
+	resp, err := post(path, cancel)
 	if err != nil {
 		return schemas.GETransactionListSchema{}, err
 	}

@@ -12,7 +12,7 @@ func MyActionRest(name string) (schemas.CharacterRestDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/rest", name)
-	resp, err := PostNoCooldown(path, nil)
+	resp, err := post(path, nil)
 	if err != nil {
 		return schemas.CharacterRestDataSchema{}, err
 	}

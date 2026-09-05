@@ -12,7 +12,7 @@ func MyActionUse(name string, item schemas.SimpleItemSchema) (schemas.UseItemSch
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/use", name)
-	resp, err := PostNoCooldown(path, item)
+	resp, err := post(path, item)
 	if err != nil {
 		return schemas.UseItemSchema{}, err
 	}

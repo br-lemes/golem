@@ -12,7 +12,7 @@ func MyActionGrandexchangeFill(name string, fill schemas.GEFillBuyOrderSchema) (
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/grandexchange/fill", name)
-	resp, err := PostNoCooldown(path, fill)
+	resp, err := post(path, fill)
 	if err != nil {
 		return schemas.GETransactionListSchema{}, err
 	}

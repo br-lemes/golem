@@ -13,7 +13,7 @@ func MyActionGathering(name string) (schemas.SkillDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/gathering", name)
-	resp, err := PostNoCooldown(path, nil)
+	resp, err := post(path, nil)
 	if err != nil {
 		return schemas.SkillDataSchema{}, err
 	}

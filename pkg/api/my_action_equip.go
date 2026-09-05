@@ -12,7 +12,7 @@ func MyActionEquip(name string, equips []schemas.EquipSchema) (schemas.Equipment
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/equip", name)
-	resp, err := PostNoCooldown(path, equips)
+	resp, err := post(path, equips)
 	if err != nil {
 		return schemas.EquipmentTransactionSchema{}, err
 	}

@@ -32,7 +32,7 @@ type requestCtx struct {
 	retries     int
 }
 
-func Request(method, path string, body []byte, cooldown bool) ([]byte, error) {
+func Request(method, path string, body []byte) ([]byte, error) {
 	ctx := &requestCtx{
 		baseURL:     baseURL,
 		body:        body,
@@ -42,10 +42,10 @@ func Request(method, path string, body []byte, cooldown bool) ([]byte, error) {
 		method:      method,
 		path:        path,
 	}
-	return ctx.execute(cooldown)
+	return ctx.execute()
 }
 
-func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
+func (ctx *requestCtx) execute() ([]byte, error) {
 	wait := ctx.initialWait
 	maxWait := ctx.maxWait
 
@@ -78,11 +78,11 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 			continue
 		}
 
-		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+		if resp.StatusCode >= 400 && (resp.StatusCode < 500 || resp.StatusCode > 504) {
 			return nil, ctx.handleClientError(resp, respBytes)
 		}
 
-		if resp.StatusCode >= 500 {
+		if resp.StatusCode >= 500 && resp.StatusCode <= 504 {
 			wait = ctx.handleBackoff(resp, respBytes, wait, maxWait)
 			continue
 		}
@@ -105,22 +105,13 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 			return nil, fmt.Errorf("%s", errMsg.String())
 		}
 
-		cdResult := gjson.GetBytes(respBytes, "data.cooldown.total_seconds")
-		cd := int(cdResult.Int())
-
 		logs.Record(logs.Event{
 			Method:   ctx.method,
 			Path:     ctx.path,
 			Body:     string(ctx.body),
 			Response: string(respBytes),
 			Status:   resp.StatusCode,
-			Cooldown: cd,
 		})
-
-		if cooldown && cd > 0 {
-			reason := gjson.GetBytes(respBytes, "data.cooldown.reason")
-			handleCooldown(cd, reason.String())
-		}
 
 		return respBytes, nil
 	}

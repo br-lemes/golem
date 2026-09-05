@@ -12,7 +12,7 @@ import (
 func MyActionFight(name string, participants []string) (schemas.CharacterFightDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
-	resp, err := PostNoCooldown(fmt.Sprintf("/my/%s/action/fight", name), schemas.FightRequestSchema{
+	resp, err := post(fmt.Sprintf("/my/%s/action/fight", name), schemas.FightRequestSchema{
 		Participants: &participants,
 	})
 	if err != nil {

@@ -12,7 +12,7 @@ func MyActionTransition(name string) (schemas.CharacterTransitionDataSchema, err
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/transition", name)
-	resp, err := PostNoCooldown(path, nil)
+	resp, err := post(path, nil)
 	if err != nil {
 		return schemas.CharacterTransitionDataSchema{}, err
 	}
