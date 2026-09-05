@@ -32,6 +32,26 @@ func TestGatheringPriorities(t *testing.T) {
 			},
 			priorities: []string{"mining", "prospecting"},
 		},
+		{
+			name:  "event near resource level",
+			level: 5,
+			resource: schemas.ResourceSchema{
+				Code:  "magic_tree",
+				Level: 10,
+				Skill: schemas.GatheringSkillMining,
+			},
+			priorities: []string{"mining", "prospecting", "wisdom"},
+		},
+		{
+			name:  "event far above resource level",
+			level: 25,
+			resource: schemas.ResourceSchema{
+				Code:  "magic_tree",
+				Level: 10,
+				Skill: schemas.GatheringSkillMining,
+			},
+			priorities: []string{"mining", "prospecting"},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
