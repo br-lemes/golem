@@ -6,6 +6,7 @@ import (
 
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 )
 
 type FoodItem struct {
@@ -14,11 +15,18 @@ type FoodItem struct {
 	Quantity int
 }
 
-func Hp(character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
-	return hp(defaultDeps, character, minHp)
+type HpOptions struct {
+	MinHP    int
+	UseFood bool
+	FoodOnly string
 }
 
-func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.CharacterSchema, error) {
+func Hp(character schemas.CharacterSchema, options HpOptions) (schemas.CharacterSchema, error) {
+	return hp(defaultDeps, character, options)
+}
+
+func hp(d deps, character schemas.CharacterSchema, hpOptions HpOptions) (schemas.CharacterSchema, error) {
+	minHp := hpOptions.MinHP
 	if character.Hp >= minHp {
 		return character, nil
 	}
@@ -28,7 +36,7 @@ func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.Character
 	if estimatedRestCooldown < 3 {
 		estimatedRestCooldown = 3
 	}
-	if character.Inventory == nil || estimatedRestCooldown <= 3 {
+	if !hpOptions.UseFood || character.Inventory == nil || estimatedRestCooldown <= 3 {
 		return rest(d, character)
 	}
 	foods := []FoodItem{}
@@ -36,8 +44,11 @@ func hp(d deps, character schemas.CharacterSchema, minHp int) (schemas.Character
 		if slot.Quantity <= 0 { //+gocover:ignore:block should not happen
 			continue
 		}
-		item, found := database.Items().Get(slot.Code)
-		if !found || item.Type != "consumable" || item.Subtype != "food" || item.Level > character.Level || item.Effects == nil {
+		item, found := database.Items().Foods().Get(slot.Code)
+		if hpOptions.FoodOnly != "" && slot.Code != hpOptions.FoodOnly {
+			continue
+		}
+		if !found || !utils.MeetsItemConditions(character, *item) || item.Effects == nil {
 			//+gocover:ignore:block should not happen
 			continue
 		}

@@ -34,6 +34,18 @@ func TestItemCatalogViews(t *testing.T) {
 		}
 	})
 
+	t.Run("foods", func(t *testing.T) {
+		foods := Items().Foods().All()
+		if len(foods) == 0 {
+			t.Fatal("food view is empty")
+		}
+		for _, item := range foods {
+			if item.Type != "consumable" || item.Subtype != "food" {
+				t.Fatalf("food view contains %q with type %q and subtype %q", item.Code, item.Type, item.Subtype)
+			}
+		}
+	})
+
 	t.Run("tradeables", func(t *testing.T) {
 		tradeables := Items().Tradeables().All()
 		if len(tradeables) == 0 {

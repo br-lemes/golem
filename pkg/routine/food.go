@@ -6,6 +6,7 @@ import (
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 )
 
 const foodMinThreshold = 5
@@ -20,8 +21,8 @@ func foodCurrentQty(character schemas.CharacterSchema) int {
 		if slot.Quantity <= 0 {
 			continue
 		}
-		item, found := database.Items().Get(slot.Code)
-		if !found || item.Type != "consumable" || item.Subtype != "food" {
+		_, found := database.Items().Foods().Get(slot.Code)
+		if !found {
 			continue
 		}
 		total += slot.Quantity
@@ -46,8 +47,8 @@ func foodCandidates(character schemas.CharacterSchema, food string, bankQty map[
 		if qty <= 0 {
 			continue
 		}
-		item, found := database.Items().Get(code)
-		if !found || item.Type != "consumable" || item.Subtype != "food" || item.Level > character.Level || item.Effects == nil {
+		item, found := database.Items().Foods().Get(code)
+		if !found || !utils.MeetsItemConditions(character, *item) || item.Effects == nil {
 			continue
 		}
 		heal := 0
@@ -89,11 +90,18 @@ func SelectFood(character schemas.CharacterSchema, bankQty map[string]int) strin
 	return candidates[0]
 }
 
-func foodRestock(d deps, character schemas.CharacterSchema, food string, bankQty map[string]int) (schemas.CharacterSchema, error) {
+func foodRestock(d deps, character schemas.CharacterSchema, food string, bankQty map[string]int, foodOnly bool) (schemas.CharacterSchema, error) {
 	if food == "" {
 		return character, nil
 	}
 	codes := foodCandidates(character, food, bankQty)
+	if foodOnly {
+		if len(codes) == 0 || codes[0] != food {
+			codes = nil
+		} else {
+			codes = codes[:1]
+		}
+	}
 	if len(codes) == 0 {
 		console.Printf("  No suitable food available in bank\n")
 		return character, nil

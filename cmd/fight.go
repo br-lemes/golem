@@ -16,6 +16,8 @@ import (
 
 type fightFlags struct {
 	Food     string `flag:"food" desc:"auto-stock food from bank"`
+	FoodOnly string `flag:"food-only" desc:"use only this food code"`
+	NoFood   bool   `flag:"no-food" desc:"do not use food"`
 	Utility1 string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
 	Utility2 string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
 }
@@ -38,26 +40,23 @@ Arguments:
 		if err != nil {
 			return err
 		}
-
-		monster, found := database.Monsters.Get(code)
-		if !found {
-			return fmt.Errorf("monster %s not found", code)
+		err = fightValidate(code, flags, false)
+		if err != nil {
+			return err
 		}
 		character, err := api.Characters(name)
+		if err != nil {
+			return err
+		}
+		err = fightFoodValidate(character, flags)
 		if err != nil {
 			return err
 		}
 		if taskCompleted(character, code) {
 			return nil
 		}
-		if character.Level < monster.Level {
-			console.Printf("Your level %d < monster level %d\n", character.Level, monster.Level)
-			if !console.Confirm("Do you want to continue?") {
-				cmd.SilenceUsage = true
-				return fmt.Errorf("operation cancelled")
-			}
-		}
 
+		monster, _ := database.Monsters.Get(code)
 		fightResult, err := best.FindFightByName(name, *monster, false, false)
 		if err != nil {
 			return err
@@ -80,7 +79,7 @@ Arguments:
 			return err
 		}
 		for {
-			err = prepare(character, *monster, flags.Food, flags.Utility1, flags.Utility2)
+			err = prepare(character, *monster, flags)
 			if err != nil {
 				return err
 			}
@@ -98,28 +97,86 @@ Arguments:
 	},
 }
 
+func fightValidate(monster string, flags fightFlags, boss bool) error {
+	var found bool
+	if boss {
+		_, found = database.Bosses.Get(monster)
+	} else {
+		_, found = database.Monsters.Get(monster)
+	}
+	if !found {
+		return fmt.Errorf("monster %s not found", monster)
+	}
+	if flags.NoFood && (flags.Food != "" || flags.FoodOnly != "") {
+		return fmt.Errorf("--no-food cannot be combined with --food or --food-only")
+	}
+	if flags.Food != "" && flags.FoodOnly != "" {
+		return fmt.Errorf("--food and --food-only cannot be combined")
+	}
+	if flags.NoFood {
+		return nil
+	}
+	food := flags.Food
+	if flags.FoodOnly != "" {
+		food = flags.FoodOnly
+	}
+	if food == "" || food == "auto" {
+		return nil
+	}
+	item, found := database.Items().Foods().Get(food)
+	if !found {
+		return fmt.Errorf("food %s not found", food)
+	}
+	_ = item
+	return nil
+}
+
+func fightFoodValidate(character schemas.CharacterSchema, flags fightFlags) error {
+	if flags.NoFood {
+		return nil
+	}
+	food := flags.Food
+	if flags.FoodOnly != "" {
+		food = flags.FoodOnly
+	}
+	if food == "" || food == "auto" {
+		return nil
+	}
+	item, _ := database.Items().Foods().Get(food)
+	if !utils.MeetsItemConditions(character, *item) {
+		return fmt.Errorf("food %s conditions not met for character %s", food, character.Name)
+	}
+	return nil
+}
+
 func fightUtilitiesMatch(result best.Result, utility1, utility2 string) bool {
 	return result.Utilities["utility1"] == utility1 && result.Utilities["utility2"] == utility2
 }
 
-func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, food, utility1, utility2 string) error {
+func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, flags fightFlags) error {
 	routine.Cooldown(character)
-	minHp := monster.Hp + (monster.Hp * 20 / 100)
-	if minHp > character.MaxHp {
-		minHp = character.MaxHp
-	}
-	character, err := routine.Hp(character, minHp)
-	if err != nil {
-		return err
-	}
-	character, err = routine.Inventory(character, []string{"food"})
+	character, err := routine.Inventory(character, []string{"food"})
 	if err != nil {
 		return err
 	}
 	character, err = routine.Bank(character, routine.BankOptions{
-		Food:     food,
-		Utility1: utility1,
-		Utility2: utility2,
+		Food:     flags.Food,
+		FoodOnly: flags.FoodOnly != "",
+		NoFood:   flags.NoFood,
+		Utility1: flags.Utility1,
+		Utility2: flags.Utility2,
+	})
+	if err != nil {
+		return err
+	}
+	minHp := min(monster.Hp+(monster.Hp*20/100), character.MaxHp)
+	if healingPotion(flags.Utility1) || healingPotion(flags.Utility2) {
+		minHp = character.MaxHp
+	}
+	character, err = routine.Hp(character, routine.HpOptions{
+		MinHP:    minHp,
+		UseFood:  !flags.NoFood,
+		FoodOnly: flags.FoodOnly,
 	})
 	if err != nil {
 		return err
@@ -129,6 +186,22 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, f
 		return err
 	}
 	return nil
+}
+
+func healingPotion(code string) bool {
+	if code == "" {
+		return false
+	}
+	potion, found := database.Items().Potions().Get(code)
+	if !found || potion.Effects == nil {
+		return false
+	}
+	for _, effect := range *potion.Effects {
+		if effect.Code == "restore" {
+			return true
+		}
+	}
+	return false
 }
 
 func taskCompleted(character schemas.CharacterSchema, code string) bool {
@@ -146,4 +219,16 @@ func init() {
 		panic(err)
 	}
 	fightCmd.Flags().Lookup("food").NoOptDefVal = "auto"
+	err = fightCmd.RegisterFlagCompletionFunc("food", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return append([]string{"auto"}, database.Items().Foods().Keys()...), cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		panic(err)
+	}
+	err = fightCmd.RegisterFlagCompletionFunc("food-only", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return database.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		panic(err)
+	}
 }

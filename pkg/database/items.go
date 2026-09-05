@@ -13,6 +13,7 @@ var items []byte
 type itemCatalog struct {
 	*store[schemas.ItemSchema, string]
 	equipments *view[schemas.ItemSchema, string]
+	foods      *view[schemas.ItemSchema, string]
 	potions    *view[schemas.ItemSchema, string]
 	tradeables *view[schemas.ItemSchema, string]
 }
@@ -23,6 +24,10 @@ func Items() *itemCatalog {
 
 func (c *itemCatalog) Equipments() *view[schemas.ItemSchema, string] {
 	return c.equipments
+}
+
+func (c *itemCatalog) Foods() *view[schemas.ItemSchema, string] {
+	return c.foods
 }
 
 func (c *itemCatalog) Potions() *view[schemas.ItemSchema, string] {
@@ -46,6 +51,9 @@ var itemsCatalog = func() *itemCatalog {
 		equipments: store.View(func(item *schemas.ItemSchema) bool {
 			_, ok := EquipmentTypeToSlots[item.Type]
 			return ok
+		}),
+		foods: store.View(func(item *schemas.ItemSchema) bool {
+			return item.Type == "consumable" && item.Subtype == "food"
 		}),
 		potions: store.View(func(item *schemas.ItemSchema) bool {
 			return item.Subtype == "potion"

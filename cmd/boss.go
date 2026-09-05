@@ -5,19 +5,12 @@ import (
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 )
-
-type bossFlags struct {
-	Food     string `flag:"food" desc:"auto-stock food from bank"`
-	Utility1 string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
-	Utility2 string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
-}
 
 var bossCmd = &cobra.Command{
 	Args:  cobra.RangeArgs(3, 4),
@@ -34,11 +27,14 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		flags, err := utils.ReadFlags[bossFlags](cmd)
+		flags, err := utils.ReadFlags[fightFlags](cmd)
 		if err != nil {
 			return err
 		}
-
+		err = fightValidate(code, flags, true)
+		if err != nil {
+			return err
+		}
 		participants := args[2:]
 		switch len(participants) {
 		case 1:
@@ -53,10 +49,6 @@ Arguments:
 				return fmt.Errorf("participants cannot include the main character")
 			}
 		}
-		boss, found := database.Bosses.Get(code)
-		if !found {
-			return fmt.Errorf("boss %s not found", code)
-		}
 		characters, err := api.AccountsCharacters("")
 		if err != nil {
 			return err
@@ -66,7 +58,7 @@ Arguments:
 		for _, character := range characters {
 			charMap[character.Name] = character
 		}
-		_, found = charMap[name]
+		_, found := charMap[name]
 		if !found {
 			return fmt.Errorf("character %s not found", name)
 		}
@@ -76,28 +68,26 @@ Arguments:
 				return fmt.Errorf("character %s not found", participant)
 			}
 		}
-		minLevel := charMap[name].Level
-		for _, participant := range participants {
-			if charMap[participant].Level < minLevel {
-				minLevel = charMap[participant].Level
-			}
+		err = fightFoodValidate(charMap[name], flags)
+		if err != nil {
+			return err
 		}
-		if minLevel < boss.Level {
-			console.Printf("Your minimum level %d < boss level %d\n", minLevel, boss.Level)
-			if !console.Confirm("Do you want to continue?") {
-				cmd.SilenceUsage = true
-				return fmt.Errorf("operation cancelled")
+		for _, participant := range participants {
+			err = fightFoodValidate(charMap[participant], flags)
+			if err != nil {
+				return err
 			}
 		}
 
+		boss, _ := database.Bosses.Get(code)
 		for {
 			var g errgroup.Group
 			g.Go(func() error {
-				return prepare(charMap[name], *boss, flags.Food, flags.Utility1, flags.Utility2)
+				return prepare(charMap[name], *boss, flags)
 			})
 			for _, p := range participants {
 				g.Go(func() error {
-					return prepare(charMap[p], *boss, flags.Food, flags.Utility1, flags.Utility2)
+					return prepare(charMap[p], *boss, flags)
 				})
 			}
 			err := g.Wait()
@@ -118,9 +108,21 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(bossCmd)
-	err := utils.RegisterFlags[bossFlags](bossCmd)
+	err := utils.RegisterFlags[fightFlags](bossCmd)
 	if err != nil {
 		panic(err)
 	}
 	bossCmd.Flags().Lookup("food").NoOptDefVal = "auto"
+	err = bossCmd.RegisterFlagCompletionFunc("food", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return append([]string{"auto"}, database.Items().Foods().Keys()...), cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		panic(err)
+	}
+	err = bossCmd.RegisterFlagCompletionFunc("food-only", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return database.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		panic(err)
+	}
 }

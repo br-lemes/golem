@@ -296,7 +296,10 @@ func TestHp(t *testing.T) {
 					return schemas.CharacterRestDataSchema{}, nil
 				},
 			}
-			resultChar, err := hp(dMock, tt.character, tt.minHp)
+			resultChar, err := hp(dMock, tt.character, HpOptions{
+				MinHP:   tt.minHp,
+				UseFood: true,
+			})
 			if (err != nil) != tt.expectError {
 				t.Fatalf("hp() unexpected error: expected error = %v, got = %v", tt.expectError, err)
 			}

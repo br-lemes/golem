@@ -6,6 +6,8 @@ type BankOptions struct {
 	Utility1 string
 	Utility2 string
 	Food     string // "" = disabled; "auto" = best available; otherwise, code
+	FoodOnly bool
+	NoFood   bool
 }
 
 func Bank(character schemas.CharacterSchema, opts BankOptions) (schemas.CharacterSchema, error) {
@@ -25,7 +27,7 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	if err != nil {
 		return character, err
 	}
-	needsFood := foodCheck(character, opts.Food, bankQty)
+	needsFood := !opts.NoFood && foodCheck(character, opts.Food, bankQty)
 	needsSpace := totalItems(character)+5 >= character.InventoryMaxItems
 	if !needsSpace && !needsUtility && !needsFood {
 		return character, nil
@@ -46,7 +48,9 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	if err != nil {
 		return character, err
 	}
-	character, err = foodRestock(d, character, opts.Food, bankQty)
+	if !opts.NoFood {
+		character, err = foodRestock(d, character, opts.Food, bankQty, opts.FoodOnly)
+	}
 	if err != nil {
 		return character, err
 	}
