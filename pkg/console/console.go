@@ -17,6 +17,7 @@ import (
 
 var (
 	Debug     bool      = false
+	Color     bool      = false
 	Format    string    = "auto"
 	Stderr    io.Writer = os.Stderr
 	Stdin     io.Reader = os.Stdin
@@ -352,7 +353,7 @@ func Yaml(data any, isTerminal bool) error {
 }
 
 func output(data []byte, isTerminal bool) error {
-	if isTerminal {
+	if isTerminal || Color {
 		_ = quick.Highlight(Stdout, string(data), "yaml", "terminal256", Style)
 		return nil
 	}
