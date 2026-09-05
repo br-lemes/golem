@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-type APILog struct {
+type Request struct {
 	gorm.Model
 	Method   string `gorm:"index"`
 	Path     string `gorm:"index"`

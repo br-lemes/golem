@@ -10,6 +10,7 @@ import (
 
 	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/config"
+	"github.com/br-lemes/golem/pkg/logs"
 )
 
 func TestMain(m *testing.M) {
@@ -19,6 +20,11 @@ func TestMain(m *testing.M) {
 	}
 	database := config.Database{Driver: "sqlite", Path: directory + "/cache.db"}
 	err = cache.Initialize(database)
+	if err != nil {
+		_ = os.RemoveAll(directory)
+		panic(err)
+	}
+	err = logs.Initialize(database)
 	if err != nil {
 		_ = os.RemoveAll(directory)
 		panic(err)

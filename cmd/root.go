@@ -10,6 +10,7 @@ import (
 	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
+	"github.com/br-lemes/golem/pkg/logs"
 	"github.com/spf13/cobra"
 )
 
@@ -46,6 +47,10 @@ var rootCmd = &cobra.Command{
 		err = cache.Initialize(cfg.Database)
 		if err != nil {
 			return fmt.Errorf("initialize cache: %w", err)
+		}
+		err = logs.Initialize(cfg.Database)
+		if err != nil {
+			return fmt.Errorf("initialize logs: %w", err)
 		}
 		if !noDBFilters {
 			filters := cache.GetOutputFilters(cmd.CommandPath())

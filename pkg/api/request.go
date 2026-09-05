@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/console"
+	"github.com/br-lemes/golem/pkg/logs"
 	"github.com/tidwall/gjson"
 )
 
@@ -55,7 +55,13 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 		}
 		req, err := ctx.newRequest()
 		if err != nil {
-			cache.APILog(ctx.method, ctx.path, string(ctx.body), err.Error(), 0, 0)
+			logs.Record(logs.Event{
+				Method:  ctx.method,
+				Path:    ctx.path,
+				Body:    string(ctx.body),
+				Message: err.Error(),
+				Status:  0,
+			})
 			return nil, err
 		}
 
@@ -89,14 +95,27 @@ func (ctx *requestCtx) execute(cooldown bool) ([]byte, error) {
 
 		errMsg := gjson.GetBytes(respBytes, "error.message")
 		if errMsg.Exists() {
-			cache.APILog(ctx.method, ctx.path, string(ctx.body), string(respBytes), resp.StatusCode, 0)
+			logs.Record(logs.Event{
+				Method:   ctx.method,
+				Path:     ctx.path,
+				Body:     string(ctx.body),
+				Response: string(respBytes),
+				Status:   resp.StatusCode,
+			})
 			return nil, fmt.Errorf("%s", errMsg.String())
 		}
 
 		cdResult := gjson.GetBytes(respBytes, "data.cooldown.total_seconds")
 		cd := int(cdResult.Int())
 
-		cache.APILog(ctx.method, ctx.path, string(ctx.body), string(respBytes), resp.StatusCode, cd)
+		logs.Record(logs.Event{
+			Method:   ctx.method,
+			Path:     ctx.path,
+			Body:     string(ctx.body),
+			Response: string(respBytes),
+			Status:   resp.StatusCode,
+			Cooldown: cd,
+		})
 
 		if cooldown && cd > 0 {
 			reason := gjson.GetBytes(respBytes, "data.cooldown.reason")
@@ -128,8 +147,13 @@ func (ctx *requestCtx) newRequest() (*http.Request, error) {
 func (ctx *requestCtx) handleInfraError(reason string, err error) {
 	format := "%s: %v. Retrying in %v...\n"
 	message := fmt.Sprintf(format, reason, err, ctx.initialWait)
-	cache.APILog(ctx.method, ctx.path, string(ctx.body), message, 0, 0)
-	console.Errorf(format, reason, err, ctx.initialWait)
+	logs.Record(logs.Event{
+		Method:  ctx.method,
+		Path:    ctx.path,
+		Body:    string(ctx.body),
+		Level:   logs.Error,
+		Message: message,
+	})
 	time.Sleep(ctx.initialWait)
 }
 
@@ -141,7 +165,13 @@ func (ctx *requestCtx) handleClientError(resp *http.Response, respBytes []byte) 
 	} else {
 		message += resp.Status
 	}
-	cache.APILog(ctx.method, ctx.path, string(ctx.body), string(respBytes), resp.StatusCode, 0)
+	logs.Record(logs.Event{
+		Method:   ctx.method,
+		Path:     ctx.path,
+		Body:     string(ctx.body),
+		Response: string(respBytes),
+		Status:   resp.StatusCode,
+	})
 	return fmt.Errorf("%s (Status: %d)", message, resp.StatusCode)
 }
 
@@ -159,8 +189,15 @@ func (ctx *requestCtx) handleBackoff(resp *http.Response, respBytes []byte, curr
 
 	format := "%s (Status: %d). Retrying in %v...\n"
 	logMessage := fmt.Sprintf(format, message, resp.StatusCode, currentWait)
-	cache.APILog(ctx.method, ctx.path, string(ctx.body), logMessage, resp.StatusCode, 0)
-	console.Errorf(format, message, resp.StatusCode, currentWait)
+	logs.Record(logs.Event{
+		Method:   ctx.method,
+		Path:     ctx.path,
+		Body:     string(ctx.body),
+		Response: string(respBytes),
+		Status:   resp.StatusCode,
+		Level:    logs.Error,
+		Message:  logMessage,
+	})
 	time.Sleep(currentWait)
 
 	nextWait := currentWait * 2
