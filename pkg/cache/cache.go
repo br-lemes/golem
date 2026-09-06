@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -14,11 +13,8 @@ import (
 
 var cache *gorm.DB
 
-func Initialize(database config.Database) error {
-	if database.Driver != "sqlite" {
-		return fmt.Errorf("unsupported database driver: %s", database.Driver)
-	}
-	cacheFile := config.ExpandPath(database.Path)
+func Initialize(storage config.Storage) error {
+	cacheFile := config.ExpandPath(storage.Cache)
 	err := os.MkdirAll(filepath.Dir(cacheFile), 0755)
 	if err != nil {
 		return err

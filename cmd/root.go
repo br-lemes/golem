@@ -44,11 +44,11 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		err = cache.Initialize(cfg.Database)
+		err = cache.Initialize(cfg.Storage)
 		if err != nil {
 			return fmt.Errorf("initialize cache: %w", err)
 		}
-		err = logs.Initialize(cfg.Database)
+		err = logs.Initialize(cfg.Storage)
 		if err != nil {
 			return fmt.Errorf("initialize logs: %w", err)
 		}

@@ -17,7 +17,7 @@ type FoodItem struct {
 
 type HpOptions struct {
 	MinHP    int
-	UseFood bool
+	UseFood  bool
 	FoodOnly string
 }
 

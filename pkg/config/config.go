@@ -12,8 +12,8 @@ import (
 )
 
 type Config struct {
-	API      API      `mapstructure:"api"`
-	Database Database `mapstructure:"database"`
+	API     API     `mapstructure:"api"`
+	Storage Storage `mapstructure:"storage"`
 }
 
 type API struct {
@@ -21,29 +21,32 @@ type API struct {
 	Token       string `mapstructure:"token"`
 }
 
-type Database struct {
-	Driver   string `mapstructure:"driver"`
-	Path     string `mapstructure:"path"`
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	Name     string `mapstructure:"name"`
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	SSLMode  string `mapstructure:"ssl_mode"`
+type Storage struct {
+	Cache string `mapstructure:"cache"`
+	Logs  string `mapstructure:"logs"`
 }
 
 func Default() Config {
-	database := Database{Driver: "sqlite", Path: defaultDatabasePath()}
-	return Config{Database: database}
+	storage := Storage{Cache: defaultCachePath(), Logs: defaultLogsPath()}
+	return Config{Storage: storage}
 }
 
-func defaultDatabasePath() string {
+func defaultCachePath() string {
 	directory, err := os.UserCacheDir()
 	if err != nil {
 		//+gocover:ignore:block operating system failure
 		return "~/.cache/golem/cache.db"
 	}
 	return filepath.Join(directory, "golem", "cache.db")
+}
+
+func defaultLogsPath() string {
+	directory, err := os.UserCacheDir()
+	if err != nil {
+		//+gocover:ignore:block operating system failure
+		return "~/.cache/golem/logs"
+	}
+	return filepath.Join(directory, "golem", "logs")
 }
 
 func defaultConfigPath() string {
@@ -79,11 +82,11 @@ func Load(path string) (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("parse config file: %w", err)
 	}
-	if cfg.Database.Driver == "" {
-		cfg.Database.Driver = "sqlite"
+	if cfg.Storage.Cache == "" {
+		cfg.Storage.Cache = defaultCachePath()
 	}
-	if cfg.Database.Driver == "sqlite" && cfg.Database.Path == "" {
-		cfg.Database.Path = defaultDatabasePath()
+	if cfg.Storage.Logs == "" {
+		cfg.Storage.Logs = defaultLogsPath()
 	}
 	err = validate(cfg)
 	if err != nil {
@@ -98,23 +101,11 @@ func validate(cfg Config) error {
 	default:
 		return fmt.Errorf("invalid api environment: %s", cfg.API.Environment)
 	}
-	switch strings.ToLower(cfg.Database.Driver) {
-	case "sqlite":
-		if cfg.Database.Path == "" {
-			return fmt.Errorf("database.path is required for sqlite")
-		}
-		if cfg.Database.Host != "" || cfg.Database.Port != 0 || cfg.Database.Name != "" || cfg.Database.User != "" || cfg.Database.Password != "" || cfg.Database.SSLMode != "" {
-			return fmt.Errorf("database host, port, name, user, password and ssl_mode are not valid for sqlite")
-		}
-	case "mysql", "postgres":
-		if cfg.Database.Path != "" {
-			return fmt.Errorf("database.path is only valid for sqlite")
-		}
-		if cfg.Database.Host == "" || cfg.Database.Port == 0 || cfg.Database.Name == "" || cfg.Database.User == "" || cfg.Database.Password == "" {
-			return fmt.Errorf("database host, port, name, user and password are required for %s", cfg.Database.Driver)
-		}
-	default:
-		return fmt.Errorf("invalid database driver: %s", cfg.Database.Driver)
+	if cfg.Storage.Cache == "" {
+		return fmt.Errorf("storage.cache is required")
+	}
+	if cfg.Storage.Logs == "" {
+		return fmt.Errorf("storage.logs is required")
 	}
 	return nil
 }
@@ -143,32 +134,12 @@ func Save(path string, cfg Config) error {
 		apiSettings["environment"] = cfg.API.Environment
 	}
 
-	databaseSettings := map[string]any{"driver": cfg.Database.Driver}
-	switch strings.ToLower(cfg.Database.Driver) {
-	case "sqlite":
-		databaseSettings["path"] = cfg.Database.Path
-	case "mysql", "postgres":
-		if cfg.Database.Host != "" {
-			databaseSettings["host"] = cfg.Database.Host
-		}
-		if cfg.Database.Port != 0 {
-			databaseSettings["port"] = cfg.Database.Port
-		}
-		if cfg.Database.Name != "" {
-			databaseSettings["name"] = cfg.Database.Name
-		}
-		if cfg.Database.User != "" {
-			databaseSettings["user"] = cfg.Database.User
-		}
-		if cfg.Database.Password != "" {
-			databaseSettings["password"] = cfg.Database.Password
-		}
-		if cfg.Database.SSLMode != "" {
-			databaseSettings["ssl_mode"] = cfg.Database.SSLMode
-		}
+	storageSettings := map[string]any{
+		"cache": cfg.Storage.Cache,
+		"logs":  cfg.Storage.Logs,
 	}
 	v.Set("api", apiSettings)
-	v.Set("database", databaseSettings)
+	v.Set("storage", storageSettings)
 	err = v.WriteConfigAs(path)
 	if err != nil {
 		//+gocover:ignore:block operating system failure

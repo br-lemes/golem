@@ -18,7 +18,10 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	database := config.Database{Driver: "sqlite", Path: directory + "/cache.db"}
+	database := config.Storage{
+		Cache: directory + "/cache.db",
+		Logs:  directory + "/logs",
+	}
 	err = cache.Initialize(database)
 	if err != nil {
 		_ = os.RemoveAll(directory)

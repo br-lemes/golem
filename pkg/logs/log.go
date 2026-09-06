@@ -1,10 +1,8 @@
 package logs
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -39,13 +37,8 @@ type Event struct {
 	Message  string
 }
 
-func Initialize(databaseConfig config.Database) error {
-	if databaseConfig.Driver != "sqlite" {
-		return fmt.Errorf("unsupported database driver: %s", databaseConfig.Driver)
-	}
-
-	cachePath := config.ExpandPath(databaseConfig.Path)
-	databaseDir = filepath.Join(filepath.Dir(cachePath), strings.TrimSuffix(filepath.Base(cachePath), filepath.Ext(cachePath)))
+func Initialize(storage config.Storage) error {
+	databaseDir = config.ExpandPath(storage.Logs)
 	return os.MkdirAll(databaseDir, 0755)
 }
 
