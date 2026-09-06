@@ -120,11 +120,21 @@ func TestEquipReturnsUtilityClearError(t *testing.T) {
 	wantErr := errors.New("clear utility failed")
 	character := schemas.CharacterSchema{
 		Level:        10,
+		X:            4,
+		Y:            1,
+		MapId:        334,
+		Layer:        "overworld",
 		Utility1Slot: "small_health_potion",
 	}
 	deps := deps{
 		characters: func(string) (schemas.CharacterSchema, error) {
 			return character, nil
+		},
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{{Code: "iron_sword", Quantity: 1}}, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
 		},
 		myActionUnequip: func(string, []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
 			return schemas.EquipmentTransactionSchema{}, wantErr

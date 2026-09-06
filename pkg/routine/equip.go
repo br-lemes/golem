@@ -28,13 +28,6 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 		return schemas.CharacterSchema{}, err
 	}
 	hadUtilities := character.Utility1Slot != "" || character.Utility2Slot != ""
-	character, err = clearUtilities(d, character, []schemas.ItemSlot{
-		schemas.Utility1,
-		schemas.Utility2,
-	})
-	if err != nil {
-		return character, err
-	}
 	needed := filterNeededEquipments(character, equipments)
 	hasEquipmentChanges := len(needed) > 0
 	if !hasEquipmentChanges && !hadUtilities {
@@ -53,6 +46,13 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 	shouldPrepare := hadUtilities || len(missing) > 0
 	if shouldPrepare {
 		character, err = deposit(d, character, nil)
+		if err != nil {
+			return character, err
+		}
+		character, err = clearUtilities(d, character, []schemas.ItemSlot{
+			schemas.Utility1,
+			schemas.Utility2,
+		})
 		if err != nil {
 			return character, err
 		}
