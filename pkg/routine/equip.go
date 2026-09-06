@@ -41,6 +41,16 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 	}
 
 	Cooldown(character)
+	hpLoss := equipmentHPLoss(character, needed)
+	if hpLoss > 0 && hpLoss >= character.Hp {
+		character, err = hp(d, character, HpOptions{
+			MinHP:   hpLoss + 1,
+			UseFood: true,
+		})
+		if err != nil {
+			return character, err
+		}
+	}
 
 	missing := calculateMissingItems(character, needed)
 	shouldPrepare := hadUtilities || len(missing) > 0
@@ -79,6 +89,53 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 		}
 	}
 	return character, nil
+}
+
+func equipmentHPLoss(character schemas.CharacterSchema, needed []schemas.EquipSchema) int {
+	current := map[schemas.ItemSlot]string{
+		schemas.Amulet:    character.AmuletSlot,
+		schemas.Artifact1: character.Artifact1Slot,
+		schemas.Artifact2: character.Artifact2Slot,
+		schemas.Artifact3: character.Artifact3Slot,
+		schemas.Bag:       character.BagSlot,
+		schemas.BodyArmor: character.BodyArmorSlot,
+		schemas.Boots:     character.BootsSlot,
+		schemas.Helmet:    character.HelmetSlot,
+		schemas.LegArmor:  character.LegArmorSlot,
+		schemas.Ring1:     character.Ring1Slot,
+		schemas.Ring2:     character.Ring2Slot,
+		schemas.Rune:      character.RuneSlot,
+		schemas.Shield:    character.ShieldSlot,
+		schemas.Weapon:    character.WeaponSlot,
+	}
+	loss := 0
+	for _, equipment := range needed {
+		if strings.HasPrefix(string(equipment.Slot), "utility") {
+			continue
+		}
+		oldItem, exists := database.Items().Get(current[equipment.Slot])
+		newItem, existsNew := database.Items().Get(equipment.Code)
+		if !exists || !existsNew {
+			continue
+		}
+		oldHP, newHP := itemHPEffect(oldItem), itemHPEffect(newItem)
+		if oldHP > newHP {
+			loss += oldHP - newHP
+		}
+	}
+	return loss
+}
+
+func itemHPEffect(item *schemas.ItemSchema) int {
+	if item.Effects == nil {
+		return 0
+	}
+	for _, effect := range *item.Effects {
+		if effect.Code == "hp" {
+			return effect.Value
+		}
+	}
+	return 0
 }
 
 func equipmentItems(equipments []schemas.EquipSchema) []schemas.SimpleItemSchema {
