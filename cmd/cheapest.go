@@ -58,11 +58,11 @@ func cheapestRun(skill string) error {
 		maxLevel = max(maxLevel, level)
 	}
 	items := cheapestItems(skill, maxLevel, database.Items().All())
-	codes := make([]string, 0, len(items))
+	levels := make(map[string]int, len(items))
 	for _, item := range items {
-		codes = append(codes, item.Code)
+		levels[item.Code] = *item.Craft.Level
 	}
-	return console.Auto(codes)
+	return console.Auto(levels)
 }
 
 type craftCost struct {
