@@ -3,17 +3,28 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/google/go-querystring/query"
 )
 
 const EffectsSize = 10000
 
-func Effects() ([]schemas.EffectSchema, error) {
+type EffectsOptions struct{}
+
+func Effects(options EffectsOptions) ([]schemas.EffectSchema, error) {
+	params, err := query.Values(options)
+	if err != nil {
+		return nil, err
+	}
 	result := []schemas.EffectSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/effects?page=%d&size=%d", page, EffectsSize), nil)
+		params.Set("page", strconv.Itoa(page))
+		params.Set("size", strconv.Itoa(EffectsSize))
+		path := fmt.Sprintf("/effects?%s", params.Encode())
+		resp, err := Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

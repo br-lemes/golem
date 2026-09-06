@@ -3,17 +3,35 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/google/go-querystring/query"
 )
 
 const ItemsSize = 10000
 
-func Items() ([]schemas.ItemSchema, error) {
+type ItemsOptions struct {
+	CraftMaterial string `url:"craft_material,omitempty"`
+	CraftSkill    string `url:"craft_skill,omitempty"`
+	MaxLevel      int    `url:"max_level,omitempty"`
+	MinLevel      int    `url:"min_level,omitempty"`
+	Name          string `url:"name,omitempty"`
+	Type          string `url:"type,omitempty"`
+}
+
+func Items(options ItemsOptions) ([]schemas.ItemSchema, error) {
+	params, err := query.Values(options)
+	if err != nil {
+		return nil, err
+	}
 	result := []schemas.ItemSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/items?page=%d&size=%d", page, ItemsSize), nil)
+		params.Set("page", strconv.Itoa(page))
+		params.Set("size", strconv.Itoa(ItemsSize))
+		path := fmt.Sprintf("/items?%s", params.Encode())
+		resp, err := Get(path, nil)
 		if err != nil {
 			return nil, err
 		}
