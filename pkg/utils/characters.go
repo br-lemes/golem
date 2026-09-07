@@ -33,14 +33,14 @@ func GetCharacterSkillLevel(character schemas.CharacterSchema, skill string) (in
 }
 
 func GetCharacterGatheringSkillLevel(character schemas.CharacterSchema, skill string) (int, bool) {
-	if !slices.Contains(database.Enum("GatheringSkill"), skill) {
+	if !slices.Contains(database.Enums()["GatheringSkill"], skill) {
 		return 0, false
 	}
 	return GetCharacterSkillLevel(character, skill)
 }
 
 func GetCharacterCraftingSkillLevel(character schemas.CharacterSchema, skill string) (int, bool) {
-	if !slices.Contains(database.Enum("CraftSkill"), skill) {
+	if !slices.Contains(database.Enums()["CraftSkill"], skill) {
 		return 0, false
 	}
 	return GetCharacterSkillLevel(character, skill)

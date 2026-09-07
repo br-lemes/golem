@@ -41,8 +41,8 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		if options.Layer != "" && !slices.Contains(database.Enum("MapLayer"), options.Layer) {
-			return fmt.Errorf("invalid layer %q: allowed values are %v", options.Layer, database.Enum("MapLayer"))
+		if options.Layer != "" && !slices.Contains(database.Enums()["MapLayer"], options.Layer) {
+			return fmt.Errorf("invalid layer %q: allowed values are %v", options.Layer, database.Enums()["MapLayer"])
 		}
 		character, err := api.Characters(name)
 		if err != nil {
@@ -89,7 +89,7 @@ func init() {
 		panic(err)
 	}
 	err = findCmd.RegisterFlagCompletionFunc("layer", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.Enum("MapLayer"), cobra.ShellCompDirectiveNoFileComp
+		return database.Enums()["MapLayer"], cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)

@@ -60,7 +60,7 @@ func levelValidate(options levelFlags) error {
 	if !slices.Contains(levelGroups, options.Group) {
 		return fmt.Errorf("invalid group %q: allowed values are %v", options.Group, levelGroups)
 	}
-	validSkills := database.Enum("CharacterLeaderboardType")
+	validSkills := database.Enums()["CharacterLeaderboardType"]
 	for _, skill := range options.Skill {
 		if !slices.Contains(validSkills, skill) {
 			return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
@@ -117,7 +117,7 @@ func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []strin
 }
 
 func levelsBySkill(characters []schemas.CharacterSchema, filterSkills []string) map[string]map[string]int {
-	skills := slices.Clone(database.Enum("CharacterLeaderboardType"))
+	skills := slices.Clone(database.Enums()["CharacterLeaderboardType"])
 	if len(filterSkills) > 0 {
 		skills = slices.DeleteFunc(skills, func(s string) bool {
 			return !slices.Contains(filterSkills, s)
@@ -146,7 +146,7 @@ func init() {
 		panic(err)
 	}
 	err = levelCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
-		return database.Enum("CharacterLeaderboardType")
+		return database.Enums()["CharacterLeaderboardType"]
 	}))
 	if err != nil {
 		panic(err)

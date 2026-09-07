@@ -42,7 +42,6 @@ func CraftingPriorities(c schemas.CharacterSchema, item *schemas.ItemSchema) []s
 
 func NormalizePriorities(priorities []string) ([]string, error) {
 	validEffects := database.Effects().Equipments().Keys()
-	gatheringSkills := database.Enum("GatheringSkill")
 	seen := make(map[string]bool, len(priorities))
 	result := make([]string, 0, len(priorities)+1)
 	skill := ""
@@ -55,7 +54,7 @@ func NormalizePriorities(priorities []string) ([]string, error) {
 			return nil, fmt.Errorf("effect specified more than once: %s", effect)
 		}
 		seen[effect] = true
-		if slices.Contains(gatheringSkills, effect) {
+		if slices.Contains(database.Enums()["GatheringSkill"], effect) {
 			if skill != "" {
 				return nil, fmt.Errorf("multiple gathering skills specified: %s and %s", skill, effect)
 			}

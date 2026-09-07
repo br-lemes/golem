@@ -65,7 +65,7 @@ func xpValidate(target string, options xpFlags, groupChanged bool) error {
 	if err != nil || level < 1 || level > 50 {
 		return fmt.Errorf("invalid target level %q: must be between 1 and 50", target)
 	}
-	validSkills := database.Enum("CharacterLeaderboardType")
+	validSkills := database.Enums()["CharacterLeaderboardType"]
 	for _, skill := range options.Skill {
 		if !slices.Contains(validSkills, skill) {
 			return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
@@ -86,7 +86,7 @@ func xpRun(targetString, account string, xpOptions xpFlags) error {
 	target, _ := strconv.Atoi(targetString)
 	skills := xpOptions.Skill
 	if len(skills) == 0 {
-		skills = database.Enum("CharacterLeaderboardType")
+		skills = database.Enums()["CharacterLeaderboardType"]
 	}
 	if xpOptions.From >= 0 {
 		startLevel := max(1, xpOptions.From)
@@ -237,7 +237,7 @@ func init() {
 		panic(err)
 	}
 	err = xpCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
-		return database.Enum("CharacterLeaderboardType")
+		return database.Enums()["CharacterLeaderboardType"]
 	}))
 	if err != nil {
 		panic(err)

@@ -9,6 +9,6 @@ func GatheringSkill(count int) *CompletionBuilder {
 
 func (b *CompletionBuilder) GatheringSkill(count int) *CompletionBuilder {
 	return b.Custom(count, func() []string {
-		return database.Enum("GatheringSkill")
+		return database.Enums()["GatheringSkill"]
 	})
 }

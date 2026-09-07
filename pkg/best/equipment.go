@@ -43,7 +43,7 @@ func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) 
 		return nil, err
 	}
 	skill := ""
-	if len(priorities) > 0 && slices.Contains(database.Enum("GatheringSkill"), priorities[0]) {
+	if len(priorities) > 0 && slices.Contains(database.Enums()["GatheringSkill"], priorities[0]) {
 		skill = priorities[0]
 	}
 	weights := make(map[string]int, len(priorities))

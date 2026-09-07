@@ -3,7 +3,7 @@ package database
 import "testing"
 
 func TestEnumsAreNonEmptyAndUnique(t *testing.T) {
-	names := EnumNames()
+	names := Enums().Keys()
 	if len(names) == 0 {
 		t.Fatal("enum names are empty")
 	}
@@ -19,7 +19,10 @@ func TestEnumsAreNonEmptyAndUnique(t *testing.T) {
 		}
 		seenNames[name] = struct{}{}
 
-		values := Enum(name)
+		values, exists := Enums().Get(name)
+		if !exists {
+			t.Fatalf("enum %q is missing from catalog", name)
+		}
 		if len(values) == 0 {
 			t.Fatalf("enum %q is empty", name)
 		}
@@ -39,8 +42,11 @@ func TestEnumsAreNonEmptyAndUnique(t *testing.T) {
 }
 
 func TestEnumMissingName(t *testing.T) {
-	values := Enum("missing")
+	values, exists := Enums().Get("missing")
+	if exists {
+		t.Fatalf("Enums().Get(missing) exists with values %v", values)
+	}
 	if values != nil {
-		t.Fatalf("Enum(missing) = %v, want nil", values)
+		t.Fatalf("Enums().Get(missing) = %v, want nil", values)
 	}
 }

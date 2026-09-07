@@ -42,7 +42,7 @@ Arguments:
 }
 
 func skillLevelupRequirements(characters []schemas.CharacterSchema) map[string]map[string]int {
-	skills := slices.DeleteFunc(slices.Clone(database.Enum("CharacterLeaderboardType")), func(skill string) bool {
+	skills := slices.DeleteFunc(slices.Clone(database.Enums()["CharacterLeaderboardType"]), func(skill string) bool {
 		return slices.Contains(levelupExcludedSkills, skill)
 	})
 
