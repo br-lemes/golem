@@ -15,6 +15,7 @@ import (
 
 type priceResult struct {
 	Code        string              `json:"code"`
+	NPCSell     *int                `json:"npc_sell,omitempty"`
 	Buy         priceMarketSummary  `json:"buy"`
 	Sell        priceMarketSummary  `json:"sell"`
 	History     priceHistorySummary `json:"history"`
@@ -93,6 +94,10 @@ var priceCmd = &cobra.Command{
 			Buy:     summarizeOrders(buys),
 			Sell:    summarizeOrders(sells),
 			History: summarizeHistory(history),
+		}
+		npcItem, exists := database.NpcsItems.Get(code)
+		if exists {
+			result.NPCSell = npcItem.SellPrice
 		}
 		if result.Buy.Orders == 0 && result.Sell.Orders == 0 && result.History.Sales == 0 {
 			result.Suggestions = similarPriceItems(item, database.Items().Tradeables().All())
