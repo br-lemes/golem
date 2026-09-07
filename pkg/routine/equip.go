@@ -41,14 +41,16 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 	}
 
 	Cooldown(character)
-	hpLoss := equipmentHPLoss(character, needed)
-	if hpLoss > 0 && hpLoss >= character.Hp {
-		character, err = hp(d, character, HpOptions{
-			MinHP:   hpLoss + 1,
-			UseFood: true,
-		})
-		if err != nil {
-			return character, err
+	if hasEquipmentChanges {
+		hpLoss := equipmentHPLoss(character, needed)
+		if hpLoss > 0 && hpLoss >= character.Hp {
+			character, err = hp(d, character, HpOptions{
+				MinHP:   hpLoss + 1,
+				UseFood: true,
+			})
+			if err != nil {
+				return character, err
+			}
 		}
 	}
 
@@ -114,14 +116,10 @@ func equipmentHPLoss(character schemas.CharacterSchema, needed []schemas.EquipSc
 			continue
 		}
 		oldItem, exists := database.Items().Get(current[equipment.Slot])
-		newItem, existsNew := database.Items().Get(equipment.Code)
-		if !exists || !existsNew {
+		if !exists {
 			continue
 		}
-		oldHP, newHP := itemHPEffect(oldItem), itemHPEffect(newItem)
-		if oldHP > newHP {
-			loss += oldHP - newHP
-		}
+		loss += itemHPEffect(oldItem)
 	}
 	return loss
 }
