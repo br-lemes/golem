@@ -12,8 +12,9 @@ export CGO_ENABLED=0
 ARTIFACTS := $(foreach p,$(PLATFORMS),\
 	$(TARGET)-$(p)$(if $(filter windows%,$(p)),.exe))
 
-SEMVER := github.com/br-lemes/semver@latest
 GOCOVER := github.com/Azure/gocover@latest
+CODEGEN := github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+SEMVER := github.com/br-lemes/semver@latest
 
 GENERATED_FILES := pkg/database/enums.json \
 	pkg/schemas/params.go \
@@ -45,6 +46,7 @@ dev: $(GENERATED_FILES) lint test
 	@go build -ldflags "-X 'main.version=$$(date '+%Y-%m-%d %H:%M:%S')'"
 
 lint: custom-gcl
+	@gofmt -w $$(go list -f '{{.Dir}}/*.go' ./...)
 	@if [ -f ./custom-gcl ]; then ./custom-gcl run; fi
 
 pkg/database/enums.json: pkg/database/openapi.json enums.jq
@@ -88,7 +90,7 @@ version: test
 	@go run $(SEMVER)
 
 %.go: %.json
-	@oapi-codegen -generate models,skip-prune -package schemas -o $@ $<
+	@go run $(CODEGEN) -generate models,skip-prune -package schemas -o $@ $<
 	@sd -A '\n\n\t//[^\n]*' '' $@
 	@sd -A '^\t*//[^\n]*\n' '' $@
 	@sd 'Path\s+\[\]\[\]int' 'Path [][2]int' $@

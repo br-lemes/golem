@@ -7,20 +7,20 @@ import (
 )
 
 type AccessSchema struct {
-	Conditions *[]ConditionSchema `json:"conditions"`
+	Conditions *[]ConditionSchema `json:"conditions,omitempty"`
 	Type       string             `json:"type"`
 }
 
 type AccountAchievementObjectiveSchema struct {
 	Progress *int    `json:"progress,omitempty"`
-	Target   *string `json:"target"`
+	Target   *string `json:"target,omitempty"`
 	Total    int     `json:"total"`
 	Type     string  `json:"type"`
 }
 
 type AccountAchievementSchema struct {
 	Code        string                              `json:"code"`
-	CompletedAt *time.Time                          `json:"completed_at"`
+	CompletedAt *time.Time                          `json:"completed_at,omitempty"`
 	Description string                              `json:"description"`
 	Name        string                              `json:"name"`
 	Objectives  []AccountAchievementObjectiveSchema `json:"objectives"`
@@ -46,14 +46,14 @@ type AccountDetailsSchema struct {
 type AccountLeaderboardSchema struct {
 	Account            string     `json:"account"`
 	AchievementsPoints int        `json:"achievements_points"`
-	CompletedAt        *time.Time `json:"completed_at"`
+	CompletedAt        *time.Time `json:"completed_at,omitempty"`
 	Gold               int        `json:"gold"`
 	Member             bool       `json:"member"`
 	Position           int        `json:"position"`
 }
 
 type AchievementObjectiveSchema struct {
-	Target *string `json:"target"`
+	Target *string `json:"target,omitempty"`
 	Total  int     `json:"total"`
 	Type   string  `json:"type"`
 }
@@ -64,7 +64,7 @@ type AchievementResponseSchema struct {
 
 type AchievementRewardsSchema struct {
 	Gold  *int                `json:"gold,omitempty"`
-	Items *[]RewardItemSchema `json:"items"`
+	Items *[]RewardItemSchema `json:"items,omitempty"`
 }
 
 type AchievementSchema struct {
@@ -133,7 +133,7 @@ type BadgeResponseSchema struct {
 type BadgeSchema struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
-	Season      *int   `json:"season"`
+	Season      *int   `json:"season,omitempty"`
 }
 
 type BankExtensionSchema struct {
@@ -661,34 +661,34 @@ type EventSchema struct {
 	Code               string              `json:"code"`
 	Content            *EventContentSchema `json:"content,omitempty"`
 	Cooldown           *int                `json:"cooldown,omitempty"`
-	CooldownExpiration *time.Time          `json:"cooldown_expiration"`
+	CooldownExpiration *time.Time          `json:"cooldown_expiration,omitempty"`
 	Duration           int                 `json:"duration"`
 	Maps               []EventMapSchema    `json:"maps"`
 	Name               string              `json:"name"`
-	Price              *int                `json:"price"`
+	Price              *int                `json:"price,omitempty"`
 	Rate               int                 `json:"rate"`
 	Transition         *TransitionSchema   `json:"transition,omitempty"`
 }
 
 type FakeCharacterSchema struct {
-	AmuletSlot           *string `json:"amulet_slot"`
-	Artifact1Slot        *string `json:"artifact1_slot"`
-	Artifact2Slot        *string `json:"artifact2_slot"`
-	Artifact3Slot        *string `json:"artifact3_slot"`
-	BodyArmorSlot        *string `json:"body_armor_slot"`
-	BootsSlot            *string `json:"boots_slot"`
-	HelmetSlot           *string `json:"helmet_slot"`
-	LegArmorSlot         *string `json:"leg_armor_slot"`
+	AmuletSlot           *string `json:"amulet_slot,omitempty"`
+	Artifact1Slot        *string `json:"artifact1_slot,omitempty"`
+	Artifact2Slot        *string `json:"artifact2_slot,omitempty"`
+	Artifact3Slot        *string `json:"artifact3_slot,omitempty"`
+	BodyArmorSlot        *string `json:"body_armor_slot,omitempty"`
+	BootsSlot            *string `json:"boots_slot,omitempty"`
+	HelmetSlot           *string `json:"helmet_slot,omitempty"`
+	LegArmorSlot         *string `json:"leg_armor_slot,omitempty"`
 	Level                int     `json:"level"`
-	Ring1Slot            *string `json:"ring1_slot"`
-	Ring2Slot            *string `json:"ring2_slot"`
-	RuneSlot             *string `json:"rune_slot"`
-	ShieldSlot           *string `json:"shield_slot"`
-	Utility1Slot         *string `json:"utility1_slot"`
+	Ring1Slot            *string `json:"ring1_slot,omitempty"`
+	Ring2Slot            *string `json:"ring2_slot,omitempty"`
+	RuneSlot             *string `json:"rune_slot,omitempty"`
+	ShieldSlot           *string `json:"shield_slot,omitempty"`
+	Utility1Slot         *string `json:"utility1_slot,omitempty"`
 	Utility1SlotQuantity *int    `json:"utility1_slot_quantity,omitempty"`
-	Utility2Slot         *string `json:"utility2_slot"`
+	Utility2Slot         *string `json:"utility2_slot,omitempty"`
 	Utility2SlotQuantity *int    `json:"utility2_slot_quantity,omitempty"`
-	WeaponSlot           *string `json:"weapon_slot"`
+	WeaponSlot           *string `json:"weapon_slot,omitempty"`
 }
 
 type FightRequestSchema struct {
@@ -749,7 +749,7 @@ type GEOrderResponseSchema struct {
 }
 
 type GEOrderSchema struct {
-	Account   *string   `json:"account"`
+	Account   *string   `json:"account,omitempty"`
 	Code      string    `json:"code"`
 	CreatedAt time.Time `json:"created_at"`
 	Id        string    `json:"id"`
@@ -929,7 +929,7 @@ type LogSchema struct {
 	Character          string      `json:"character"`
 	Content            interface{} `json:"content"`
 	Cooldown           int         `json:"cooldown"`
-	CooldownExpiration *time.Time  `json:"cooldown_expiration"`
+	CooldownExpiration *time.Time  `json:"cooldown_expiration,omitempty"`
 	CreatedAt          time.Time   `json:"created_at"`
 	Description        string      `json:"description"`
 	Type               string      `json:"type"`
@@ -999,7 +999,7 @@ type MyAccountDetails struct {
 	Email              openapi_types.Email `json:"email"`
 	Gems               int                 `json:"gems"`
 	Member             bool                `json:"member"`
-	MemberExpiration   *time.Time          `json:"member_expiration"`
+	MemberExpiration   *time.Time          `json:"member_expiration,omitempty"`
 	MemberToken        *int                `json:"member_token,omitempty"`
 	Skins              []string            `json:"skins"`
 	Status             string              `json:"status"`
@@ -1015,11 +1015,11 @@ type MyCharactersListSchema struct {
 }
 
 type NPCItemSchema struct {
-	BuyPrice  *int   `json:"buy_price"`
+	BuyPrice  *int   `json:"buy_price,omitempty"`
 	Code      string `json:"code"`
 	Currency  string `json:"currency"`
 	Npc       string `json:"npc"`
-	SellPrice *int   `json:"sell_price"`
+	SellPrice *int   `json:"sell_price,omitempty"`
 }
 
 type NPCResponseSchema struct {
@@ -1072,14 +1072,14 @@ type PasswordResetResponseSchema struct {
 
 type PendingItemSchema struct {
 	Account     string              `json:"account"`
-	ClaimedAt   *time.Time          `json:"claimed_at"`
+	ClaimedAt   *time.Time          `json:"claimed_at,omitempty"`
 	CreatedAt   time.Time           `json:"created_at"`
 	Description string              `json:"description"`
 	Gold        *int                `json:"gold,omitempty"`
 	Id          string              `json:"id"`
 	Items       *[]SimpleItemSchema `json:"items,omitempty"`
 	Source      string              `json:"source"`
-	SourceId    *string             `json:"source_id"`
+	SourceId    *string             `json:"source_id,omitempty"`
 }
 
 type PurchaseGemsRequestSchema struct {
@@ -1101,16 +1101,16 @@ type PurchaseHistorySchema struct {
 type RaidDamageRewardSchema struct {
 	DamagePerReward int                 `json:"damage_per_reward"`
 	Items           *[]SimpleItemSchema `json:"items,omitempty"`
-	MaxRewards      *int                `json:"max_rewards"`
+	MaxRewards      *int                `json:"max_rewards,omitempty"`
 }
 
 type RaidInstanceSchema struct {
-	EndedAt              *time.Time `json:"ended_at"`
+	EndedAt              *time.Time `json:"ended_at,omitempty"`
 	EndsAt               time.Time  `json:"ends_at"`
 	ParticipantCount     *int       `json:"participant_count,omitempty"`
 	RemainingHp          int        `json:"remaining_hp"`
 	Result               *string    `json:"result,omitempty"`
-	RewardsDistributedAt *time.Time `json:"rewards_distributed_at"`
+	RewardsDistributedAt *time.Time `json:"rewards_distributed_at,omitempty"`
 	StartsAt             time.Time  `json:"starts_at"`
 	Status               string     `json:"status"`
 	TotalHp              int        `json:"total_hp"`
@@ -1147,7 +1147,7 @@ type RaidScheduleSchema struct {
 type RaidSchema struct {
 	ActiveInstance   *RaidInstanceSchema `json:"active_instance,omitempty"`
 	Code             string              `json:"code"`
-	Description      *string             `json:"description"`
+	Description      *string             `json:"description,omitempty"`
 	LatestInstance   *RaidInstanceSchema `json:"latest_instance,omitempty"`
 	Monster          string              `json:"monster"`
 	Name             string              `json:"name"`
@@ -1363,10 +1363,10 @@ type SimpleItemSchema struct {
 }
 
 type SimpleNPCItemSchema struct {
-	BuyPrice  *int   `json:"buy_price"`
+	BuyPrice  *int   `json:"buy_price,omitempty"`
 	Code      string `json:"code"`
 	Currency  string `json:"currency"`
-	SellPrice *int   `json:"sell_price"`
+	SellPrice *int   `json:"sell_price,omitempty"`
 }
 
 type SkillDataSchema struct {
@@ -1393,7 +1393,7 @@ type SkinSchema struct {
 	Default     bool   `json:"default"`
 	Description string `json:"description"`
 	Name        string `json:"name"`
-	Price       *int   `json:"price"`
+	Price       *int   `json:"price,omitempty"`
 }
 
 type SpawnEventRequestSchema struct {
@@ -1567,7 +1567,7 @@ type SubscriptionResponseSchema struct {
 }
 
 type SubscriptionSchema struct {
-	CancelledAt        *time.Time `json:"cancelled_at"`
+	CancelledAt        *time.Time `json:"cancelled_at,omitempty"`
 	CreatedAt          time.Time  `json:"created_at"`
 	CurrentPeriodEnd   time.Time  `json:"current_period_end"`
 	CurrentPeriodStart time.Time  `json:"current_period_start"`
@@ -1601,7 +1601,7 @@ type TaskFullSchema struct {
 	MaxQuantity int           `json:"max_quantity"`
 	MinQuantity int           `json:"min_quantity"`
 	Rewards     RewardsSchema `json:"rewards"`
-	Skill       *string       `json:"skill"`
+	Skill       *string       `json:"skill,omitempty"`
 	Type        string        `json:"type"`
 }
 
@@ -1636,7 +1636,7 @@ type TokenResponseSchema struct {
 }
 
 type TransitionSchema struct {
-	Conditions *[]ConditionSchema `json:"conditions"`
+	Conditions *[]ConditionSchema `json:"conditions,omitempty"`
 	Layer      string             `json:"layer"`
 	MapId      int                `json:"map_id"`
 	X          int                `json:"x"`
