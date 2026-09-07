@@ -15,11 +15,12 @@ import (
 )
 
 type fightFlags struct {
-	Food     string `flag:"food" desc:"auto-stock food from bank"`
-	FoodOnly string `flag:"food-only" desc:"use only this food code"`
-	NoFood   bool   `flag:"no-food" desc:"do not use food"`
-	Utility1 string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
-	Utility2 string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
+	Food         string `flag:"food" desc:"auto-stock food from bank"`
+	FoodOnly     string `flag:"food-only" desc:"use only this food code"`
+	NoFood       bool   `flag:"no-food" desc:"do not use food"`
+	UseUtilities bool   `flag:"use-utilities" desc:"use utilities selected by the simulator"`
+	Utility1     string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
+	Utility2     string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
 }
 
 var fightCmd = &cobra.Command{
@@ -64,8 +65,19 @@ Arguments:
 		if fightResult.Winrate < 100 {
 			return fmt.Errorf("cannot safely fight %s: simulated winrate is %.2f%%", monster.Code, fightResult.Winrate)
 		}
-		if !fightUtilitiesMatch(fightResult, flags.Utility1, flags.Utility2) {
-			return fmt.Errorf("fight utilities do not match the simulated configuration")
+		utilitiesRequired := fightResult.Utilities["utility1"] != "" || fightResult.Utilities["utility2"] != ""
+		if utilitiesRequired && !flags.UseUtilities {
+			return fmt.Errorf("simulator requires utilities; use --use-utilities to allow them")
+		}
+		if !utilitiesRequired && flags.UseUtilities {
+			return fmt.Errorf("simulator does not require utilities; remove --use-utilities")
+		}
+		if utilitiesRequired && (flags.Utility1 != "" || flags.Utility2 != "") {
+			return fmt.Errorf("--utility1 and --utility2 cannot override utilities selected by the simulator")
+		}
+		if utilitiesRequired {
+			flags.Utility1 = fightResult.Utilities["utility1"]
+			flags.Utility2 = fightResult.Utilities["utility2"]
 		}
 		equipments := make([]schemas.EquipSchema, 0, len(fightResult.Equipment))
 		for slot, code := range fightResult.Equipment {
@@ -113,6 +125,9 @@ func fightValidate(monster string, flags fightFlags, boss bool) error {
 	if flags.Food != "" && flags.FoodOnly != "" {
 		return fmt.Errorf("--food and --food-only cannot be combined")
 	}
+	if flags.Utility1 != "" && flags.Utility1 == flags.Utility2 {
+		return fmt.Errorf("--utility1 and --utility2 cannot use the same item")
+	}
 	if flags.NoFood {
 		return nil
 	}
@@ -147,10 +162,6 @@ func fightFoodValidate(character schemas.CharacterSchema, flags fightFlags) erro
 		return fmt.Errorf("food %s conditions not met for character %s", food, character.Name)
 	}
 	return nil
-}
-
-func fightUtilitiesMatch(result best.Result, utility1, utility2 string) bool {
-	return result.Utilities["utility1"] == utility1 && result.Utilities["utility2"] == utility2
 }
 
 func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, flags fightFlags) error {
