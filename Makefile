@@ -36,18 +36,18 @@ coverage: $(GENERATED_FILES) lint
 		go run $(GOCOVER) full --cover-profile=coverage.out
 
 custom-gcl: .custom-gcl.yml
-	@if command -v golangci-lint >/dev/null 2>&1; then \
-		golangci-lint custom -v; \
-	else \
-		echo "Warning: 'golangci-lint' is not installed. Skipping."; \
-	fi
+	@golangci-lint custom -v
 
 dev: $(GENERATED_FILES) lint test
 	@go build -ldflags "-X 'main.version=$$(date '+%Y-%m-%d %H:%M:%S')'"
 
 lint: custom-gcl
+	@if ! git merge-base --is-ancestor master HEAD; then \
+		echo "Branch is behind or has diverged from master."; \
+		exit 1; \
+	fi
 	@gofmt -w $$(go list -f '{{.Dir}}/*.go' ./...)
-	@if [ -f ./custom-gcl ]; then ./custom-gcl run; fi
+	@./custom-gcl run
 
 pkg/database/enums.json: pkg/database/openapi.json enums.jq
 	@jq -f enums.jq pkg/database/openapi.json > $@
