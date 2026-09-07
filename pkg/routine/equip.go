@@ -61,9 +61,9 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 		if err != nil {
 			return character, err
 		}
-		character, err = clearUtilities(d, character, []schemas.ItemSlot{
-			schemas.Utility1,
-			schemas.Utility2,
+		character, err = clearUtilities(d, character, []string{
+			"utility1",
+			"utility2",
 		})
 		if err != nil {
 			return character, err
@@ -94,21 +94,21 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 }
 
 func equipmentHPLoss(character schemas.CharacterSchema, needed []schemas.EquipSchema) int {
-	current := map[schemas.ItemSlot]string{
-		schemas.Amulet:    character.AmuletSlot,
-		schemas.Artifact1: character.Artifact1Slot,
-		schemas.Artifact2: character.Artifact2Slot,
-		schemas.Artifact3: character.Artifact3Slot,
-		schemas.Bag:       character.BagSlot,
-		schemas.BodyArmor: character.BodyArmorSlot,
-		schemas.Boots:     character.BootsSlot,
-		schemas.Helmet:    character.HelmetSlot,
-		schemas.LegArmor:  character.LegArmorSlot,
-		schemas.Ring1:     character.Ring1Slot,
-		schemas.Ring2:     character.Ring2Slot,
-		schemas.Rune:      character.RuneSlot,
-		schemas.Shield:    character.ShieldSlot,
-		schemas.Weapon:    character.WeaponSlot,
+	current := map[string]string{
+		"amulet":     character.AmuletSlot,
+		"artifact1":  character.Artifact1Slot,
+		"artifact2":  character.Artifact2Slot,
+		"artifact3":  character.Artifact3Slot,
+		"bag":        character.BagSlot,
+		"body_armor": character.BodyArmorSlot,
+		"boots":      character.BootsSlot,
+		"helmet":     character.HelmetSlot,
+		"leg_armor":  character.LegArmorSlot,
+		"ring1":      character.Ring1Slot,
+		"ring2":      character.Ring2Slot,
+		"rune":       character.RuneSlot,
+		"shield":     character.ShieldSlot,
+		"weapon":     character.WeaponSlot,
 	}
 	loss := 0
 	for _, equipment := range needed {
@@ -152,7 +152,7 @@ func equipmentItems(equipments []schemas.EquipSchema) []schemas.SimpleItemSchema
 }
 
 func validateEquipments(equipments []schemas.EquipSchema) error {
-	slotsReserved := map[schemas.ItemSlot]string{}
+	slotsReserved := map[string]string{}
 	for _, equipment := range equipments {
 		if equipment.Code == "" || equipment.Slot == "" {
 			return fmt.Errorf("invalid equipment request: missing code or slot")
@@ -167,7 +167,7 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 		}
 		validSlot := false
 		for _, s := range slots {
-			if schemas.ItemSlot(s) == equipment.Slot {
+			if s == equipment.Slot {
 				validSlot = true
 				break
 			}
@@ -198,7 +198,7 @@ func checkLevelRequirements(character schemas.CharacterSchema, equipments []sche
 }
 
 func filterNeededEquipments(character schemas.CharacterSchema, equipments []schemas.EquipSchema) []schemas.EquipSchema {
-	currentSlots := map[schemas.ItemSlot]string{
+	currentSlots := map[string]string{
 		"amulet":     character.AmuletSlot,
 		"artifact1":  character.Artifact1Slot,
 		"artifact2":  character.Artifact2Slot,
@@ -216,7 +216,7 @@ func filterNeededEquipments(character schemas.CharacterSchema, equipments []sche
 		"utility2":   character.Utility2Slot,
 		"weapon":     character.WeaponSlot,
 	}
-	currentQuantities := map[schemas.ItemSlot]int{
+	currentQuantities := map[string]int{
 		"utility1": character.Utility1SlotQuantity,
 		"utility2": character.Utility2SlotQuantity,
 	}

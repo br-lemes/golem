@@ -91,7 +91,7 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 		result[code] = Evaluation{}
 	}
 
-	monsters := database.Monsters.Filter(func(m *schemas.MonsterSchema) bool { return m.Type != schemas.Boss && m.Type != schemas.RaidBoss })
+	monsters := database.Monsters.Filter(func(m *schemas.MonsterSchema) bool { return m.Type != "boss" && m.Type != "raid_boss" })
 	sort.Slice(monsters, func(i, j int) bool { return monsters[i].Code < monsters[j].Code })
 	normalCombat, err := cachedMarkCombat(simulationCharacter, monsters, combatAvailable, "normal")
 	if err != nil {

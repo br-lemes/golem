@@ -62,8 +62,8 @@ Arguments:
 	},
 }
 
-func progressFormat(achievements []schemas.AccountAchievementSchema) map[string][]map[schemas.AchievementType]string {
-	result := map[string][]map[schemas.AchievementType]string{}
+func progressFormat(achievements []schemas.AccountAchievementSchema) map[string][]map[string]string {
+	result := map[string][]map[string]string{}
 	for _, achievement := range achievements {
 		name := fmt.Sprintf("%s (%s)", achievement.Name, achievement.Code)
 		for _, objective := range achievement.Objectives {
@@ -75,7 +75,7 @@ func progressFormat(achievements []schemas.AccountAchievementSchema) map[string]
 			if objective.Progress != nil {
 				progressVal = *objective.Progress
 			}
-			result[name] = append(result[name], map[schemas.AchievementType]string{
+			result[name] = append(result[name], map[string]string{
 				objective.Type: fmt.Sprintf("%s (%d/%d)", targetVal, progressVal, objective.Total),
 			})
 		}

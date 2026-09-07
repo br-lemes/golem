@@ -10,7 +10,6 @@ import (
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
-	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -56,7 +55,7 @@ Arguments:
 			}
 		}
 		if options.Layer != "" {
-			character.Layer = schemas.MapLayer(options.Layer)
+			character.Layer = options.Layer
 		}
 
 		tile := database.FindClosest(character, code)

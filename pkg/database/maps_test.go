@@ -253,7 +253,7 @@ func TestFindClosestHandlesTransitionCycle(t *testing.T) {
 func TestFindClosestSkipsConditionalTargetWithoutAchievement(t *testing.T) {
 	conditions := []schemas.ConditionSchema{{
 		Code:     "secure_the_island",
-		Operator: schemas.AchievementUnlocked,
+		Operator: "achievement_unlocked",
 		Value:    1,
 	}}
 	maps := map[Point]schemas.MapSchema{
@@ -297,7 +297,7 @@ func TestFindClosestSkipsConditionalTargetWithoutAchievement(t *testing.T) {
 func TestFindClosestSkipsConditionalTargetWithoutAchievementLoader(t *testing.T) {
 	conditions := []schemas.ConditionSchema{{
 		Code:     "secure_the_island",
-		Operator: schemas.AchievementUnlocked,
+		Operator: "achievement_unlocked",
 		Value:    1,
 	}}
 	maps := map[Point]schemas.MapSchema{
@@ -325,7 +325,7 @@ func TestFindClosestSkipsConditionalTargetWithoutAchievementLoader(t *testing.T)
 func TestFindClosestSkipsConditionalTargetWhenAchievementsLoadFails(t *testing.T) {
 	conditions := []schemas.ConditionSchema{{
 		Code:     "secure_the_island",
-		Operator: schemas.AchievementUnlocked,
+		Operator: "achievement_unlocked",
 		Value:    1,
 	}}
 	maps := map[Point]schemas.MapSchema{
@@ -356,7 +356,7 @@ func TestFindClosestSkipsConditionalTargetWhenAchievementsLoadFails(t *testing.T
 func TestFindClosestUsesCompletedAchievement(t *testing.T) {
 	conditions := []schemas.ConditionSchema{{
 		Code:     "secure_the_island",
-		Operator: schemas.AchievementUnlocked,
+		Operator: "achievement_unlocked",
 		Value:    1,
 	}}
 	completedAt := time.Now()
@@ -421,7 +421,7 @@ func TestFindClosestDoesNotLoadAchievementsWithoutConditions(t *testing.T) {
 func TestFindClosestDoesNotCheckConditionsOnPathTiles(t *testing.T) {
 	conditions := []schemas.ConditionSchema{{
 		Code:     "secure_the_island",
-		Operator: schemas.AchievementUnlocked,
+		Operator: "achievement_unlocked",
 		Value:    1,
 	}}
 	maps := map[Point]schemas.MapSchema{

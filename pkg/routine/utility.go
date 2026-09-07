@@ -11,22 +11,22 @@ const utilityMaxStack = 100
 const utilityMinThreshold = 10
 
 type utilitySlot struct {
-	slot    schemas.ItemSlot
+	slot    string
 	code    string
 	curCode string
 	curQty  int
 }
 
-func ClearUtilities(character schemas.CharacterSchema, slots []schemas.ItemSlot) (schemas.CharacterSchema, error) {
+func ClearUtilities(character schemas.CharacterSchema, slots []string) (schemas.CharacterSchema, error) {
 	return clearUtilities(defaultDeps, character, slots)
 }
 
-func clearUtilities(d deps, character schemas.CharacterSchema, slots []schemas.ItemSlot) (schemas.CharacterSchema, error) {
+func clearUtilities(d deps, character schemas.CharacterSchema, slots []string) (schemas.CharacterSchema, error) {
 	unequips := make([]schemas.UnequipSchema, 0, 2)
 	for _, slot := range slots {
 		code := character.Utility1Slot
 		quantity := character.Utility1SlotQuantity
-		if slot == schemas.Utility2 {
+		if slot == "utility2" {
 			code = character.Utility2Slot
 			quantity = character.Utility2SlotQuantity
 		}
@@ -51,13 +51,13 @@ func clearUtilities(d deps, character schemas.CharacterSchema, slots []schemas.I
 func utilitySlots(character schemas.CharacterSchema, utility1, utility2 string) []*utilitySlot {
 	return []*utilitySlot{
 		{
-			schemas.Utility1,
+			"utility1",
 			utility1,
 			character.Utility1Slot,
 			character.Utility1SlotQuantity,
 		},
 		{
-			schemas.Utility2,
+			"utility2",
 			utility2,
 			character.Utility2Slot,
 			character.Utility2SlotQuantity,

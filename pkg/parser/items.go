@@ -105,13 +105,13 @@ func (item Item) EquipSchema() (schemas.EquipSchema, error) {
 		if item.Slot != nil {
 			return schemas.EquipSchema{}, fmt.Errorf("cannot specify slot for item with single slot: %s", item.Code)
 		}
-		equipment.Slot = schemas.ItemSlot(slots[0])
+		equipment.Slot = slots[0]
 	} else if item.Slot != nil {
 		slot, _ := strconv.Atoi(*item.Slot)
 		if slot < 1 || slot > len(slots) {
 			return schemas.EquipSchema{}, fmt.Errorf("invalid slot number %s for item %s", *item.Slot, item.Code)
 		}
-		equipment.Slot = schemas.ItemSlot(slots[slot-1])
+		equipment.Slot = slots[slot-1]
 	}
 	return equipment, nil
 }

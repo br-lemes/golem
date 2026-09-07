@@ -15,21 +15,15 @@ func TestGatheringPriorities(t *testing.T) {
 		priorities []string
 	}{
 		{
-			name:  "near resource level",
-			level: 5,
-			resource: schemas.ResourceSchema{
-				Level: 10,
-				Skill: schemas.GatheringSkillMining,
-			},
+			name:       "near resource level",
+			level:      5,
+			resource:   schemas.ResourceSchema{Level: 10, Skill: "mining"},
 			priorities: []string{"mining", "wisdom", "prospecting"},
 		},
 		{
-			name:  "far above resource level",
-			level: 25,
-			resource: schemas.ResourceSchema{
-				Level: 10,
-				Skill: schemas.GatheringSkillMining,
-			},
+			name:       "far above resource level",
+			level:      25,
+			resource:   schemas.ResourceSchema{Level: 10, Skill: "mining"},
 			priorities: []string{"mining", "prospecting"},
 		},
 		{
@@ -38,7 +32,7 @@ func TestGatheringPriorities(t *testing.T) {
 			resource: schemas.ResourceSchema{
 				Code:  "magic_tree",
 				Level: 10,
-				Skill: schemas.GatheringSkillMining,
+				Skill: "mining",
 			},
 			priorities: []string{"mining", "prospecting", "wisdom"},
 		},
@@ -48,7 +42,7 @@ func TestGatheringPriorities(t *testing.T) {
 			resource: schemas.ResourceSchema{
 				Code:  "magic_tree",
 				Level: 10,
-				Skill: schemas.GatheringSkillMining,
+				Skill: "mining",
 			},
 			priorities: []string{"mining", "prospecting"},
 		},
@@ -65,7 +59,7 @@ func TestGatheringPriorities(t *testing.T) {
 }
 
 func TestCraftingPriorities(t *testing.T) {
-	skill := schemas.CraftSkillMining
+	skill := "mining"
 	tests := []struct {
 		name       string
 		level      int

@@ -39,11 +39,11 @@ var tasksCatalog = func() *taskCatalog {
 }()
 
 var taskItemCodes = sync.OnceValue(func() []string {
-	return taskCodes(schemas.Items)
+	return taskCodes("items")
 })
 
 var taskMonsterCodes = sync.OnceValue(func() []string {
-	return taskCodes(schemas.Monsters)
+	return taskCodes("monsters")
 })
 
 var taskSkills = sync.OnceValue(func() []string {
@@ -64,7 +64,7 @@ var taskSkills = sync.OnceValue(func() []string {
 	return skills
 })
 
-func taskCodes(taskType schemas.TaskType) []string {
+func taskCodes(taskType string) []string {
 	var codes []string
 	for _, task := range Tasks().All() {
 		if task.Type == taskType {

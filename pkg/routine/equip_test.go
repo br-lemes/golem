@@ -81,7 +81,7 @@ func TestEquipClearsUtilitiesBeforeReturning(t *testing.T) {
 			return character, nil
 		},
 		myActionUnequip: func(_ string, slots []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
-			unequipCalled = len(slots) == 1 && slots[0].Slot == schemas.Utility1
+			unequipCalled = len(slots) == 1 && slots[0].Slot == "utility1"
 			character.Utility1Slot = ""
 			character.Utility1SlotQuantity = 0
 			return schemas.EquipmentTransactionSchema{Character: character}, nil
@@ -247,7 +247,7 @@ func TestEquipmentItemsUsesSpecifiedQuantity(t *testing.T) {
 	quantity := 7
 	items := equipmentItems([]schemas.EquipSchema{{
 		Code:     "small_health_potion",
-		Slot:     schemas.Utility1,
+		Slot:     "utility1",
 		Quantity: &quantity,
 	}})
 	if len(items) != 1 || items[0].Code != "small_health_potion" || items[0].Quantity != quantity {

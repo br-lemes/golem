@@ -1106,19 +1106,19 @@ func CanEquip(c schemas.CharacterSchema, item schemas.ItemSchema) bool {
 			continue
 		}
 		switch condition.Operator {
-		case schemas.Gt:
+		case "gt":
 			if value <= condition.Value {
 				return false
 			}
-		case schemas.Lt:
+		case "lt":
 			if value >= condition.Value {
 				return false
 			}
-		case schemas.Eq:
+		case "eq":
 			if value != condition.Value {
 				return false
 			}
-		case schemas.Ne:
+		case "ne":
 			if value == condition.Value {
 				return false
 			}

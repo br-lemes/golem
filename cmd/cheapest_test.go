@@ -102,8 +102,8 @@ func TestItemCraftCost(t *testing.T) {
 }
 
 func TestCheapestItemsFiltersSkillAndRange(t *testing.T) {
-	gear := schemas.CraftSkill("gearcrafting")
-	weapon := schemas.CraftSkill("weaponcrafting")
+	gear := "gearcrafting"
+	weapon := "weaponcrafting"
 	levelFive := 5
 	levelFifteen := 15
 	items := []*schemas.ItemSchema{

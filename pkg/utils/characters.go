@@ -83,13 +83,13 @@ func MeetsItemConditions(character schemas.CharacterSchema, item schemas.ItemSch
 		}
 		satisfied := false
 		switch condition.Operator {
-		case schemas.Gt:
+		case "gt":
 			satisfied = currentLevel > condition.Value
-		case schemas.Eq:
+		case "eq":
 			satisfied = currentLevel == condition.Value
-		case schemas.Lt:
+		case "lt":
 			satisfied = currentLevel < condition.Value
-		case schemas.Ne:
+		case "ne":
 			satisfied = currentLevel != condition.Value
 		}
 		if !satisfied {

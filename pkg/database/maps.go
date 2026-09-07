@@ -13,7 +13,7 @@ type (
 	Point struct {
 		X     int
 		Y     int
-		Layer schemas.MapLayer
+		Layer string
 	}
 
 	SearchNode struct {

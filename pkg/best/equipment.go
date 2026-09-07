@@ -78,7 +78,7 @@ func FindEquipmentSchemas(character schemas.CharacterSchema, options EquipmentOp
 	for slot, item := range result {
 		equipments = append(equipments, schemas.EquipSchema{
 			Code: item.Code,
-			Slot: schemas.ItemSlot(slot),
+			Slot: slot,
 		})
 	}
 	slices.SortFunc(equipments, func(i, j schemas.EquipSchema) int {

@@ -71,7 +71,7 @@ Arguments:
 		for slot, code := range fightResult.Equipment {
 			equipments = append(equipments, schemas.EquipSchema{
 				Code: code,
-				Slot: schemas.ItemSlot(slot),
+				Slot: slot,
 			})
 		}
 		character, err = routine.Equip(name, equipments)

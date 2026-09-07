@@ -47,7 +47,7 @@ func findClosest(context navigationContext) *SearchResult {
 			return true
 		}
 		for _, condition := range *conditions {
-			if condition.Operator == schemas.AchievementUnlocked && !hasAchievement(condition.Code) {
+			if condition.Operator == "achievement_unlocked" && !hasAchievement(condition.Code) {
 				return false
 			}
 		}

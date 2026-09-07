@@ -6,3 +6,7 @@
 /golem-linux-amd64
 /golem-linux-arm64
 /golem-windows-amd64.exe
+/pkg/schemas/params.json
+/pkg/schemas/schemas.json
+/sandbox.json
+/standard.json

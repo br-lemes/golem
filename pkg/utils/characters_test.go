@@ -115,7 +115,7 @@ func TestMeetsItemConditions(t *testing.T) {
 			name: "gt satisfied",
 			condition: schemas.ConditionSchema{
 				Code:     "level",
-				Operator: schemas.Gt,
+				Operator: "gt",
 				Value:    9,
 			},
 			want: true,
@@ -124,7 +124,7 @@ func TestMeetsItemConditions(t *testing.T) {
 			name: "gt unsatisfied",
 			condition: schemas.ConditionSchema{
 				Code:     "level",
-				Operator: schemas.Gt,
+				Operator: "gt",
 				Value:    10,
 			},
 		},
@@ -132,7 +132,7 @@ func TestMeetsItemConditions(t *testing.T) {
 			name: "eq satisfied",
 			condition: schemas.ConditionSchema{
 				Code:     "mining_level",
-				Operator: schemas.Eq,
+				Operator: "eq",
 				Value:    5,
 			},
 			want: true,
@@ -141,7 +141,7 @@ func TestMeetsItemConditions(t *testing.T) {
 			name: "eq unsatisfied",
 			condition: schemas.ConditionSchema{
 				Code:     "mining_level",
-				Operator: schemas.Eq,
+				Operator: "eq",
 				Value:    4,
 			},
 		},
@@ -149,7 +149,7 @@ func TestMeetsItemConditions(t *testing.T) {
 			name: "lt satisfied",
 			condition: schemas.ConditionSchema{
 				Code:     "level",
-				Operator: schemas.Lt,
+				Operator: "lt",
 				Value:    11,
 			},
 			want: true,
@@ -158,7 +158,7 @@ func TestMeetsItemConditions(t *testing.T) {
 			name: "lt unsatisfied",
 			condition: schemas.ConditionSchema{
 				Code:     "level",
-				Operator: schemas.Lt,
+				Operator: "lt",
 				Value:    10,
 			},
 		},
@@ -166,7 +166,7 @@ func TestMeetsItemConditions(t *testing.T) {
 			name: "ne satisfied",
 			condition: schemas.ConditionSchema{
 				Code:     "level",
-				Operator: schemas.Ne,
+				Operator: "ne",
 				Value:    9,
 			},
 			want: true,
@@ -175,7 +175,7 @@ func TestMeetsItemConditions(t *testing.T) {
 			name: "ne unsatisfied",
 			condition: schemas.ConditionSchema{
 				Code:     "level",
-				Operator: schemas.Ne,
+				Operator: "ne",
 				Value:    10,
 			},
 		},

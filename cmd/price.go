@@ -79,9 +79,9 @@ var priceCmd = &cobra.Command{
 		var buys, sells []schemas.GEOrderSchema
 		for _, order := range orders {
 			switch order.Type {
-			case schemas.Buy:
+			case "buy":
 				buys = append(buys, order)
-			case schemas.Sell:
+			case "sell":
 				sells = append(sells, order)
 			}
 		}
