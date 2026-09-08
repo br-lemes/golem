@@ -18,6 +18,7 @@ type fightFlags struct {
 	Food         string `flag:"food" desc:"auto-stock food from bank"`
 	FoodOnly     string `flag:"food-only" desc:"use only this food code"`
 	NoFood       bool   `flag:"no-food" desc:"do not use food"`
+	AllowUnsafe  bool   `flag:"allow-unsafe" desc:"allow fights with simulated winrate below 100%"`
 	UseUtilities bool   `flag:"use-utilities" desc:"use utilities selected by the simulator"`
 	Utility1     string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
 	Utility2     string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
@@ -62,7 +63,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		if fightResult.Winrate < 100 {
+		if fightResult.Winrate < 100 && !flags.AllowUnsafe {
 			return fmt.Errorf("cannot safely fight %s: simulated winrate is %.2f%%", monster.Code, fightResult.Winrate)
 		}
 		utilitiesRequired := fightResult.Utilities["utility1"] != "" || fightResult.Utilities["utility2"] != ""
