@@ -81,7 +81,7 @@ $(PLATFORMS): $(GENERATED_FILES) lint test
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags "-s -w" -o $(OUTPUT)
 
 release: version $(PLATFORMS)
-	@go run $(SEMVER) release $(ARTIFACTS)
+	@GOLEM_RELEASE=1 go run $(SEMVER) release $(ARTIFACTS)
 
 test:
 	@go test ./...
