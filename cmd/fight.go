@@ -128,6 +128,18 @@ func fightValidate(monster string, flags fightFlags, boss bool) error {
 	if flags.Utility1 != "" && flags.Utility1 == flags.Utility2 {
 		return fmt.Errorf("--utility1 and --utility2 cannot use the same item")
 	}
+	if flags.Utility1 != "" {
+		_, found := database.Items().Potions().Get(flags.Utility1)
+		if !found {
+			return fmt.Errorf("potion %s not found", flags.Utility1)
+		}
+	}
+	if flags.Utility2 != "" {
+		_, found := database.Items().Potions().Get(flags.Utility2)
+		if !found {
+			return fmt.Errorf("potion %s not found", flags.Utility2)
+		}
+	}
 	if flags.NoFood {
 		return nil
 	}
@@ -238,6 +250,18 @@ func init() {
 	}
 	err = fightCmd.RegisterFlagCompletionFunc("food-only", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return database.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		panic(err)
+	}
+	err = fightCmd.RegisterFlagCompletionFunc("utility1", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return database.Items().Potions().Keys(), cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		panic(err)
+	}
+	err = fightCmd.RegisterFlagCompletionFunc("utility2", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return database.Items().Potions().Keys(), cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)
