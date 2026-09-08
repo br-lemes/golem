@@ -66,7 +66,9 @@ Arguments:
 		if fightResult.Winrate < 100 && !flags.AllowUnsafe {
 			return fmt.Errorf("cannot safely fight %s: simulated winrate is %.2f%%", monster.Code, fightResult.Winrate)
 		}
-		utilitiesRequired := fightResult.Utilities["utility1"] != "" || fightResult.Utilities["utility2"] != ""
+		utility1 := fightResult.FinalEquipment["utility1"]
+		utility2 := fightResult.FinalEquipment["utility2"]
+		utilitiesRequired := utility1 != "" || utility2 != ""
 		if utilitiesRequired && !flags.UseUtilities {
 			return fmt.Errorf("simulator requires utilities; use --use-utilities to allow them")
 		}
@@ -77,8 +79,8 @@ Arguments:
 			return fmt.Errorf("--utility1 and --utility2 cannot override utilities selected by the simulator")
 		}
 		if utilitiesRequired {
-			flags.Utility1 = fightResult.Utilities["utility1"]
-			flags.Utility2 = fightResult.Utilities["utility2"]
+			flags.Utility1 = utility1
+			flags.Utility2 = utility2
 		}
 		equipments := make([]schemas.EquipSchema, 0, len(fightResult.Equipment))
 		for slot, code := range fightResult.Equipment {
