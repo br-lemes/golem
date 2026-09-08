@@ -26,8 +26,8 @@ type Result struct {
 	Winrate               float32           `json:"winrate"`
 	AverageTurns          float32           `json:"average_turns"`
 	AverageFinalHP        float32           `json:"average_final_hp"`
-	AverageFightCooldown  float32           `json:"-"`
-	EstimatedRestCooldown float32           `json:"-"`
+	AverageFightCooldown  float32           `json:"average_fight_cooldown"`
+	EstimatedRestCooldown float32           `json:"estimated_rest_cooldown"`
 	CycleCost             float32           `json:"cycle_seconds"`
 	DamageSurplus         float32           `json:"damage_surplus"`
 	SurvivalSurplus       float32           `json:"survival_surplus"`
