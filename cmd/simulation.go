@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/fight"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -168,6 +170,10 @@ func simulationCriticalOptions(flags simulationFlags) fight.SimulationOptions {
 
 func registerSimulationFlags(cmd *cobra.Command) error {
 	err := utils.RegisterFlags[simulationFlags](cmd)
+	if err != nil {
+		return err
+	}
+	err = cmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
 	if err != nil {
 		return err
 	}

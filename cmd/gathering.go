@@ -34,6 +34,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		name = character.Name
 
 		skillLevel, _ := utils.GetCharacterGatheringSkillLevel(character, string(resource.Skill))
 		if skillLevel < resource.Level {

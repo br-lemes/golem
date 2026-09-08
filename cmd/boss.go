@@ -35,6 +35,11 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		character, err := api.Characters(name)
+		if err != nil {
+			return err
+		}
+		name = character.Name
 		participants := args[2:]
 		switch len(participants) {
 		case 1:

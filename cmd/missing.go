@@ -35,12 +35,6 @@ var missingCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		validCharacters := cache.GetCharacters()
-		for _, name := range missingOptions.Name {
-			if !slices.Contains(validCharacters, name) {
-				return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
-			}
-		}
 		for _, equipmentType := range missingOptions.EquipmentType {
 			if !slices.Contains(database.EquipmentTypes, equipmentType) {
 				return fmt.Errorf("invalid equipment type specified: %s", equipmentType)
@@ -58,6 +52,15 @@ func executeMissing(flags missingFlags) error {
 	characters, err := api.AccountsCharacters("")
 	if err != nil {
 		return err
+	}
+	validCharacters := make([]string, 0, len(characters))
+	for _, character := range characters {
+		validCharacters = append(validCharacters, character.Name)
+	}
+	for _, name := range flags.Name {
+		if !slices.Contains(validCharacters, name) {
+			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
+		}
 	}
 	var charactersToProcess []schemas.CharacterSchema
 	if len(flags.Name) > 0 {

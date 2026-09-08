@@ -2,10 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
@@ -47,10 +45,6 @@ Arguments:
 		}
 		npcSellOptions = flags
 
-		validCharacters := cache.GetCharacters()
-		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
-		}
 		var exists bool
 		npcSellData.item, exists = database.NpcsItems.Get(code)
 		if npcSellData.item == nil || !exists {

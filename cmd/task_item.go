@@ -51,6 +51,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		name = character.Name
 		if character.TaskType != "" && character.TaskType != "items" {
 			return fmt.Errorf("has another task type: %s %s", character.TaskType, character.Task)
 		}

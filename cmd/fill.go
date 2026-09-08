@@ -2,10 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -46,10 +44,6 @@ Arguments:
 		}
 		fillOptions = flags
 
-		validCharacters := cache.GetCharacters()
-		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
-		}
 		if id == "" {
 			return fmt.Errorf("id must not be empty")
 		}
@@ -102,7 +96,7 @@ Arguments:
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
-		name := args[0]
+		name := fillData.character.Name
 		id := args[1]
 		code := fillData.order.Code
 		totalFilled := 0

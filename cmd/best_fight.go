@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/best"
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
@@ -74,6 +75,10 @@ func bestFightRun(monster string, flags bestFightFlags) error {
 func init() {
 	bestCmd.AddCommand(bestFightCmd)
 	err := utils.RegisterFlags[bestFightFlags](bestFightCmd)
+	if err != nil {
+		panic(err)
+	}
+	err = bestFightCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
 	if err != nil {
 		panic(err)
 	}

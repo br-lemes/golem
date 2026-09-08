@@ -50,6 +50,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		name = character.Name
 		err = fightFoodValidate(character, flags)
 		if err != nil {
 			return err

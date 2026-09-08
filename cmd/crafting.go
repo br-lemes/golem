@@ -59,6 +59,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
+	name = character.Name
 
 	skillLevel, _ := utils.GetCharacterCraftingSkillLevel(character, string(*item.Craft.Skill))
 	if skillLevel < *item.Craft.Level {

@@ -2,10 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
-	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
@@ -46,10 +44,6 @@ Arguments:
 		}
 		relistOptions = flags
 
-		validCharacters := cache.GetCharacters()
-		if !slices.Contains(validCharacters, name) {
-			return fmt.Errorf("invalid character %q: allowed values are %v", name, validCharacters)
-		}
 		_, found := database.Items().Tradeables().Get(code)
 		if !found {
 			return fmt.Errorf("item %q not tradeable or not found", code)
@@ -79,7 +73,7 @@ Arguments:
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
-		name := args[0]
+		name := relistData.character.Name
 		code := args[1]
 
 		totalToRelist := 0

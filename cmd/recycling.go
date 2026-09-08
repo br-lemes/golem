@@ -59,6 +59,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 	if err != nil {
 		return err
 	}
+	name = character.Name
 	routine.Cooldown(character)
 
 	bankInventory, err := fetchAllBankItems()
