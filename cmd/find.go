@@ -10,6 +10,7 @@ import (
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -58,11 +59,11 @@ Arguments:
 			character.Layer = options.Layer
 		}
 
-		tile := database.FindClosest(character, code)
-		if tile == nil {
+		results := routine.Find(character, code, nil)
+		if len(results) == 0 {
 			return fmt.Errorf("no coordinates found for code %s", code)
 		}
-		return console.Auto(tile)
+		return console.Auto(results)
 	},
 }
 

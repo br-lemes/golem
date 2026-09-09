@@ -3,16 +3,23 @@ package routine
 import (
 	"fmt"
 
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func Move(character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
+	//+gocover:ignore:block production wrapper over tested implementation
 	return move(defaultDeps, character, code)
 }
 
 func move(d deps, character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
-	result := database.FindClosest(character, code)
+	results := find(d, character, code, nil)
+	var result *Result
+	for index := range results {
+		if len(results[index].Costs) == 0 {
+			result = &results[index]
+			break
+		}
+	}
 	if result == nil {
 		return character, fmt.Errorf("no coordinates found for code %s", code)
 	}
