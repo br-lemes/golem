@@ -22,12 +22,17 @@ type API struct {
 }
 
 type Storage struct {
-	Cache string `mapstructure:"cache"`
-	Logs  string `mapstructure:"logs"`
+	Cache      string `mapstructure:"cache"`
+	Logs       string `mapstructure:"logs"`
+	Simulation string `mapstructure:"simulation"`
 }
 
 func Default() Config {
-	storage := Storage{Cache: defaultCachePath(), Logs: defaultLogsPath()}
+	storage := Storage{
+		Cache:      defaultCachePath(),
+		Logs:       defaultLogsPath(),
+		Simulation: defaultSimulationPath(),
+	}
 	return Config{Storage: storage}
 }
 
@@ -47,6 +52,15 @@ func defaultLogsPath() string {
 		return "~/.cache/golem/logs"
 	}
 	return filepath.Join(directory, "golem", "logs")
+}
+
+func defaultSimulationPath() string {
+	directory, err := os.UserCacheDir()
+	if err != nil {
+		//+gocover:ignore:block operating system failure
+		return "~/.cache/golem/simulation.db"
+	}
+	return filepath.Join(directory, "golem", "simulation.db")
 }
 
 func defaultConfigPath() string {
@@ -88,6 +102,9 @@ func Load(path string) (Config, error) {
 	if cfg.Storage.Logs == "" {
 		cfg.Storage.Logs = defaultLogsPath()
 	}
+	if cfg.Storage.Simulation == "" {
+		cfg.Storage.Simulation = defaultSimulationPath()
+	}
 	err = validate(cfg)
 	if err != nil {
 		return Config{}, err
@@ -106,6 +123,9 @@ func validate(cfg Config) error {
 	}
 	if cfg.Storage.Logs == "" {
 		return fmt.Errorf("storage.logs is required")
+	}
+	if cfg.Storage.Simulation == "" {
+		return fmt.Errorf("storage.simulation is required")
 	}
 	return nil
 }
@@ -135,8 +155,9 @@ func Save(path string, cfg Config) error {
 	}
 
 	storageSettings := map[string]any{
-		"cache": cfg.Storage.Cache,
-		"logs":  cfg.Storage.Logs,
+		"cache":      cfg.Storage.Cache,
+		"logs":       cfg.Storage.Logs,
+		"simulation": cfg.Storage.Simulation,
 	}
 	v.Set("api", apiSettings)
 	v.Set("storage", storageSettings)

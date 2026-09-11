@@ -16,14 +16,14 @@ func FlushFightSimulationBatch() {
 	}
 	batchFightSimulations = false
 	if len(pendingFightSimulations) > 0 {
-		_ = cache.CreateInBatches(pendingFightSimulations, 500).Error
+		simulationDB.CreateInBatches(pendingFightSimulations, 500)
 	}
 	pendingFightSimulations = nil
 }
 
 func GetFightSimulation(key string, version int) (models.FightSimulation, bool) {
 	var simulation models.FightSimulation
-	result := cache.Where("key = ? AND version = ?", key, version).Limit(1).Find(&simulation)
+	result := simulationDB.Where("key = ? AND version = ?", key, version).Limit(1).Find(&simulation)
 	return simulation, result.Error == nil && result.RowsAffected > 0
 }
 
@@ -32,5 +32,5 @@ func SaveFightSimulation(simulation models.FightSimulation) {
 		pendingFightSimulations = append(pendingFightSimulations, simulation)
 		return
 	}
-	cache.Save(&simulation)
+	simulationDB.Save(&simulation)
 }

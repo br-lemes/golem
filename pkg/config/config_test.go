@@ -12,7 +12,10 @@ func TestLoadMissingFileReturnsDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	if cfg.Storage.Cache != defaultCachePath() || cfg.Storage.Logs != defaultLogsPath() {
+	cacheDefault := cfg.Storage.Cache == defaultCachePath()
+	logsDefault := cfg.Storage.Logs == defaultLogsPath()
+	simulationDefault := cfg.Storage.Simulation == defaultSimulationPath()
+	if !cacheDefault || !logsDefault || !simulationDefault {
 		t.Errorf("storage = %#v, want default storage", cfg.Storage)
 	}
 }
@@ -47,7 +50,10 @@ func TestLoadAppliesMissingStorageDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cfg.Storage.Cache != defaultCachePath() || cfg.Storage.Logs != defaultLogsPath() {
+	cacheDefault := cfg.Storage.Cache == defaultCachePath()
+	logsDefault := cfg.Storage.Logs == defaultLogsPath()
+	simulationDefault := cfg.Storage.Simulation == defaultSimulationPath()
+	if !cacheDefault || !logsDefault || !simulationDefault {
 		t.Fatalf("storage = %#v, want defaults", cfg.Storage)
 	}
 }
@@ -69,9 +75,14 @@ func TestValidateRequiresStorageFields(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected missing cache error")
 	}
-	err = validate(Config{Storage: Storage{Cache: "cache.db"}})
+	storage := Storage{Cache: "cache.db", Simulation: "simulation.db"}
+	err = validate(Config{Storage: storage})
 	if err == nil {
 		t.Fatal("expected missing logs error")
+	}
+	err = validate(Config{Storage: Storage{Cache: "cache.db", Logs: "logs"}})
+	if err == nil {
+		t.Fatal("expected missing simulation error")
 	}
 }
 
@@ -91,7 +102,13 @@ func TestSaveUsesDefaultConfigPath(t *testing.T) {
 func TestLoadUsesEnvironmentPath(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "config.json")
 	t.Setenv("GOLEM_CONFIG", path)
-	want := Config{Storage: Storage{Cache: "cache.db", Logs: "logs"}}
+	want := Config{
+		Storage: Storage{
+			Cache:      "cache.db",
+			Logs:       "logs",
+			Simulation: "simulation.db",
+		},
+	}
 	err := Save("", want)
 	if err != nil {
 		t.Fatal(err)
@@ -124,7 +141,11 @@ func TestLoadExplicitPathOverridesEnvironmentPath(t *testing.T) {
 		Cache: "environment.db",
 		Logs:  "environment-logs",
 	}
-	explicitStorage := Storage{Cache: "explicit.db", Logs: "explicit-logs"}
+	explicitStorage := Storage{
+		Cache:      "explicit.db",
+		Logs:       "explicit-logs",
+		Simulation: "simulation.db",
+	}
 	environmentConfig := Config{Storage: environmentStorage}
 	explicitConfig := Config{Storage: explicitStorage}
 	err := Save(environmentPath, environmentConfig)
@@ -148,8 +169,12 @@ func TestLoadExplicitPathOverridesEnvironmentPath(t *testing.T) {
 func TestSavePreservesExistingConfiguration(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "config.json")
 	want := Config{
-		API:     API{Token: "old-token", Environment: "sandbox"},
-		Storage: Storage{Cache: "custom.db", Logs: "logs"},
+		API: API{Token: "old-token", Environment: "sandbox"},
+		Storage: Storage{
+			Cache:      "custom.db",
+			Logs:       "logs",
+			Simulation: "simulation.db",
+		},
 	}
 	err := Save(path, want)
 	if err != nil {
@@ -194,8 +219,12 @@ func TestLoadRejectsInvalidJSON(t *testing.T) {
 func TestLoadAndSaveConfig(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "config.json")
 	want := Config{
-		API:     API{Token: "secret", Environment: "sandbox"},
-		Storage: Storage{Cache: "cache.db", Logs: "logs"},
+		API: API{Token: "secret", Environment: "sandbox"},
+		Storage: Storage{
+			Cache:      "cache.db",
+			Logs:       "logs",
+			Simulation: "simulation.db",
+		},
 	}
 	err := Save(path, want)
 	if err != nil {

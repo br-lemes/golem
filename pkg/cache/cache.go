@@ -12,38 +12,63 @@ import (
 )
 
 var cache *gorm.DB
+var simulationDB *gorm.DB
 
 func Initialize(storage config.Storage) error {
 	cacheFile := config.ExpandPath(storage.Cache)
-	err := os.MkdirAll(filepath.Dir(cacheFile), 0755)
-	if err != nil {
-		//+gocover:ignore:block filesystem setup failure is environmental
-		return err
+	simulationFile := config.ExpandPath(storage.Simulation)
+	if storage.Simulation == "" {
+		simulationFile = cacheFile
 	}
-	cache, err = gorm.Open(sqlite.Open(cacheFile), &gorm.Config{
-		NowFunc: func() time.Time { return time.Now().UTC() },
-	})
+	var err error
+	cache, err = openDatabase(cacheFile)
 	if err != nil {
-		//+gocover:ignore:block SQLite setup failure is environmental
+		//+gocover:ignore:block database setup failure is environmental
 		return err
 	}
 
-	err = cache.Exec("PRAGMA journal_mode=WAL;").Error
+	err = cache.AutoMigrate(&models.Cache{}, &models.Character{}, &models.OutputFilter{})
 	if err != nil {
-		//+gocover:ignore:block SQLite pragma failure is environmental
+		//+gocover:ignore:block schema migration failure is environmental
 		return err
 	}
-	err = cache.Exec("PRAGMA synchronous=NORMAL;").Error
+	simulationDB, err = openDatabase(simulationFile)
 	if err != nil {
-		//+gocover:ignore:block SQLite pragma failure is environmental
+		//+gocover:ignore:block database setup failure is environmental
 		return err
 	}
-	err = cache.AutoMigrate(&models.Cache{}, &models.Character{}, &models.FightSimulation{}, &models.OutputFilter{}, &models.UsageCombat{})
+	err = simulationDB.AutoMigrate(&models.FightSimulation{}, &models.UsageCombat{})
 	if err != nil {
 		//+gocover:ignore:block schema migration failure is environmental
 		return err
 	}
 	return nil
+}
+
+func openDatabase(path string) (*gorm.DB, error) {
+	err := os.MkdirAll(filepath.Dir(path), 0755)
+	if err != nil {
+		//+gocover:ignore:block filesystem setup failure is environmental
+		return nil, err
+	}
+	database, err := gorm.Open(sqlite.Open(path), &gorm.Config{
+		NowFunc: func() time.Time { return time.Now().UTC() },
+	})
+	if err != nil {
+		//+gocover:ignore:block SQLite setup failure is environmental
+		return nil, err
+	}
+	err = database.Exec("PRAGMA journal_mode=WAL;").Error
+	if err != nil {
+		//+gocover:ignore:block SQLite pragma failure is environmental
+		return nil, err
+	}
+	err = database.Exec("PRAGMA synchronous=NORMAL;").Error
+	if err != nil {
+		//+gocover:ignore:block SQLite pragma failure is environmental
+		return nil, err
+	}
+	return database, nil
 }
 
 func findByName(dest any, name string) bool {
