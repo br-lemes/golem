@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -84,7 +84,7 @@ Arguments:
 			}
 		}
 
-		boss, _ := database.Bosses.Get(code)
+		boss, _ := catalog.Bosses.Get(code)
 		for {
 			var g errgroup.Group
 			g.Go(func() error {
@@ -119,13 +119,13 @@ func init() {
 	}
 	bossCmd.Flags().Lookup("food").NoOptDefVal = "auto"
 	err = bossCmd.RegisterFlagCompletionFunc("food", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return append([]string{"auto"}, database.Items().Foods().Keys()...), cobra.ShellCompDirectiveNoFileComp
+		return append([]string{"auto"}, catalog.Items().Foods().Keys()...), cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)
 	}
 	err = bossCmd.RegisterFlagCompletionFunc("food-only", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
+		return catalog.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)

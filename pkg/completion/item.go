@@ -1,6 +1,6 @@
 package completion
 
-import "github.com/br-lemes/golem/pkg/database"
+import "github.com/br-lemes/golem/pkg/catalog"
 
 func Item(count int) *CompletionBuilder {
 	builder := &CompletionBuilder{}
@@ -8,5 +8,5 @@ func Item(count int) *CompletionBuilder {
 }
 
 func (b *CompletionBuilder) Item(count int) *CompletionBuilder {
-	return b.Custom(count, database.Items().Keys)
+	return b.Custom(count, catalog.Items().Keys)
 }

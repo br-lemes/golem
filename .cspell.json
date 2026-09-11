@@ -1,5 +1,5 @@
 {
-	"ignorePaths": ["go.mod", "go.sum", "pkg/database/*.json"],
+	"ignorePaths": ["go.mod", "go.sum", "pkg/catalog/*.json"],
 	"language": "en",
 	"overrides": [{ "filename": "**/*.tmpl", "languageId": "go" }],
 	"words": [

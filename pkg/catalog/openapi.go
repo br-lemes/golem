@@ -1,5 +1,5 @@
 // +gocover:ignore:file only returns embedded data
-package database
+package catalog
 
 import _ "embed"
 

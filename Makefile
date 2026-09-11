@@ -16,7 +16,7 @@ GOCOVER := github.com/Azure/gocover@latest
 CODEGEN := github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 SEMVER := github.com/br-lemes/semver@latest
 
-GENERATED_FILES := pkg/database/enums.json \
+GENERATED_FILES := pkg/catalog/enums.json \
 	pkg/schemas/params.go \
 	pkg/schemas/schemas.go
 
@@ -49,21 +49,21 @@ lint: custom-gcl
 	@gofmt -w $$(go list -f '{{.Dir}}/*.go' ./...)
 	@./custom-gcl run
 
-pkg/database/enums.json: pkg/database/openapi.json enums.jq
-	@jq -f enums.jq pkg/database/openapi.json > $@
+pkg/catalog/enums.json: pkg/catalog/openapi.json enums.jq
+	@jq -f enums.jq pkg/catalog/openapi.json > $@
 	@biome format --write --indent-width 4 $@
 
-pkg/database/openapi.json: $(OPENAPI_FILES) check.jq merge.jq
+pkg/catalog/openapi.json: $(OPENAPI_FILES) check.jq merge.jq
 	@jq -e -s -f check.jq $(OPENAPI_FILES) > /dev/null
 	@jq -s -f merge.jq $(OPENAPI_FILES) > $@
 	@biome format --write --indent-width 4 $@
 
-pkg/schemas/params.json: pkg/database/openapi.json params.jq
-	@jq -f params.jq pkg/database/openapi.json > $@
+pkg/schemas/params.json: pkg/catalog/openapi.json params.jq
+	@jq -f params.jq pkg/catalog/openapi.json > $@
 	@biome format --write --indent-width 4 $@
 
-pkg/schemas/schemas.json: pkg/database/openapi.json schemas.jq
-	@jq -f schemas.jq pkg/database/openapi.json > $@
+pkg/schemas/schemas.json: pkg/catalog/openapi.json schemas.jq
+	@jq -f schemas.jq pkg/catalog/openapi.json > $@
 	@biome format --write --indent-width 4 $@
 
 $(OPENAPI_FILES):

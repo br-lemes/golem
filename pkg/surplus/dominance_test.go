@@ -3,7 +3,7 @@ package surplus
 import (
 	"testing"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -261,9 +261,9 @@ func TestFindUsesTwoPotentialSlotsForUnavailableRing(t *testing.T) {
 
 func catalogItem(t *testing.T, code string) schemas.ItemSchema {
 	t.Helper()
-	item, ok := database.Items().Get(code)
+	item, ok := catalog.Items().Get(code)
 	if !ok {
-		t.Fatalf("database.Items().Get(%q) did not find an item", code)
+		t.Fatalf("catalog.Items().Get(%q) did not find an item", code)
 	}
 	return *item
 }

@@ -1,7 +1,7 @@
 package routine
 
 import (
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -65,7 +65,7 @@ func shouldKeepItem(code string, keepTypes []string) bool {
 	if len(keepTypes) == 0 {
 		return false
 	}
-	item, found := database.Items().Get(code)
+	item, found := catalog.Items().Get(code)
 	if !found {
 		return false
 	}

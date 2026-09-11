@@ -6,9 +6,9 @@ import (
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -60,7 +60,7 @@ func levelValidate(options levelFlags) error {
 	if !slices.Contains(levelGroups, options.Group) {
 		return fmt.Errorf("invalid group %q: allowed values are %v", options.Group, levelGroups)
 	}
-	validSkills := database.Enums()["CharacterLeaderboardType"]
+	validSkills := catalog.Enums()["CharacterLeaderboardType"]
 	for _, skill := range options.Skill {
 		if !slices.Contains(validSkills, skill) {
 			return fmt.Errorf("invalid skill %q: allowed values are %v", skill, validSkills)
@@ -117,7 +117,7 @@ func groupByCharacter(characters []schemas.CharacterSchema, filterSkills []strin
 }
 
 func levelsBySkill(characters []schemas.CharacterSchema, filterSkills []string) map[string]map[string]int {
-	skills := slices.Clone(database.Enums()["CharacterLeaderboardType"])
+	skills := slices.Clone(catalog.Enums()["CharacterLeaderboardType"])
 	if len(filterSkills) > 0 {
 		skills = slices.DeleteFunc(skills, func(s string) bool {
 			return !slices.Contains(filterSkills, s)
@@ -146,7 +146,7 @@ func init() {
 		panic(err)
 	}
 	err = levelCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
-		return database.Enums()["CharacterLeaderboardType"]
+		return catalog.Enums()["CharacterLeaderboardType"]
 	}))
 	if err != nil {
 		panic(err)

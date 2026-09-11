@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -46,7 +46,7 @@ Arguments:
 		npcSellOptions = flags
 
 		var exists bool
-		npcSellData.item, exists = database.NpcsItems.Get(code)
+		npcSellData.item, exists = catalog.NpcsItems.Get(code)
 		if npcSellData.item == nil || !exists {
 			return fmt.Errorf("invalid item %q: allowed values are %v", args[1], completion.GetNPCSellItems())
 		}

@@ -3,13 +3,13 @@ package completion
 import (
 	"fmt"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 )
 
 func equipmentArgs() []string {
 	var result []string
-	for _, item := range database.Items().Equipments().All() {
-		slots := database.EquipmentTypeToSlots[item.Type]
+	for _, item := range catalog.Items().Equipments().All() {
+		slots := catalog.EquipmentTypeToSlots[item.Type]
 		for slot := 1; slot <= len(slots); slot++ {
 			if len(slots) == 1 {
 				result = append(result, item.Code)

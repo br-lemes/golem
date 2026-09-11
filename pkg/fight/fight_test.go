@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -38,7 +38,7 @@ func TestApplyItemCoversEquipmentEffects(t *testing.T) {
 		"greed":            "Greed",
 	}
 	found := make(map[string]bool)
-	for _, item := range database.Items().All() {
+	for _, item := range catalog.Items().All() {
 		if item.Effects == nil {
 			continue
 		}
@@ -75,7 +75,7 @@ func TestApplyItemIgnoresUnknownItemAndSupportsNegativeSign(t *testing.T) {
 	}
 	var itemCode string
 	var hpValue int
-	for _, item := range database.Items().All() {
+	for _, item := range catalog.Items().All() {
 		if item.Effects == nil {
 			continue
 		}

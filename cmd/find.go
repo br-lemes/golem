@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -34,7 +34,7 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		codes := append(database.MapCodes(), database.EventContentCodes()...)
+		codes := append(catalog.MapCodes(), catalog.EventContentCodes()...)
 		if !slices.Contains(codes, code) {
 			return fmt.Errorf("code '%s' not found", code)
 		}
@@ -42,8 +42,8 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		if options.Layer != "" && !slices.Contains(database.Enums()["MapLayer"], options.Layer) {
-			return fmt.Errorf("invalid layer %q: allowed values are %v", options.Layer, database.Enums()["MapLayer"])
+		if options.Layer != "" && !slices.Contains(catalog.Enums()["MapLayer"], options.Layer) {
+			return fmt.Errorf("invalid layer %q: allowed values are %v", options.Layer, catalog.Enums()["MapLayer"])
 		}
 		character, err := api.Characters(name)
 		if err != nil {
@@ -90,7 +90,7 @@ func init() {
 		panic(err)
 	}
 	err = findCmd.RegisterFlagCompletionFunc("layer", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.Enums()["MapLayer"], cobra.ShellCompDirectiveNoFileComp
+		return catalog.Enums()["MapLayer"], cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)

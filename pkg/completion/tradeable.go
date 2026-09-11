@@ -1,6 +1,6 @@
 package completion
 
-import "github.com/br-lemes/golem/pkg/database"
+import "github.com/br-lemes/golem/pkg/catalog"
 
 func Tradeable(count int) *CompletionBuilder {
 	builder := &CompletionBuilder{}
@@ -8,5 +8,5 @@ func Tradeable(count int) *CompletionBuilder {
 }
 
 func (b *CompletionBuilder) Tradeable(count int) *CompletionBuilder {
-	return b.Custom(count, database.Items().Tradeables().Keys)
+	return b.Custom(count, catalog.Items().Tradeables().Keys)
 }

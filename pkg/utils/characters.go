@@ -3,7 +3,7 @@ package utils
 import (
 	"slices"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -33,14 +33,14 @@ func GetCharacterSkillLevel(character schemas.CharacterSchema, skill string) (in
 }
 
 func GetCharacterGatheringSkillLevel(character schemas.CharacterSchema, skill string) (int, bool) {
-	if !slices.Contains(database.Enums()["GatheringSkill"], skill) {
+	if !slices.Contains(catalog.Enums()["GatheringSkill"], skill) {
 		return 0, false
 	}
 	return GetCharacterSkillLevel(character, skill)
 }
 
 func GetCharacterCraftingSkillLevel(character schemas.CharacterSchema, skill string) (int, bool) {
-	if !slices.Contains(database.Enums()["CraftSkill"], skill) {
+	if !slices.Contains(catalog.Enums()["CraftSkill"], skill) {
 		return 0, false
 	}
 	return GetCharacterSkillLevel(character, skill)

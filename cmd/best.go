@@ -5,9 +5,9 @@ import (
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/best"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -25,7 +25,7 @@ var bestCmd = &cobra.Command{
 Arguments:
   name     Name of your character.
   effect   The code of the effect.`,
-	ValidArgsFunction: completion.CharacterName(1).Custom(0, database.Effects().Equipments().Keys).Build(),
+	ValidArgsFunction: completion.CharacterName(1).Custom(0, catalog.Effects().Equipments().Keys).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		flags, err := utils.ReadFlags[bestFlags](cmd)

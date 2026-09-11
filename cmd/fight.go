@@ -5,9 +5,9 @@ import (
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/best"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -59,7 +59,7 @@ Arguments:
 			return nil
 		}
 
-		monster, _ := database.Monsters.Get(code)
+		monster, _ := catalog.Monsters.Get(code)
 		fightResult, err := best.FindFightByName(name, *monster, false, false)
 		if err != nil {
 			return err
@@ -116,9 +116,9 @@ Arguments:
 func fightValidate(monster string, flags fightFlags, boss bool) error {
 	var found bool
 	if boss {
-		_, found = database.Bosses.Get(monster)
+		_, found = catalog.Bosses.Get(monster)
 	} else {
-		_, found = database.Monsters.Get(monster)
+		_, found = catalog.Monsters.Get(monster)
 	}
 	if !found {
 		return fmt.Errorf("monster %s not found", monster)
@@ -133,13 +133,13 @@ func fightValidate(monster string, flags fightFlags, boss bool) error {
 		return fmt.Errorf("--utility1 and --utility2 cannot use the same item")
 	}
 	if flags.Utility1 != "" {
-		_, found := database.Items().Potions().Get(flags.Utility1)
+		_, found := catalog.Items().Potions().Get(flags.Utility1)
 		if !found {
 			return fmt.Errorf("potion %s not found", flags.Utility1)
 		}
 	}
 	if flags.Utility2 != "" {
-		_, found := database.Items().Potions().Get(flags.Utility2)
+		_, found := catalog.Items().Potions().Get(flags.Utility2)
 		if !found {
 			return fmt.Errorf("potion %s not found", flags.Utility2)
 		}
@@ -154,7 +154,7 @@ func fightValidate(monster string, flags fightFlags, boss bool) error {
 	if food == "" || food == "auto" {
 		return nil
 	}
-	item, found := database.Items().Foods().Get(food)
+	item, found := catalog.Items().Foods().Get(food)
 	if !found {
 		return fmt.Errorf("food %s not found", food)
 	}
@@ -173,7 +173,7 @@ func fightFoodValidate(character schemas.CharacterSchema, flags fightFlags) erro
 	if food == "" || food == "auto" {
 		return nil
 	}
-	item, _ := database.Items().Foods().Get(food)
+	item, _ := catalog.Items().Foods().Get(food)
 	if !utils.MeetsItemConditions(character, *item) {
 		return fmt.Errorf("food %s conditions not met for character %s", food, character.Name)
 	}
@@ -219,7 +219,7 @@ func healingPotion(code string) bool {
 	if code == "" {
 		return false
 	}
-	potion, found := database.Items().Potions().Get(code)
+	potion, found := catalog.Items().Potions().Get(code)
 	if !found || potion.Effects == nil {
 		return false
 	}
@@ -247,25 +247,25 @@ func init() {
 	}
 	fightCmd.Flags().Lookup("food").NoOptDefVal = "auto"
 	err = fightCmd.RegisterFlagCompletionFunc("food", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return append([]string{"auto"}, database.Items().Foods().Keys()...), cobra.ShellCompDirectiveNoFileComp
+		return append([]string{"auto"}, catalog.Items().Foods().Keys()...), cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)
 	}
 	err = fightCmd.RegisterFlagCompletionFunc("food-only", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
+		return catalog.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)
 	}
 	err = fightCmd.RegisterFlagCompletionFunc("utility1", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.Items().Potions().Keys(), cobra.ShellCompDirectiveNoFileComp
+		return catalog.Items().Potions().Keys(), cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)
 	}
 	err = fightCmd.RegisterFlagCompletionFunc("utility2", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return database.Items().Potions().Keys(), cobra.ShellCompDirectiveNoFileComp
+		return catalog.Items().Potions().Keys(), cobra.ShellCompDirectiveNoFileComp
 	})
 	if err != nil {
 		panic(err)

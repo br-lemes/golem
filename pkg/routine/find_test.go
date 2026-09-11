@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -109,7 +109,7 @@ func TestFindBankWithAchievementLoadError(t *testing.T) {
 }
 
 func TestFindStrangeRocksWithActiveEvent(t *testing.T) {
-	event, exists := database.Events.Get("strange_apparition")
+	event, exists := catalog.Events.Get("strange_apparition")
 	if !exists || event.Content == nil || len(event.Maps) == 0 {
 		t.Fatal("strange apparition event is not in the catalog")
 	}
@@ -164,7 +164,7 @@ func TestFindStrangeRocksWithEventLoadError(t *testing.T) {
 }
 
 func TestFindStrangeRocksIgnoresDifferentActiveEventContent(t *testing.T) {
-	event, exists := database.Events.Get("attacking_the_island")
+	event, exists := catalog.Events.Get("attacking_the_island")
 	if !exists || event.Content == nil || len(event.Maps) == 0 {
 		t.Fatal("attacking the island event is not in the catalog")
 	}

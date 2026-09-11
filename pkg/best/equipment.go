@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 )
@@ -46,7 +46,7 @@ func findEquipment(d deps, character schemas.CharacterSchema, options EquipmentO
 		return nil, err
 	}
 	skill := ""
-	if len(priorities) > 0 && slices.Contains(database.Enums()["GatheringSkill"], priorities[0]) {
+	if len(priorities) > 0 && slices.Contains(catalog.Enums()["GatheringSkill"], priorities[0]) {
 		skill = priorities[0]
 	}
 	weights := make(map[string]int, len(priorities))
@@ -150,7 +150,7 @@ func (c *bestCtx) fetchItems(d deps, owned map[string]int) error {
 }
 
 func (c *bestCtx) filterAndSort() {
-	allItems := database.Items().All()
+	allItems := catalog.Items().All()
 	c.ItemValues = make(map[string]int)
 	for _, item := range allItems {
 		if hasNegativeInventorySpace(*item) {
@@ -172,13 +172,13 @@ func (c *bestCtx) filterAndSort() {
 }
 
 func (c *bestCtx) matchEquipment() {
-	slots := slices.Collect(maps.Keys(database.EquipmentSlotToTypes))
+	slots := slices.Collect(maps.Keys(catalog.EquipmentSlotToTypes))
 	slices.Sort(slots)
 	c.Result = make(map[string]BestResult)
 	for i := 0; i < len(slots); {
-		itemType := database.EquipmentSlotToTypes[slots[i]]
+		itemType := catalog.EquipmentSlotToTypes[slots[i]]
 		j := i
-		for j < len(slots) && database.EquipmentSlotToTypes[slots[j]] == itemType {
+		for j < len(slots) && catalog.EquipmentSlotToTypes[slots[j]] == itemType {
 			j++
 		}
 		chosen := c.bestGroup(slots[i:j], itemType)
@@ -186,7 +186,7 @@ func (c *bestCtx) matchEquipment() {
 			if code == "" || code == c.Equipped[slot] {
 				continue
 			}
-			item, _ := database.Items().Get(code)
+			item, _ := catalog.Items().Get(code)
 			c.Result[slot] = BestResult{Code: code, Value: c.formatItem(*item)}
 		}
 		i = j

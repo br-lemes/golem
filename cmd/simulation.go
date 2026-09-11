@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/fight"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -80,7 +80,7 @@ func readSimulationInput(cmd *cobra.Command, monster string, allowCriticalOverri
 	if !allowCriticalOverrides && (cmd.Flags().Changed("player-critical") || cmd.Flags().Changed("monster-critical")) {
 		return simulationInput{}, fmt.Errorf("critical overrides are supported by simulation local, compare, and critical, but not by the API")
 	}
-	monsterData, ok := database.Monsters.Get(monster)
+	monsterData, ok := catalog.Monsters.Get(monster)
 	if !ok {
 		return simulationInput{}, fmt.Errorf("invalid monster: %s", monster)
 	}
@@ -180,7 +180,7 @@ func registerSimulationFlags(cmd *cobra.Command) error {
 	for _, slot := range simulationSlotNames {
 		flagName := slot + "_slot"
 		err = cmd.RegisterFlagCompletionFunc(flagName, func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-			return database.Items().Keys(), cobra.ShellCompDirectiveNoFileComp
+			return catalog.Items().Keys(), cobra.ShellCompDirectiveNoFileComp
 		})
 		if err != nil {
 			return err

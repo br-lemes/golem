@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -18,7 +18,7 @@ func hasCooldown(pathItem *openapi3.PathItem) bool {
 
 func GetCooldown(targetPath string) (bool, error) {
 	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromData(database.OpenAPI())
+	doc, err := loader.LoadFromData(catalog.OpenAPI())
 	if err != nil {
 		//+gocover:ignore:block embedded OpenAPI document is valid
 		return false, err
@@ -34,7 +34,7 @@ func GetCooldown(targetPath string) (bool, error) {
 
 func GetCooldowns() (map[string]bool, error) {
 	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromData(database.OpenAPI())
+	doc, err := loader.LoadFromData(catalog.OpenAPI())
 	if err != nil {
 		//+gocover:ignore:block embedded OpenAPI document is valid
 		return nil, err

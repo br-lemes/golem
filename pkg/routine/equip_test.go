@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -704,7 +704,7 @@ func TestEquipmentHPLossIncludesOldEquipmentHP(t *testing.T) {
 	loss := equipmentHPLoss(character, []schemas.EquipSchema{
 		{Code: "iron_boots", Slot: "boots"},
 	})
-	item, exists := database.Items().Get("copper_boots")
+	item, exists := catalog.Items().Get("copper_boots")
 	if !exists {
 		t.Fatal("copper_boots is missing from item catalog")
 	}

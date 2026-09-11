@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 )
@@ -57,7 +57,7 @@ func BuildCompactMap(routes []map[string]string) map[string]map[string]string {
 
 func fetchReturnTypeFromSpec(method string, targetPath string) string {
 	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromData(database.OpenAPI())
+	doc, err := loader.LoadFromData(catalog.OpenAPI())
 	if err != nil {
 		//+gocover:ignore:block embedded OpenAPI document is valid
 		return ""

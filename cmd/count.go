@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
@@ -22,7 +22,7 @@ var countCmd = &cobra.Command{
 Arguments:
   code   The code of the item (or 'gold' for gold).`,
 	ValidArgsFunction: completion.Custom(0, func() []string {
-		return append(database.Items().Keys(), "gold")
+		return append(catalog.Items().Keys(), "gold")
 	}).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return outputItemCounts(args)
@@ -34,7 +34,7 @@ func outputItemCounts(args []string) error {
 		if code == "gold" {
 			continue
 		}
-		_, found := database.Items().Get(code)
+		_, found := catalog.Items().Get(code)
 		if !found {
 			return fmt.Errorf("item %s not found", code)
 		}

@@ -5,9 +5,9 @@ import (
 	"sort"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/surplus"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -62,11 +62,11 @@ func dominanceValidate(code string, flags dominanceFlags) error {
 	if !flags.By && !flags.Over {
 		return fmt.Errorf("at least one of --by or --over is required")
 	}
-	item, exists := database.Items().Get(code)
+	item, exists := catalog.Items().Get(code)
 	if !exists {
 		return fmt.Errorf("item not found in catalog: %s", code)
 	}
-	_, equipment := database.EquipmentTypeToSlots[item.Type]
+	_, equipment := catalog.EquipmentTypeToSlots[item.Type]
 	if !equipment {
 		return fmt.Errorf("item is not equipment: %s", code)
 	}
@@ -74,7 +74,7 @@ func dominanceValidate(code string, flags dominanceFlags) error {
 }
 
 func dominanceRun(code string, flags dominanceFlags) error {
-	item, _ := database.Items().Get(code)
+	item, _ := catalog.Items().Get(code)
 	characters, err := api.AccountsCharacters("")
 	if err != nil {
 		return err
@@ -119,8 +119,8 @@ func dominanceRun(code string, flags dominanceFlags) error {
 
 func catalogEquipment() map[string]schemas.ItemSchema {
 	result := make(map[string]schemas.ItemSchema)
-	for _, item := range database.Items().All() {
-		_, equipment := database.EquipmentTypeToSlots[item.Type]
+	for _, item := range catalog.Items().All() {
+		_, equipment := catalog.EquipmentTypeToSlots[item.Type]
 		if equipment {
 			result[item.Code] = *item
 		}
@@ -131,9 +131,9 @@ func catalogEquipment() map[string]schemas.ItemSchema {
 func ownedEquipment(bank []schemas.SimpleItemSchema, characters []schemas.CharacterSchema) map[string]schemas.ItemSchema {
 	owned := map[string]schemas.ItemSchema{}
 	add := func(code string) {
-		item, ok := database.Items().Get(code)
+		item, ok := catalog.Items().Get(code)
 		if ok {
-			_, equipment := database.EquipmentTypeToSlots[item.Type]
+			_, equipment := catalog.EquipmentTypeToSlots[item.Type]
 			if equipment {
 				owned[code] = *item
 			}

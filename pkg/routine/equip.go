@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 )
@@ -115,7 +115,7 @@ func equipmentHPLoss(character schemas.CharacterSchema, needed []schemas.EquipSc
 		if strings.HasPrefix(string(equipment.Slot), "utility") {
 			continue
 		}
-		oldItem, exists := database.Items().Get(current[equipment.Slot])
+		oldItem, exists := catalog.Items().Get(current[equipment.Slot])
 		if !exists {
 			continue
 		}
@@ -157,11 +157,11 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 		if equipment.Code == "" || equipment.Slot == "" {
 			return fmt.Errorf("invalid equipment request: missing code or slot")
 		}
-		item, exists := database.Items().Get(equipment.Code)
+		item, exists := catalog.Items().Get(equipment.Code)
 		if !exists {
 			return fmt.Errorf("item not found in database: %s", equipment.Code)
 		}
-		slots, hasSlot := database.EquipmentTypeToSlots[item.Type]
+		slots, hasSlot := catalog.EquipmentTypeToSlots[item.Type]
 		if !hasSlot {
 			return fmt.Errorf("item type cannot be equipped: %s", item.Type)
 		}
@@ -189,7 +189,7 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 
 func checkLevelRequirements(character schemas.CharacterSchema, equipments []schemas.EquipSchema) error {
 	for _, equipment := range equipments {
-		item, _ := database.Items().Get(equipment.Code)
+		item, _ := catalog.Items().Get(equipment.Code)
 		if !utils.MeetsItemConditions(character, *item) {
 			return fmt.Errorf("does not meet requirement for %s", item.Name)
 		}

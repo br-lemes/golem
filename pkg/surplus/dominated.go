@@ -3,7 +3,7 @@ package surplus
 import (
 	"sort"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -111,12 +111,12 @@ func itemPositions(item schemas.ItemSchema, characters []schemas.CharacterSchema
 }
 
 func collectEquipment(input Input) map[string]Result {
-	itemsByCode := make(map[string]Result, len(database.Items().All()))
-	for _, item := range database.Items().All() {
+	itemsByCode := make(map[string]Result, len(catalog.Items().All()))
+	for _, item := range catalog.Items().All() {
 		if item.Type == "utility" {
 			continue
 		}
-		_, isEquipment := database.EquipmentTypeToSlots[item.Type]
+		_, isEquipment := catalog.EquipmentTypeToSlots[item.Type]
 		if !isEquipment {
 			continue
 		}

@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -22,7 +22,7 @@ func sizeMax(operation *openapi3.Operation) (int, bool) {
 
 func GetSize(targetPath string) (int, error) {
 	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromData(database.OpenAPI())
+	doc, err := loader.LoadFromData(catalog.OpenAPI())
 	if err != nil {
 		//+gocover:ignore:block embedded OpenAPI document is valid
 		return 0, err
@@ -57,7 +57,7 @@ func GetSize(targetPath string) (int, error) {
 
 func GetSizes() (map[string]int, error) {
 	loader := openapi3.NewLoader()
-	doc, err := loader.LoadFromData(database.OpenAPI())
+	doc, err := loader.LoadFromData(catalog.OpenAPI())
 	if err != nil {
 		//+gocover:ignore:block embedded OpenAPI document is valid
 		return nil, err

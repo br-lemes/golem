@@ -11,8 +11,8 @@ import (
 
 	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/models"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
@@ -44,7 +44,7 @@ func evaluate(d deps, codes []string, details bool) (map[string]Evaluation, erro
 			if seen[code] {
 				continue
 			}
-			item, ok := database.Items().Get(code)
+			item, ok := catalog.Items().Get(code)
 			if !ok || !isEquipment(*item) {
 				return nil, fmt.Errorf("item is not equipment: %s", code)
 			}
@@ -80,7 +80,7 @@ func evaluate(d deps, codes []string, details bool) (map[string]Evaluation, erro
 			if combatAvailable[code] > 0 {
 				continue
 			}
-			item, ok := database.Items().Get(code)
+			item, ok := catalog.Items().Get(code)
 			if ok {
 				combatAvailable[code] = equipmentQuantityLimit(code, *item)
 			}
@@ -88,14 +88,14 @@ func evaluate(d deps, codes []string, details bool) (map[string]Evaluation, erro
 	}
 	result := make(map[string]Evaluation, len(codes))
 	for _, code := range codes {
-		item, ok := database.Items().Get(code)
+		item, ok := catalog.Items().Get(code)
 		if !ok || !isEquipment(*item) || !best.CanEquip(simulationCharacter, *item) {
 			continue
 		}
 		result[code] = Evaluation{}
 	}
 
-	monsters := database.Monsters.Filter(func(m *schemas.MonsterSchema) bool { return m.Type != "boss" && m.Type != "raid_boss" })
+	monsters := catalog.Monsters.Filter(func(m *schemas.MonsterSchema) bool { return m.Type != "boss" && m.Type != "raid_boss" })
 	sort.Slice(monsters, func(i, j int) bool { return monsters[i].Code < monsters[j].Code })
 	normalCombat, err := cachedMarkCombat(d, simulationCharacter, monsters, combatAvailable, "normal")
 	if err != nil {
@@ -167,7 +167,7 @@ func canonicalAvailable(available map[string]int) string {
 	for code, quantity := range available {
 		if quantity > 0 {
 			canonicalQuantity := quantity
-			item, ok := database.Items().Get(code)
+			item, ok := catalog.Items().Get(code)
 			if ok {
 				if item.Type == "utility" {
 					canonicalQuantity = 1
@@ -279,7 +279,7 @@ func globalOwned(d deps, characters []schemas.CharacterSchema) (map[string]int, 
 func equipmentCodes(character schemas.CharacterSchema, owned map[string]int) []string {
 	codes := []string{}
 	for code := range owned {
-		item, ok := database.Items().Get(code)
+		item, ok := catalog.Items().Get(code)
 		if ok && isEquipment(*item) && best.CanEquip(character, *item) {
 			codes = append(codes, code)
 		}
@@ -291,7 +291,7 @@ func equipmentCodes(character schemas.CharacterSchema, owned map[string]int) []s
 func insufficientCodes(character schemas.CharacterSchema, owned map[string]int) []string {
 	codes := []string{}
 	for _, code := range equipmentCodes(character, owned) {
-		item, _ := database.Items().Get(code)
+		item, _ := catalog.Items().Get(code)
 		required := 5
 		if item.Type == "ring" {
 			required = 10
@@ -307,14 +307,14 @@ func insufficientCodes(character schemas.CharacterSchema, owned map[string]int) 
 }
 
 func isEquipment(item schemas.ItemSchema) bool {
-	_, ok := database.EquipmentTypeToSlots[item.Type]
+	_, ok := catalog.EquipmentTypeToSlots[item.Type]
 	return ok && item.Type != "utility" && item.Subtype != "tool"
 }
 
 func combatItems(character schemas.CharacterSchema, owned map[string]int) map[string]int {
 	available := map[string]int{}
 	for code, quantity := range owned {
-		item, ok := database.Items().Get(code)
+		item, ok := catalog.Items().Get(code)
 		if !ok || quantity < 1 {
 			continue
 		}

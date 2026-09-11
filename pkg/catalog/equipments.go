@@ -1,4 +1,4 @@
-package database
+package catalog
 
 var (
 	EquipmentTypes = []string{

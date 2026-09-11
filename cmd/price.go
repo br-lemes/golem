@@ -5,9 +5,9 @@ import (
 	"sort"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -57,7 +57,7 @@ var priceCmd = &cobra.Command{
 			return err
 		}
 
-		item, exists := database.Items().Tradeables().Get(code)
+		item, exists := catalog.Items().Tradeables().Get(code)
 		if !exists {
 			return fmt.Errorf("item %q not tradeable or not found", code)
 		}
@@ -95,12 +95,12 @@ var priceCmd = &cobra.Command{
 			Sell:    summarizeOrders(sells),
 			History: summarizeHistory(history),
 		}
-		npcItem, exists := database.NpcsItems.Get(code)
+		npcItem, exists := catalog.NpcsItems.Get(code)
 		if exists {
 			result.NPCSell = npcItem.SellPrice
 		}
 		if result.Buy.Orders == 0 && result.Sell.Orders == 0 && result.History.Sales == 0 {
-			result.Suggestions = similarPriceItems(item, database.Items().Tradeables().All())
+			result.Suggestions = similarPriceItems(item, catalog.Items().Tradeables().All())
 		}
 		return console.Auto(result)
 	},

@@ -5,9 +5,9 @@ import (
 	"math"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -26,7 +26,7 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		item, found := database.Items().Get(code)
+		item, found := catalog.Items().Get(code)
 		if !found {
 			return fmt.Errorf("item not found: %s", code)
 		}
@@ -37,7 +37,7 @@ Arguments:
 		}
 
 		if !isCraftable(*item) {
-			npcItem, found := database.NpcsItems.Get(code)
+			npcItem, found := catalog.NpcsItems.Get(code)
 			if !found || npcItem.BuyPrice == nil || *npcItem.BuyPrice <= 0 {
 				return fmt.Errorf("item is not craftable or available from an NPC: %s", code)
 			}

@@ -4,9 +4,9 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -70,7 +70,7 @@ Arguments:
 				itemsMap[slot.Code].Quantity += slot.Quantity
 			}
 		}
-		skills := database.Tasks().Skills()
+		skills := catalog.Tasks().Skills()
 		maxSkillLevel := map[string]int{}
 		for _, character := range characters {
 			for _, skill := range skills {
@@ -79,7 +79,7 @@ Arguments:
 			}
 		}
 		result := map[string]ItemStock{}
-		for _, task := range database.Tasks().All() {
+		for _, task := range catalog.Tasks().All() {
 			if !includeStockTask(task, args, flags, maxSkillLevel) {
 				continue
 			}
@@ -99,7 +99,7 @@ Arguments:
 			target := safety + safety/3
 			addStockResult(result, task.Code, itemQuantity, safety, target)
 		}
-		for _, potion := range database.Items().Potions().All() {
+		for _, potion := range catalog.Items().Potions().All() {
 			if !includeStockPotion(potion, args, flags) {
 				continue
 			}
@@ -131,7 +131,7 @@ Arguments:
 }
 
 func stockItemCodes() []string {
-	return append(database.Tasks().Items(), database.Items().Potions().Keys()...)
+	return append(catalog.Tasks().Items(), catalog.Items().Potions().Keys()...)
 }
 
 func itemStockQuantity(items map[string]*schemas.SimpleItemSchema, code string) int {

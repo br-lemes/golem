@@ -3,7 +3,7 @@ package routine
 import (
 	"slices"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -16,13 +16,13 @@ type Result struct {
 }
 
 type node struct {
-	point       database.Point
+	point       catalog.Point
 	transitions []schemas.MapSchema
 	costs       []schemas.ConditionSchema
 	distance    int
 }
 
-type eventPointSet map[database.Point]bool
+type eventPointSet map[catalog.Point]bool
 
 func Find(character schemas.CharacterSchema, code string, potions []schemas.SimpleItemSchema) []Result {
 	//+gocover:ignore:block production wrapper over tested implementation
@@ -30,13 +30,13 @@ func Find(character schemas.CharacterSchema, code string, potions []schemas.Simp
 }
 
 func find(d deps, character schemas.CharacterSchema, code string, potions []schemas.SimpleItemSchema) []Result {
-	results := findFrom(d, character, code, database.Point{
+	results := findFrom(d, character, code, catalog.Point{
 		X:     character.X,
 		Y:     character.Y,
 		Layer: character.Layer,
 	}, nil)
 	for _, simplePotion := range potions {
-		item, exists := database.Items().Get(simplePotion.Code)
+		item, exists := catalog.Items().Get(simplePotion.Code)
 		if !exists || item.Effects == nil {
 			continue
 		}
@@ -44,14 +44,14 @@ func find(d deps, character schemas.CharacterSchema, code string, potions []sche
 			if effect.Code != "teleport" {
 				continue
 			}
-			target, exists := database.Maps.Find(func(tile *schemas.MapSchema) bool {
+			target, exists := catalog.Maps.Find(func(tile *schemas.MapSchema) bool {
 				return tile.MapId == effect.Value
 			})
 			if !exists {
 				//+gocover:ignore:block teleport destinations exist in catalog
 				continue
 			}
-			potionResults := findFrom(d, character, code, database.Point{
+			potionResults := findFrom(d, character, code, catalog.Point{
 				X:     target.X,
 				Y:     target.Y,
 				Layer: target.Layer,
@@ -62,7 +62,7 @@ func find(d deps, character schemas.CharacterSchema, code string, potions []sche
 	return results
 }
 
-func findFrom(d deps, character schemas.CharacterSchema, code string, start database.Point, potion *schemas.ItemSchema) []Result {
+func findFrom(d deps, character schemas.CharacterSchema, code string, start catalog.Point, potion *schemas.ItemSchema) []Result {
 	events := eventPoints(d, code)
 	var achievementValues []schemas.AccountAchievementSchema
 	loaded := false
@@ -104,7 +104,7 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start data
 	}
 
 	queue := []node{{point: start}}
-	visited := map[database.Point]bool{start: true}
+	visited := map[catalog.Point]bool{start: true}
 	var results []Result
 	dx := [...]int{0, 0, 1, -1}
 	dy := [...]int{1, -1, 0, 0}
@@ -112,7 +112,7 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start data
 	for len(queue) > 0 {
 		current := queue[0]
 		queue = queue[1:]
-		tile, exists := database.Maps.Get(current.point)
+		tile, exists := catalog.Maps.Get(current.point)
 		if !exists {
 			//+gocover:ignore:block lookup only enqueues catalog tiles
 			continue
@@ -130,7 +130,7 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start data
 		}
 		transition := tile.Interactions.Transition
 		if transition != nil {
-			next := database.Point{
+			next := catalog.Point{
 				X:     transition.X,
 				Y:     transition.Y,
 				Layer: transition.Layer,
@@ -148,7 +148,7 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start data
 			}
 		}
 		for i := range dx {
-			next := database.Point{
+			next := catalog.Point{
 				X:     current.point.X + dx[i],
 				Y:     current.point.Y + dy[i],
 				Layer: current.point.Layer,
@@ -156,7 +156,7 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start data
 			if visited[next] {
 				continue
 			}
-			nextTile, exists := database.Maps.Get(next)
+			nextTile, exists := catalog.Maps.Get(next)
 			if exists && nextTile.Access.Type != "blocked" {
 				visited[next] = true
 				queue = append(queue, node{
@@ -180,7 +180,7 @@ func appendItemConditions(conditions *[]schemas.ConditionSchema, item *schemas.I
 	return &result
 }
 
-func isTarget(tile schemas.MapSchema, point database.Point, code string, events eventPointSet) bool {
+func isTarget(tile schemas.MapSchema, point catalog.Point, code string, events eventPointSet) bool {
 	contentTarget := tile.Interactions.Content != nil && tile.Interactions.Content.Code == code
 	return contentTarget || events[point]
 }
@@ -202,7 +202,7 @@ func appendConditions(values []schemas.ConditionSchema, conditions *[]schemas.Co
 }
 
 func eventPoints(d deps, code string) eventPointSet {
-	if !slices.Contains(database.EventContentCodes(), code) {
+	if !slices.Contains(catalog.EventContentCodes(), code) {
 		return eventPointSet{}
 	}
 	if d.eventsActive == nil {
@@ -215,7 +215,7 @@ func eventPoints(d deps, code string) eventPointSet {
 	result := eventPointSet{}
 	for _, event := range events {
 		if event.Map.Interactions.Content != nil && event.Map.Interactions.Content.Code == code {
-			result[database.Point{
+			result[catalog.Point{
 				X:     event.Map.X,
 				Y:     event.Map.Y,
 				Layer: event.Map.Layer,

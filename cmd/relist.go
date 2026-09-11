@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -44,7 +44,7 @@ Arguments:
 		}
 		relistOptions = flags
 
-		_, found := database.Items().Tradeables().Get(code)
+		_, found := catalog.Items().Tradeables().Get(code)
 		if !found {
 			return fmt.Errorf("item %q not tradeable or not found", code)
 		}

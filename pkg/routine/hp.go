@@ -4,7 +4,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 )
@@ -46,7 +46,7 @@ func hp(d deps, character schemas.CharacterSchema, hpOptions HpOptions) (schemas
 			//+gocover:ignore:block inventory slots have positive quantities
 			continue
 		}
-		item, found := database.Items().Foods().Get(slot.Code)
+		item, found := catalog.Items().Foods().Get(slot.Code)
 		if hpOptions.FoodOnly != "" && slot.Code != hpOptions.FoodOnly {
 			continue
 		}

@@ -5,9 +5,9 @@ import (
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/best"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -39,7 +39,7 @@ Arguments:
 }
 
 func bestGatheringValidate(code string) error {
-	_, ok := database.Resources.Get(code)
+	_, ok := catalog.Resources.Get(code)
 	if !ok {
 		return fmt.Errorf("resource not found: %s", code)
 	}
@@ -47,7 +47,7 @@ func bestGatheringValidate(code string) error {
 }
 
 func bestGatheringRun(name, code string, flags bestFlags) error {
-	resource, _ := database.Resources.Get(code)
+	resource, _ := catalog.Resources.Get(code)
 	character, err := api.Characters(name)
 	if err != nil {
 		return err

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -106,7 +106,7 @@ func Explain(input Input, code string) Explanation {
 }
 
 func Evaluate(input Input, code string) Explanation {
-	_, ok := database.Items().Get(code)
+	_, ok := catalog.Items().Get(code)
 	if !ok {
 		return Explanation{
 			Code:   code,

@@ -5,9 +5,9 @@ import (
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/best"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -39,7 +39,7 @@ Arguments:
 }
 
 func bestCraftingValidate(code string) error {
-	item, ok := database.Items().Get(code)
+	item, ok := catalog.Items().Get(code)
 	if !ok || item.Craft == nil || item.Craft.Skill == nil {
 		return fmt.Errorf("item not found or is not craftable: %s", code)
 	}
@@ -47,7 +47,7 @@ func bestCraftingValidate(code string) error {
 }
 
 func bestCraftingRun(name, code string, flags bestFlags) error {
-	item, _ := database.Items().Get(code)
+	item, _ := catalog.Items().Get(code)
 	character, err := api.Characters(name)
 	if err != nil {
 		return err

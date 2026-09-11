@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/config"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/fight"
 	"github.com/br-lemes/golem/pkg/models"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -314,7 +314,7 @@ func TestChooseSimulationGroupRanksLargeOptionSet(t *testing.T) {
 	ResetSimulationCache()
 	options := make([]string, 0, 14)
 	available := map[string]int{"iron_sword": 1}
-	for _, item := range database.Items().All() {
+	for _, item := range catalog.Items().All() {
 		if item.Type != "ring" {
 			continue
 		}
@@ -428,7 +428,7 @@ func TestFindFightWithAvailableBuildsResult(t *testing.T) {
 		t.Fatal(err)
 	}
 	ResetSimulationCache()
-	monster, ok := database.Monsters.Get("chicken")
+	monster, ok := catalog.Monsters.Get("chicken")
 	if !ok {
 		t.Fatal("chicken monster is missing from the catalog")
 	}
@@ -450,7 +450,7 @@ func TestFindFightWithAvailableReportsUnownedItems(t *testing.T) {
 	}
 	ResetSimulationCache()
 	character := schemas.CharacterSchema{Level: 1}
-	monster, ok := database.Monsters.Get("sonnengott")
+	monster, ok := catalog.Monsters.Get("sonnengott")
 	if !ok {
 		t.Fatal("chicken monster is missing from the catalog")
 	}
@@ -470,7 +470,7 @@ func TestFindFightWithAvailableReportsUnownedUtilities(t *testing.T) {
 		t.Fatal(err)
 	}
 	ResetSimulationCache()
-	monster, ok := database.Monsters.Get("skeleton")
+	monster, ok := catalog.Monsters.Get("skeleton")
 	if !ok {
 		t.Fatal("skeleton monster is missing from the catalog")
 	}
@@ -630,7 +630,7 @@ func TestRefineWithUtilitiesEvaluatesAvailableUtility(t *testing.T) {
 	}
 	ResetSimulationCache()
 	character := schemas.CharacterSchema{Level: 5}
-	monster, ok := database.Monsters.Get("chicken")
+	monster, ok := catalog.Monsters.Get("chicken")
 	if !ok {
 		t.Fatal("chicken monster is missing from the catalog")
 	}
@@ -742,7 +742,7 @@ func TestFindFightByNameFindsCharacter(t *testing.T) {
 		return []schemas.SimpleItemSchema{{Code: "iron_sword", Quantity: 1}}, nil
 	}
 	d := deps{characters: characters, myBankItems: bankItems}
-	monster, ok := database.Monsters.Get("chicken")
+	monster, ok := catalog.Monsters.Get("chicken")
 	if !ok {
 		t.Fatal("chicken monster is missing from the catalog")
 	}
@@ -777,7 +777,7 @@ func TestFindFightAtLevelFindsFight(t *testing.T) {
 		return []schemas.SimpleItemSchema{{Code: "iron_sword", Quantity: 1}}, nil
 	}
 	d := deps{myBankItems: bankItems}
-	monster, ok := database.Monsters.Get("chicken")
+	monster, ok := catalog.Monsters.Get("chicken")
 	if !ok {
 		t.Fatal("chicken monster is missing from the catalog")
 	}
@@ -816,7 +816,7 @@ func TestFindFightIncludesInventoryAndEquipment(t *testing.T) {
 		Inventory:  &inventory,
 		WeaponSlot: "iron_sword",
 	}
-	monster, ok := database.Monsters.Get("chicken")
+	monster, ok := catalog.Monsters.Get("chicken")
 	if !ok {
 		t.Fatal("chicken monster is missing from the catalog")
 	}

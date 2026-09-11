@@ -5,8 +5,8 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/spf13/cobra"
 )
@@ -25,7 +25,7 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
-		codes := append(database.MapCodes(), database.EventContentCodes()...)
+		codes := append(catalog.MapCodes(), catalog.EventContentCodes()...)
 		if !slices.Contains(codes, code) {
 			return fmt.Errorf("code '%s' not found", code)
 		}

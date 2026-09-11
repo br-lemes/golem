@@ -5,8 +5,8 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -81,7 +81,7 @@ Arguments:
 			bankQty := taskItemBankQty(bankItems, character.Task)
 			needed := character.TaskTotal - character.TaskProgress
 			available := bankQty + taskItemInvQty(character, character.Task)
-			task, taskExists := database.Tasks().Get(character.Task)
+			task, taskExists := catalog.Tasks().Get(character.Task)
 			canCancelMissing := flags.CancelMissing || (flags.CancelMissingLevel50 && taskExists && task.Level == 50)
 			if !canCancelMissing && !isForbidden && available < needed {
 				return fmt.Errorf("missing item: %s (have %d, need %d)", character.Task, available, needed)

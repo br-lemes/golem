@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -46,7 +46,7 @@ Arguments:
 }
 
 func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
-	item, found := database.Items().Get(code)
+	item, found := catalog.Items().Get(code)
 	if !found {
 		return fmt.Errorf("item not found: %s", code)
 	}

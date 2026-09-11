@@ -6,9 +6,9 @@ import (
 
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/surplus"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -36,7 +36,7 @@ var missingCmd = &cobra.Command{
 			return err
 		}
 		for _, equipmentType := range missingOptions.EquipmentType {
-			if !slices.Contains(database.EquipmentTypes, equipmentType) {
+			if !slices.Contains(catalog.EquipmentTypes, equipmentType) {
 				return fmt.Errorf("invalid equipment type specified: %s", equipmentType)
 			}
 		}
@@ -115,9 +115,9 @@ func executeMissing(flags missingFlags) error {
 	if len(flags.EquipmentType) > 0 {
 		targets = flags.EquipmentType
 	} else {
-		targets = database.EquipmentTypes
+		targets = catalog.EquipmentTypes
 	}
-	allItems := database.Items().All()
+	allItems := catalog.Items().All()
 	requiredItems := make(map[string]int)
 	craftableItems := make(map[string]bool)
 	if flags.Craftable {
@@ -234,7 +234,7 @@ func init() {
 		panic(err)
 	}
 	err = missingCmd.RegisterFlagCompletionFunc("type", completion.StringSlice(func() []string {
-		return database.EquipmentTypes
+		return catalog.EquipmentTypes
 	}))
 	if err != nil {
 		panic(err)

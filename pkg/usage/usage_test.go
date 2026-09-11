@@ -7,8 +7,8 @@ import (
 
 	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/config"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -464,7 +464,7 @@ func TestInsufficientCodesUsesEquipmentLimits(t *testing.T) {
 
 func mustItem(t *testing.T, code string) *schemas.ItemSchema {
 	t.Helper()
-	item, ok := database.Items().Get(code)
+	item, ok := catalog.Items().Get(code)
 	if !ok {
 		t.Fatalf("catalog item %q is missing", code)
 	}

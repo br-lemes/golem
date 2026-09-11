@@ -4,8 +4,8 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -42,7 +42,7 @@ Arguments:
 }
 
 func skillLevelupRequirements(characters []schemas.CharacterSchema) map[string]map[string]int {
-	skills := slices.DeleteFunc(slices.Clone(database.Enums()["CharacterLeaderboardType"]), func(skill string) bool {
+	skills := slices.DeleteFunc(slices.Clone(catalog.Enums()["CharacterLeaderboardType"]), func(skill string) bool {
 		return slices.Contains(levelupExcludedSkills, skill)
 	})
 

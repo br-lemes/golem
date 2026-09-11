@@ -6,9 +6,9 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -57,7 +57,7 @@ func cheapestRun(skill string) error {
 		level, _ := utils.GetCharacterCraftingSkillLevel(character, skill)
 		maxLevel = max(maxLevel, level)
 	}
-	items := cheapestItems(skill, maxLevel, database.Items().All())
+	items := cheapestItems(skill, maxLevel, catalog.Items().All())
 	levels := make(map[string]int, len(items))
 	for _, item := range items {
 		levels[item.Code] = *item.Craft.Level
@@ -87,7 +87,7 @@ func craftCostLess(a, b craftCost) bool {
 }
 
 func itemCraftCost(code string, visiting map[string]bool) craftCost {
-	item, ok := database.Items().Get(code)
+	item, ok := catalog.Items().Get(code)
 	if !ok || item.Craft == nil || item.Craft.Items == nil {
 		return sourceCost(code)
 	}
@@ -110,7 +110,7 @@ func itemCraftCost(code string, visiting map[string]bool) craftCost {
 }
 
 func sourceCost(code string) craftCost {
-	for _, npcItem := range database.NpcsItems.All() {
+	for _, npcItem := range catalog.NpcsItems.All() {
 		if npcItem.Code != code || npcItem.BuyPrice == nil {
 			continue
 		}
@@ -124,7 +124,7 @@ func sourceCost(code string) craftCost {
 	}
 	best := craftCost{basic: 1, units: 1, rarity: 1}
 	found := false
-	for _, monster := range database.Monsters.All() {
+	for _, monster := range catalog.Monsters.All() {
 		for _, drop := range monster.Drops {
 			if drop.Code != code {
 				continue
@@ -154,7 +154,7 @@ func sourceCost(code string) craftCost {
 	if found {
 		return best
 	}
-	_, ok := database.Resources.Get(code)
+	_, ok := catalog.Resources.Get(code)
 	if ok {
 		return craftCost{basic: 1, units: 1}
 	}
@@ -197,12 +197,12 @@ func dependsOnTasksCoin(code string, visiting map[string]bool) bool {
 	visiting[code] = true
 	defer delete(visiting, code)
 
-	for _, npcItem := range database.NpcsItems.All() {
+	for _, npcItem := range catalog.NpcsItems.All() {
 		if npcItem.Code == code && npcItem.Currency == "tasks_coin" {
 			return true
 		}
 	}
-	item, ok := database.Items().Get(code)
+	item, ok := catalog.Items().Get(code)
 	if !ok || item.Craft == nil || item.Craft.Items == nil {
 		return false
 	}

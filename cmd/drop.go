@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +20,7 @@ var dropCmd = &cobra.Command{
 		for _, character := range characters {
 			maxLevel = max(maxLevel, character.Level)
 		}
-		monsters := database.Monsters.Filter(func(m *schemas.MonsterSchema) bool {
+		monsters := catalog.Monsters.Filter(func(m *schemas.MonsterSchema) bool {
 			return m.Level <= maxLevel
 		})
 		drops := map[string]*ItemStock{}

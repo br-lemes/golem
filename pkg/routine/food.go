@@ -3,8 +3,8 @@ package routine
 import (
 	"sort"
 
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 )
@@ -21,7 +21,7 @@ func foodCurrentQty(character schemas.CharacterSchema) int {
 		if slot.Quantity <= 0 {
 			continue
 		}
-		_, found := database.Items().Foods().Get(slot.Code)
+		_, found := catalog.Items().Foods().Get(slot.Code)
 		if !found {
 			continue
 		}
@@ -47,7 +47,7 @@ func foodCandidates(character schemas.CharacterSchema, food string, bankQty map[
 		if qty <= 0 {
 			continue
 		}
-		item, found := database.Items().Foods().Get(code)
+		item, found := catalog.Items().Foods().Get(code)
 		if !found || !utils.MeetsItemConditions(character, *item) || item.Effects == nil {
 			continue
 		}

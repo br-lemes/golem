@@ -1,6 +1,6 @@
 package completion
 
-import "github.com/br-lemes/golem/pkg/database"
+import "github.com/br-lemes/golem/pkg/catalog"
 
 func Map(count int) *CompletionBuilder {
 	builder := &CompletionBuilder{}
@@ -9,6 +9,6 @@ func Map(count int) *CompletionBuilder {
 
 func (b *CompletionBuilder) Map(count int) *CompletionBuilder {
 	return b.Custom(count, func() []string {
-		return append(database.MapCodes(), database.EventContentCodes()...)
+		return append(catalog.MapCodes(), catalog.EventContentCodes()...)
 	})
 }

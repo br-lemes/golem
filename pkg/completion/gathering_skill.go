@@ -1,6 +1,6 @@
 package completion
 
-import "github.com/br-lemes/golem/pkg/database"
+import "github.com/br-lemes/golem/pkg/catalog"
 
 func GatheringSkill(count int) *CompletionBuilder {
 	builder := &CompletionBuilder{}
@@ -9,6 +9,6 @@ func GatheringSkill(count int) *CompletionBuilder {
 
 func (b *CompletionBuilder) GatheringSkill(count int) *CompletionBuilder {
 	return b.Custom(count, func() []string {
-		return database.Enums()["GatheringSkill"]
+		return catalog.Enums()["GatheringSkill"]
 	})
 }

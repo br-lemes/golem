@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -43,7 +43,7 @@ func item(arg string) (Item, error) {
 	if result.Code == "" {
 		return Item{}, fmt.Errorf("missing item code: %s", arg)
 	}
-	_, exists := database.Items().Get(result.Code)
+	_, exists := catalog.Items().Get(result.Code)
 	if !exists {
 		return Item{}, fmt.Errorf("item not found in catalog: %s", result.Code)
 	}
@@ -87,11 +87,11 @@ func item(arg string) (Item, error) {
 }
 
 func (item Item) EquipSchema() (schemas.EquipSchema, error) {
-	catalogItem, exists := database.Items().Get(item.Code)
+	catalogItem, exists := catalog.Items().Get(item.Code)
 	if !exists {
 		return schemas.EquipSchema{}, fmt.Errorf("item not found in catalog: %s", item.Code)
 	}
-	slots, isEquipment := database.EquipmentTypeToSlots[catalogItem.Type]
+	slots, isEquipment := catalog.EquipmentTypeToSlots[catalogItem.Type]
 	if !isEquipment {
 		return schemas.EquipSchema{}, fmt.Errorf("item is not equipment: %s", item.Code)
 	}

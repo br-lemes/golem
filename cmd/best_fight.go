@@ -5,9 +5,9 @@ import (
 
 	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -44,7 +44,7 @@ Arguments:
 }
 
 func bestFightValidate(monster string, flags bestFightFlags, levelChanged bool) error {
-	_, ok := database.Monsters.Get(monster)
+	_, ok := catalog.Monsters.Get(monster)
 	if !ok {
 		return fmt.Errorf("invalid monster: %s", monster)
 	}
@@ -58,7 +58,7 @@ func bestFightValidate(monster string, flags bestFightFlags, levelChanged bool) 
 }
 
 func bestFightRun(monster string, flags bestFightFlags) error {
-	monsterData, _ := database.Monsters.Get(monster)
+	monsterData, _ := catalog.Monsters.Get(monster)
 	var result best.Result
 	var err error
 	if flags.Name != "" {

@@ -1,7 +1,7 @@
 package completion
 
 import (
-	"github.com/br-lemes/golem/pkg/database"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -15,7 +15,7 @@ func (b *CompletionBuilder) NPCSell(count int) *CompletionBuilder {
 }
 
 func GetNPCSellItems() []string {
-	items := database.NpcsItems.Filter(func(item *schemas.NPCItemSchema) bool {
+	items := catalog.NpcsItems.Filter(func(item *schemas.NPCItemSchema) bool {
 		if item.SellPrice != nil && *item.SellPrice > 0 {
 			return true
 		}

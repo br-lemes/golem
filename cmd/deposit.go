@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -47,7 +47,7 @@ func init() {
 		panic(err)
 	}
 	err = depositCmd.RegisterFlagCompletionFunc("keep", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		types := database.Items().Types()
+		types := catalog.Items().Types()
 		types = append(types, "gold")
 		return types, cobra.ShellCompDirectiveNoFileComp
 	})
