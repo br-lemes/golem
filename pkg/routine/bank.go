@@ -11,6 +11,7 @@ type BankOptions struct {
 }
 
 func Bank(character schemas.CharacterSchema, opts BankOptions) (schemas.CharacterSchema, error) {
+	//+gocover:ignore:block production wrapper over tested implementation
 	return bank(defaultDeps, character, opts)
 }
 
@@ -32,7 +33,7 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	if !needsSpace && !needsUtility && !needsFood {
 		return character, nil
 	}
-	character, err = Move(character, "bank")
+	character, err = move(d, character, "bank")
 	if err != nil {
 		return character, err
 	}
@@ -50,9 +51,9 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	}
 	if !opts.NoFood {
 		character, err = foodRestock(d, character, opts.Food, bankQty, opts.FoodOnly)
-	}
-	if err != nil {
-		return character, err
+		if err != nil {
+			return character, err
+		}
 	}
 	return character, nil
 }

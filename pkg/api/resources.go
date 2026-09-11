@@ -21,6 +21,7 @@ type ResourcesOptions struct {
 func Resources(options ResourcesOptions) ([]schemas.ResourceSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
 		return nil, err
 	}
 	result := []schemas.ResourceSchema{}

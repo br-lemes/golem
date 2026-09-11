@@ -18,6 +18,7 @@ type utilitySlot struct {
 }
 
 func ClearUtilities(character schemas.CharacterSchema, slots []string) (schemas.CharacterSchema, error) {
+	//+gocover:ignore:block production wrapper over tested implementation
 	return clearUtilities(defaultDeps, character, slots)
 }
 

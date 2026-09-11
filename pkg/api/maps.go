@@ -23,6 +23,7 @@ type MapsOptions struct {
 func Maps(options MapsOptions) ([]schemas.MapSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
 		return nil, err
 	}
 	result := []schemas.MapSchema{}

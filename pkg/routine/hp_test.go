@@ -12,6 +12,7 @@ func TestHp(t *testing.T) {
 		name          string
 		character     schemas.CharacterSchema
 		minHp         int
+		foodOnly      string
 		mockUse       func(name string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error)
 		mockRest      func(name string) (schemas.CharacterRestDataSchema, error)
 		expectHp      int
@@ -167,6 +168,44 @@ func TestHp(t *testing.T) {
 			expectError: false,
 		},
 		{
+			name: "food only",
+			character: schemas.CharacterSchema{
+				Name:  "Hero",
+				Hp:    100,
+				MaxHp: 350,
+				Level: 10,
+				Inventory: &[]schemas.InventorySlotSchema{
+					{Code: "apple", Quantity: 5, Slot: 0},
+					{Code: "cooked_chicken", Quantity: 2, Slot: 1},
+				},
+			},
+			minHp:    200,
+			foodOnly: "cooked_chicken",
+			mockUse: func(name string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error) {
+				if item.Code != "cooked_chicken" {
+					return schemas.UseItemSchema{}, errors.New("unexpected food item")
+				}
+				character := schemas.CharacterSchema{
+					Name:  name,
+					Hp:    300,
+					MaxHp: 350,
+				}
+				return schemas.UseItemSchema{Character: character}, nil
+			},
+			mockRest: func(name string) (schemas.CharacterRestDataSchema, error) {
+				character := schemas.CharacterSchema{
+					Name:  name,
+					Hp:    300,
+					MaxHp: 350,
+				}
+				return schemas.CharacterRestDataSchema{Character: character}, nil
+			},
+			expectHp:      300,
+			expectUseCode: "cooked_chicken",
+			expectUseQty:  2,
+			expectRest:    true,
+		},
+		{
 			name: "fallback waterfall combo",
 			character: schemas.CharacterSchema{
 				Name:  "Hero",
@@ -297,8 +336,9 @@ func TestHp(t *testing.T) {
 				},
 			}
 			resultChar, err := hp(dMock, tt.character, HpOptions{
-				MinHP:   tt.minHp,
-				UseFood: true,
+				MinHP:    tt.minHp,
+				UseFood:  true,
+				FoodOnly: tt.foodOnly,
 			})
 			if (err != nil) != tt.expectError {
 				t.Fatalf("hp() unexpected error: expected error = %v, got = %v", tt.expectError, err)

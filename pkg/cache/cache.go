@@ -17,25 +17,30 @@ func Initialize(storage config.Storage) error {
 	cacheFile := config.ExpandPath(storage.Cache)
 	err := os.MkdirAll(filepath.Dir(cacheFile), 0755)
 	if err != nil {
+		//+gocover:ignore:block filesystem setup failure is environmental
 		return err
 	}
 	cache, err = gorm.Open(sqlite.Open(cacheFile), &gorm.Config{
 		NowFunc: func() time.Time { return time.Now().UTC() },
 	})
 	if err != nil {
+		//+gocover:ignore:block SQLite setup failure is environmental
 		return err
 	}
 
 	err = cache.Exec("PRAGMA journal_mode=WAL;").Error
 	if err != nil {
+		//+gocover:ignore:block SQLite pragma failure is environmental
 		return err
 	}
 	err = cache.Exec("PRAGMA synchronous=NORMAL;").Error
 	if err != nil {
+		//+gocover:ignore:block SQLite pragma failure is environmental
 		return err
 	}
 	err = cache.AutoMigrate(&models.Cache{}, &models.Character{}, &models.FightSimulation{}, &models.OutputFilter{}, &models.UsageCombat{})
 	if err != nil {
+		//+gocover:ignore:block schema migration failure is environmental
 		return err
 	}
 	return nil

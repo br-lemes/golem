@@ -2,6 +2,12 @@ package database
 
 import "testing"
 
+func TestEnumsAll(t *testing.T) {
+	if len(Enums().All()) == 0 {
+		t.Fatal("enum catalog is empty")
+	}
+}
+
 func TestEnumsAreNonEmptyAndUnique(t *testing.T) {
 	names := Enums().Keys()
 	if len(names) == 0 {

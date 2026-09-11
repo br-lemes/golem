@@ -23,6 +23,7 @@ type ItemsOptions struct {
 func Items(options ItemsOptions) ([]schemas.ItemSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
 		return nil, err
 	}
 	result := []schemas.ItemSchema{}

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -651,5 +652,135 @@ func TestCheckLevelRequirementsUsesToolSkill(t *testing.T) {
 				t.Fatalf("checkLevelRequirements() error = %v, want error: %v", err, test.wantErr)
 			}
 		})
+	}
+}
+
+func TestItemHPEffect(t *testing.T) {
+	effects := []schemas.SimpleEffectSchema{{Code: "hp", Value: 25}}
+	noHPEffects := []schemas.SimpleEffectSchema{{Code: "damage", Value: 10}}
+	tests := []struct {
+		name   string
+		item   schemas.ItemSchema
+		wantHP int
+	}{
+		{
+			name:   "nil effects",
+			wantHP: 0,
+		},
+		{
+			name:   "without hp effect",
+			item:   schemas.ItemSchema{Effects: &noHPEffects},
+			wantHP: 0,
+		},
+		{
+			name:   "with hp effect",
+			item:   schemas.ItemSchema{Effects: &effects},
+			wantHP: 25,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := itemHPEffect(&test.item)
+			if got != test.wantHP {
+				t.Fatalf("itemHPEffect() = %d, want %d", got, test.wantHP)
+			}
+		})
+	}
+}
+
+func TestEquipmentHPLossIgnoresUtilities(t *testing.T) {
+	character := schemas.CharacterSchema{Utility1Slot: "small_health_potion"}
+	loss := equipmentHPLoss(character, []schemas.EquipSchema{
+		{Code: "small_health_potion", Slot: "utility1"},
+	})
+	if loss != 0 {
+		t.Fatalf("equipmentHPLoss() = %d, want 0", loss)
+	}
+}
+
+func TestEquipmentHPLossIncludesOldEquipmentHP(t *testing.T) {
+	character := schemas.CharacterSchema{BootsSlot: "copper_boots"}
+	loss := equipmentHPLoss(character, []schemas.EquipSchema{
+		{Code: "iron_boots", Slot: "boots"},
+	})
+	item, exists := database.Items().Get("copper_boots")
+	if !exists {
+		t.Fatal("copper_boots is missing from item catalog")
+	}
+	want := itemHPEffect(item)
+	if loss != want {
+		t.Fatalf("equipmentHPLoss() = %d, want %d", loss, want)
+	}
+}
+
+func TestEquipRestoresHPBeforeRemovingEquipment(t *testing.T) {
+	inventory := []schemas.InventorySlotSchema{
+		{Code: "iron_boots", Quantity: 1},
+	}
+	character := schemas.CharacterSchema{
+		Name:              "hero",
+		Hp:                5,
+		MaxHp:             100,
+		Level:             20,
+		BootsSlot:         "copper_boots",
+		Inventory:         &inventory,
+		InventoryMaxItems: 10,
+	}
+	rested, equipped := false, false
+	d := deps{
+		characters: func(string) (schemas.CharacterSchema, error) {
+			return character, nil
+		},
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return nil, nil
+		},
+		myActionRest: func(string) (schemas.CharacterRestDataSchema, error) {
+			rested = true
+			character.Hp = character.MaxHp
+			return schemas.CharacterRestDataSchema{Character: character}, nil
+		},
+		myActionEquip: func(string, []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error) {
+			equipped = true
+			return schemas.EquipmentTransactionSchema{Character: character}, nil
+		},
+	}
+
+	equipments := []schemas.EquipSchema{{Code: "iron_boots", Slot: "boots"}}
+	_, err := equip(d, character.Name, equipments)
+	if err != nil || !rested || !equipped {
+		t.Fatalf("equip() error = %v, rested = %t, equipped = %t", err, rested, equipped)
+	}
+}
+
+func TestEquipReturnsHPRecoveryError(t *testing.T) {
+	wantErr := errors.New("rest failed")
+	inventory := []schemas.InventorySlotSchema{
+		{Code: "iron_boots", Quantity: 1},
+	}
+	character := schemas.CharacterSchema{
+		Hp:                5,
+		MaxHp:             100,
+		Level:             20,
+		BootsSlot:         "copper_boots",
+		Inventory:         &inventory,
+		InventoryMaxItems: 10,
+	}
+	d := deps{
+		characters: func(string) (schemas.CharacterSchema, error) {
+			return character, nil
+		},
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return nil, nil
+		},
+		myActionRest: func(string) (schemas.CharacterRestDataSchema, error) {
+			return schemas.CharacterRestDataSchema{}, wantErr
+		},
+	}
+
+	equipments := []schemas.EquipSchema{{Code: "iron_boots", Slot: "boots"}}
+	_, err := equip(d, "hero", equipments)
+	if !errors.Is(err, wantErr) {
+		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
 }

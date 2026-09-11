@@ -23,6 +23,7 @@ func ListOutputFilters(command string) []models.OutputFilter {
 		query = query.Where("command = ?", command)
 	}
 	if query.Find(&filters).Error != nil {
+		//+gocover:ignore:block SQLite query failure is environmental
 		return nil
 	}
 	return filters
@@ -45,6 +46,7 @@ func EditOutputFilter(command, kind, oldPattern, newPattern string) error {
 	return cache.Transaction(func(tx *gorm.DB) error {
 		result := tx.Where("command = ? AND kind = ? AND pattern = ?", command, kind, oldPattern).Delete(&models.OutputFilter{})
 		if result.Error != nil {
+			//+gocover:ignore:block SQLite transaction failure is environmental
 			return result.Error
 		}
 		if result.RowsAffected == 0 {

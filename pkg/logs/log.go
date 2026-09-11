@@ -74,10 +74,12 @@ func openDatabase(now time.Time) error {
 	if database != nil {
 		sqlDB, err := database.DB()
 		if err != nil {
+			//+gocover:ignore:block SQLite connection failure is environmental
 			return err
 		}
 		err = sqlDB.Close()
 		if err != nil {
+			//+gocover:ignore:block SQLite close failure is environmental
 			return err
 		}
 		database = nil
@@ -88,18 +90,22 @@ func openDatabase(now time.Time) error {
 		NowFunc: func() time.Time { return time.Now().UTC() },
 	})
 	if err != nil {
+		//+gocover:ignore:block SQLite setup failure is environmental
 		return err
 	}
 	err = db.Exec("PRAGMA journal_mode=WAL;").Error
 	if err != nil {
+		//+gocover:ignore:block SQLite pragma failure is environmental
 		return err
 	}
 	err = db.Exec("PRAGMA synchronous=NORMAL;").Error
 	if err != nil {
+		//+gocover:ignore:block SQLite pragma failure is environmental
 		return err
 	}
 	err = db.AutoMigrate(&models.Request{})
 	if err != nil {
+		//+gocover:ignore:block schema migration failure is environmental
 		return err
 	}
 	database = db

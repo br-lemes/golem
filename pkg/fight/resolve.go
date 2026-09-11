@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -34,6 +33,10 @@ func ReadCharacterFile(path string) (schemas.FakeCharacterSchema, error) {
 }
 
 func ResolveCharacter(options CharacterOptions) (schemas.FakeCharacterSchema, error) {
+	return resolveCharacter(defaultDeps, options)
+}
+
+func resolveCharacter(d deps, options CharacterOptions) (schemas.FakeCharacterSchema, error) {
 	if options.File != "" && options.Name != "" {
 		return schemas.FakeCharacterSchema{}, fmt.Errorf("--name and --file are mutually exclusive")
 	}
@@ -44,7 +47,7 @@ func ResolveCharacter(options CharacterOptions) (schemas.FakeCharacterSchema, er
 		character, err = ReadCharacterFile(options.File)
 	case options.Name != "":
 		var source schemas.CharacterSchema
-		source, err = api.Characters(options.Name)
+		source, err = d.characters(options.Name)
 		if err == nil {
 			character = FakeCharacterFromCharacter(source)
 		}

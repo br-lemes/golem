@@ -28,6 +28,7 @@ func GetBank() *schemas.BankSchema {
 func SaveBank(bank schemas.BankSchema) {
 	data, err := json.Marshal(bank)
 	if err != nil {
+		//+gocover:ignore:block BankSchema is always JSON serializable
 		return
 	}
 	cache.Save(&models.Cache{Name: "bank", Data: string(data)})
@@ -59,6 +60,7 @@ func GetBankItems() []schemas.SimpleItemSchema {
 func SaveBankItems(bankItems []schemas.SimpleItemSchema) {
 	data, err := json.Marshal(bankItems)
 	if err != nil {
+		//+gocover:ignore:block bank items are always JSON serializable
 		return
 	}
 	cache.Save(&models.Cache{Name: "bankItems", Data: string(data)})

@@ -16,6 +16,7 @@ type EffectsOptions struct{}
 func Effects(options EffectsOptions) ([]schemas.EffectSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
 		return nil, err
 	}
 	result := []schemas.EffectSchema{}

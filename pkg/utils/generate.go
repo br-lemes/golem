@@ -53,6 +53,7 @@ func BuildTemplateData(targetCmd string) (TemplateData, error) {
 
 	availableCommands, err := GetCommands()
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return data, err
 	}
 
@@ -73,6 +74,7 @@ func BuildTemplateData(targetCmd string) (TemplateData, error) {
 		for method, path := range routeMap {
 			routeData, err := GetRoute(path)
 			if err != nil {
+				//+gocover:ignore:block catalog routes exist
 				return data, err
 			}
 
@@ -94,6 +96,7 @@ func BuildTemplateData(targetCmd string) (TemplateData, error) {
 
 			existingRoute, exists := data.Routes[argCount]
 			if exists {
+				//+gocover:ignore:block catalog routes have unique arg counts
 				return data, fmt.Errorf("route conflict: both %s %s and %s %s require %d positional arguments", existingRoute.Method, existingRoute.Path, method, path, argCount)
 			}
 
@@ -113,6 +116,7 @@ func BuildTemplateData(targetCmd string) (TemplateData, error) {
 				if param.In == "query" {
 					err := collector.collectFlag(param)
 					if err != nil {
+						//+gocover:ignore:block flag types are consistent
 						return data, err
 					}
 				}
@@ -127,6 +131,7 @@ func BuildTemplateData(targetCmd string) (TemplateData, error) {
 				for _, body := range details.RequestBody {
 					err := collector.collectFlag(body)
 					if err != nil {
+						//+gocover:ignore:block body types are consistent
 						return data, err
 					}
 				}
@@ -217,12 +222,14 @@ func (d *TemplateData) formatArguments(descriptions map[string]string) {
 func RenderTemplate(data TemplateData) ([]byte, error) {
 	tmpl, err := template.New("command").Parse(generate)
 	if err != nil {
+		//+gocover:ignore:block embedded template is valid
 		return nil, err
 	}
 
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, data)
 	if err != nil {
+		//+gocover:ignore:block embedded template matches TemplateData
 		return nil, err
 	}
 

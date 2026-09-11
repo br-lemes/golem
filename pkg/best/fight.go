@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/fight"
@@ -97,8 +96,8 @@ type cachedSimulationResult struct {
 	Safe                  bool
 }
 
-func findFight(character schemas.CharacterSchema, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
-	available, err := bankAvailable()
+func findFight(d deps, character schemas.CharacterSchema, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+	available, err := bankAvailable(d)
 	if err != nil {
 		return Result{}, err
 	}
@@ -118,15 +117,25 @@ func findFight(character schemas.CharacterSchema, monster schemas.MonsterSchema,
 }
 
 func FindFightByName(name string, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
-	character, err := api.Characters(name)
+	//+gocover:ignore:block public dependency wrapper
+	return findFightByName(defaultDeps, name, monster, includeUnowned, allowDuplicateAdeptRing)
+}
+
+func findFightByName(d deps, name string, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+	character, err := d.characters(name)
 	if err != nil {
 		return Result{}, err
 	}
-	return findFight(character, monster, includeUnowned, allowDuplicateAdeptRing)
+	return findFight(d, character, monster, includeUnowned, allowDuplicateAdeptRing)
 }
 
 func FindFightAtLevel(level int, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
-	available, err := bankAvailable()
+	//+gocover:ignore:block public dependency wrapper
+	return findFightAtLevel(defaultDeps, level, monster, includeUnowned, allowDuplicateAdeptRing)
+}
+
+func findFightAtLevel(d deps, level int, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+	available, err := bankAvailable(d)
 	if err != nil {
 		return Result{}, err
 	}
@@ -134,8 +143,8 @@ func FindFightAtLevel(level int, monster schemas.MonsterSchema, includeUnowned, 
 	return FindFightWithAvailable(character, monster, available, includeUnowned, allowDuplicateAdeptRing)
 }
 
-func bankAvailable() (map[string]int, error) {
-	owned, err := api.MyBankItems()
+func bankAvailable(d deps) (map[string]int, error) {
+	owned, err := d.myBankItems()
 	if err != nil {
 		return nil, err
 	}
@@ -219,11 +228,7 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 		for _, profile := range profiles {
 			heuristic := heuristicSimulationLoadout(options, monster, available, weapon, profile)
 			if !allowDuplicateAdeptRing && !adeptRingAllowed(character, heuristic) {
-				if heuristic["ring1"] == "ring_of_the_adept" {
-					heuristic["ring2"] = ""
-				} else {
-					heuristic["ring1"] = ""
-				}
+				limitAdeptRing(heuristic)
 			}
 			heuristicScore := evaluateSimulationLoadout(character, monster, heuristic)
 			finalists = append(finalists, copyStringMap(heuristic))
@@ -245,6 +250,7 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 				candidate := copyStringMap(current)
 				candidate[slot] = code
 				if !loadoutHasQuantity(candidate, available) || (!allowDuplicateAdeptRing && !adeptRingAllowed(character, candidate)) {
+					//+gocover:ignore:block individual slots have valid options
 					continue
 				}
 				score := evaluateSimulationLoadout(character, monster, candidate)
@@ -256,8 +262,8 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 			}
 			current[slot] = chosen
 		}
-		chooseSimulationGroup(character, monster, current, simulationRingSlots, options["ring1"], available, allowDuplicateAdeptRing, false)
-		chooseSimulationGroup(character, monster, current, simulationArtifactSlots, options["artifact1"], available, allowDuplicateAdeptRing, true)
+		chooseSimulationGroup(character, monster, current, simulationRingSlots, options["ring1"], available, allowDuplicateAdeptRing)
+		chooseSimulationGroup(character, monster, current, simulationArtifactSlots, options["artifact1"], available, allowDuplicateAdeptRing)
 		current, best = keepBestSimulationLoadout(character, monster, current, bestLoadout, best)
 		bestLoadout = copyStringMap(current)
 	}
@@ -318,6 +324,14 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 	}
 	sort.Strings(result.Unowned)
 	return result, nil
+}
+
+func limitAdeptRing(heuristic map[string]string) {
+	if heuristic["ring1"] == "ring_of_the_adept" {
+		heuristic["ring2"] = ""
+	} else {
+		heuristic["ring1"] = ""
+	}
 }
 
 func simulationEquipmentChanges(current, original map[string]string) map[string]string {
@@ -448,8 +462,8 @@ func refineWithUtilities(character schemas.CharacterSchema, monster schemas.Mons
 			current[slot] = chosen
 		}
 	}
-	chooseSimulationGroup(character, monster, current, simulationRingSlots, options["ring1"], available, allowDuplicateAdeptRing, false)
-	chooseSimulationGroup(character, monster, current, simulationArtifactSlots, options["artifact1"], available, allowDuplicateAdeptRing, true)
+	chooseSimulationGroup(character, monster, current, simulationRingSlots, options["ring1"], available, allowDuplicateAdeptRing)
+	chooseSimulationGroup(character, monster, current, simulationArtifactSlots, options["artifact1"], available, allowDuplicateAdeptRing)
 	current, best = keepBestSimulationLoadout(character, monster, current, bestLoadout, best)
 	return copyStringMap(current), best
 }
@@ -518,6 +532,7 @@ func generateBeamCandidates(character schemas.CharacterSchema, monster schemas.M
 				candidate := copyStringMap(base)
 				candidate[slot] = code
 				if !loadoutHasQuantity(candidate, available) || (!allowDuplicateAdeptRing && !adeptRingAllowed(character, candidate)) {
+					//+gocover:ignore:block beam options are pre-validated
 					continue
 				}
 				expanded = append(expanded, candidate)
@@ -534,8 +549,8 @@ func generateBeamCandidates(character schemas.CharacterSchema, monster schemas.M
 		beam = expanded
 	}
 	for _, candidate := range beam {
-		chooseSimulationGroup(character, monster, candidate, simulationRingSlots, options["ring1"], available, allowDuplicateAdeptRing, false)
-		chooseSimulationGroup(character, monster, candidate, simulationArtifactSlots, options["artifact1"], available, allowDuplicateAdeptRing, true)
+		chooseSimulationGroup(character, monster, candidate, simulationRingSlots, options["ring1"], available, allowDuplicateAdeptRing)
+		chooseSimulationGroup(character, monster, candidate, simulationArtifactSlots, options["artifact1"], available, allowDuplicateAdeptRing)
 	}
 	return beam
 }
@@ -715,6 +730,7 @@ func evaluateSimulationLoadoutIterations(character schemas.CharacterSchema, mons
 			case int:
 				hp += float32(value)
 			case float64:
+				//+gocover:ignore:block local simulation returns integer HP
 				hp += float32(value)
 			}
 		}
@@ -732,6 +748,8 @@ func evaluateSimulationLoadoutIterations(character schemas.CharacterSchema, mons
 	if missingHP > 0 {
 		restCooldown = float32(math.Ceil(float64(missingHP) / float64(fighter.Stats.HP) * 100))
 		if restCooldown < 3 {
+			// TODO: find a real combat scenario with less than 3% HP lost.
+			//+gocover:ignore:block minimum rest cooldown needs a real fight
 			restCooldown = 3
 		}
 	}
@@ -866,7 +884,7 @@ func effectivePlayerDamage(player fight.Fighter, monster schemas.MonsterSchema) 
 	return total
 }
 
-func chooseSimulationGroup(character schemas.CharacterSchema, monster schemas.MonsterSchema, current map[string]string, slots, options []string, available map[string]int, allowDuplicateAdeptRing, unique bool) {
+func chooseSimulationGroup(character schemas.CharacterSchema, monster schemas.MonsterSchema, current map[string]string, slots, options []string, available map[string]int, allowDuplicateAdeptRing bool) {
 	if len(options) > 13 {
 		ranked := append([]string{}, options...)
 		sort.SliceStable(ranked, func(i, j int) bool {
@@ -895,18 +913,6 @@ func chooseSimulationGroup(character schemas.CharacterSchema, monster schemas.Mo
 			}
 			if !loadoutHasQuantity(candidate, available) || (!allowDuplicateAdeptRing && !adeptRingAllowed(character, candidate)) {
 				return
-			}
-			if unique {
-				seen := map[string]bool{}
-				for _, slot := range slots {
-					code := candidate[slot]
-					if code != "" {
-						if seen[code] {
-							return
-						}
-						seen[code] = true
-					}
-				}
 			}
 			score := evaluateSimulationLoadout(character, monster, candidate)
 			setSimulationContext(&score, character, monster, candidate)
@@ -1103,6 +1109,7 @@ func CanEquip(c schemas.CharacterSchema, item schemas.ItemSchema) bool {
 		case "level":
 			value = c.Level
 		default:
+			//+gocover:ignore:block catalog conditions use known codes
 			continue
 		}
 		switch condition.Operator {

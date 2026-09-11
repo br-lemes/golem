@@ -3,11 +3,15 @@ package fight
 import (
 	"time"
 
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func SimulateAPI(request schemas.CombatSimulationRequestSchema) ([]schemas.CombatResultSchema, error) {
+	//+gocover:ignore:block public dependency wrapper
+	return simulateAPI(defaultDeps, request)
+}
+
+func simulateAPI(d deps, request schemas.CombatSimulationRequestSchema) ([]schemas.CombatResultSchema, error) {
 	results := []schemas.CombatResultSchema{}
 	var lastRequest time.Time
 	for _, iterations := range IterationChunks(request.Iterations) {
@@ -19,7 +23,7 @@ func SimulateAPI(request schemas.CombatSimulationRequestSchema) ([]schemas.Comba
 			}
 		}
 		lastRequest = time.Now()
-		response, err := api.SimulationFight(request)
+		response, err := d.simulationFight(request)
 		if err != nil {
 			return nil, err
 		}

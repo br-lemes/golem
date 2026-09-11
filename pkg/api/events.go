@@ -18,6 +18,7 @@ type EventsOptions struct {
 func Events(options EventsOptions) ([]schemas.EventSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
 		return nil, err
 	}
 	result := []schemas.EventSchema{}

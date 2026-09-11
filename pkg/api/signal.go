@@ -1,5 +1,4 @@
 // +gocover:ignore:file signal handling and process termination
-
 package api
 
 import (

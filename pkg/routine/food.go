@@ -59,6 +59,7 @@ func foodCandidates(character schemas.CharacterSchema, food string, bankQty map[
 			}
 		}
 		if heal <= 0 {
+			//+gocover:ignore:block catalog foods have positive heal effects
 			continue
 		}
 		candidates = append(candidates, candidate{code, heal})

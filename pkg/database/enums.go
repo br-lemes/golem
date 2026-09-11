@@ -38,6 +38,7 @@ var enumsCatalog = sync.OnceValue(func() enumCatalog {
 	var catalog enumCatalog
 	err := json.Unmarshal(enums, &catalog)
 	if err != nil {
+		//+gocover:ignore:block embedded catalog is valid JSON
 		panic(err)
 	}
 	return catalog

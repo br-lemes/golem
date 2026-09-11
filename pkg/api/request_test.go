@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -304,4 +305,64 @@ type roundTripFunc func(req *http.Request) (*http.Response, error)
 
 func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
+}
+
+func TestExecuteReturnsNewRequestError(t *testing.T) {
+	ctx := &requestCtx{
+		baseURL:    "://invalid",
+		client:     defaultClient,
+		maxRetries: 1,
+		method:     http.MethodGet,
+		path:       "/test",
+	}
+
+	_, err := ctx.execute()
+	if err == nil {
+		t.Fatal("expected request construction error")
+	}
+}
+
+func TestNewRequestReturnsError(t *testing.T) {
+	ctx := &requestCtx{baseURL: "://invalid", method: http.MethodGet}
+	_, err := ctx.newRequest()
+	if err == nil {
+		t.Fatal("expected request construction error")
+	}
+}
+
+func TestExecuteRetriesWhenReadingResponseFails(t *testing.T) {
+	oldClient := defaultClient
+	t.Cleanup(func() { defaultClient = oldClient })
+	transport := roundTripFunc(func(*http.Request) (*http.Response, error) {
+		return &http.Response{
+			Body:       failingReadCloser{},
+			Header:     http.Header{"Content-Type": []string{"application/json"}},
+			StatusCode: http.StatusOK,
+		}, nil
+	})
+	defaultClient = &http.Client{Transport: transport}
+
+	ctx := &requestCtx{
+		baseURL:     "https://example.com",
+		client:      defaultClient,
+		initialWait: time.Millisecond,
+		maxRetries:  1,
+		maxWait:     time.Millisecond,
+		method:      http.MethodGet,
+		path:        "/test",
+	}
+	_, err := ctx.execute()
+	if err == nil {
+		t.Fatal("expected max retries error")
+	}
+}
+
+type failingReadCloser struct{}
+
+func (failingReadCloser) Read([]byte) (int, error) {
+	return 0, errors.New("read failed")
+}
+
+func (failingReadCloser) Close() error {
+	return io.ErrUnexpectedEOF
 }

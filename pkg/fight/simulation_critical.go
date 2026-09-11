@@ -3,14 +3,18 @@ package fight
 import (
 	"fmt"
 
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func CompareCritical(request schemas.CombatSimulationRequestSchema, monster schemas.MonsterSchema, options SimulationOptions, includeLogs bool) (SimulationComparison, error) {
+	//+gocover:ignore:block public dependency wrapper
+	return compareCritical(defaultDeps, request, monster, options, includeLogs)
+}
+
+func compareCritical(d deps, request schemas.CombatSimulationRequestSchema, monster schemas.MonsterSchema, options SimulationOptions, includeLogs bool) (SimulationComparison, error) {
 	iterations := request.Iterations
 	request.Iterations = 1
-	remote, err := api.SimulationFight(request)
+	remote, err := d.simulationFight(request)
 	if err != nil {
 		return SimulationComparison{}, err
 	}

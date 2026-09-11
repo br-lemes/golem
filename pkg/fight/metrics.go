@@ -21,7 +21,7 @@ func Metrics(player Fighter, level int, monster schemas.MonsterSchema, results [
 		turns /= float32(len(results))
 	}
 	cooldown := float32(FightCooldown(int(math.Round(float64(turns))), player.Stats.Haste))
-	xp := CombatXPForLevel(level, player.Stats.Wisdom, monster)
+	xp := CombatXP(level, player.Stats.Wisdom, monster)
 	metrics := SimulationMetrics{AverageFightCooldown: cooldown, XP: xp}
 	if cooldown > 0 {
 		metrics.XPPerCycle = float32(xp) * winrate(results) / 100 / cooldown
@@ -52,13 +52,7 @@ func FightCooldown(turns, haste int) int {
 	return int(math.Round(cooldown))
 }
 
-// CombatXP calculates solo combat XP using the formula documented in
-// artifacts-docs/concepts/stats_and_fights.
-func CombatXP(character schemas.CharacterSchema, monster schemas.MonsterSchema) int {
-	return CombatXPForLevel(character.Level, character.Wisdom, monster)
-}
-
-func CombatXPForLevel(level, wisdom int, monster schemas.MonsterSchema) int {
+func CombatXP(level, wisdom int, monster schemas.MonsterSchema) int {
 	diff := level - monster.Level
 	levelPenalty := 1.0
 	switch {

@@ -21,6 +21,7 @@ type NpcsDetailsOptions struct {
 func NpcsDetails(options NpcsDetailsOptions) ([]schemas.NPCSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
 		return nil, err
 	}
 	result := []schemas.NPCSchema{}

@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/console"
@@ -31,6 +30,11 @@ type Evaluation struct {
 }
 
 func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
+	// +gocover:ignore:block public dependency wrapper
+	return evaluate(defaultDeps, codes, details)
+}
+
+func evaluate(d deps, codes []string, details bool) (map[string]Evaluation, error) {
 	cache.BeginFightSimulationBatch()
 	defer cache.FlushFightSimulationBatch()
 	best.ResetSimulationCache()
@@ -47,7 +51,7 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 			seen[code] = true
 		}
 	}
-	characters, err := api.AccountsCharacters("")
+	characters, err := d.accountsCharacters("")
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +65,7 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 		}
 	}
 	simulationCharacter := schemas.CharacterSchema{Level: character.Level}
-	owned, err := globalOwned(characters)
+	owned, err := globalOwned(d, characters)
 	if err != nil {
 		return nil, err
 	}
@@ -93,12 +97,12 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 
 	monsters := database.Monsters.Filter(func(m *schemas.MonsterSchema) bool { return m.Type != "boss" && m.Type != "raid_boss" })
 	sort.Slice(monsters, func(i, j int) bool { return monsters[i].Code < monsters[j].Code })
-	normalCombat, err := cachedMarkCombat(simulationCharacter, monsters, combatAvailable, "normal")
+	normalCombat, err := cachedMarkCombat(d, simulationCharacter, monsters, combatAvailable, "normal")
 	if err != nil {
 		return nil, err
 	}
 	mergeCombatUsage(result, normalCombat, details)
-	err = markCrafting(simulationCharacter, owned, result, details)
+	err = markCrafting(d, simulationCharacter, owned, result, details)
 	if err != nil {
 		return nil, err
 	}
@@ -106,12 +110,12 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 	for _, code := range insufficientCodes(simulationCharacter, owned) {
 		available := cloneCounts(combatAvailable)
 		delete(available, code)
-		shortageCombat, err := cachedMarkCombat(simulationCharacter, monsters, available, "shortage of "+code)
+		shortageCombat, err := cachedMarkCombat(d, simulationCharacter, monsters, available, "shortage of "+code)
 		if err != nil {
 			return nil, err
 		}
 		mergeCombatUsage(result, shortageCombat, details)
-		err = markCrafting(simulationCharacter, available, result, details)
+		err = markCrafting(d, simulationCharacter, available, result, details)
 		if err != nil {
 			return nil, err
 		}
@@ -119,7 +123,7 @@ func Evaluate(codes []string, details bool) (map[string]Evaluation, error) {
 	return result, nil
 }
 
-func cachedMarkCombat(character schemas.CharacterSchema, monsters []*schemas.MonsterSchema, available map[string]int, scenario string) (map[string]map[string]string, error) {
+func cachedMarkCombat(d deps, character schemas.CharacterSchema, monsters []*schemas.MonsterSchema, available map[string]int, scenario string) (map[string]map[string]string, error) {
 	key := combatCacheKey(character.Level, monsters, available)
 	console.Debugf("usage: combat cache scenario=%s key=%s available=%s\n", scenario, key, canonicalAvailable(available))
 	stored, ok := cache.GetUsageCombat(key, combatCacheVersion)
@@ -130,12 +134,13 @@ func cachedMarkCombat(character schemas.CharacterSchema, monsters []*schemas.Mon
 			return loadouts, nil
 		}
 	}
-	loadouts, err := markCombat(character, monsters, available, scenario)
+	loadouts, err := markCombat(d, character, monsters, available, scenario)
 	if err != nil {
 		return nil, err
 	}
 	encoded, err := json.Marshal(loadouts)
 	if err != nil {
+		//+gocover:ignore:block loadout map is always JSON-serializable
 		return nil, err
 	}
 	cache.SaveUsageCombat(models.UsageCombat{
@@ -187,11 +192,11 @@ func equipmentQuantityLimit(code string, item schemas.ItemSchema) int {
 	return 5
 }
 
-func markCombat(character schemas.CharacterSchema, monsters []*schemas.MonsterSchema, available map[string]int, scenario string) (map[string]map[string]string, error) {
+func markCombat(d deps, character schemas.CharacterSchema, monsters []*schemas.MonsterSchema, available map[string]int, scenario string) (map[string]map[string]string, error) {
 	loadouts := map[string]map[string]string{}
 	for _, monster := range monsters {
 		console.Debugf("usage: checking %s against monster %s\n", scenario, monster.Code)
-		fight, err := best.FindFightWithAvailable(character, *monster, available, false, false)
+		fight, err := d.findFight(character, *monster, available, false, false)
 		if err != nil {
 			return nil, fmt.Errorf("check monster %s (%s): %w", monster.Code, scenario, err)
 		}
@@ -219,9 +224,9 @@ func mergeCombatUsage(result map[string]Evaluation, loadouts map[string]map[stri
 	}
 }
 
-func markCrafting(character schemas.CharacterSchema, available map[string]int, result map[string]Evaluation, details bool) error {
+func markCrafting(d deps, character schemas.CharacterSchema, available map[string]int, result map[string]Evaluation, details bool) error {
 	for _, priority := range []string{"wisdom", "prospecting"} {
-		selected, err := best.FindEquipment(character, best.EquipmentOptions{
+		selected, err := d.findEquipment(character, best.EquipmentOptions{
 			UniqueAdeptRing: true,
 			Owned:           available,
 			Priorities:      []string{priority},
@@ -247,9 +252,9 @@ func markCrafting(character schemas.CharacterSchema, available map[string]int, r
 	return nil
 }
 
-func globalOwned(characters []schemas.CharacterSchema) (map[string]int, error) {
+func globalOwned(d deps, characters []schemas.CharacterSchema) (map[string]int, error) {
 	owned := map[string]int{}
-	bank, err := api.MyBankItems()
+	bank, err := d.myBankItems()
 	if err != nil {
 		return nil, err
 	}

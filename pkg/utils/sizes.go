@@ -24,6 +24,7 @@ func GetSize(targetPath string) (int, error) {
 	loader := openapi3.NewLoader()
 	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return 0, err
 	}
 
@@ -40,6 +41,7 @@ func GetSize(targetPath string) (int, error) {
 			continue
 		}
 		if found {
+			//+gocover:ignore:block catalog paths have one size method
 			return 0, fmt.Errorf("multiple methods with size parameter for path %s (at least %s)", targetPath, method)
 		}
 		found = true
@@ -57,6 +59,7 @@ func GetSizes() (map[string]int, error) {
 	loader := openapi3.NewLoader()
 	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return nil, err
 	}
 
@@ -71,6 +74,7 @@ func GetSizes() (map[string]int, error) {
 				continue
 			}
 			if found {
+				//+gocover:ignore:block catalog paths have one size method
 				return nil, fmt.Errorf("multiple methods with size parameter for path %s (at least %s)", path, method)
 			}
 			found = true

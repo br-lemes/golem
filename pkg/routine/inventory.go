@@ -1,23 +1,27 @@
 package routine
 
 import (
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func Inventory(character schemas.CharacterSchema, keepTypes []string) (schemas.CharacterSchema, error) {
+	//+gocover:ignore:block production wrapper over tested implementation
+	return inventory(defaultDeps, character, keepTypes)
+}
+
+func inventory(d deps, character schemas.CharacterSchema, keepTypes []string) (schemas.CharacterSchema, error) {
 	totalItems := totalItems(character)
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil
 	}
-	character, err := Move(character, "bank")
+	character, err := move(d, character, "bank")
 	if err != nil {
 		return character, err
 	}
 	items := GetInventoryItems(character, keepTypes)
 	if len(items) > 0 {
-		transaction, err := api.MyActionBankDepositItem(character.Name, items)
+		transaction, err := d.myActionBankDepositItem(character.Name, items)
 		if err != nil {
 			return character, err
 		}

@@ -18,6 +18,7 @@ type AchievementsOptions struct {
 func Achievements(options AchievementsOptions) ([]schemas.AchievementSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
 		return nil, err
 	}
 

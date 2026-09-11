@@ -14,6 +14,7 @@ func Post(path string, data any) ([]byte, error) {
 	}
 	cd := int(gjson.GetBytes(resp, "data.cooldown.total_seconds").Int())
 	if cd > 0 {
+		//+gocover:ignore:block cooldown handling intentionally blocks execution
 		reason := gjson.GetBytes(resp, "data.cooldown.reason")
 		handleCooldown(cd, reason.String())
 	}

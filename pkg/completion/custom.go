@@ -11,6 +11,7 @@ func (b *CompletionBuilder) Custom(count int, fetcher func() []string) *Completi
 	validator := func(cmd *cobra.Command, args []string, toComplete string, offset int) ([]string, int, bool) {
 		currentArgIndex := len(args)
 		if currentArgIndex < offset {
+			//+gocover:ignore:block Custom validators cannot exceed args
 			return nil, count, false
 		}
 		if count > 0 {

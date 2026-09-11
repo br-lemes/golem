@@ -7,13 +7,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/database"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 )
 
-type bestResult struct {
+type BestResult struct {
 	Code  string
 	Value string
 }
@@ -24,7 +23,7 @@ type bestCtx struct {
 	OwnedItems      map[string]int
 	Equipped        map[string]string
 	AlreadyEquipped map[string]int
-	Result          map[string]bestResult
+	Result          map[string]BestResult
 	Skill           string
 	ValidItems      []schemas.ItemSchema
 	Weights         map[string]int
@@ -37,7 +36,11 @@ type EquipmentOptions struct {
 	Priorities      []string
 }
 
-func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) (map[string]bestResult, error) {
+func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) (map[string]BestResult, error) {
+	return findEquipment(defaultDeps, character, options)
+}
+
+func findEquipment(d deps, character schemas.CharacterSchema, options EquipmentOptions) (map[string]BestResult, error) {
 	priorities, err := NormalizePriorities(options.Priorities)
 	if err != nil {
 		return nil, err
@@ -60,7 +63,7 @@ func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) 
 		Weights:         weights,
 		UniqueAdeptRing: options.UniqueAdeptRing,
 	}
-	err = ctx.fetchItems(options.Owned)
+	err = ctx.fetchItems(d, options.Owned)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +73,11 @@ func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) 
 }
 
 func FindEquipmentSchemas(character schemas.CharacterSchema, options EquipmentOptions) ([]schemas.EquipSchema, error) {
-	result, err := FindEquipment(character, options)
+	return findEquipmentSchemas(defaultDeps, character, options)
+}
+
+func findEquipmentSchemas(d deps, character schemas.CharacterSchema, options EquipmentOptions) ([]schemas.EquipSchema, error) {
+	result, err := findEquipment(d, character, options)
 	if err != nil {
 		return nil, err
 	}
@@ -87,10 +94,10 @@ func FindEquipmentSchemas(character schemas.CharacterSchema, options EquipmentOp
 	return equipments, nil
 }
 
-func (c *bestCtx) fetchItems(owned map[string]int) error {
+func (c *bestCtx) fetchItems(d deps, owned map[string]int) error {
 	suppliedOwned := owned != nil
 	if owned == nil {
-		bankItems, err := api.MyBankItems()
+		bankItems, err := d.myBankItems()
 		if err != nil {
 			return err
 		}
@@ -167,7 +174,7 @@ func (c *bestCtx) filterAndSort() {
 func (c *bestCtx) matchEquipment() {
 	slots := slices.Collect(maps.Keys(database.EquipmentSlotToTypes))
 	slices.Sort(slots)
-	c.Result = make(map[string]bestResult)
+	c.Result = make(map[string]BestResult)
 	for i := 0; i < len(slots); {
 		itemType := database.EquipmentSlotToTypes[slots[i]]
 		j := i
@@ -180,7 +187,7 @@ func (c *bestCtx) matchEquipment() {
 				continue
 			}
 			item, _ := database.Items().Get(code)
-			c.Result[slot] = bestResult{Code: code, Value: c.formatItem(*item)}
+			c.Result[slot] = BestResult{Code: code, Value: c.formatItem(*item)}
 		}
 		i = j
 	}

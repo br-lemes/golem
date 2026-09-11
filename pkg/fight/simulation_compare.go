@@ -28,7 +28,12 @@ type SimulationDifference struct {
 }
 
 func CompareSimulations(request schemas.CombatSimulationRequestSchema, monster schemas.MonsterSchema, options SimulationOptions, includeLogs bool) (SimulationComparison, error) {
-	apiResults, err := SimulateAPI(request)
+	//+gocover:ignore:block public dependency wrapper
+	return compareSimulations(defaultDeps, request, monster, options, includeLogs)
+}
+
+func compareSimulations(d deps, request schemas.CombatSimulationRequestSchema, monster schemas.MonsterSchema, options SimulationOptions, includeLogs bool) (SimulationComparison, error) {
+	apiResults, err := simulateAPI(d, request)
 	if err != nil {
 		return SimulationComparison{}, err
 	}

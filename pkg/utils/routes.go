@@ -28,6 +28,7 @@ func GetRoute(targetPath string) (RouteData, error) {
 	loader := openapi3.NewLoader()
 	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return nil, err
 	}
 
@@ -145,6 +146,7 @@ func GetRoutes() ([]map[string]string, error) {
 	loader := openapi3.NewLoader()
 	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return nil, err
 	}
 

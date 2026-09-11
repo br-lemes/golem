@@ -56,6 +56,7 @@ func saveCharacter(name string, character schemas.CharacterSchema) {
 	}
 	data, err := json.Marshal(character)
 	if err != nil {
+		//+gocover:ignore:block CharacterSchema is always JSON serializable
 		return
 	}
 	cache.Save(&models.Character{Name: name, Data: string(data)})

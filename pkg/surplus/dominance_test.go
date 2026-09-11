@@ -73,6 +73,36 @@ func TestRealGlobalAndElementalDamageAreCombined(t *testing.T) {
 	}
 }
 
+func TestDominatesEquipmentRejectsIncompatibleItems(t *testing.T) {
+	superior := schemas.ItemSchema{Type: "weapon", Subtype: ""}
+	inferior := schemas.ItemSchema{Type: "armor", Subtype: ""}
+	if DominatesEquipment(superior, inferior) {
+		t.Fatal("DominatesEquipment() = true for incompatible items, want false")
+	}
+}
+
+func TestDominatesEquipmentUsesEffectDominance(t *testing.T) {
+	superior := itemWithEffects("superior", "attack_fire", 20)
+	inferior := itemWithEffects("inferior", "attack_fire", 10)
+	superior.Type = "weapon"
+	inferior.Type = "weapon"
+	if !DominatesEquipment(superior, inferior) {
+		t.Fatal("DominatesEquipment() = false, want true")
+	}
+}
+
+func TestDominatesEquipmentUsesToolValue(t *testing.T) {
+	superior := itemWithEffects("superior", "mining", 5)
+	inferior := itemWithEffects("inferior", "mining", 10)
+	superior.Subtype = "tool"
+	inferior.Subtype = "tool"
+	superior.Type = "tool"
+	inferior.Type = "tool"
+	if !DominatesEquipment(superior, inferior) {
+		t.Fatal("DominatesEquipment() = false for superior tool, want true")
+	}
+}
+
 func TestDominatesHandlesCooldownReduction(t *testing.T) {
 	superior := itemWithEffects("superior", "woodcutting", -20)
 	inferior := itemWithEffects("inferior", "woodcutting", -10)

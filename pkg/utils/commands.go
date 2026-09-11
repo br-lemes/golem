@@ -13,6 +13,7 @@ import (
 func GetCommands() (map[string][]map[string]string, error) {
 	routes, err := GetRoutes()
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return nil, err
 	}
 
@@ -58,6 +59,7 @@ func fetchReturnTypeFromSpec(method string, targetPath string) string {
 	loader := openapi3.NewLoader()
 	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return ""
 	}
 
@@ -74,20 +76,24 @@ func fetchReturnTypeFromSpec(method string, targetPath string) string {
 
 	responseRef := operation.Responses.Status(200)
 	if responseRef == nil {
+		//+gocover:ignore:block catalog responses define status 200
 		return "void"
 	}
 
 	response := responseRef.Value
 	if response == nil {
+		//+gocover:ignore:block catalog response references resolve
 		return "void"
 	}
 
 	jsonContent := response.Content.Get("application/json")
 	if jsonContent == nil {
+		//+gocover:ignore:block catalog responses use JSON content
 		return "void"
 	}
 
 	if jsonContent.Schema == nil {
+		//+gocover:ignore:block catalog JSON responses define schemas
 		return "void"
 	}
 
@@ -96,5 +102,6 @@ func fetchReturnTypeFromSpec(method string, targetPath string) string {
 		return path.Base(schemaRef.Ref)
 	}
 
+	//+gocover:ignore:block catalog response schemas use references
 	return "void"
 }

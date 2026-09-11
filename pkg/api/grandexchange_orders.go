@@ -36,6 +36,7 @@ func GrandexchangeOrder(id string) (schemas.GEOrderSchema, error) {
 func GrandexchangeOrders(options GrandexchangeOrdersOptions) ([]schemas.GEOrderSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
 		return nil, err
 	}
 

@@ -525,7 +525,7 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 			absorbed := 0
 			through := hit.damage
 			if playerTurn && defender.barrier > 0 {
-				absorbed = minInt(hit.damage, int(math.Round(defender.barrier)))
+				absorbed = min(hit.damage, int(math.Round(defender.barrier)))
 				through = hit.damage - absorbed
 				defender.barrier -= float64(absorbed)
 			}
@@ -631,7 +631,7 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 	if result.Turns == MaxTurns && p.hp > 0 && m.hp > 0 {
 		result.TimedOut = true
 	}
-	result.HPRemaining = minInt(naturalHP, maxInt(0, int(math.Round(p.hp))))
+	result.HPRemaining = min(naturalHP, maxInt(0, int(math.Round(p.hp))))
 	if result.Win {
 		logs = append(logs, fmt.Sprintf("Fight result: win. Character_1 HP: %d/%d vs %s HP: 0/%d", result.HPRemaining, naturalHP, monster.Name, monster.Hp))
 	} else if !result.TimedOut {
@@ -788,7 +788,7 @@ func randomBubbleElement(rng RNG, previous int) int {
 	if rng == nil {
 		return 0
 	}
-	element := minInt(3, int(rng()*4))
+	element := min(3, int(rng()*4))
 	if element == previous {
 		element = (element + 1) % 4
 	}
@@ -797,13 +797,6 @@ func randomBubbleElement(rng RNG, previous int) int {
 
 func maxInt(a, b int) int {
 	if a > b {
-		return a
-	}
-	return b
-}
-
-func minInt(a, b int) int {
-	if a < b {
 		return a
 	}
 	return b

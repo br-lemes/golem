@@ -20,6 +20,7 @@ func GetCooldown(targetPath string) (bool, error) {
 	loader := openapi3.NewLoader()
 	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return false, err
 	}
 
@@ -35,6 +36,7 @@ func GetCooldowns() (map[string]bool, error) {
 	loader := openapi3.NewLoader()
 	doc, err := loader.LoadFromData(database.OpenAPI())
 	if err != nil {
+		//+gocover:ignore:block embedded OpenAPI document is valid
 		return nil, err
 	}
 

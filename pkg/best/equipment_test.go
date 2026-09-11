@@ -1,6 +1,7 @@
 package best
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -97,7 +98,7 @@ func TestFetchItemsCountsEquippedUtilities(t *testing.T) {
 		Utility2SlotQuantity: 8,
 	}
 	ctx := bestCtx{Character: character}
-	err := ctx.fetchItems(map[string]int{})
+	err := ctx.fetchItems(defaultDeps, map[string]int{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,6 +107,39 @@ func TestFetchItemsCountsEquippedUtilities(t *testing.T) {
 	}
 	if ctx.AlreadyEquipped["small_mana_potion"] != 8 {
 		t.Fatalf("utility2 quantity = %d, want 8", ctx.AlreadyEquipped["small_mana_potion"])
+	}
+}
+
+func TestFindEquipmentPropagatesBankError(t *testing.T) {
+	want := errors.New("bank unavailable")
+	bankItems := func() ([]schemas.SimpleItemSchema, error) {
+		return nil, want
+	}
+	d := deps{myBankItems: bankItems}
+	_, err := findEquipment(d, schemas.CharacterSchema{}, EquipmentOptions{})
+	if !errors.Is(err, want) {
+		t.Fatalf("findEquipment() error = %v, want %v", err, want)
+	}
+}
+
+func TestFetchItemsAddsInventoryToBank(t *testing.T) {
+	inventory := make([]schemas.InventorySlotSchema, 1)
+	inventory[0] = schemas.InventorySlotSchema{Code: "iron_sword", Quantity: 2}
+	character := schemas.CharacterSchema{
+		Inventory:  &inventory,
+		WeaponSlot: "iron_sword",
+	}
+	c := bestCtx{Character: character}
+	bankItems := func() ([]schemas.SimpleItemSchema, error) {
+		return []schemas.SimpleItemSchema{{Code: "iron_sword", Quantity: 1}}, nil
+	}
+	d := deps{myBankItems: bankItems}
+	err := c.fetchItems(d, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.OwnedItems["iron_sword"] != 4 {
+		t.Fatalf("owned item count = %d, want 4", c.OwnedItems["iron_sword"])
 	}
 }
 

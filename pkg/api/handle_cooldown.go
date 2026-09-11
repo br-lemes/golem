@@ -1,3 +1,4 @@
+// +gocover:ignore:file cooldown is an intentional blocking side effect
 package api
 
 import (

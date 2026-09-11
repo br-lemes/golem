@@ -22,6 +22,7 @@ type HpOptions struct {
 }
 
 func Hp(character schemas.CharacterSchema, options HpOptions) (schemas.CharacterSchema, error) {
+	//+gocover:ignore:block production wrapper over tested implementation
 	return hp(defaultDeps, character, options)
 }
 
@@ -41,7 +42,8 @@ func hp(d deps, character schemas.CharacterSchema, hpOptions HpOptions) (schemas
 	}
 	foods := []FoodItem{}
 	for _, slot := range *character.Inventory {
-		if slot.Quantity <= 0 { //+gocover:ignore:block should not happen
+		if slot.Quantity <= 0 {
+			//+gocover:ignore:block inventory slots have positive quantities
 			continue
 		}
 		item, found := database.Items().Foods().Get(slot.Code)
@@ -49,7 +51,6 @@ func hp(d deps, character schemas.CharacterSchema, hpOptions HpOptions) (schemas
 			continue
 		}
 		if !found || !utils.MeetsItemConditions(character, *item) || item.Effects == nil {
-			//+gocover:ignore:block should not happen
 			continue
 		}
 		healValue := 0
@@ -59,7 +60,8 @@ func hp(d deps, character schemas.CharacterSchema, hpOptions HpOptions) (schemas
 				break
 			}
 		}
-		if healValue <= 0 { //+gocover:ignore:block should not happen
+		if healValue <= 0 {
+			//+gocover:ignore:block catalog foods have positive heal effects
 			continue
 		}
 		foods = append(foods, FoodItem{
@@ -83,7 +85,8 @@ func hp(d deps, character schemas.CharacterSchema, hpOptions HpOptions) (schemas
 		if qtyToUse > food.Quantity {
 			qtyToUse = food.Quantity
 		}
-		if qtyToUse <= 0 { //+gocover:ignore:block should not happen
+		if qtyToUse <= 0 {
+			//+gocover:ignore:block positive inputs make qtyToUse at least one
 			continue
 		}
 		useData, err := d.myActionUse(character.Name, schemas.SimpleItemSchema{
