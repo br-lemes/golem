@@ -54,7 +54,7 @@ func TestRecordHandlesDebugLevel(t *testing.T) {
 
 func TestOpenDatabaseReusesDatabaseForSameDay(t *testing.T) {
 	initializeTestLogs(t)
-	now := time.Now().UTC()
+	now := time.Date(2026, time.January, 1, 12, 0, 0, 0, time.UTC)
 	err := openDatabase(now)
 	if err != nil {
 		t.Fatal(err)
