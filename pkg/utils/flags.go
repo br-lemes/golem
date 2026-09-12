@@ -7,9 +7,18 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 func RegisterFlags[T any](cmd *cobra.Command) error {
+	return registerFlags[T](cmd.Flags())
+}
+
+func RegisterPersistentFlags[T any](cmd *cobra.Command) error {
+	return registerFlags[T](cmd.PersistentFlags())
+}
+
+func registerFlags[T any](flags *pflag.FlagSet) error {
 	_, fields, err := flagFields[T]()
 	if err != nil {
 		return err
@@ -24,9 +33,9 @@ func RegisterFlags[T any](cmd *cobra.Command) error {
 		switch field.Type.Kind() {
 		case reflect.String:
 			if shorthand == "" {
-				cmd.Flags().String(name, defaultValue, description)
+				flags.String(name, defaultValue, description)
 			} else {
-				cmd.Flags().StringP(name, shorthand, defaultValue, description)
+				flags.StringP(name, shorthand, defaultValue, description)
 			}
 		case reflect.Bool:
 			defaultBool, parseErr := parseBoolDefault(defaultValue, name)
@@ -34,9 +43,9 @@ func RegisterFlags[T any](cmd *cobra.Command) error {
 				return parseErr
 			}
 			if shorthand == "" {
-				cmd.Flags().Bool(name, defaultBool, description)
+				flags.Bool(name, defaultBool, description)
 			} else {
-				cmd.Flags().BoolP(name, shorthand, defaultBool, description)
+				flags.BoolP(name, shorthand, defaultBool, description)
 			}
 		case reflect.Int:
 			defaultInt, parseErr := parseIntDefault(defaultValue, name)
@@ -44,9 +53,9 @@ func RegisterFlags[T any](cmd *cobra.Command) error {
 				return parseErr
 			}
 			if shorthand == "" {
-				cmd.Flags().Int(name, defaultInt, description)
+				flags.Int(name, defaultInt, description)
 			} else {
-				cmd.Flags().IntP(name, shorthand, defaultInt, description)
+				flags.IntP(name, shorthand, defaultInt, description)
 			}
 		case reflect.Slice:
 			if field.Type != reflect.TypeOf([]string{}) {
@@ -57,9 +66,9 @@ func RegisterFlags[T any](cmd *cobra.Command) error {
 				values = strings.Split(defaultValue, ",")
 			}
 			if shorthand == "" {
-				cmd.Flags().StringSlice(name, values, description)
+				flags.StringSlice(name, values, description)
 			} else {
-				cmd.Flags().StringSliceP(name, shorthand, values, description)
+				flags.StringSliceP(name, shorthand, values, description)
 			}
 		default:
 			return fmt.Errorf("flag %q has unsupported type %s", name, field.Type)

@@ -3,7 +3,7 @@
 	"info": {
 		"title": "Artifacts API",
 		"description": "Artifacts is an API-based MMO game where you can manage 5 characters to explore, fight, gather resources, craft items and much more.\n\nWebsite: https://artifactsmmo.com/\n\nDocumentation: https://docs.artifactsmmo.com/\n\nOpenAPI Spec: https://api.artifactsmmo.com/openapi.json",
-		"version": "8.2.3"
+		"version": "8.2.4"
 	},
 	"paths": {
 		"/": {

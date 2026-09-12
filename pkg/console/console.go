@@ -16,16 +16,17 @@ import (
 )
 
 var (
-	Debug     bool      = false
-	Color     bool      = false
-	Format    string    = "auto"
-	Stderr    io.Writer = os.Stderr
-	Stdin     io.Reader = os.Stdin
-	Stdout    io.Writer = os.Stdout
-	Style     string    = "monokai"
-	Exclude   []string
-	Only      []string
-	ExcludeIf []string
+	Color        bool = false
+	Debug        bool = false
+	Exclude      []string
+	ExcludeIf    []string
+	Format       string = "auto"
+	Only         []string
+	Stderr       io.Writer = os.Stderr
+	Stdin        io.Reader = os.Stdin
+	Stdout       io.Writer = os.Stdout
+	Style        string    = "monokai"
+	ValidFormats           = []string{"auto", "json", "yaml"}
 )
 
 func Auto(data any) error {
