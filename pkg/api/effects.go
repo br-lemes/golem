@@ -14,6 +14,11 @@ const EffectsSize = 10000
 type EffectsOptions struct{}
 
 func Effects(options EffectsOptions) ([]schemas.EffectSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.Effects(options)
+}
+
+func (c *Client) Effects(options EffectsOptions) ([]schemas.EffectSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -25,7 +30,7 @@ func Effects(options EffectsOptions) ([]schemas.EffectSchema, error) {
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(EffectsSize))
 		path := fmt.Sprintf("/effects?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

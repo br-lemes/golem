@@ -17,6 +17,11 @@ type GrandexchangeHistoryOptions struct {
 }
 
 func GrandexchangeHistory(code string, options GrandexchangeHistoryOptions) ([]schemas.GEOrderHistorySchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.GrandexchangeHistory(code, options)
+}
+
+func (c *Client) GrandexchangeHistory(code string, options GrandexchangeHistoryOptions) ([]schemas.GEOrderHistorySchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -29,7 +34,7 @@ func GrandexchangeHistory(code string, options GrandexchangeHistoryOptions) ([]s
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(GrandexchangeHistorySize))
 		path := fmt.Sprintf("/grandexchange/history/%s?%s", url.PathEscape(code), params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

@@ -16,11 +16,9 @@ func TestAccountsCharactersUsesCachedCharacters(t *testing.T) {
 	}
 	cache.SaveCharacters(characters)
 
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusBadRequest, []byte(`{"error":{"message":"request not expected"}}`))
+	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"request not expected"}}`)))
 
-	got, err := AccountsCharacters("")
+	got, err := client.AccountsCharacters("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,16 +31,14 @@ func TestAccountsCharactersFetchesExplicitAccount(t *testing.T) {
 	cleanAccountCharactersCache(t)
 	cache.SaveAccount("account")
 
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = testClient(func(r *http.Request) ([]byte, error) {
+	client := newTestClient(testTransport(func(r *http.Request) ([]byte, error) {
 		if r.URL.Path != "/accounts/other/characters" {
 			t.Fatalf("path = %s, want other account path", r.URL.Path)
 		}
 		return []byte(`{"data":[{"name":"other"}]}`), nil
-	})
+	}))
 
-	got, err := AccountsCharacters("other")
+	got, err := client.AccountsCharacters("other")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,9 +50,7 @@ func TestAccountsCharactersFetchesExplicitAccount(t *testing.T) {
 func TestAccountsCharactersLoadsAccountFromDetails(t *testing.T) {
 	cleanAccountCharactersCache(t)
 
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = testClient(func(r *http.Request) ([]byte, error) {
+	client := newTestClient(testTransport(func(r *http.Request) ([]byte, error) {
 		switch r.URL.Path {
 		case "/my/details":
 			return []byte(`{"data":{"username":"loaded"}}`), nil
@@ -66,9 +60,9 @@ func TestAccountsCharactersLoadsAccountFromDetails(t *testing.T) {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 			return nil, nil
 		}
-	})
+	}))
 
-	got, err := AccountsCharacters("")
+	got, err := client.AccountsCharacters("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,11 +73,9 @@ func TestAccountsCharactersLoadsAccountFromDetails(t *testing.T) {
 
 func TestAccountsCharactersReturnsDetailsError(t *testing.T) {
 	cleanAccountCharactersCache(t)
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusBadRequest, []byte(`{"error":{"message":"details unavailable"}}`))
+	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"details unavailable"}}`)))
 
-	_, err := AccountsCharacters("")
+	_, err := client.AccountsCharacters("")
 	if err == nil {
 		t.Fatal("expected details error")
 	}
@@ -91,12 +83,10 @@ func TestAccountsCharactersReturnsDetailsError(t *testing.T) {
 
 func TestAccountsCharactersReturnsRequestError(t *testing.T) {
 	cleanAccountCharactersCache(t)
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
 	cache.SaveAccount("account")
-	defaultClient = responseClient(http.StatusBadRequest, []byte(`{"error":{"message":"characters unavailable"}}`))
+	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"characters unavailable"}}`)))
 
-	_, err := AccountsCharacters("other")
+	_, err := client.AccountsCharacters("other")
 	if err == nil {
 		t.Fatal("expected request error")
 	}
@@ -104,12 +94,10 @@ func TestAccountsCharactersReturnsRequestError(t *testing.T) {
 
 func TestAccountsCharactersReturnsJSONError(t *testing.T) {
 	cleanAccountCharactersCache(t)
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
 	cache.SaveAccount("account")
-	defaultClient = responseClient(http.StatusOK, []byte("invalid json"))
+	client := newTestClient(responseTransport(http.StatusOK, []byte("invalid json")))
 
-	_, err := AccountsCharacters("other")
+	_, err := client.AccountsCharacters("other")
 	if err == nil {
 		t.Fatal("expected JSON error")
 	}

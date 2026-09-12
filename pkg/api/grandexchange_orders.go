@@ -20,8 +20,13 @@ type GrandexchangeOrdersOptions struct {
 }
 
 func GrandexchangeOrder(id string) (schemas.GEOrderSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.GrandexchangeOrder(id)
+}
+
+func (c *Client) GrandexchangeOrder(id string) (schemas.GEOrderSchema, error) {
 	path := fmt.Sprintf("/grandexchange/orders/%s", url.PathEscape(id))
-	resp, err := Get(path, nil)
+	resp, err := c.Get(path, nil)
 	if err != nil {
 		return schemas.GEOrderSchema{}, err
 	}
@@ -34,6 +39,11 @@ func GrandexchangeOrder(id string) (schemas.GEOrderSchema, error) {
 }
 
 func GrandexchangeOrders(options GrandexchangeOrdersOptions) ([]schemas.GEOrderSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.GrandexchangeOrders(options)
+}
+
+func (c *Client) GrandexchangeOrders(options GrandexchangeOrdersOptions) ([]schemas.GEOrderSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -46,7 +56,7 @@ func GrandexchangeOrders(options GrandexchangeOrdersOptions) ([]schemas.GEOrderS
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(GrandexchangeOrdersSize))
 		path := fmt.Sprintf("/grandexchange/orders?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

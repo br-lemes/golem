@@ -10,9 +10,7 @@ import (
 )
 
 func TestSimulationFightSendsRequest(t *testing.T) {
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = testClient(func(r *http.Request) ([]byte, error) {
+	client := newTestClient(testTransport(func(r *http.Request) ([]byte, error) {
 		if r.Method != http.MethodPost {
 			t.Errorf("method = %s, want POST", r.Method)
 		}
@@ -28,9 +26,9 @@ func TestSimulationFightSendsRequest(t *testing.T) {
 			t.Errorf("body = %s, want %s", body, wantBody)
 		}
 		return []byte(`{"data":{}}`), nil
-	})
+	}))
 
-	got, err := SimulationFight(schemas.CombatSimulationRequestSchema{})
+	got, err := client.SimulationFight(schemas.CombatSimulationRequestSchema{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,22 +38,18 @@ func TestSimulationFightSendsRequest(t *testing.T) {
 }
 
 func TestSimulationFightReturnsRequestError(t *testing.T) {
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusBadRequest, []byte(`{"error":{"message":"simulation unavailable"}}`))
+	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"simulation unavailable"}}`)))
 
-	_, err := SimulationFight(schemas.CombatSimulationRequestSchema{})
+	_, err := client.SimulationFight(schemas.CombatSimulationRequestSchema{})
 	if err == nil {
 		t.Fatal("expected request error")
 	}
 }
 
 func TestSimulationFightReturnsJSONError(t *testing.T) {
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusOK, []byte("invalid json"))
+	client := newTestClient(responseTransport(http.StatusOK, []byte("invalid json")))
 
-	_, err := SimulationFight(schemas.CombatSimulationRequestSchema{})
+	_, err := client.SimulationFight(schemas.CombatSimulationRequestSchema{})
 	if err == nil {
 		t.Fatal("expected JSON error")
 	}

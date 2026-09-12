@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionMove(name string, x, y int) (schemas.CharacterMovementDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionMove(name, x, y)
+}
+
+func (c *Client) MyActionMove(name string, x, y int) (schemas.CharacterMovementDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/move", name)
-	resp, err := post(path, map[string]int{"x": x, "y": y})
+	resp, err := c.Post(path, map[string]int{"x": x, "y": y})
 	if err != nil {
 		return schemas.CharacterMovementDataSchema{}, err
 	}

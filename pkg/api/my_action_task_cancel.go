@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionTaskCancel(name string) (schemas.TaskCancelledSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionTaskCancel(name)
+}
+
+func (c *Client) MyActionTaskCancel(name string) (schemas.TaskCancelledSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/cancel", name)
-	resp, err := post(path, nil)
+	resp, err := c.Post(path, nil)
 	if err != nil {
 		return schemas.TaskCancelledSchema{}, err
 	}

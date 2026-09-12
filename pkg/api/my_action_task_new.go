@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionTaskNew(name string) (schemas.TaskDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionTaskNew(name)
+}
+
+func (c *Client) MyActionTaskNew(name string) (schemas.TaskDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/new", name)
-	resp, err := post(path, nil)
+	resp, err := c.Post(path, nil)
 	if err != nil {
 		return schemas.TaskDataSchema{}, err
 	}

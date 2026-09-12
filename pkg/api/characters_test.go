@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/cache"
@@ -11,7 +10,8 @@ import (
 
 func TestCharactersWildcardRequiresEnvironmentVariable(t *testing.T) {
 	t.Setenv("GOLEM_NAME", "")
-	_, err := Characters(".")
+	client := &Client{}
+	_, err := client.Characters(".")
 	if err == nil {
 		t.Fatal("expected GOLEM_NAME error")
 	}
@@ -25,15 +25,12 @@ func TestCharactersReturnsCachedCharacter(t *testing.T) {
 	character := schemas.CharacterSchema{Name: "gandalf", Account: "account"}
 	cache.SaveCharacter(character)
 	called := false
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	client := newTestClient(roundTripFunc(func(r *http.Request) (*http.Response, error) {
 		called = true
+		return testResponse(http.StatusOK, nil), nil
 	}))
-	defer server.Close()
-	previousURL := baseURL
-	baseURL = server.URL
-	defer func() { baseURL = previousURL }()
 
-	got, err := Characters("gandalf")
+	got, err := client.Characters("gandalf")
 	if err != nil {
 		t.Fatalf("get cached character: %v", err)
 	}
@@ -45,19 +42,14 @@ func TestCharactersReturnsCachedCharacter(t *testing.T) {
 func TestCharactersFetchesAndCachesCharacter(t *testing.T) {
 	cache.SaveAccount("account")
 	cache.CleanCharacter("gandalf")
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+	client := newTestClient(roundTripFunc(func(r *http.Request) (*http.Response, error) {
 		if r.URL.Path != "/characters/gandalf" {
 			t.Errorf("request path = %q", r.URL.Path)
 		}
-		_, _ = w.Write([]byte(`{"data":{"name":"gandalf","account":"account"},"status":"success"}`))
+		return testResponse(http.StatusOK, []byte(`{"data":{"name":"gandalf","account":"account"},"status":"success"}`)), nil
 	}))
-	defer server.Close()
-	previousURL := baseURL
-	baseURL = server.URL
-	defer func() { baseURL = previousURL }()
 
-	got, err := Characters("gandalf")
+	got, err := client.Characters("gandalf")
 	if err != nil {
 		t.Fatalf("fetch character: %v", err)
 	}
@@ -71,16 +63,11 @@ func TestCharactersFetchesAndCachesCharacter(t *testing.T) {
 
 func TestCharactersReturnsRequestError(t *testing.T) {
 	cache.CleanCharacter("gandalf")
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-		_, _ = w.Write([]byte(`{"error":{"message":"not found"}}`))
+	client := newTestClient(roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		return testResponse(http.StatusNotFound, []byte(`{"error":{"message":"not found"}}`)), nil
 	}))
-	defer server.Close()
-	previousURL := baseURL
-	baseURL = server.URL
-	defer func() { baseURL = previousURL }()
 
-	_, err := Characters("gandalf")
+	_, err := client.Characters("gandalf")
 	if err == nil {
 		t.Fatal("expected request error")
 	}
@@ -88,16 +75,11 @@ func TestCharactersReturnsRequestError(t *testing.T) {
 
 func TestCharactersReturnsJSONError(t *testing.T) {
 	cache.CleanCharacter("gandalf")
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"data":,"status":"success"}`))
+	client := newTestClient(roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		return testResponse(http.StatusOK, []byte(`{"data":,"status":"success"}`)), nil
 	}))
-	defer server.Close()
-	previousURL := baseURL
-	baseURL = server.URL
-	defer func() { baseURL = previousURL }()
 
-	_, err := Characters("gandalf")
+	_, err := client.Characters("gandalf")
 	if err == nil {
 		t.Fatal("expected JSON error")
 	}

@@ -9,9 +9,14 @@ import (
 )
 
 func AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.AccountsCharacters(account)
+}
+
+func (c *Client) AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
 	myAccount := cache.GetAccount()
 	if myAccount == "" {
-		_, err := MyDetails()
+		_, err := c.MyDetails()
 		if err != nil {
 			return nil, err
 		}
@@ -26,7 +31,7 @@ func AccountsCharacters(account string) ([]schemas.CharacterSchema, error) {
 			return characters, nil
 		}
 	}
-	resp, err := Get(fmt.Sprintf("/accounts/%s/characters", account), nil)
+	resp, err := c.Get(fmt.Sprintf("/accounts/%s/characters", account), nil)
 	if err != nil {
 		return nil, err
 	}

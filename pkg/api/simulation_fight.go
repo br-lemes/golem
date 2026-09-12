@@ -7,7 +7,12 @@ import (
 )
 
 func SimulationFight(request schemas.CombatSimulationRequestSchema) (schemas.CombatSimulationDataSchema, error) {
-	resp, err := post("/simulation/fight", request)
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.SimulationFight(request)
+}
+
+func (c *Client) SimulationFight(request schemas.CombatSimulationRequestSchema) (schemas.CombatSimulationDataSchema, error) {
+	resp, err := c.Post("/simulation/fight", request)
 	if err != nil {
 		return schemas.CombatSimulationDataSchema{}, err
 	}

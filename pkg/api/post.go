@@ -8,7 +8,7 @@ import (
 )
 
 func Post(path string, data any) ([]byte, error) {
-	resp, err := post(path, data)
+	resp, err := defaultClient.Post(path, data)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func Post(path string, data any) ([]byte, error) {
 	return resp, nil
 }
 
-func post(path string, data any) ([]byte, error) {
+func (c *Client) Post(path string, data any) ([]byte, error) {
 	var body []byte
 	var err error
 	if data != nil {
@@ -30,5 +30,5 @@ func post(path string, data any) ([]byte, error) {
 			return nil, err
 		}
 	}
-	return Request(http.MethodPost, path, body)
+	return c.Request(http.MethodPost, path, body)
 }

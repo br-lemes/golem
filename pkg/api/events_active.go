@@ -10,10 +10,15 @@ import (
 const EventsActiveSize = 10000
 
 func EventsActive() ([]schemas.ActiveEventSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.EventsActive()
+}
+
+func (c *Client) EventsActive() ([]schemas.ActiveEventSchema, error) {
 	result := []schemas.ActiveEventSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/events/active?page=%d&size=%d", page, EventsActiveSize), nil)
+		resp, err := c.Get(fmt.Sprintf("/events/active?page=%d&size=%d", page, EventsActiveSize), nil)
 		if err != nil {
 			return nil, err
 		}

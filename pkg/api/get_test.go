@@ -33,19 +33,17 @@ func TestGetBuildsQuery(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			oldClient := defaultClient
-			t.Cleanup(func() { defaultClient = oldClient })
-			defaultClient = testClient(func(r *http.Request) ([]byte, error) {
+			client := newTestClient(roundTripFunc(func(r *http.Request) (*http.Response, error) {
 				if r.Method != http.MethodGet {
 					t.Errorf("method = %s, want GET", r.Method)
 				}
 				if r.URL.RequestURI() != test.want {
 					t.Errorf("request URI = %s, want %s", r.URL.RequestURI(), test.want)
 				}
-				return []byte(`result`), nil
-			})
+				return testResponse(http.StatusOK, []byte(`result`)), nil
+			}))
 
-			got, err := Get("/items", test.data)
+			got, err := client.Get("/items", test.data)
 			if err != nil {
 				t.Fatal(err)
 			}

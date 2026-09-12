@@ -21,6 +21,11 @@ type MapsOptions struct {
 }
 
 func Maps(options MapsOptions) ([]schemas.MapSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.Maps(options)
+}
+
+func (c *Client) Maps(options MapsOptions) ([]schemas.MapSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -32,7 +37,7 @@ func Maps(options MapsOptions) ([]schemas.MapSchema, error) {
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(MapsSize))
 		path := fmt.Sprintf("/maps?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

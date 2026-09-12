@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionBankDepositItem(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionBankDepositItem(name, items)
+}
+
+func (c *Client) MyActionBankDepositItem(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/bank/deposit/item", name)
-	resp, err := post(path, items)
+	resp, err := c.Post(path, items)
 	if err != nil {
 		return schemas.BankItemTransactionSchema{}, err
 	}

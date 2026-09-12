@@ -11,6 +11,11 @@ import (
 const MyBankItemsSize = 100
 
 func MyBankItems() ([]schemas.SimpleItemSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyBankItems()
+}
+
+func (c *Client) MyBankItems() ([]schemas.SimpleItemSchema, error) {
 	bankItems := cache.GetBankItems()
 	if bankItems != nil {
 		return bankItems, nil
@@ -18,7 +23,7 @@ func MyBankItems() ([]schemas.SimpleItemSchema, error) {
 	result := []schemas.SimpleItemSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/my/bank/items?page=%d&size=%d", page, MyBankItemsSize), nil)
+		resp, err := c.Get(fmt.Sprintf("/my/bank/items?page=%d&size=%d", page, MyBankItemsSize), nil)
 		if err != nil {
 			return nil, err
 		}

@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionBankDepositGold(name string, quantity int) (schemas.BankGoldTransactionSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionBankDepositGold(name, quantity)
+}
+
+func (c *Client) MyActionBankDepositGold(name string, quantity int) (schemas.BankGoldTransactionSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/bank/deposit/gold", name)
-	resp, err := post(path, schemas.GoldSchema{Quantity: quantity})
+	resp, err := c.Post(path, schemas.GoldSchema{Quantity: quantity})
 	if err != nil {
 		return schemas.BankGoldTransactionSchema{}, err
 	}

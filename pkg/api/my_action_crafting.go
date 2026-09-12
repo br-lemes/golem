@@ -10,10 +10,15 @@ import (
 )
 
 func MyActionCrafting(name string, item schemas.SimpleItemSchema) (schemas.SkillDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionCrafting(name, item)
+}
+
+func (c *Client) MyActionCrafting(name string, item schemas.SimpleItemSchema) (schemas.SkillDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/crafting", name)
-	resp, err := post(path, item)
+	resp, err := c.Post(path, item)
 	if err != nil {
 		return schemas.SkillDataSchema{}, err
 	}

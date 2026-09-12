@@ -6,22 +6,10 @@ import (
 )
 
 func Initialize(apiConfig config.API) (string, bool) {
-	token = apiConfig.Token
-	baseURL = apiURL(apiConfig.Environment)
-	if token == "" {
-		token = console.Input("Enter your token")
-		return token, true
+	defaultClient = NewClient(apiConfig)
+	if defaultClient.Token == "" {
+		defaultClient.Token = console.Input("Enter your token")
+		return defaultClient.Token, true
 	}
-	return token, false
-}
-
-func apiURL(environment string) string {
-	switch environment {
-	case "sandbox":
-		return "https://api.sandbox.artifactsmmo.com"
-	case "beta":
-		return "https://api.beta.artifactsmmo.com"
-	default:
-		return "https://api.artifactsmmo.com"
-	}
+	return defaultClient.Token, false
 }

@@ -19,6 +19,11 @@ type ResourcesOptions struct {
 }
 
 func Resources(options ResourcesOptions) ([]schemas.ResourceSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.Resources(options)
+}
+
+func (c *Client) Resources(options ResourcesOptions) ([]schemas.ResourceSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -30,7 +35,7 @@ func Resources(options ResourcesOptions) ([]schemas.ResourceSchema, error) {
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(ResourcesSize))
 		path := fmt.Sprintf("/resources?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

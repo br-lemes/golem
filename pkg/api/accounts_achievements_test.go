@@ -12,16 +12,14 @@ func TestAccountsAchievementsUsesCachedAccount(t *testing.T) {
 	cache.SaveAccount("cached")
 	t.Cleanup(cache.CleanAccount)
 
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = testClient(func(r *http.Request) ([]byte, error) {
+	client := newTestClient(testTransport(func(r *http.Request) ([]byte, error) {
 		if r.URL.Path != "/accounts/cached/achievements" {
 			t.Fatalf("path = %s, want cached account path", r.URL.Path)
 		}
 		return []byte(`{"data":[],"pages":1}`), nil
-	})
+	}))
 
-	got, err := AccountsAchievements("")
+	got, err := client.AccountsAchievements("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,9 +32,7 @@ func TestAccountsAchievementsLoadsAccountFromDetails(t *testing.T) {
 	cache.CleanAccount()
 	t.Cleanup(cache.CleanAccount)
 
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = testClient(func(r *http.Request) ([]byte, error) {
+	client := newTestClient(testTransport(func(r *http.Request) ([]byte, error) {
 		switch r.URL.Path {
 		case "/my/details":
 			return []byte(`{"data":{"username":"loaded"}}`), nil
@@ -46,9 +42,9 @@ func TestAccountsAchievementsLoadsAccountFromDetails(t *testing.T) {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 			return nil, nil
 		}
-	})
+	}))
 
-	got, err := AccountsAchievements("")
+	got, err := client.AccountsAchievements("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,12 +57,18 @@ func TestAccountsAchievementsReturnsDetailsError(t *testing.T) {
 	cache.CleanAccount()
 	t.Cleanup(cache.CleanAccount)
 
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusBadRequest, []byte(`{"error":{"message":"details unavailable"}}`))
+	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"details unavailable"}}`)))
 
-	_, err := AccountsAchievements("")
+	_, err := client.AccountsAchievements("")
 	if err == nil {
 		t.Fatal("expected details error")
 	}
+}
+
+func TestAccountsAchievementsPagination(t *testing.T) {
+	testPaginatedEndpoint(t, "/accounts/test/achievements", AccountsAchievementsSize, func(client *Client) (int, error) {
+		cache.CleanAccount()
+		items, err := client.AccountsAchievements("test")
+		return len(items), err
+	})
 }

@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionRecycling(name string, item schemas.RecyclingSchema) (schemas.RecyclingDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionRecycling(name, item)
+}
+
+func (c *Client) MyActionRecycling(name string, item schemas.RecyclingSchema) (schemas.RecyclingDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/recycling", name)
-	resp, err := post(path, item)
+	resp, err := c.Post(path, item)
 	if err != nil {
 		return schemas.RecyclingDataSchema{}, err
 	}

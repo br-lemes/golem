@@ -11,10 +11,15 @@ import (
 const AccountsAchievementsSize = 100
 
 func AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.AccountsAchievements(account)
+}
+
+func (c *Client) AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, error) {
 	if account == "" {
 		account = cache.GetAccount()
 		if account == "" {
-			_, err := MyDetails()
+			_, err := c.MyDetails()
 			if err != nil {
 				return nil, err
 			}
@@ -24,7 +29,7 @@ func AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, e
 	result := []schemas.AccountAchievementSchema{}
 	page := 1
 	for {
-		resp, err := Get(fmt.Sprintf("/accounts/%s/achievements?page=%d&size=%d", account, page, AccountsAchievementsSize), nil)
+		resp, err := c.Get(fmt.Sprintf("/accounts/%s/achievements?page=%d&size=%d", account, page, AccountsAchievementsSize), nil)
 		if err != nil {
 			return nil, err
 		}

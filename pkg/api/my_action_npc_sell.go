@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionNPCSell(name string, item schemas.SimpleItemSchema) (schemas.NpcMerchantTransactionSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionNPCSell(name, item)
+}
+
+func (c *Client) MyActionNPCSell(name string, item schemas.SimpleItemSchema) (schemas.NpcMerchantTransactionSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/npc/sell", name)
-	resp, err := post(path, item)
+	resp, err := c.Post(path, item)
 	if err != nil {
 		return schemas.NpcMerchantTransactionSchema{}, err
 	}

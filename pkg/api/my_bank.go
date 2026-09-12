@@ -8,11 +8,16 @@ import (
 )
 
 func MyBank() (schemas.BankSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyBank()
+}
+
+func (c *Client) MyBank() (schemas.BankSchema, error) {
 	bank := cache.GetBank()
 	if bank != nil {
 		return *bank, nil
 	}
-	resp, err := Get("/my/bank", nil)
+	resp, err := c.Get("/my/bank", nil)
 	if err != nil {
 		return schemas.BankSchema{}, err
 	}

@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionRest(name string) (schemas.CharacterRestDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionRest(name)
+}
+
+func (c *Client) MyActionRest(name string) (schemas.CharacterRestDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/rest", name)
-	resp, err := post(path, nil)
+	resp, err := c.Post(path, nil)
 	if err != nil {
 		return schemas.CharacterRestDataSchema{}, err
 	}

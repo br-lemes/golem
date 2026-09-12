@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionTaskComplete(name string) (schemas.RewardDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionTaskComplete(name)
+}
+
+func (c *Client) MyActionTaskComplete(name string) (schemas.RewardDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/complete", name)
-	resp, err := post(path, nil)
+	resp, err := c.Post(path, nil)
 	if err != nil {
 		return schemas.RewardDataSchema{}, err
 	}

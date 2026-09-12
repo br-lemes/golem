@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionUse(name string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionUse(name, item)
+}
+
+func (c *Client) MyActionUse(name string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/use", name)
-	resp, err := post(path, item)
+	resp, err := c.Post(path, item)
 	if err != nil {
 		return schemas.UseItemSchema{}, err
 	}

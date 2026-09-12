@@ -6,6 +6,11 @@ import (
 )
 
 func Get(path string, data map[string]string) ([]byte, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.Get(path, data)
+}
+
+func (c *Client) Get(path string, data map[string]string) ([]byte, error) {
 	if len(data) > 0 {
 		values := url.Values{}
 		for key, val := range data {
@@ -18,5 +23,5 @@ func Get(path string, data map[string]string) ([]byte, error) {
 			path = path + "?" + queryString
 		}
 	}
-	return Request(http.MethodGet, path, nil)
+	return c.Request(http.MethodGet, path, nil)
 }

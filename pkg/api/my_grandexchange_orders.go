@@ -17,6 +17,11 @@ type MyGrandexchangeOrdersOptions struct {
 }
 
 func MyGrandexchangeOrders(options MyGrandexchangeOrdersOptions) ([]schemas.GEOrderSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyGrandexchangeOrders(options)
+}
+
+func (c *Client) MyGrandexchangeOrders(options MyGrandexchangeOrdersOptions) ([]schemas.GEOrderSchema, error) {
 	result := []schemas.GEOrderSchema{}
 	params, err := query.Values(options)
 	if err != nil {
@@ -28,7 +33,7 @@ func MyGrandexchangeOrders(options MyGrandexchangeOrdersOptions) ([]schemas.GEOr
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(MyGrandexchangeOrdersSize))
 		path := fmt.Sprintf("/my/grandexchange/orders?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

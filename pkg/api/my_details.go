@@ -8,7 +8,12 @@ import (
 )
 
 func MyDetails() (schemas.MyAccountDetails, error) {
-	resp, err := Get("/my/details", nil)
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyDetails()
+}
+
+func (c *Client) MyDetails() (schemas.MyAccountDetails, error) {
+	resp, err := c.Get("/my/details", nil)
 	if err != nil {
 		return schemas.MyAccountDetails{}, err
 	}

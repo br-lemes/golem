@@ -19,6 +19,11 @@ type MonstersOptions struct {
 }
 
 func Monsters(options MonstersOptions) ([]schemas.MonsterSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.Monsters(options)
+}
+
+func (c *Client) Monsters(options MonstersOptions) ([]schemas.MonsterSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -30,7 +35,7 @@ func Monsters(options MonstersOptions) ([]schemas.MonsterSchema, error) {
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(MonstersSize))
 		path := fmt.Sprintf("/monsters?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

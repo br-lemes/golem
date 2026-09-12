@@ -38,15 +38,13 @@ func TestMyActionFight(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			cache.CleanCharacters()
 			t.Cleanup(cache.CleanCharacters)
-			oldClient := defaultClient
-			oldStdout := console.Stdout
-			t.Cleanup(func() {
-				defaultClient = oldClient
-				console.Stdout = oldStdout
-			})
 			output := &bytes.Buffer{}
-			console.Stdout = output
-			defaultClient = testClient(func(r *http.Request) ([]byte, error) {
+			client := newTestClient(testTransport(func(r *http.Request) ([]byte, error) {
+				oldStdout := console.Stdout
+				t.Cleanup(func() {
+					console.Stdout = oldStdout
+				})
+				console.Stdout = output
 				if r.Method != http.MethodPost || r.URL.Path != "/my/hero/action/fight" {
 					t.Errorf("request = %s %s, want POST /my/hero/action/fight", r.Method, r.URL.Path)
 				}
@@ -64,10 +62,10 @@ func TestMyActionFight(t *testing.T) {
 				}
 				response := `{"data":{"characters":[],"fight":{"result":"` + test.result + `","characters":[` + fightCharacters + `]}}}`
 				return []byte(response), nil
-			})
+			}))
 
 			participants := []string{"ally"}
-			_, err := MyActionFight("hero", participants)
+			_, err := client.MyActionFight("hero", participants)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -79,16 +77,14 @@ func TestMyActionFight(t *testing.T) {
 }
 
 func TestMyActionFightReturnsErrors(t *testing.T) {
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusBadRequest, []byte(`{"error":{"message":"fight unavailable"}}`))
-	_, err := MyActionFight("hero", nil)
+	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"fight unavailable"}}`)))
+	_, err := client.MyActionFight("hero", nil)
 	if err == nil {
 		t.Fatal("expected request error")
 	}
 
-	defaultClient = responseClient(http.StatusOK, []byte("invalid json"))
-	_, err = MyActionFight("hero", nil)
+	client = newTestClient(responseTransport(http.StatusOK, []byte("invalid json")))
+	_, err = client.MyActionFight("hero", nil)
 	if err == nil {
 		t.Fatal("expected JSON error")
 	}

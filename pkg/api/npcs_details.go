@@ -19,6 +19,11 @@ type NpcsDetailsOptions struct {
 }
 
 func NpcsDetails(options NpcsDetailsOptions) ([]schemas.NPCSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.NpcsDetails(options)
+}
+
+func (c *Client) NpcsDetails(options NpcsDetailsOptions) ([]schemas.NPCSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -30,7 +35,7 @@ func NpcsDetails(options NpcsDetailsOptions) ([]schemas.NPCSchema, error) {
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(NpcsDetailsSize))
 		path := fmt.Sprintf("/npcs/details?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

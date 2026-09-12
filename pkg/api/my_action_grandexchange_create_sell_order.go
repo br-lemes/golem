@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionGrandexchangeCreateSellOrder(name string, order schemas.GEOrderCreationSchema) (schemas.GEOrderTransactionSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionGrandexchangeCreateSellOrder(name, order)
+}
+
+func (c *Client) MyActionGrandexchangeCreateSellOrder(name string, order schemas.GEOrderCreationSchema) (schemas.GEOrderTransactionSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/grandexchange/create_sell_order", name)
-	resp, err := post(path, order)
+	resp, err := c.Post(path, order)
 	if err != nil {
 		return schemas.GEOrderTransactionSchema{}, err
 	}

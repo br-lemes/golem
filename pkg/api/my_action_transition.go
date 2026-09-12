@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionTransition(name string) (schemas.CharacterTransitionDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionTransition(name)
+}
+
+func (c *Client) MyActionTransition(name string) (schemas.CharacterTransitionDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/transition", name)
-	resp, err := post(path, nil)
+	resp, err := c.Post(path, nil)
 	if err != nil {
 		return schemas.CharacterTransitionDataSchema{}, err
 	}

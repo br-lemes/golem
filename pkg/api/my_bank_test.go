@@ -14,11 +14,9 @@ func TestMyBankReturnsCachedBank(t *testing.T) {
 	bank := schemas.BankSchema{}
 	cache.SaveBank(bank)
 
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusBadRequest, []byte(`{"error":{"message":"request not expected"}}`))
+	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"request not expected"}}`)))
 
-	got, err := MyBank()
+	got, err := client.MyBank()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,16 +29,14 @@ func TestMyBankFetchesAndCachesBank(t *testing.T) {
 	cache.CleanBank()
 	t.Cleanup(cache.CleanBank)
 
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = testClient(func(r *http.Request) ([]byte, error) {
+	client := newTestClient(testTransport(func(r *http.Request) ([]byte, error) {
 		if r.URL.Path != "/my/bank" {
 			t.Fatalf("path = %s, want /my/bank", r.URL.Path)
 		}
 		return []byte(`{"data":{}}`), nil
-	})
+	}))
 
-	got, err := MyBank()
+	got, err := client.MyBank()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,11 +51,9 @@ func TestMyBankFetchesAndCachesBank(t *testing.T) {
 func TestMyBankReturnsRequestError(t *testing.T) {
 	cache.CleanBank()
 	t.Cleanup(cache.CleanBank)
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusBadRequest, []byte(`{"error":{"message":"bank unavailable"}}`))
+	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"bank unavailable"}}`)))
 
-	_, err := MyBank()
+	_, err := client.MyBank()
 	if err == nil {
 		t.Fatal("expected request error")
 	}
@@ -68,11 +62,9 @@ func TestMyBankReturnsRequestError(t *testing.T) {
 func TestMyBankReturnsJSONError(t *testing.T) {
 	cache.CleanBank()
 	t.Cleanup(cache.CleanBank)
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusOK, []byte("invalid json"))
+	client := newTestClient(responseTransport(http.StatusOK, []byte("invalid json")))
 
-	_, err := MyBank()
+	_, err := client.MyBank()
 	if err == nil {
 		t.Fatal("expected JSON error")
 	}

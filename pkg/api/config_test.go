@@ -9,7 +9,7 @@ import (
 	"github.com/br-lemes/golem/pkg/console"
 )
 
-func TestAPIURL(t *testing.T) {
+func TestNewClientEnvironment(t *testing.T) {
 	tests := []struct {
 		environment string
 		want        string
@@ -21,20 +21,18 @@ func TestAPIURL(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.environment, func(t *testing.T) {
-			got := apiURL(test.environment)
+			got := NewClient(config.API{Environment: test.environment}).BaseURL
 			if got != test.want {
-				t.Fatalf("apiURL(%q) = %q, want %q", test.environment, got, test.want)
+				t.Fatalf("NewClient(%q).BaseURL = %q, want %q", test.environment, got, test.want)
 			}
 		})
 	}
 }
 
 func TestInitializeWithToken(t *testing.T) {
-	oldToken := token
-	oldBaseURL := baseURL
+	oldClient := defaultClient
 	t.Cleanup(func() {
-		token = oldToken
-		baseURL = oldBaseURL
+		defaultClient = oldClient
 	})
 
 	apiConfig := config.API{Environment: "sandbox", Token: "secret"}
@@ -46,19 +44,17 @@ func TestInitializeWithToken(t *testing.T) {
 		t.Fatal("Initialize() prompted with a configured token")
 	}
 	wantURL := "https://api.sandbox.artifactsmmo.com"
-	if baseURL != wantURL {
-		t.Fatalf("baseURL = %q, want sandbox URL", baseURL)
+	if defaultClient.BaseURL != wantURL {
+		t.Fatalf("BaseURL = %q, want sandbox URL", defaultClient.BaseURL)
 	}
 }
 
 func TestInitializeReadsMissingToken(t *testing.T) {
-	oldToken := token
-	oldBaseURL := baseURL
+	oldClient := defaultClient
 	oldStdin := console.Stdin
 	oldStdout := console.Stdout
 	t.Cleanup(func() {
-		token = oldToken
-		baseURL = oldBaseURL
+		defaultClient = oldClient
 		console.Stdin = oldStdin
 		console.Stdout = oldStdout
 	})
@@ -72,7 +68,7 @@ func TestInitializeReadsMissingToken(t *testing.T) {
 	if !prompted {
 		t.Fatal("Initialize() did not report prompting")
 	}
-	if baseURL != "https://api.beta.artifactsmmo.com" {
-		t.Fatalf("baseURL = %q, want beta URL", baseURL)
+	if defaultClient.BaseURL != "https://api.beta.artifactsmmo.com" {
+		t.Fatalf("BaseURL = %q, want beta URL", defaultClient.BaseURL)
 	}
 }

@@ -16,6 +16,11 @@ type EventsOptions struct {
 }
 
 func Events(options EventsOptions) ([]schemas.EventSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.Events(options)
+}
+
+func (c *Client) Events(options EventsOptions) ([]schemas.EventSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -27,7 +32,7 @@ func Events(options EventsOptions) ([]schemas.EventSchema, error) {
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(EventsSize))
 		path := fmt.Sprintf("/events?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

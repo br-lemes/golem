@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionTaskTrade(name string, item schemas.SimpleItemSchema) (schemas.TaskTradeDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionTaskTrade(name, item)
+}
+
+func (c *Client) MyActionTaskTrade(name string, item schemas.SimpleItemSchema) (schemas.TaskTradeDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/task/trade", name)
-	resp, err := post(path, item)
+	resp, err := c.Post(path, item)
 	if err != nil {
 		return schemas.TaskTradeDataSchema{}, err
 	}

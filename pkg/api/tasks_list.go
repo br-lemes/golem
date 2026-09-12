@@ -19,6 +19,11 @@ type TasksListOptions struct {
 }
 
 func TasksList(options TasksListOptions) ([]schemas.TaskFullSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.TasksList(options)
+}
+
+func (c *Client) TasksList(options TasksListOptions) ([]schemas.TaskFullSchema, error) {
 	params, err := query.Values(options)
 	if err != nil {
 		//+gocover:ignore:block typed options cannot fail query encoding
@@ -30,7 +35,7 @@ func TasksList(options TasksListOptions) ([]schemas.TaskFullSchema, error) {
 		params.Set("page", strconv.Itoa(page))
 		params.Set("size", strconv.Itoa(TasksListSize))
 		path := fmt.Sprintf("/tasks/list?%s", params.Encode())
-		resp, err := Get(path, nil)
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}

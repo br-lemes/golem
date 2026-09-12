@@ -6,11 +6,9 @@ import (
 )
 
 func TestMyDetailsReturnsJSONError(t *testing.T) {
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
-	defaultClient = responseClient(http.StatusOK, []byte("invalid json"))
+	client := newTestClient(responseTransport(http.StatusOK, []byte("invalid json")))
 
-	_, err := MyDetails()
+	_, err := client.MyDetails()
 	if err == nil {
 		t.Fatal("expected JSON error")
 	}

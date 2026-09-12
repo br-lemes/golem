@@ -46,17 +46,13 @@ func TestExecuteSuccess(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL:     server.URL,
-		body:        []byte(`{}`),
-		client:      server.Client(),
-		initialWait: 1 * time.Millisecond,
-		maxWait:     8 * time.Millisecond,
-		method:      http.MethodPost,
-		path:        "/test",
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
+	client.InitialWait = time.Millisecond
+	client.MaxWait = 8 * time.Millisecond
 
-	resp, err := ctx.execute()
+	resp, err := client.Request(http.MethodPost, "/test", []byte(`{}`))
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -74,17 +70,13 @@ func TestExecuteClientError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL:     server.URL,
-		body:        []byte(`{}`),
-		client:      server.Client(),
-		initialWait: 1 * time.Millisecond,
-		maxWait:     8 * time.Millisecond,
-		method:      http.MethodPost,
-		path:        "/test",
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
+	client.InitialWait = time.Millisecond
+	client.MaxWait = 8 * time.Millisecond
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodPost, "/test", []byte(`{}`))
 	if err == nil {
 		t.Fatal("expected client error, got nil")
 	}
@@ -103,18 +95,14 @@ func TestExecuteMaxRetriesReached(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL:     server.URL,
-		body:        []byte(`{}`),
-		client:      server.Client(),
-		initialWait: 1 * time.Millisecond,
-		maxRetries:  2,
-		maxWait:     8 * time.Millisecond,
-		method:      http.MethodGet,
-		path:        "/test",
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
+	client.InitialWait = time.Millisecond
+	client.MaxRetries = 2
+	client.MaxWait = 8 * time.Millisecond
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodGet, "/test", []byte(`{}`))
 	if err == nil {
 		t.Fatal("expected error due to max retries, got nil")
 	}
@@ -133,18 +121,14 @@ func TestExecuteInvalidContentTypeBackoff(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL:     server.URL,
-		body:        []byte(`{}`),
-		client:      server.Client(),
-		initialWait: 1 * time.Millisecond,
-		maxRetries:  1,
-		maxWait:     8 * time.Millisecond,
-		method:      http.MethodGet,
-		path:        "/test",
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
+	client.InitialWait = time.Millisecond
+	client.MaxRetries = 1
+	client.MaxWait = 8 * time.Millisecond
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodGet, "/test", []byte(`{}`))
 	if err == nil {
 		t.Fatal("expected error after non-json backoff retry limit, got nil")
 	}
@@ -158,14 +142,12 @@ func TestExecuteCooldownActivated(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL:     server.URL,
-		client:      server.Client(),
-		method:      http.MethodPost,
-		initialWait: 1 * time.Millisecond,
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
+	client.InitialWait = time.Millisecond
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodPost, "", nil)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -179,13 +161,11 @@ func TestExecuteClientErrorFallback(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL: server.URL,
-		client:  server.Client(),
-		method:  http.MethodGet,
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodGet, "", nil)
 	expectedMsg := "Client error: 418 I'm a teapot (Status: 418)"
 	if err == nil || err.Error() != expectedMsg {
 		t.Errorf("expected %q, got %v", expectedMsg, err)
@@ -200,13 +180,11 @@ func TestExecuteClientErrorForNonRetryableServerStatus(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL: server.URL,
-		client:  server.Client(),
-		method:  http.MethodGet,
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodGet, "", nil)
 	expectedMsg := "Client error: unsupported protocol (Status: 505)"
 	if err == nil || err.Error() != expectedMsg {
 		t.Errorf("expected %q, got %v", expectedMsg, err)
@@ -219,18 +197,13 @@ func TestExecuteNetworkErrorRetry(t *testing.T) {
 		return nil, errors.New("network connection reset")
 	})
 
-	ctx := &requestCtx{
-		baseURL:     "https://invalid-url-target.local",
-		body:        []byte(`{}`),
-		client:      customClient,
-		initialWait: 1 * time.Millisecond,
-		maxRetries:  1,
-		maxWait:     8 * time.Millisecond,
-		method:      http.MethodGet,
-		path:        "/test",
-	}
+	client := newTestClient(customClient.Transport)
+	client.BaseURL = "https://invalid-url-target.local"
+	client.InitialWait = time.Millisecond
+	client.MaxRetries = 1
+	client.MaxWait = 8 * time.Millisecond
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodGet, "/test", []byte(`{}`))
 	if err == nil {
 		t.Fatal("expected max retries error, got nil")
 	}
@@ -238,6 +211,27 @@ func TestExecuteNetworkErrorRetry(t *testing.T) {
 	expectedMsg := "max retries reached"
 	if err.Error() != expectedMsg {
 		t.Errorf("expected %q, got %q", expectedMsg, err.Error())
+	}
+}
+
+func TestExecuteRetriesWithoutLimit(t *testing.T) {
+	attempts := 0
+	client := newTestClient(roundTripFunc(func(*http.Request) (*http.Response, error) {
+		attempts++
+		if attempts == 1 {
+			return nil, errors.New("temporary network error")
+		}
+		return testResponse(http.StatusOK, []byte(`{"status":"success"}`)), nil
+	}))
+	client.MaxRetries = 0
+	client.InitialWait = 0
+
+	_, err := client.Request(http.MethodGet, "/test", nil)
+	if err != nil {
+		t.Fatalf("expected retry to succeed, got %v", err)
+	}
+	if attempts != 2 {
+		t.Fatalf("attempts = %d, want 2", attempts)
 	}
 }
 
@@ -249,17 +243,13 @@ func TestExecuteResponseWithEmbeddedError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL:     server.URL,
-		body:        []byte(`{}`),
-		client:      server.Client(),
-		initialWait: 1 * time.Millisecond,
-		maxWait:     8 * time.Millisecond,
-		method:      http.MethodPost,
-		path:        "/test",
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
+	client.InitialWait = time.Millisecond
+	client.MaxWait = 8 * time.Millisecond
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodPost, "/test", []byte(`{}`))
 	if err == nil {
 		t.Fatal("expected embedded api error, got nil")
 	}
@@ -278,61 +268,46 @@ func TestExecuteBackoffCapping(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ctx := &requestCtx{
-		baseURL:     server.URL,
-		body:        []byte(`{}`),
-		client:      server.Client(),
-		initialWait: 2 * time.Millisecond,
-		maxRetries:  3,
-		maxWait:     3 * time.Millisecond,
-		method:      http.MethodGet,
-		path:        "/test",
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.HTTPClient = server.Client()
+	client.BaseURL = server.URL
+	client.InitialWait = 2 * time.Millisecond
+	client.MaxRetries = 3
+	client.MaxWait = 3 * time.Millisecond
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodGet, "/test", []byte(`{}`))
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
 
-	wait := ctx.initialWait
+	wait := client.InitialWait
 	nextWait := wait * 2
-	if nextWait <= ctx.maxWait {
+	if nextWait <= client.MaxWait {
 		t.Errorf("test parameters setup incorrectly")
 	}
 }
 
-type roundTripFunc func(req *http.Request) (*http.Response, error)
-
-func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
-}
-
 func TestExecuteReturnsNewRequestError(t *testing.T) {
-	ctx := &requestCtx{
-		baseURL:    "://invalid",
-		client:     defaultClient,
-		maxRetries: 1,
-		method:     http.MethodGet,
-		path:       "/test",
-	}
+	client := newTestClient(http.DefaultTransport)
+	client.BaseURL = "://invalid"
+	client.MaxRetries = 1
 
-	_, err := ctx.execute()
+	_, err := client.Request(http.MethodGet, "/test", nil)
 	if err == nil {
 		t.Fatal("expected request construction error")
 	}
 }
 
 func TestNewRequestReturnsError(t *testing.T) {
-	ctx := &requestCtx{baseURL: "://invalid", method: http.MethodGet}
-	_, err := ctx.newRequest()
+	client := newTestClient(http.DefaultTransport)
+	client.BaseURL = "://invalid"
+	_, err := client.newRequest(http.MethodGet, "", nil)
 	if err == nil {
 		t.Fatal("expected request construction error")
 	}
 }
 
 func TestExecuteRetriesWhenReadingResponseFails(t *testing.T) {
-	oldClient := defaultClient
-	t.Cleanup(func() { defaultClient = oldClient })
 	transport := roundTripFunc(func(*http.Request) (*http.Response, error) {
 		return &http.Response{
 			Body:       failingReadCloser{},
@@ -340,18 +315,11 @@ func TestExecuteRetriesWhenReadingResponseFails(t *testing.T) {
 			StatusCode: http.StatusOK,
 		}, nil
 	})
-	defaultClient = &http.Client{Transport: transport}
-
-	ctx := &requestCtx{
-		baseURL:     "https://example.com",
-		client:      defaultClient,
-		initialWait: time.Millisecond,
-		maxRetries:  1,
-		maxWait:     time.Millisecond,
-		method:      http.MethodGet,
-		path:        "/test",
-	}
-	_, err := ctx.execute()
+	client := newTestClient(transport)
+	client.InitialWait = time.Millisecond
+	client.MaxRetries = 1
+	client.MaxWait = time.Millisecond
+	_, err := client.Request(http.MethodGet, "/test", nil)
 	if err == nil {
 		t.Fatal("expected max retries error")
 	}

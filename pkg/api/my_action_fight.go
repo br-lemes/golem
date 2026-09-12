@@ -10,9 +10,14 @@ import (
 )
 
 func MyActionFight(name string, participants []string) (schemas.CharacterFightDataSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionFight(name, participants)
+}
+
+func (c *Client) MyActionFight(name string, participants []string) (schemas.CharacterFightDataSchema, error) {
 	release := beginCriticalAction()
 	defer release()
-	resp, err := post(fmt.Sprintf("/my/%s/action/fight", name), schemas.FightRequestSchema{
+	resp, err := c.Post(fmt.Sprintf("/my/%s/action/fight", name), schemas.FightRequestSchema{
 		Participants: &participants,
 	})
 	if err != nil {

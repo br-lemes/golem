@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionUnequip(name string, unequips []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionUnequip(name, unequips)
+}
+
+func (c *Client) MyActionUnequip(name string, unequips []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/unequip", name)
-	resp, err := post(path, unequips)
+	resp, err := c.Post(path, unequips)
 	if err != nil {
 		return schemas.EquipmentTransactionSchema{}, err
 	}

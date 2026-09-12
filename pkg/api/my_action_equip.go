@@ -9,10 +9,15 @@ import (
 )
 
 func MyActionEquip(name string, equips []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.MyActionEquip(name, equips)
+}
+
+func (c *Client) MyActionEquip(name string, equips []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error) {
 	release := beginCriticalAction()
 	defer release()
 	path := fmt.Sprintf("/my/%s/action/equip", name)
-	resp, err := post(path, equips)
+	resp, err := c.Post(path, equips)
 	if err != nil {
 		return schemas.EquipmentTransactionSchema{}, err
 	}
