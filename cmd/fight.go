@@ -90,7 +90,7 @@ Arguments:
 				Slot: slot,
 			})
 		}
-		character, err = routine.Equip(name, equipments)
+		character, err = routine.EquipWithUtilities(name, equipments, fightResult.Utilities)
 		if err != nil {
 			return err
 		}

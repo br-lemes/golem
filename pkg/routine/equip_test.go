@@ -2,6 +2,7 @@ package routine
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/catalog"
@@ -253,6 +254,47 @@ func TestEquipmentItemsUsesSpecifiedQuantity(t *testing.T) {
 	}})
 	if len(items) != 1 || items[0].Code != "small_health_potion" || items[0].Quantity != quantity {
 		t.Fatalf("equipmentItems() = %#v, want quantity %d", items, quantity)
+	}
+}
+
+func TestChangedUtilitySlots(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Utility1Slot: "small_health_potion",
+		Utility2Slot: "mana_potion",
+	}
+	tests := []struct {
+		name    string
+		changes map[string]string
+		want    []string
+	}{
+		{
+			name:    "unchanged utilities",
+			changes: map[string]string{},
+			want:    nil,
+		},
+		{
+			name:    "replace utility",
+			changes: map[string]string{"utility1": "health_potion"},
+			want:    []string{"utility1"},
+		},
+		{
+			name:    "remove utility",
+			changes: map[string]string{"utility2": ""},
+			want:    []string{"utility2"},
+		},
+		{
+			name:    "same utility",
+			changes: map[string]string{"utility1": "small_health_potion"},
+			want:    nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := changedUtilitySlots(character, tt.changes)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("changedUtilitySlots() = %#v, want %#v", got, tt.want)
+			}
+		})
 	}
 }
 

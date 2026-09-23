@@ -15,6 +15,15 @@ func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSche
 }
 
 func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
+	return equipWithUtilities(d, name, equipments, nil, true)
+}
+
+func EquipWithUtilities(name string, equipments []schemas.EquipSchema, utilities map[string]string) (schemas.CharacterSchema, error) {
+	// +gocover:ignore:block production wrapper over tested implementation
+	return equipWithUtilities(defaultDeps, name, equipments, utilities, false)
+}
+
+func equipWithUtilities(d deps, name string, equipments []schemas.EquipSchema, utilityChanges map[string]string, legacyUtilities bool) (schemas.CharacterSchema, error) {
 	err := validateEquipments(equipments)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
@@ -27,10 +36,14 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
-	hadUtilities := character.Utility1Slot != "" || character.Utility2Slot != ""
 	needed := filterNeededEquipments(character, equipments)
 	hasEquipmentChanges := len(needed) > 0
-	if !hasEquipmentChanges && !hadUtilities {
+	utilitySlots := changedUtilitySlots(character, utilityChanges)
+	if legacyUtilities && (character.Utility1Slot != "" || character.Utility2Slot != "") {
+		utilitySlots = []string{"utility1", "utility2"}
+	}
+	hasUtilityChanges := len(utilitySlots) > 0
+	if !hasEquipmentChanges && !hasUtilityChanges {
 		return character, nil
 	}
 	if hasEquipmentChanges {
@@ -55,18 +68,17 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 	}
 
 	missing := calculateMissingItems(character, needed)
-	shouldPrepare := hadUtilities || len(missing) > 0
+	shouldPrepare := hasUtilityChanges || len(missing) > 0
 	if shouldPrepare {
 		character, err = deposit(d, character, nil)
 		if err != nil {
 			return character, err
 		}
-		character, err = clearUtilities(d, character, []string{
-			"utility1",
-			"utility2",
-		})
-		if err != nil {
-			return character, err
+		if hasUtilityChanges {
+			character, err = clearUtilities(d, character, utilitySlots)
+			if err != nil {
+				return character, err
+			}
 		}
 		if hasEquipmentChanges {
 			withdraw := equipmentItems(needed)
@@ -91,6 +103,24 @@ func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.Chara
 		}
 	}
 	return character, nil
+}
+
+func changedUtilitySlots(character schemas.CharacterSchema, changes map[string]string) []string {
+	var slots []string
+	for _, slot := range []string{"utility1", "utility2"} {
+		desired, changed := changes[slot]
+		if !changed {
+			continue
+		}
+		current := character.Utility1Slot
+		if slot == "utility2" {
+			current = character.Utility2Slot
+		}
+		if desired != current {
+			slots = append(slots, slot)
+		}
+	}
+	return slots
 }
 
 func equipmentHPLoss(character schemas.CharacterSchema, needed []schemas.EquipSchema) int {
