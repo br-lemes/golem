@@ -64,8 +64,8 @@ func TestFindBankFromStartingPointWithIslandAchievement(t *testing.T) {
 	if island.Target.MapId != 1234 || island.Distance != 21 {
 		t.Fatalf("island result = %#v, want map 1234 at distance 21", island)
 	}
-	if len(island.Costs) != 1 || island.Costs[0].Code != "gold" || island.Costs[0].Value != 1000 {
-		t.Fatalf("island costs = %#v, want 1000 gold", island.Costs)
+	if len(island.Requirements) != 2 || island.Requirements[0].Code != "gold" || island.Requirements[0].Value != 1000 {
+		t.Fatalf("island requirements = %#v, want gold and achievement", island.Requirements)
 	}
 }
 
@@ -80,6 +80,40 @@ func TestFindStrangeRocksWithoutActiveEvent(t *testing.T) {
 
 	if len(results) != 0 {
 		t.Fatalf("find() returned %d results, want 0", len(results))
+	}
+}
+
+func TestHasItemUsesCharacterBeforeLoadingBank(t *testing.T) {
+	loaded := 0
+	character := schemas.CharacterSchema{WeaponSlot: "cultist_cloak"}
+	loadBank := func() bool {
+		loaded++
+		return true
+	}
+	bank := []schemas.SimpleItemSchema{{Code: "cultist_cloak", Quantity: 1}}
+
+	if !hasItem(character, "cultist_cloak", 1, loadBank, &bank) {
+		t.Fatal("hasItem() = false, want true")
+	}
+	if loaded != 0 {
+		t.Fatalf("bank loads = %d, want 0", loaded)
+	}
+}
+
+func TestHasItemLoadsBankOnlyWhenNeeded(t *testing.T) {
+	loaded := 0
+	character := schemas.CharacterSchema{}
+	loadBank := func() bool {
+		loaded++
+		return true
+	}
+	bank := []schemas.SimpleItemSchema{{Code: "cultist_cloak", Quantity: 1}}
+
+	if !hasItem(character, "cultist_cloak", 1, loadBank, &bank) {
+		t.Fatal("hasItem() = false, want true")
+	}
+	if loaded != 1 {
+		t.Fatalf("bank loads = %d, want 1", loaded)
 	}
 }
 
@@ -208,8 +242,8 @@ func TestFindGoldRocksFromStartingPoint(t *testing.T) {
 		t.Fatalf("second result = %#v, want map 26 at distance 13", results[1])
 	}
 	for index, result := range results {
-		if len(result.Costs) != 0 {
-			t.Fatalf("result %d costs = %#v, want no costs", index, result.Costs)
+		if len(result.Requirements) != 0 {
+			t.Fatalf("result %d requirements = %#v, want no requirements", index, result.Requirements)
 		}
 	}
 }
@@ -231,8 +265,8 @@ func TestFindMithrilRocksFromGoldRocksRegion(t *testing.T) {
 		if len(result.Transitions) != 2 {
 			t.Fatalf("result %d transitions = %d, want 2", index, len(result.Transitions))
 		}
-		if len(result.Costs) != 0 {
-			t.Fatalf("result %d costs = %#v, want no costs", index, result.Costs)
+		if len(result.Requirements) != 0 {
+			t.Fatalf("result %d requirements = %#v, want no requirements", index, result.Requirements)
 		}
 	}
 	if results[0].Transitions[0].MapId != 134 || results[0].Transitions[1].MapId != 571 {
@@ -255,7 +289,7 @@ func TestFindBankFromBank(t *testing.T) {
 	if results[0].Target.MapId != 334 || results[0].Distance != 0 {
 		t.Fatalf("first result = %#v, want map 334 at distance 0", results[0])
 	}
-	if len(results[0].Transitions) != 0 || len(results[0].Costs) != 0 {
+	if len(results[0].Transitions) != 0 || len(results[0].Requirements) != 0 {
 		t.Fatalf("first result path = %#v, want no transitions or costs", results[0])
 	}
 }

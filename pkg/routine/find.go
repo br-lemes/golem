@@ -8,18 +8,18 @@ import (
 )
 
 type Result struct {
-	Target      schemas.MapSchema
-	Transitions []schemas.MapSchema
-	Costs       []schemas.ConditionSchema
-	Distance    int
-	Potion      *schemas.ItemSchema
+	Target       schemas.MapSchema
+	Transitions  []schemas.MapSchema
+	Requirements []schemas.ConditionSchema
+	Distance     int
+	Potion       *schemas.ItemSchema
 }
 
 type node struct {
-	point       catalog.Point
-	transitions []schemas.MapSchema
-	costs       []schemas.ConditionSchema
-	distance    int
+	point        catalog.Point
+	transitions  []schemas.MapSchema
+	requirements []schemas.ConditionSchema
+	distance     int
 }
 
 type eventPointSet map[catalog.Point]bool
@@ -90,6 +90,20 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 		}
 		return false
 	}
+	var bankItems []schemas.SimpleItemSchema
+	bankLoaded := false
+	loadBank := func() bool {
+		if bankLoaded {
+			return bankItems != nil
+		}
+		bankLoaded = true
+		if d.myBankItems == nil {
+			return false
+		}
+		var err error
+		bankItems, err = d.myBankItems()
+		return err == nil
+	}
 	conditionsSatisfied := func(conditions *[]schemas.ConditionSchema) bool {
 		if conditions == nil {
 			//+gocover:ignore:block catalog conditions are always lists
@@ -97,6 +111,9 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 		}
 		for _, condition := range *conditions {
 			if condition.Operator == "achievement_unlocked" && !hasAchievement(condition.Code) {
+				return false
+			}
+			if condition.Operator == "has_item" && !hasItem(character, condition.Code, condition.Value, loadBank, &bankItems) {
 				return false
 			}
 		}
@@ -121,11 +138,11 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 		conditions := tile.Access.Conditions
 		if target && conditionsSatisfied(appendItemConditions(conditions, potion)) {
 			results = append(results, Result{
-				Target:      *tile,
-				Transitions: current.transitions,
-				Costs:       current.costs,
-				Distance:    current.distance,
-				Potion:      potion,
+				Target:       *tile,
+				Transitions:  current.transitions,
+				Requirements: appendConditions(appendConditions(nil, &current.requirements), tile.Access.Conditions),
+				Distance:     current.distance,
+				Potion:       potion,
 			})
 		}
 		transition := tile.Interactions.Transition
@@ -138,12 +155,12 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 			if !visited[next] && conditionsSatisfied(transition.Conditions) {
 				visited[next] = true
 				transitions := appendCopy(current.transitions, *tile)
-				costs := appendConditions(current.costs, transition.Conditions)
+				requirements := appendConditions(current.requirements, transition.Conditions)
 				queue = append(queue, node{
-					point:       next,
-					transitions: transitions,
-					costs:       costs,
-					distance:    current.distance + 1,
+					point:        next,
+					transitions:  transitions,
+					requirements: requirements,
+					distance:     current.distance + 1,
 				})
 			}
 		}
@@ -160,10 +177,10 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 			if exists && nextTile.Access.Type != "blocked" {
 				visited[next] = true
 				queue = append(queue, node{
-					point:       next,
-					transitions: current.transitions,
-					costs:       current.costs,
-					distance:    current.distance + 1,
+					point:        next,
+					transitions:  current.transitions,
+					requirements: current.requirements,
+					distance:     current.distance + 1,
 				})
 			}
 		}
@@ -223,4 +240,63 @@ func eventPoints(d deps, code string) eventPointSet {
 		}
 	}
 	return result
+}
+
+func hasItem(character schemas.CharacterSchema, code string, quantity int, loadBank func() bool, bankItems *[]schemas.SimpleItemSchema) bool {
+	if itemQuantity(character, code) >= quantity {
+		return true
+	}
+	if !loadBank() {
+		return false
+	}
+	for _, item := range *bankItems {
+		if item.Code == code && item.Quantity+itemQuantity(character, code) >= quantity {
+			return true
+		}
+	}
+	return false
+}
+
+func itemQuantity(character schemas.CharacterSchema, code string) int {
+	quantity := 0
+	if character.Inventory != nil {
+		for _, item := range *character.Inventory {
+			if item.Code == code {
+				quantity += item.Quantity
+			}
+		}
+	}
+	for _, equipped := range []string{
+		character.WeaponSlot,
+		character.ShieldSlot,
+		character.HelmetSlot,
+		character.BodyArmorSlot,
+		character.BootsSlot,
+		character.LegArmorSlot,
+		character.Ring1Slot,
+		character.Ring2Slot,
+		character.AmuletSlot,
+		character.BagSlot,
+		character.RuneSlot,
+		character.Artifact1Slot,
+		character.Artifact2Slot,
+		character.Artifact3Slot,
+	} {
+		if equipped == code {
+			quantity++
+		}
+	}
+	quantity += equippedQuantity(character.Utility1Slot, character.Utility1SlotQuantity, code)
+	quantity += equippedQuantity(character.Utility2Slot, character.Utility2SlotQuantity, code)
+	return quantity
+}
+
+func equippedQuantity(slot string, quantity int, code string) int {
+	if slot != code {
+		return 0
+	}
+	if quantity == 0 {
+		return 1
+	}
+	return quantity
 }
