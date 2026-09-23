@@ -97,7 +97,7 @@ Arguments:
 			}
 			if needBank || buyData.character.Gold < cost {
 				var err error
-				buyData.character, err = routine.Move(buyData.character, "bank")
+				buyData.character, err = routine.Move(buyData.character, "bank", routine.MoveOptions{})
 				if err != nil {
 					return err
 				}
@@ -119,7 +119,7 @@ Arguments:
 			}
 
 			var err error
-			buyData.character, err = routine.Move(buyData.character, "grand_exchange")
+			buyData.character, err = routine.Move(buyData.character, "grand_exchange", routine.MoveOptions{})
 			if err != nil {
 				return err
 			}

@@ -22,7 +22,7 @@ func TestMoveUsesFirstFreePath(t *testing.T) {
 		},
 	}
 
-	got, err := move(d, character, "bank")
+	got, err := move(d, character, "bank", MoveOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestMoveUsesFirstFreePath(t *testing.T) {
 func TestMoveReturnsErrorWithoutFreePath(t *testing.T) {
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	_, err := move(deps{}, character, "invalid_code")
+	_, err := move(deps{}, character, "invalid_code", MoveOptions{})
 	if err == nil {
 		t.Fatal("move() returned nil error, want error")
 	}
@@ -65,7 +65,7 @@ func TestMoveExecutesTransitions(t *testing.T) {
 		},
 	}
 
-	_, err := move(d, character, "mithril_rocks")
+	_, err := move(d, character, "mithril_rocks", MoveOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func TestMoveReturnsTransitionError(t *testing.T) {
 		},
 	}
 
-	_, err := move(d, character, "mithril_rocks")
+	_, err := move(d, character, "mithril_rocks", MoveOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("move() error = %v, want %v", err, wantErr)
 	}
@@ -106,8 +106,32 @@ func TestMoveReturnsMoveErrorAtTransition(t *testing.T) {
 		},
 	}
 
-	_, err := move(d, character, "mithril_rocks")
+	_, err := move(d, character, "mithril_rocks", MoveOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("move() error = %v, want %v", err, wantErr)
+	}
+}
+
+func TestCanUseRequirementsGold(t *testing.T) {
+	requirements := []schemas.ConditionSchema{
+		{Code: "gold", Operator: "cost", Value: 1000},
+	}
+	if canUseRequirements(requirements, false) {
+		t.Fatal("canUseRequirements() = true without gold permission")
+	}
+	if !canUseRequirements(requirements, true) {
+		t.Fatal("canUseRequirements() = false with gold permission")
+	}
+}
+
+func TestRequiredGoldSumsTransitionCosts(t *testing.T) {
+	requirements := []schemas.ConditionSchema{
+		{Code: "gold", Operator: "cost", Value: 1000},
+		{Code: "gold", Operator: "cost", Value: 5000},
+		{Code: "key", Operator: "has_item", Value: 1},
+	}
+	got := requiredGold(requirements)
+	if got != 6000 {
+		t.Fatalf("requiredGold() = %d, want 6000", got)
 	}
 }

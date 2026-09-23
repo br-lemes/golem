@@ -126,7 +126,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 			if character.Gold+bank.Gold < requiredGold {
 				return fmt.Errorf("not enough gold for enhanced recycling: required %d, available %d", requiredGold, character.Gold+bank.Gold)
 			}
-			character, err = routine.Move(character, "bank")
+			character, err = routine.Move(character, "bank", routine.MoveOptions{})
 			if err != nil {
 				return err
 			}
@@ -175,7 +175,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 			netSpaceNeeded := maxMaterialsReturned - batchToRecycle
 
 			if freeSpace >= netSpaceNeeded {
-				character, err = routine.Move(character, string(*item.Craft.Skill))
+				character, err = routine.Move(character, string(*item.Craft.Skill), routine.MoveOptions{})
 				if err != nil {
 					return err
 				}
@@ -196,7 +196,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 			}
 		}
 
-		character, err = routine.Move(character, "bank")
+		character, err = routine.Move(character, "bank", routine.MoveOptions{})
 		if err != nil {
 			return err
 		}
@@ -264,7 +264,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 	if err != nil {
 		return err
 	}
-	character, err = routine.Move(character, "bank")
+	character, err = routine.Move(character, "bank", routine.MoveOptions{})
 	if err != nil {
 		return err
 	}

@@ -5,17 +5,17 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func Inventory(character schemas.CharacterSchema, keepTypes []string) (schemas.CharacterSchema, error) {
+func Inventory(character schemas.CharacterSchema, keepTypes []string, options MoveOptions) (schemas.CharacterSchema, error) {
 	//+gocover:ignore:block production wrapper over tested implementation
-	return inventory(defaultDeps, character, keepTypes)
+	return inventory(defaultDeps, character, keepTypes, options)
 }
 
-func inventory(d deps, character schemas.CharacterSchema, keepTypes []string) (schemas.CharacterSchema, error) {
+func inventory(d deps, character schemas.CharacterSchema, keepTypes []string, options MoveOptions) (schemas.CharacterSchema, error) {
 	totalItems := totalItems(character)
 	if totalItems+5 < character.InventoryMaxItems {
 		return character, nil
 	}
-	character, err := move(d, character, "bank")
+	character, err := move(d, character, "bank", options)
 	if err != nil {
 		return character, err
 	}

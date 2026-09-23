@@ -12,6 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type gatheringFlags struct {
+	AllowGold bool `flag:"allow-gold" desc:"allow paid transitions and withdraw gold from the bank"`
+}
+
 var gatheringCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	Use:   "gathering <name> <code>",
@@ -25,6 +29,10 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+		flags, err := utils.ReadFlags[gatheringFlags](cmd)
+		if err != nil {
+			return err
+		}
 		resource, found := catalog.Resources.Get(code)
 		if !found {
 			return fmt.Errorf("resource %s not found", code)
@@ -55,12 +63,16 @@ Arguments:
 		}
 
 		for {
-			character, err = routine.Inventory(character, []string{})
+			character, err = routine.Inventory(character, []string{}, routine.MoveOptions{
+				AllowGold: flags.AllowGold,
+			})
 			if err != nil {
 				return err
 			}
 
-			_, err = routine.Move(character, code)
+			_, err = routine.Move(character, code, routine.MoveOptions{
+				AllowGold: flags.AllowGold,
+			})
 			if err != nil {
 				return err
 			}
@@ -77,4 +89,8 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(gatheringCmd)
+	err := utils.RegisterFlags[gatheringFlags](gatheringCmd)
+	if err != nil {
+		panic(err)
+	}
 }

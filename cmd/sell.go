@@ -96,7 +96,7 @@ Arguments:
 			remaining := sellOptions.Quantity - totalSold
 			if sellData.inventoryItem.Quantity == 0 {
 				var err error
-				sellData.character, err = routine.Move(sellData.character, "bank")
+				sellData.character, err = routine.Move(sellData.character, "bank", routine.MoveOptions{})
 				if err != nil {
 					return err
 				}
@@ -122,7 +122,7 @@ Arguments:
 				}
 			}
 			var err error
-			sellData.character, err = routine.Move(sellData.character, "grand_exchange")
+			sellData.character, err = routine.Move(sellData.character, "grand_exchange", routine.MoveOptions{})
 			if err != nil {
 				return err
 			}

@@ -6,16 +6,20 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func Move(character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
-	//+gocover:ignore:block production wrapper over tested implementation
-	return move(defaultDeps, character, code)
+type MoveOptions struct {
+	AllowGold bool
 }
 
-func move(d deps, character schemas.CharacterSchema, code string) (schemas.CharacterSchema, error) {
+func Move(character schemas.CharacterSchema, code string, options MoveOptions) (schemas.CharacterSchema, error) {
+	//+gocover:ignore:block production wrapper over tested implementation
+	return move(defaultDeps, character, code, options)
+}
+
+func move(d deps, character schemas.CharacterSchema, code string, options MoveOptions) (schemas.CharacterSchema, error) {
 	results := find(d, character, code, nil)
 	var result *Result
 	for index := range results {
-		if canUseItemConditions(results[index].Requirements) {
+		if canUseRequirements(results[index].Requirements, options.AllowGold) {
 			result = &results[index]
 			break
 		}
@@ -29,7 +33,7 @@ func move(d deps, character schemas.CharacterSchema, code string) (schemas.Chara
 			return character, fmt.Errorf("required item is not available: %s", items[0].Code)
 		}
 		var err error
-		character, err = move(d, character, "bank")
+		character, err = move(d, character, "bank", MoveOptions{})
 		if err != nil {
 			return character, err
 		}
@@ -37,7 +41,26 @@ func move(d deps, character schemas.CharacterSchema, code string) (schemas.Chara
 		if err != nil {
 			return character, err
 		}
-		return move(d, transaction.Character, code)
+		return move(d, transaction.Character, code, options)
+	}
+	gold := requiredGold(result.Requirements)
+	if gold > character.Gold {
+		if !options.AllowGold {
+			return character, fmt.Errorf("route requires %d gold; enable gold usage to continue", gold)
+		}
+		if code == "bank" {
+			return character, fmt.Errorf("required gold is not available before reaching the bank")
+		}
+		var err error
+		character, err = move(d, character, "bank", MoveOptions{})
+		if err != nil {
+			return character, err
+		}
+		withdraw, err := d.myActionBankWithdrawGold(character.Name, gold-character.Gold)
+		if err != nil {
+			return character, err
+		}
+		return move(d, withdraw.Character, code, options)
 	}
 	for _, transition := range result.Transitions {
 		character, err := makeMove(d, character, transition)
@@ -59,13 +82,27 @@ func move(d deps, character schemas.CharacterSchema, code string) (schemas.Chara
 	return makeMove(d, character, result.Target)
 }
 
-func canUseItemConditions(conditions []schemas.ConditionSchema) bool {
+func canUseRequirements(conditions []schemas.ConditionSchema, allowGold bool) bool {
 	for _, condition := range conditions {
-		if condition.Operator != "has_item" {
-			return false
+		if condition.Operator == "has_item" {
+			continue
 		}
+		if condition.Code == "gold" && condition.Operator == "cost" && allowGold {
+			continue
+		}
+		return false
 	}
 	return true
+}
+
+func requiredGold(conditions []schemas.ConditionSchema) int {
+	total := 0
+	for _, condition := range conditions {
+		if condition.Code == "gold" && condition.Operator == "cost" {
+			total += condition.Value
+		}
+	}
+	return total
 }
 
 func missingItems(character schemas.CharacterSchema, conditions []schemas.ConditionSchema) []schemas.SimpleItemSchema {

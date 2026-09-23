@@ -60,7 +60,7 @@ Arguments:
 		cancelsInARow := 0
 		for {
 			if character.Task == "" {
-				character, err = routine.Move(character, "items")
+				character, err = routine.Move(character, "items", routine.MoveOptions{})
 				if err != nil {
 					return err
 				}
@@ -94,7 +94,7 @@ Arguments:
 					toTrade := min(remaining, taskQuantity)
 					if taskQuantity == 0 {
 						toTrade = min(remaining, max(0, character.InventoryMaxItems-flags.CoinBuffer))
-						character, err = routine.Move(character, "bank")
+						character, err = routine.Move(character, "bank", routine.MoveOptions{})
 						if err != nil {
 							return err
 						}
@@ -137,7 +137,7 @@ Arguments:
 						}
 						character = bankData.Character
 					}
-					character, err = routine.Move(character, "items")
+					character, err = routine.Move(character, "items", routine.MoveOptions{})
 					if err != nil {
 						return err
 					}
@@ -150,7 +150,7 @@ Arguments:
 					}
 					character = trade.Character
 				}
-				character, err = routine.Move(character, "items")
+				character, err = routine.Move(character, "items", routine.MoveOptions{})
 				if err != nil {
 					return err
 				}
@@ -165,7 +165,7 @@ Arguments:
 				return fmt.Errorf("reached %d consecutive task cancellations", flags.MaxCancel)
 			}
 			if taskItemInvQty(character, tasksCoin) < 1 {
-				character, err = routine.Move(character, "bank")
+				character, err = routine.Move(character, "bank", routine.MoveOptions{})
 				if err != nil {
 					return err
 				}
@@ -177,7 +177,7 @@ Arguments:
 				}
 				character = bankData.Character
 			}
-			character, err = routine.Move(character, "items")
+			character, err = routine.Move(character, "items", routine.MoveOptions{})
 			if err != nil {
 				return err
 			}

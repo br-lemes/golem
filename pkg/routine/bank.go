@@ -3,11 +3,12 @@ package routine
 import "github.com/br-lemes/golem/pkg/schemas"
 
 type BankOptions struct {
-	Utility1 string
-	Utility2 string
-	Food     string // "" = disabled; "auto" = best available; otherwise, code
-	FoodOnly bool
-	NoFood   bool
+	AllowGold bool
+	Utility1  string
+	Utility2  string
+	Food      string // "" = disabled; "auto" = best available; otherwise, code
+	FoodOnly  bool
+	NoFood    bool
 }
 
 func Bank(character schemas.CharacterSchema, opts BankOptions) (schemas.CharacterSchema, error) {
@@ -33,7 +34,9 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	if !needsSpace && !needsUtility && !needsFood {
 		return character, nil
 	}
-	character, err = move(d, character, "bank")
+	character, err = move(d, character, "bank", MoveOptions{
+		AllowGold: opts.AllowGold,
+	})
 	if err != nil {
 		return character, err
 	}

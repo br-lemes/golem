@@ -150,7 +150,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 		}
 
 		if batchActionsPossible > 0 {
-			character, err = routine.Move(character, string(*item.Craft.Skill))
+			character, err = routine.Move(character, string(*item.Craft.Skill), routine.MoveOptions{})
 			if err != nil {
 				return err
 			}
@@ -167,7 +167,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 			continue
 		}
 
-		character, err = routine.Move(character, "bank")
+		character, err = routine.Move(character, "bank", routine.MoveOptions{})
 		if err != nil {
 			return err
 		}
@@ -302,7 +302,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
-	character, err = routine.Move(character, "bank")
+	character, err = routine.Move(character, "bank", routine.MoveOptions{})
 	if err != nil {
 		return err
 	}

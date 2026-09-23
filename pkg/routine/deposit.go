@@ -14,7 +14,7 @@ func Deposit(character schemas.CharacterSchema, keepTypes []string) (schemas.Cha
 
 func deposit(d deps, character schemas.CharacterSchema, keepTypes []string) (schemas.CharacterSchema, error) {
 	var err error
-	character, err = move(d, character, "bank")
+	character, err = move(d, character, "bank", MoveOptions{})
 	if err != nil {
 		return character, err
 	}

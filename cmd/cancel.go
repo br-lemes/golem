@@ -58,7 +58,7 @@ Arguments:
 		id := args[1]
 
 		var err error
-		cancelData.character, err = routine.Move(cancelData.character, "grand_exchange")
+		cancelData.character, err = routine.Move(cancelData.character, "grand_exchange", routine.MoveOptions{})
 		if err != nil {
 			return err
 		}

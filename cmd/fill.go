@@ -104,7 +104,7 @@ Arguments:
 			remaining := fillOptions.Quantity - totalFilled
 			if fillData.inventoryItem.Quantity == 0 {
 				var err error
-				fillData.character, err = routine.Move(fillData.character, "bank")
+				fillData.character, err = routine.Move(fillData.character, "bank", routine.MoveOptions{})
 				if err != nil {
 					return err
 				}
@@ -130,7 +130,7 @@ Arguments:
 				}
 			}
 			var err error
-			fillData.character, err = routine.Move(fillData.character, "grand_exchange")
+			fillData.character, err = routine.Move(fillData.character, "grand_exchange", routine.MoveOptions{})
 			if err != nil {
 				return err
 			}

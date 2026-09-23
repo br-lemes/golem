@@ -9,7 +9,7 @@ import (
 
 func TestInventoryDoesNothingWithEnoughSpace(t *testing.T) {
 	character := schemas.CharacterSchema{InventoryMaxItems: 10}
-	got, err := inventory(deps{}, character, nil)
+	got, err := inventory(deps{}, character, nil, MoveOptions{})
 	if err != nil || got != character {
 		t.Fatalf("inventory() = %#v, %v, want unchanged character", got, err)
 	}
@@ -39,7 +39,7 @@ func TestInventoryUsesInjectedDeposit(t *testing.T) {
 		},
 	}
 
-	_, err := inventory(d, character, nil)
+	_, err := inventory(d, character, nil, MoveOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +60,7 @@ func TestInventoryReturnsMoveError(t *testing.T) {
 		Layer:             "overworld",
 	}
 
-	_, err := inventory(d, character, nil)
+	_, err := inventory(d, character, nil, MoveOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("inventory() error = %v, want %v", err, wantErr)
 	}
@@ -85,7 +85,7 @@ func TestInventoryReturnsDepositError(t *testing.T) {
 		},
 	}
 
-	_, err := inventory(d, character, nil)
+	_, err := inventory(d, character, nil, MoveOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("inventory() error = %v, want %v", err, wantErr)
 	}

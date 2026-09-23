@@ -192,13 +192,13 @@ func inventoryItems() []schemas.InventorySlotSchema {
 
 func moveBank() error {
 	var err error
-	npcBuyData.character, err = routine.Move(npcBuyData.character, "bank")
+	npcBuyData.character, err = routine.Move(npcBuyData.character, "bank", routine.MoveOptions{})
 	return err
 }
 
 func moveNpc() error {
 	var err error
-	npcBuyData.character, err = routine.Move(npcBuyData.character, npcBuyData.item.Npc)
+	npcBuyData.character, err = routine.Move(npcBuyData.character, npcBuyData.item.Npc, routine.MoveOptions{})
 	return err
 }
 

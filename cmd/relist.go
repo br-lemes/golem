@@ -94,7 +94,7 @@ Arguments:
 			qtyToCancel := min(remaining, order.Quantity)
 
 			var err error
-			relistData.character, err = routine.Move(relistData.character, "grand_exchange")
+			relistData.character, err = routine.Move(relistData.character, "grand_exchange", routine.MoveOptions{})
 			if err != nil {
 				return err
 			}

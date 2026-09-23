@@ -11,6 +11,7 @@ type deps struct {
 	eventsActive             func() ([]schemas.ActiveEventSchema, error)
 	myActionBankDepositGold  func(name string, quantity int) (schemas.BankGoldTransactionSchema, error)
 	myActionBankDepositItem  func(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error)
+	myActionBankWithdrawGold func(name string, quantity int) (schemas.BankGoldTransactionSchema, error)
 	myActionBankWithdrawItem func(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error)
 	myActionEquip            func(name string, equips []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error)
 	myActionMove             func(name string, x, y int) (schemas.CharacterMovementDataSchema, error)
@@ -27,6 +28,7 @@ var defaultDeps = deps{
 	eventsActive:             api.EventsActive,
 	myActionBankDepositGold:  api.MyActionBankDepositGold,
 	myActionBankDepositItem:  api.MyActionBankDepositItem,
+	myActionBankWithdrawGold: api.MyActionBankWithdrawGold,
 	myActionBankWithdrawItem: api.MyActionBankWithdrawItem,
 	myActionEquip:            api.MyActionEquip,
 	myActionMove:             api.MyActionMove,

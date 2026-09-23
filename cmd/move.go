@@ -8,8 +8,13 @@ import (
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/routine"
+	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
+
+type moveFlags struct {
+	AllowGold bool `flag:"allow-gold" desc:"allow paid transitions and withdraw gold from the bank"`
+}
 
 var moveCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
@@ -24,6 +29,10 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
+		flags, err := utils.ReadFlags[moveFlags](cmd)
+		if err != nil {
+			return err
+		}
 
 		codes := append(catalog.MapCodes(), catalog.EventContentCodes()...)
 		if !slices.Contains(codes, code) {
@@ -34,11 +43,17 @@ Arguments:
 			return err
 		}
 		routine.Cooldown(character)
-		_, err = routine.Move(character, code)
+		_, err = routine.Move(character, code, routine.MoveOptions{
+			AllowGold: flags.AllowGold,
+		})
 		return err
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(moveCmd)
+	err := utils.RegisterFlags[moveFlags](moveCmd)
+	if err != nil {
+		panic(err)
+	}
 }

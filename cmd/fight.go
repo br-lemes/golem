@@ -19,6 +19,7 @@ type fightFlags struct {
 	FoodOnly     string `flag:"food-only" desc:"use only this food code"`
 	NoFood       bool   `flag:"no-food" desc:"do not use food"`
 	AllowUnsafe  bool   `flag:"allow-unsafe" desc:"allow fights with simulated winrate below 100%"`
+	AllowGold    bool   `flag:"allow-gold" desc:"allow paid transitions and withdraw gold from the bank"`
 	UseUtilities bool   `flag:"use-utilities" desc:"use utilities selected by the simulator"`
 	Utility1     string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
 	Utility2     string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
@@ -182,16 +183,19 @@ func fightFoodValidate(character schemas.CharacterSchema, flags fightFlags) erro
 
 func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, flags fightFlags) error {
 	routine.Cooldown(character)
-	character, err := routine.Inventory(character, []string{"food"})
+	character, err := routine.Inventory(character, []string{"food"}, routine.MoveOptions{
+		AllowGold: flags.AllowGold,
+	})
 	if err != nil {
 		return err
 	}
 	character, err = routine.Bank(character, routine.BankOptions{
-		Food:     flags.Food,
-		FoodOnly: flags.FoodOnly != "",
-		NoFood:   flags.NoFood,
-		Utility1: flags.Utility1,
-		Utility2: flags.Utility2,
+		AllowGold: flags.AllowGold,
+		Food:      flags.Food,
+		FoodOnly:  flags.FoodOnly != "",
+		NoFood:    flags.NoFood,
+		Utility1:  flags.Utility1,
+		Utility2:  flags.Utility2,
 	})
 	if err != nil {
 		return err
@@ -208,7 +212,9 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, f
 	if err != nil {
 		return err
 	}
-	_, err = routine.Move(character, monster.Code)
+	_, err = routine.Move(character, monster.Code, routine.MoveOptions{
+		AllowGold: flags.AllowGold,
+	})
 	if err != nil {
 		return err
 	}
