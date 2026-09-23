@@ -124,6 +124,15 @@ func TestCanUseRequirementsGold(t *testing.T) {
 	}
 }
 
+func TestCanUseRequirementsAchievement(t *testing.T) {
+	requirements := []schemas.ConditionSchema{
+		{Code: "secure_the_island", Operator: "achievement_unlocked", Value: 1},
+	}
+	if !canUseRequirements(requirements, false) {
+		t.Fatal("canUseRequirements() = false for unlocked achievement")
+	}
+}
+
 func TestRequiredGoldSumsTransitionCosts(t *testing.T) {
 	requirements := []schemas.ConditionSchema{
 		{Code: "gold", Operator: "cost", Value: 1000},

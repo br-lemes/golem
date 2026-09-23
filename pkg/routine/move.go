@@ -84,7 +84,7 @@ func move(d deps, character schemas.CharacterSchema, code string, options MoveOp
 
 func canUseRequirements(conditions []schemas.ConditionSchema, allowGold bool) bool {
 	for _, condition := range conditions {
-		if condition.Operator == "has_item" {
+		if condition.Operator == "has_item" || condition.Operator == "achievement_unlocked" {
 			continue
 		}
 		if condition.Code == "gold" && condition.Operator == "cost" && allowGold {
