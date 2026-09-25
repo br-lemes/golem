@@ -124,6 +124,15 @@ func TestCanUseRequirementsGold(t *testing.T) {
 	}
 }
 
+func TestCanUseRequirementsItemCost(t *testing.T) {
+	requirements := []schemas.ConditionSchema{
+		{Code: "priestess_hideout_key", Operator: "cost", Value: 1},
+	}
+	if !canUseRequirements(requirements, false) {
+		t.Fatal("item cost should be usable without gold permission")
+	}
+}
+
 func TestCanUseRequirementsAchievement(t *testing.T) {
 	requirements := []schemas.ConditionSchema{
 		{Code: "secure_the_island", Operator: "achievement_unlocked", Value: 1},
@@ -142,5 +151,34 @@ func TestRequiredGoldSumsTransitionCosts(t *testing.T) {
 	got := requiredGold(requirements)
 	if got != 6000 {
 		t.Fatalf("requiredGold() = %d, want 6000", got)
+	}
+}
+
+func TestMissingItemsIncludesItemCosts(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Inventory: &[]schemas.InventorySlotSchema{{
+			Code:     "priestess_hideout_key",
+			Quantity: 1,
+		}},
+	}
+	requirements := []schemas.ConditionSchema{
+		{Code: "priestess_hideout_key", Operator: "cost", Value: 2},
+		{Code: "gold", Operator: "cost", Value: 1000},
+	}
+	got := missingItems(character, requirements)
+	valid := len(got) == 1 && got[0].Code == "priestess_hideout_key" && got[0].Quantity == 1
+	if !valid {
+		t.Fatalf("missingItems() = %#v, want one missing key", got)
+	}
+}
+
+func TestMissingItemCostDoesNotCountEquippedItems(t *testing.T) {
+	character := schemas.CharacterSchema{WeaponSlot: "priestess_hideout_key"}
+	requirements := []schemas.ConditionSchema{
+		{Code: "priestess_hideout_key", Operator: "cost", Value: 1},
+	}
+	got := missingItems(character, requirements)
+	if len(got) != 1 || got[0].Code != "priestess_hideout_key" || got[0].Quantity != 1 {
+		t.Fatalf("missingItems() = %#v, want one key from inventory or bank", got)
 	}
 }

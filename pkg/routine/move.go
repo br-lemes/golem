@@ -87,6 +87,9 @@ func canUseRequirements(conditions []schemas.ConditionSchema, allowGold bool) bo
 		if condition.Operator == "has_item" || condition.Operator == "achievement_unlocked" {
 			continue
 		}
+		if condition.Operator == "cost" && condition.Code != "gold" {
+			continue
+		}
 		if condition.Code == "gold" && condition.Operator == "cost" && allowGold {
 			continue
 		}
@@ -106,20 +109,66 @@ func requiredGold(conditions []schemas.ConditionSchema) int {
 }
 
 func missingItems(character schemas.CharacterSchema, conditions []schemas.ConditionSchema) []schemas.SimpleItemSchema {
-	items := []schemas.SimpleItemSchema{}
+	hasItemQuantities := make(map[string]int)
+	costQuantities := make(map[string]int)
 	for _, condition := range conditions {
-		if condition.Operator != "has_item" {
-			continue
+		switch {
+		case condition.Operator == "has_item":
+			if condition.Value > hasItemQuantities[condition.Code] {
+				hasItemQuantities[condition.Code] = condition.Value
+			}
+		case condition.Operator == "cost" && condition.Code != "gold":
+			costQuantities[condition.Code] += condition.Value
 		}
-		quantity := condition.Value - itemQuantity(character, condition.Code)
+	}
+	items := make([]schemas.SimpleItemSchema, 0, len(costQuantities)+len(hasItemQuantities))
+	for code, hasItemQuantity := range hasItemQuantities {
+		hasItemQuantity -= equippedItemQuantity(character, code)
+		if hasItemQuantity < 0 {
+			hasItemQuantity = 0
+		}
+		if costQuantities[code] > hasItemQuantity {
+			hasItemQuantity = costQuantities[code]
+		}
+		quantity := hasItemQuantity - inventoryItemQuantity(character, code)
 		if quantity > 0 {
 			items = append(items, schemas.SimpleItemSchema{
-				Code:     condition.Code,
+				Code:     code,
+				Quantity: quantity,
+			})
+		}
+	}
+	for code, quantity := range costQuantities {
+		_, handled := hasItemQuantities[code]
+		if handled {
+			continue
+		}
+		quantity -= inventoryItemQuantity(character, code)
+		if quantity > 0 {
+			items = append(items, schemas.SimpleItemSchema{
+				Code:     code,
 				Quantity: quantity,
 			})
 		}
 	}
 	return items
+}
+
+func inventoryItemQuantity(character schemas.CharacterSchema, code string) int {
+	quantity := 0
+	if character.Inventory == nil {
+		return quantity
+	}
+	for _, item := range *character.Inventory {
+		if item.Code == code {
+			quantity += item.Quantity
+		}
+	}
+	return quantity
+}
+
+func equippedItemQuantity(character schemas.CharacterSchema, code string) int {
+	return itemQuantity(character, code) - inventoryItemQuantity(character, code)
 }
 
 func makeMove(d deps, character schemas.CharacterSchema, target schemas.MapSchema) (schemas.CharacterSchema, error) {
