@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/parser"
 	"github.com/br-lemes/golem/pkg/routine"
@@ -27,7 +28,11 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		_, err = routine.Equip(name, equipments)
+		character, err := api.Characters(name)
+		if err != nil {
+			return err
+		}
+		_, err = routine.Equip(character.Name, equipments)
 		return err
 	},
 }
