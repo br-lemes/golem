@@ -189,9 +189,13 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, f
 	if err != nil {
 		return err
 	}
+	food := flags.Food
+	if flags.FoodOnly != "" {
+		food = flags.FoodOnly
+	}
 	character, err = routine.Bank(character, routine.BankOptions{
 		AllowGold: flags.AllowGold,
-		Food:      flags.Food,
+		Food:      food,
 		FoodOnly:  flags.FoodOnly != "",
 		NoFood:    flags.NoFood,
 		Utility1:  flags.Utility1,
