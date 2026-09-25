@@ -113,21 +113,5 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(bossCmd)
-	err := utils.RegisterFlags[fightFlags](bossCmd)
-	if err != nil {
-		panic(err)
-	}
-	bossCmd.Flags().Lookup("food").NoOptDefVal = "auto"
-	err = bossCmd.RegisterFlagCompletionFunc("food", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return append([]string{"auto"}, catalog.Items().Foods().Keys()...), cobra.ShellCompDirectiveNoFileComp
-	})
-	if err != nil {
-		panic(err)
-	}
-	err = bossCmd.RegisterFlagCompletionFunc("food-only", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return catalog.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
-	})
-	if err != nil {
-		panic(err)
-	}
+	registerFightFlags(bossCmd)
 }

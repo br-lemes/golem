@@ -249,35 +249,57 @@ func taskCompleted(character schemas.CharacterSchema, code string) bool {
 	return false
 }
 
+func registerFightFlags(cmd *cobra.Command) {
+	err := utils.RegisterFlags[fightFlags](cmd)
+	if err != nil {
+		panic(err)
+	}
+	cmd.Flags().Lookup("food").NoOptDefVal = "auto"
+
+	completions := []struct {
+		flag   string
+		values func() []string
+	}{
+		{
+			flag: "food",
+			values: func() []string {
+				return append([]string{"auto"}, catalog.Items().Foods().Keys()...)
+			},
+		},
+		{
+			flag: "food-only",
+			values: func() []string {
+				return catalog.Items().Foods().Keys()
+			},
+		},
+		{
+			flag: "utility1",
+			values: func() []string {
+				return catalog.Items().Potions().Keys()
+			},
+		},
+		{
+			flag: "utility2",
+			values: func() []string {
+				return catalog.Items().Potions().Keys()
+			},
+		},
+	}
+	for _, completion := range completions {
+		err := cmd.RegisterFlagCompletionFunc(completion.flag, func(
+			cmd *cobra.Command,
+			args []string,
+			toComplete string,
+		) ([]string, cobra.ShellCompDirective) {
+			return completion.values(), cobra.ShellCompDirectiveNoFileComp
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func init() {
 	rootCmd.AddCommand(fightCmd)
-	err := utils.RegisterFlags[fightFlags](fightCmd)
-	if err != nil {
-		panic(err)
-	}
-	fightCmd.Flags().Lookup("food").NoOptDefVal = "auto"
-	err = fightCmd.RegisterFlagCompletionFunc("food", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return append([]string{"auto"}, catalog.Items().Foods().Keys()...), cobra.ShellCompDirectiveNoFileComp
-	})
-	if err != nil {
-		panic(err)
-	}
-	err = fightCmd.RegisterFlagCompletionFunc("food-only", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return catalog.Items().Foods().Keys(), cobra.ShellCompDirectiveNoFileComp
-	})
-	if err != nil {
-		panic(err)
-	}
-	err = fightCmd.RegisterFlagCompletionFunc("utility1", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return catalog.Items().Potions().Keys(), cobra.ShellCompDirectiveNoFileComp
-	})
-	if err != nil {
-		panic(err)
-	}
-	err = fightCmd.RegisterFlagCompletionFunc("utility2", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return catalog.Items().Potions().Keys(), cobra.ShellCompDirectiveNoFileComp
-	})
-	if err != nil {
-		panic(err)
-	}
+	registerFightFlags(fightCmd)
 }
