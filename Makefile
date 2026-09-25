@@ -27,6 +27,9 @@ standard.json: URL := https://api.artifactsmmo.com/openapi.json
 
 all: $(PLATFORMS)
 
+bin/golangci-lint:
+	@curl -sSfL https://golangci-lint.run/install.sh | sh -s v2.14.0
+
 clean:
 	$(RM) $(ARTIFACTS) $(OPENAPI_FILES)
 
@@ -35,19 +38,13 @@ coverage: $(GENERATED_FILES) lint
 		sed -i '/cmd\/api/d' coverage.out && \
 		go run $(GOCOVER) full --cover-profile=coverage.out
 
-custom-gcl: .custom-gcl.yml
-	@golangci-lint custom -v
-
-dev: $(GENERATED_FILES) lint test
-	@go build -ldflags "-X 'main.version=$$(date '+%Y-%m-%d %H:%M:%S')'"
-
-lint: custom-gcl
+lint: bin/golangci-lint
 	@if ! git merge-base --is-ancestor master HEAD; then \
 		echo "Branch is behind or has diverged from master."; \
 		exit 1; \
 	fi
 	@gofmt -w $$(go list -f '{{.Dir}}/*.go' ./...)
-	@./custom-gcl run
+	@./bin/golangci-lint run
 
 pkg/catalog/enums.json: pkg/catalog/openapi.json enums.jq
 	@jq -f enums.jq pkg/catalog/openapi.json > $@
