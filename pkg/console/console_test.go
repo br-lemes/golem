@@ -135,6 +135,33 @@ func TestAutoAppliesPathFilters(t *testing.T) {
 	ExcludeIf = nil
 }
 
+func TestAutoExcludeIfRemovesMatchingArrayItems(t *testing.T) {
+	Format = "json"
+	Exclude = nil
+	Only = nil
+	ExcludeIf = []string{"data.*.code == dreadful_battleaxe"}
+	Stdout = &bytes.Buffer{}
+
+	data := map[string]any{
+		"data": []any{
+			map[string]any{"code": "dreadful_battleaxe", "id": 1},
+			map[string]any{"code": "iron_sword", "id": 2},
+		},
+	}
+
+	err := Auto(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := strings.TrimSpace(Stdout.(*bytes.Buffer).String())
+	if got != `{"data":[{"code":"iron_sword","id":2}]}` {
+		t.Fatalf("Auto() = %q, want matching array item removed", got)
+	}
+
+	ExcludeIf = nil
+}
+
 func TestAutoReturnsPathFilterErrors(t *testing.T) {
 	tests := []struct {
 		name    string

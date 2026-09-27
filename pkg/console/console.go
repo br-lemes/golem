@@ -122,10 +122,31 @@ func excludeIfPath(value any, parts []string, operator, expected string) (any, e
 			return nil, err
 		}
 		if matches {
-			delete(current, key)
+			filtered, isArray := excludeIfArrayItems(child, parts[1:], operator, expected)
+			if isArray {
+				current[key] = filtered
+			} else {
+				delete(current, key)
+			}
 		}
 	}
 	return current, nil
+}
+
+func excludeIfArrayItems(value any, parts []string, operator, expected string) (any, bool) {
+	items, ok := value.([]any)
+	if !ok || len(parts) == 0 || parts[0] != "*" {
+		return value, false
+	}
+
+	filtered := make([]any, 0, len(items))
+	for _, item := range items {
+		matches, err := conditionMatches(item, parts[1:], operator, expected)
+		if err != nil || !matches {
+			filtered = append(filtered, item)
+		}
+	}
+	return filtered, true
 }
 
 func conditionMatches(value any, parts []string, operator, expected string) (bool, error) {
