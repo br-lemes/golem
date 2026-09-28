@@ -33,6 +33,7 @@ Arguments:
 		if !slices.Contains(codes, code) {
 			return fmt.Errorf("code '%s' not found", code)
 		}
+		cmd.SilenceUsage = true
 		character, err := api.Characters(name)
 		if err != nil {
 			return err

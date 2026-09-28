@@ -20,6 +20,7 @@ Arguments:
   name   Name of your character.`,
 	ValidArgsFunction: completion.CharacterName(0).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		characters := []schemas.CharacterSchema{}
 		if len(args) == 1 {
 			character, err := api.Characters(args[0])
@@ -52,7 +53,7 @@ Arguments:
 		if len(codes) == 0 {
 			return fmt.Errorf("no suitable food available in bank")
 		}
-		return outputItemCounts(uniqueStrings(codes))
+		return countRun(uniqueStrings(codes))
 	},
 }
 

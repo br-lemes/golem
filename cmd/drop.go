@@ -12,6 +12,7 @@ var dropCmd = &cobra.Command{
 	Use:   "drop",
 	Short: "Drop",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		characters, err := api.AccountsCharacters("")
 		if err != nil {
 			return err

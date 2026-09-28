@@ -94,6 +94,7 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
 		totalSold := 0
+		routine.Cooldown(npcSellData.character)
 		for totalSold < npcSellOptions.Quantity {
 			remaining := npcSellOptions.Quantity - totalSold
 			quantity := min(remaining, routine.SpaceAfterDeposit(npcSellData.character))

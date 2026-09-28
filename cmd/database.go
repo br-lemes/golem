@@ -19,6 +19,7 @@ func databaseCommand[O, T any](use, short string, fetch func(O) (T, error)) *cob
 		Use:   use,
 		Short: short,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
 			result, err := fetch(*new(O))
 			if err != nil {
 				return err

@@ -17,6 +17,7 @@ Arguments:
   route   Path of a specific route to list sizes for.`,
 	ValidArgsFunction: completion.Custom(1, utils.GetRoutesCompletion).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		if len(args) > 0 {
 			size, err := utils.GetSize(args[0])
 			if err != nil {

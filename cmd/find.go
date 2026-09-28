@@ -45,15 +45,20 @@ Arguments:
 		if options.Layer != "" && !slices.Contains(catalog.Enums()["MapLayer"], options.Layer) {
 			return fmt.Errorf("invalid layer %q: allowed values are %v", options.Layer, catalog.Enums()["MapLayer"])
 		}
+		originX, originY := 0, 0
+		if options.From != "" {
+			originX, originY, err = parseOrigin(options.From)
+			if err != nil {
+				return err
+			}
+		}
+		cmd.SilenceUsage = true
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}
 		if options.From != "" {
-			character.X, character.Y, err = parseOrigin(options.From)
-			if err != nil {
-				return err
-			}
+			character.X, character.Y = originX, originY
 		}
 		if options.Layer != "" {
 			character.Layer = options.Layer

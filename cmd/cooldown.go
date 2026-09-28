@@ -17,6 +17,7 @@ Arguments:
   route   Path of a specific route to check for cooldown.`,
 	ValidArgsFunction: completion.Custom(1, utils.GetRoutesCompletion).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		if len(args) > 0 {
 			cooldown, err := utils.GetCooldown(args[0])
 			if err != nil {

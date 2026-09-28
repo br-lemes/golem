@@ -22,6 +22,7 @@ Arguments:
 		if len(args) > 0 {
 			account = args[0]
 		}
+		cmd.SilenceUsage = true
 		result := []schemas.AccountAchievementSchema{}
 		achievements, err := api.AccountsAchievements(account, api.AccountsAchievementsOptions{})
 		if err != nil {

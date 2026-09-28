@@ -28,11 +28,12 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		character, err := api.Characters(name)
+		movement, err := movementOptions(cmd)
 		if err != nil {
 			return err
 		}
-		movement, err := movementOptions(cmd)
+		cmd.SilenceUsage = true
+		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}

@@ -33,6 +33,7 @@ Arguments:
 		if !found {
 			return fmt.Errorf("resource %s not found", code)
 		}
+		cmd.SilenceUsage = true
 
 		character, err := api.Characters(name)
 		if err != nil {
@@ -44,8 +45,6 @@ Arguments:
 		if skillLevel < resource.Level {
 			return fmt.Errorf("character %s level too low. Required: %d, Current %d", name, resource.Level, skillLevel)
 		}
-		routine.Cooldown(character)
-
 		equipments, err := best.FindEquipmentSchemas(character, best.EquipmentOptions{
 			UniqueAdeptRing: true,
 			Priorities:      best.GatheringPriorities(character, resource),
@@ -53,6 +52,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		routine.Cooldown(character)
 		character, err = routine.Equip(name, equipments, routine.EquipOptions{
 			Movement:       movement,
 			ClearUtilities: true,

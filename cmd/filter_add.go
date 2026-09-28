@@ -14,6 +14,7 @@ var filterAddCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		cmd.SilenceUsage = true
 		return cache.AddOutputFilter(args[0], args[1], args[2])
 	},
 }

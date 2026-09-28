@@ -29,6 +29,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		cmd.SilenceUsage = true
 		bankItems, err := api.MyBankItems()
 		if err != nil {
 			return err

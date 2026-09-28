@@ -97,6 +97,7 @@ Arguments:
 		name := sellData.character.Name
 		code := args[1]
 		totalSold := 0
+		routine.Cooldown(sellData.character)
 		for totalSold < sellOptions.Quantity {
 			remaining := sellOptions.Quantity - totalSold
 			if sellData.inventoryItem.Quantity == 0 {

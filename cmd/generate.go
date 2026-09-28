@@ -26,6 +26,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		cmd.SilenceUsage = true
 
 		formattedCode, err := utils.RenderTemplate(data)
 		if err != nil {

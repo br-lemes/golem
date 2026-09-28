@@ -19,6 +19,7 @@ Arguments:
   route   Path of a specific route to inspect.`,
 	ValidArgsFunction: completion.Custom(1, utils.GetRoutesCompletion).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		if len(args) > 0 {
 			res, err := utils.GetRoute(args[0])
 			if err != nil {

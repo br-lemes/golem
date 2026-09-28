@@ -33,6 +33,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		cmd.SilenceUsage = true
 
 		character, err := api.Characters(name)
 		if err != nil {

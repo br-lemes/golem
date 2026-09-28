@@ -30,6 +30,7 @@ Arguments:
 		if !found {
 			return fmt.Errorf("item not found: %s", code)
 		}
+		cmd.SilenceUsage = true
 
 		character, err := api.Characters(name)
 		if err != nil {

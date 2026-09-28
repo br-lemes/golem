@@ -105,6 +105,7 @@ Arguments:
 		id := args[1]
 		code := fillData.order.Code
 		totalFilled := 0
+		routine.Cooldown(fillData.character)
 		for totalFilled < fillOptions.Quantity {
 			remaining := fillOptions.Quantity - totalFilled
 			if fillData.inventoryItem.Quantity == 0 {

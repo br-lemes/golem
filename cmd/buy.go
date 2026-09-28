@@ -86,6 +86,7 @@ Arguments:
 		name := buyData.character.Name
 		id := args[1]
 		totalBought := 0
+		routine.Cooldown(buyData.character)
 		for totalBought < buyOptions.Quantity {
 			remaining := buyOptions.Quantity - totalBought
 			quantity := min(remaining, routine.SpaceAfterDeposit(buyData.character), 100)

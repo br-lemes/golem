@@ -112,6 +112,7 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
 		totalBought := 0
+		routine.Cooldown(npcBuyData.character)
 		if npcBuyData.item.Currency == "gold" {
 			cost := npcBuyOptions.Quantity * *npcBuyData.item.BuyPrice
 			if npcBuyData.character.Gold < cost {

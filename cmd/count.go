@@ -25,11 +25,16 @@ Arguments:
 		return append(catalog.Items().Keys(), "gold")
 	}).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return outputItemCounts(args)
+		err := countValidate(args)
+		if err != nil {
+			return err
+		}
+		cmd.SilenceUsage = true
+		return countRun(args)
 	},
 }
 
-func outputItemCounts(args []string) error {
+func countValidate(args []string) error {
 	for _, code := range args {
 		if code == "gold" {
 			continue
@@ -39,7 +44,10 @@ func outputItemCounts(args []string) error {
 			return fmt.Errorf("item %s not found", code)
 		}
 	}
+	return nil
+}
 
+func countRun(args []string) error {
 	bank, err := api.MyBank()
 	if err != nil {
 		return err

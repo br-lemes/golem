@@ -63,6 +63,7 @@ Arguments:
 		name := cancelData.character.Name
 		id := args[1]
 
+		routine.Cooldown(cancelData.character)
 		var err error
 		cancelData.character, err = routine.Move(cancelData.character, "grand_exchange", cancelData.movement)
 		if err != nil {

@@ -19,6 +19,7 @@ var filterEditCmd = &cobra.Command{
 		if args[3] == "" {
 			return fmt.Errorf("new pattern cannot be empty")
 		}
+		cmd.SilenceUsage = true
 		return cache.EditOutputFilter(args[0], args[1], args[2], args[3])
 	},
 }

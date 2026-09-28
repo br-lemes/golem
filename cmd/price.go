@@ -61,6 +61,7 @@ var priceCmd = &cobra.Command{
 		if !exists {
 			return fmt.Errorf("item %q not tradeable or not found", code)
 		}
+		cmd.SilenceUsage = true
 		orders, err := api.GrandexchangeOrders(api.GrandexchangeOrdersOptions{
 			Code: code,
 		})

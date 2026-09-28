@@ -41,6 +41,7 @@ Arguments:
 			return err
 		}
 
+		cmd.SilenceUsage = true
 		err = StartCraftingBot(name, code, flags.Quantity, movement)
 		if err != nil {
 			return err
@@ -69,8 +70,6 @@ func StartCraftingBot(name string, code string, qty int, movement routine.MoveOp
 	if skillLevel < *item.Craft.Level {
 		return fmt.Errorf("character %s level too low. Required: %d, Current: %d", name, *item.Craft.Level, skillLevel)
 	}
-	routine.Cooldown(character)
-
 	equipments, err := best.FindEquipmentSchemas(character, best.EquipmentOptions{
 		UniqueAdeptRing: true,
 		Priorities:      best.CraftingPriorities(character, item),
@@ -126,6 +125,7 @@ func StartCraftingBot(name string, code string, qty int, movement routine.MoveOp
 		return fmt.Errorf("requested %d items, but combined inventory and bank can only produce %d", targetQty, maxYieldPossible)
 	}
 
+	routine.Cooldown(character)
 	craftedSoFar := 0
 	for craftedSoFar < targetQty {
 		character, err = api.Characters(name)

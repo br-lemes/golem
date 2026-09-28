@@ -20,6 +20,7 @@ var refreshCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		cmd.SilenceUsage = true
 		return refreshCaches(flags.Account)
 	},
 }

@@ -33,6 +33,7 @@ Arguments:
 		if len(args) > 0 {
 			account = args[0]
 		}
+		cmd.SilenceUsage = true
 		characters, err := api.AccountsCharacters(account)
 		if err != nil {
 			return err

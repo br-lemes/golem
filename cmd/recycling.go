@@ -40,6 +40,7 @@ Arguments:
 			return err
 		}
 
+		cmd.SilenceUsage = true
 		err = StartRecyclingBot(name, code, flags.Quantity, flags.Enhanced, movement)
 		if err != nil {
 			return err
@@ -64,7 +65,6 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool, movemen
 		return err
 	}
 	name = character.Name
-	routine.Cooldown(character)
 
 	bankInventory, err := fetchAllBankItems()
 	if err != nil {
@@ -148,6 +148,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool, movemen
 		}
 	}
 
+	routine.Cooldown(character)
 	recycledSoFar := 0
 	for recycledSoFar < targetQty {
 		character, err = api.Characters(name)

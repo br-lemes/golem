@@ -90,6 +90,7 @@ Arguments:
 			}
 		}
 
+		routine.Cooldown(relistData.character)
 		totalProcessed := 0
 		for _, order := range relistData.orders {
 			if totalProcessed >= totalToRelist {

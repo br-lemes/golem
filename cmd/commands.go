@@ -40,6 +40,7 @@ Arguments:
 				return fmt.Errorf("command not found: %s", target)
 			}
 		}
+		cmd.SilenceUsage = true
 
 		if flags.Missing {
 			for _, command := range apiCmd.Commands() {

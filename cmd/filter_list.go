@@ -15,6 +15,7 @@ var filterListCmd = &cobra.Command{
 		if len(args) == 1 {
 			command = args[0]
 		}
+		cmd.SilenceUsage = true
 		return console.Auto(cache.ListOutputFilters(command))
 	},
 }

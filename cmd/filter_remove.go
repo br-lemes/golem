@@ -15,6 +15,7 @@ var filterRemoveCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		cmd.SilenceUsage = true
 		removed, err := cache.RemoveOutputFilter(args[0], args[1], args[2])
 		if err != nil {
 			return err
