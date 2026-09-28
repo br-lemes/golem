@@ -77,6 +77,146 @@ func TestMoveExecutesTransitions(t *testing.T) {
 	}
 }
 
+func TestMoveUsesTeleportPotionForDistantTarget(t *testing.T) {
+	inventory := []schemas.InventorySlotSchema{{
+		Code:     "forest_bank_potion",
+		Quantity: 1,
+	}}
+	character := schemas.CharacterSchema{
+		Name:              "hero",
+		X:                 -5,
+		Y:                 -5,
+		Layer:             "overworld",
+		Inventory:         &inventory,
+		InventoryMaxItems: 10,
+	}
+	used := false
+	d := deps{
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return nil, nil
+		},
+		myActionUse: func(_ string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error) {
+			used = true
+			if item.Code != "forest_bank_potion" || item.Quantity != 1 {
+				t.Fatalf("used item = %#v, want one forest bank potion", item)
+			}
+			character.X = 7
+			character.Y = 13
+			inventory[0].Quantity = 0
+			return schemas.UseItemSchema{Character: character}, nil
+		},
+	}
+
+	got, err := move(d, character, "bank", MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !used {
+		t.Fatal("teleport potion was not used")
+	}
+	if got.X != 7 || got.Y != 13 {
+		t.Fatalf("position after teleport = (%d, %d), want (7, 13)", got.X, got.Y)
+	}
+}
+
+func TestAvailableTeleportPotionsCanBeDisabled(t *testing.T) {
+	inventory := []schemas.InventorySlotSchema{{
+		Code:     "forest_bank_potion",
+		Quantity: 1,
+	}}
+	character := schemas.CharacterSchema{Inventory: &inventory}
+
+	potions, _, _, err := availableTeleportPotions(deps{}, character, MoveOptions{
+		NoTeleport: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(potions) != 0 {
+		t.Fatalf("availableTeleportPotions() = %#v, want none", potions)
+	}
+}
+
+func TestMoveNoTeleportSkipsReserveRestock(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Name:  "hero",
+		X:     7,
+		Y:     13,
+		Layer: "overworld",
+	}
+	withdrawCalled := false
+	d := deps{
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{
+				{Code: "recall_potion", Quantity: 1},
+			}, nil
+		},
+		myActionBankWithdrawItem: func(string, []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			withdrawCalled = true
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+	}
+
+	_, err := move(d, character, "bank", MoveOptions{NoTeleport: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if withdrawCalled {
+		t.Fatal("reserve was refilled with --no-teleport")
+	}
+}
+
+func TestMoveWithdrawsTeleportPotionFromCurrentBank(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Name:              "hero",
+		X:                 7,
+		Y:                 13,
+		Layer:             "overworld",
+		InventoryMaxItems: 20,
+	}
+	withdrawn := false
+	used := false
+	d := deps{
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{
+				{Code: "enchanted_potion", Quantity: 1},
+			}, nil
+		},
+		myActionBankWithdrawItem: func(_ string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			withdrawn = true
+			if len(items) != 1 || items[0].Code != "enchanted_potion" || items[0].Quantity != 1 {
+				t.Fatalf("withdrawn items = %#v, want one enchanted potion", items)
+			}
+			inventory := []schemas.InventorySlotSchema{
+				{Code: "enchanted_potion", Quantity: 1},
+			}
+			character.Inventory = &inventory
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+		myActionUse: func(_ string, item schemas.SimpleItemSchema) (schemas.UseItemSchema, error) {
+			used = true
+			if item.Code != "enchanted_potion" {
+				t.Fatalf("used item = %#v, want enchanted potion", item)
+			}
+			character.X = -5
+			character.Y = 9
+			character.Inventory = nil
+			return schemas.UseItemSchema{Character: character}, nil
+		},
+	}
+
+	got, err := move(d, character, "enchanted_mushroom", MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !withdrawn || !used {
+		t.Fatalf("withdrawn = %t, used = %t, want both", withdrawn, used)
+	}
+	if got.X != -5 || got.Y != 9 {
+		t.Fatalf("position = (%d, %d), want (-5, 9)", got.X, got.Y)
+	}
+}
+
 func TestMoveReturnsTransitionError(t *testing.T) {
 	character := schemas.CharacterSchema{X: 5, Y: -4, Layer: "underground"}
 	wantErr := errors.New("transition failed")

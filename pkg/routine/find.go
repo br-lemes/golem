@@ -2,9 +2,11 @@ package routine
 
 import (
 	"slices"
+	"sort"
 
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/utils"
 )
 
 type Result struct {
@@ -36,6 +38,9 @@ func find(d deps, character schemas.CharacterSchema, code string, potions []sche
 		Layer: character.Layer,
 	}, nil)
 	for _, simplePotion := range potions {
+		if simplePotion.Quantity <= 0 {
+			continue
+		}
 		item, exists := catalog.Items().Get(simplePotion.Code)
 		if !exists || item.Effects == nil {
 			continue
@@ -59,6 +64,9 @@ func find(d deps, character schemas.CharacterSchema, code string, potions []sche
 			results = append(results, potionResults...)
 		}
 	}
+	sort.SliceStable(results, func(i, j int) bool {
+		return results[i].Distance < results[j].Distance
+	})
 	return results
 }
 
@@ -110,17 +118,37 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 			return true
 		}
 		for _, condition := range *conditions {
-			if condition.Operator == "achievement_unlocked" && !hasAchievement(condition.Code) {
-				return false
-			}
-			if condition.Operator == "has_item" && !hasItem(character, condition.Code, condition.Value, loadBank, &bankItems) {
+			switch condition.Operator {
+			case "achievement_unlocked":
+				if !hasAchievement(condition.Code) {
+					return false
+				}
+			case "has_item":
+				if !hasItem(character, condition.Code, condition.Value, loadBank, &bankItems) {
+					return false
+				}
+			case "cost":
+				continue
+			case "gt", "eq", "lt", "ne":
+				level, exists := utils.GetCharacterConditionLevel(character, condition.Code)
+				if !exists || !conditionSatisfied(level, condition) {
+					return false
+				}
+			default:
 				return false
 			}
 		}
 		return true
 	}
+	if potion != nil && !conditionsSatisfied(potion.Conditions) {
+		return nil
+	}
 
-	queue := []node{{point: start}}
+	initialDistance := 0
+	if potion != nil {
+		initialDistance = 5
+	}
+	queue := []node{{point: start, distance: initialDistance}}
 	visited := map[catalog.Point]bool{start: true}
 	var results []Result
 	dx := [...]int{0, 0, 1, -1}
@@ -186,6 +214,21 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 		}
 	}
 	return results
+}
+
+func conditionSatisfied(level int, condition schemas.ConditionSchema) bool {
+	switch condition.Operator {
+	case "gt":
+		return level > condition.Value
+	case "eq":
+		return level == condition.Value
+	case "lt":
+		return level < condition.Value
+	case "ne":
+		return level != condition.Value
+	default:
+		return false
+	}
 }
 
 func appendItemConditions(conditions *[]schemas.ConditionSchema, item *schemas.ItemSchema) *[]schemas.ConditionSchema {

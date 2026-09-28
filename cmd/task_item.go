@@ -46,6 +46,10 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		movement, err := movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
 		character, err := api.Characters(name)
 		if err != nil {
@@ -60,7 +64,7 @@ Arguments:
 		cancelsInARow := 0
 		for {
 			if character.Task == "" {
-				character, err = routine.Move(character, "items", routine.MoveOptions{})
+				character, err = routine.Move(character, "items", movement)
 				if err != nil {
 					return err
 				}
@@ -93,8 +97,9 @@ Arguments:
 					taskQuantity := taskItemInvQty(character, character.Task)
 					toTrade := min(remaining, taskQuantity)
 					if taskQuantity == 0 {
-						toTrade = min(remaining, max(0, character.InventoryMaxItems-flags.CoinBuffer))
-						character, err = routine.Move(character, "bank", routine.MoveOptions{})
+						space := routine.SpaceAfterDeposit(character) - flags.CoinBuffer
+						toTrade = min(remaining, max(0, space))
+						character, err = routine.Move(character, "bank", movement)
 						if err != nil {
 							return err
 						}
@@ -109,12 +114,17 @@ Arguments:
 									Quantity: item.Quantity,
 								})
 							}
+							items = routine.KeepTravelReserve(character, items)
 							if len(items) > 0 {
 								bankData, err := api.MyActionBankDepositItem(name, items)
 								if err != nil {
 									return err
 								}
 								character = bankData.Character
+							}
+							character, err = routine.RestockTravelPotion(character, movement)
+							if err != nil {
+								return err
 							}
 						}
 						bankItems, err = api.MyBankItems()
@@ -137,7 +147,7 @@ Arguments:
 						}
 						character = bankData.Character
 					}
-					character, err = routine.Move(character, "items", routine.MoveOptions{})
+					character, err = routine.Move(character, "items", movement)
 					if err != nil {
 						return err
 					}
@@ -150,7 +160,7 @@ Arguments:
 					}
 					character = trade.Character
 				}
-				character, err = routine.Move(character, "items", routine.MoveOptions{})
+				character, err = routine.Move(character, "items", movement)
 				if err != nil {
 					return err
 				}
@@ -165,7 +175,7 @@ Arguments:
 				return fmt.Errorf("reached %d consecutive task cancellations", flags.MaxCancel)
 			}
 			if taskItemInvQty(character, tasksCoin) < 1 {
-				character, err = routine.Move(character, "bank", routine.MoveOptions{})
+				character, err = routine.Move(character, "bank", movement)
 				if err != nil {
 					return err
 				}
@@ -177,7 +187,7 @@ Arguments:
 				}
 				character = bankData.Character
 			}
-			character, err = routine.Move(character, "items", routine.MoveOptions{})
+			character, err = routine.Move(character, "items", movement)
 			if err != nil {
 				return err
 			}

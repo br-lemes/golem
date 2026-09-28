@@ -15,6 +15,7 @@ import (
 var relistData struct {
 	character schemas.CharacterSchema
 	orders    []schemas.GEOrderSchema
+	movement  routine.MoveOptions
 }
 
 type relistFlags struct {
@@ -43,6 +44,10 @@ Arguments:
 			return err
 		}
 		relistOptions = flags
+		relistData.movement, err = movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
 		_, found := catalog.Items().Tradeables().Get(code)
 		if !found {
@@ -94,7 +99,7 @@ Arguments:
 			qtyToCancel := min(remaining, order.Quantity)
 
 			var err error
-			relistData.character, err = routine.Move(relistData.character, "grand_exchange", routine.MoveOptions{})
+			relistData.character, err = routine.Move(relistData.character, "grand_exchange", relistData.movement)
 			if err != nil {
 				return err
 			}

@@ -318,12 +318,41 @@ func TestFindBankWithForestBankPotion(t *testing.T) {
 	if len(results) != 4 {
 		t.Fatalf("find() returned %d results, want 4", len(results))
 	}
-	potionResult := results[2]
-	if potionResult.Target.MapId != 955 || potionResult.Distance != 0 {
-		t.Fatalf("potion result = %#v, want map 955 at distance 0", potionResult)
+	var potionResult *Result
+	for index := range results {
+		if results[index].Potion != nil {
+			potionResult = &results[index]
+			break
+		}
+	}
+	if potionResult == nil {
+		t.Fatal("find() returned no result using a potion")
+	}
+	if potionResult.Target.MapId != 955 || potionResult.Distance != 5 {
+		t.Fatalf("potion result = %#v, want map 955 at distance %d", potionResult, 5)
 	}
 	if potionResult.Potion == nil || potionResult.Potion.Code != "forest_bank_potion" {
 		t.Fatalf("potion result item = %#v, want forest_bank_potion", potionResult.Potion)
+	}
+}
+
+func TestFindPrefersNearbyWalkingRouteOverTeleportPotion(t *testing.T) {
+	d := deps{
+		accountsAchievements: func(string) ([]schemas.AccountAchievementSchema, error) {
+			return nil, nil
+		},
+	}
+	character := schemas.CharacterSchema{X: 3, Y: 2, Layer: "overworld"}
+	potions := []schemas.SimpleItemSchema{
+		{Code: "forest_bank_potion", Quantity: 1},
+	}
+
+	results := find(d, character, "bank", potions)
+	if len(results) == 0 {
+		t.Fatal("find() returned no bank routes")
+	}
+	if results[0].Potion != nil || results[0].Distance >= 5 {
+		t.Fatalf("closest route = %#v, want short walking route", results[0])
 	}
 }
 

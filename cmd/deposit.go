@@ -16,8 +16,8 @@ type depositFlags struct {
 var depositCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Use:   "deposit <name>",
-	Short: "Deposit all items and gold to the bank",
-	Long: `Deposit all items and gold to the bank
+	Short: "Deposit items and gold",
+	Long: `Deposit items and gold
 
 Arguments:
   name   Name of your character.`,
@@ -29,13 +29,20 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		movement, err := movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}
 		routine.Cooldown(character)
-		_, err = routine.Deposit(character, flags.Keep)
+		_, err = routine.Deposit(character, routine.DepositOptions{
+			Movement:  movement,
+			KeepTypes: flags.Keep,
+		})
 		return err
 	},
 }

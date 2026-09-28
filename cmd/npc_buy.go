@@ -18,6 +18,7 @@ var npcBuyData struct {
 	bankItem      schemas.SimpleItemSchema
 	inventoryItem schemas.SimpleItemSchema
 	item          *schemas.NPCItemSchema
+	movement      routine.MoveOptions
 }
 
 type npcBuyFlags struct {
@@ -45,6 +46,10 @@ Arguments:
 			return err
 		}
 		npcBuyOptions = flags
+		npcBuyData.movement, err = movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
 		var exists bool
 		npcBuyData.item, exists = catalog.NpcsItems.Get(code)
@@ -126,9 +131,10 @@ Arguments:
 		}
 		for totalBought < npcBuyOptions.Quantity {
 			remaining := npcBuyOptions.Quantity - totalBought
-			quantity := min(remaining, npcBuyData.character.InventoryMaxItems)
+			inventorySpace := routine.SpaceAfterDeposit(npcBuyData.character)
+			quantity := min(remaining, inventorySpace)
 			if npcBuyData.item.Currency != "gold" {
-				maxByCurrency := npcBuyData.character.InventoryMaxItems / *npcBuyData.item.BuyPrice
+				maxByCurrency := inventorySpace / *npcBuyData.item.BuyPrice
 				quantity = min(quantity, maxByCurrency)
 			}
 			cost := quantity * *npcBuyData.item.BuyPrice
@@ -192,28 +198,31 @@ func inventoryItems() []schemas.InventorySlotSchema {
 
 func moveBank() error {
 	var err error
-	npcBuyData.character, err = routine.Move(npcBuyData.character, "bank", routine.MoveOptions{})
+	npcBuyData.character, err = routine.Move(npcBuyData.character, "bank", npcBuyData.movement)
 	return err
 }
 
 func moveNpc() error {
 	var err error
-	npcBuyData.character, err = routine.Move(npcBuyData.character, npcBuyData.item.Npc, routine.MoveOptions{})
+	npcBuyData.character, err = routine.Move(npcBuyData.character, npcBuyData.item.Npc, npcBuyData.movement)
 	return err
 }
 
 func depositAll() error {
 	name := npcBuyData.character.Name
-	items := routine.GetInventoryItems(npcBuyData.character, nil)
-	if len(items) == 0 {
-		return nil
+	items := routine.GetInventoryItems(npcBuyData.character, routine.InventoryItemsOptions{
+		KeepTravelPotions: true,
+	})
+	if len(items) > 0 {
+		depositData, err := api.MyActionBankDepositItem(name, items)
+		if err != nil {
+			return err
+		}
+		npcBuyData.character = depositData.Character
 	}
-	depositData, err := api.MyActionBankDepositItem(name, items)
-	if err != nil {
-		return err
-	}
-	npcBuyData.character = depositData.Character
-	return nil
+	var err error
+	npcBuyData.character, err = routine.RestockTravelPotion(npcBuyData.character, npcBuyData.movement)
+	return err
 }
 
 func withdrawGold(quantity int) error {

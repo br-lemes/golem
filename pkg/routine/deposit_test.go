@@ -36,7 +36,7 @@ func TestDepositItems(t *testing.T) {
 		},
 	}
 
-	got, err := deposit(deps, character, nil)
+	got, err := deposit(deps, character, DepositOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +75,7 @@ func TestDepositGold(t *testing.T) {
 		},
 	}
 
-	_, err := deposit(deps, character, nil)
+	_, err := deposit(deps, character, DepositOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,12 +110,95 @@ func TestDepositKeepsItems(t *testing.T) {
 		},
 	}
 
-	_, err := deposit(deps, character, []string{"mining"})
+	options := DepositOptions{KeepTypes: []string{"mining"}}
+	_, err := deposit(deps, character, options)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if itemsCalled {
 		t.Fatal("item was deposited despite matching keep subtype")
+	}
+}
+
+func TestDepositKeepTypeOverridesNoTeleport(t *testing.T) {
+	inventory := []schemas.InventorySlotSchema{
+		{Code: "forest_bank_potion", Quantity: 1},
+		{Code: "recall_potion", Quantity: 1},
+	}
+	character := schemas.CharacterSchema{
+		Name:      "hero",
+		Inventory: &inventory,
+		X:         3,
+		Y:         1,
+		MapId:     334,
+		Layer:     "overworld",
+	}
+	itemsDeposited := false
+	d := deps{
+		myActionMove: func(_ string, _, _ int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionTransition: func(_ string) (schemas.CharacterTransitionDataSchema, error) {
+			return schemas.CharacterTransitionDataSchema{Character: character}, nil
+		},
+		myActionBankDepositItem: func(_ string, _ []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			itemsDeposited = true
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+	}
+
+	_, err := deposit(d, character, DepositOptions{
+		Movement:  MoveOptions{NoTeleport: true},
+		KeepTypes: []string{"potion"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if itemsDeposited {
+		t.Fatal("teleport potions were deposited despite --keep potion")
+	}
+}
+
+func TestDepositNoTeleportDepositsReservedPotions(t *testing.T) {
+	inventory := []schemas.InventorySlotSchema{
+		{Code: "forest_bank_potion", Quantity: 1},
+		{Code: "recall_potion", Quantity: 1},
+	}
+	character := schemas.CharacterSchema{
+		Name:      "hero",
+		Inventory: &inventory,
+		X:         3,
+		Y:         1,
+		MapId:     334,
+		Layer:     "overworld",
+	}
+	var deposited []schemas.SimpleItemSchema
+	d := deps{
+		myActionMove: func(_ string, _, _ int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionTransition: func(_ string) (schemas.CharacterTransitionDataSchema, error) {
+			return schemas.CharacterTransitionDataSchema{Character: character}, nil
+		},
+		myActionBankDepositItem: func(_ string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			deposited = items
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+	}
+
+	_, err := deposit(d, character, DepositOptions{
+		Movement: MoveOptions{NoTeleport: true},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	valid := len(deposited) == 2
+	valid = valid && deposited[0].Code == "forest_bank_potion"
+	valid = valid && deposited[0].Quantity == 1
+	valid = valid && deposited[1].Code == "recall_potion"
+	valid = valid && deposited[1].Quantity == 1
+	if !valid {
+		t.Fatalf("deposited items = %#v, want one of each reserved teleport potion", deposited)
 	}
 }
 
@@ -142,7 +225,8 @@ func TestDepositKeepsGold(t *testing.T) {
 		},
 	}
 
-	_, err := deposit(deps, character, []string{"gold"})
+	options := DepositOptions{KeepTypes: []string{"gold"}}
+	_, err := deposit(deps, character, options)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -173,7 +257,7 @@ func TestDepositReturnsError(t *testing.T) {
 		},
 	}
 
-	_, err := deposit(deps, character, nil)
+	_, err := deposit(deps, character, DepositOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("deposit() error = %v, want %v", err, wantErr)
 	}
@@ -194,7 +278,7 @@ func TestDepositReturnsMoveError(t *testing.T) {
 		},
 	}
 
-	_, err := deposit(deps, character, nil)
+	_, err := deposit(deps, character, DepositOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("deposit() error = %v, want %v", err, wantErr)
 	}
@@ -225,7 +309,7 @@ func TestDepositReturnsItemError(t *testing.T) {
 		},
 	}
 
-	_, err := deposit(deps, character, nil)
+	_, err := deposit(deps, character, DepositOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("deposit() error = %v, want %v", err, wantErr)
 	}

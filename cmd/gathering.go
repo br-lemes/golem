@@ -12,10 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type gatheringFlags struct {
-	AllowGold bool `flag:"allow-gold" desc:"allow paid transitions and withdraw gold from the bank"`
-}
-
 var gatheringCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	Use:   "gathering <name> <code>",
@@ -29,7 +25,7 @@ Arguments:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		code := args[1]
-		flags, err := utils.ReadFlags[gatheringFlags](cmd)
+		movement, err := movementOptions(cmd)
 		if err != nil {
 			return err
 		}
@@ -57,22 +53,21 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		character, err = routine.Equip(name, equipments)
+		character, err = routine.Equip(name, equipments, routine.EquipOptions{
+			Movement:       movement,
+			ClearUtilities: true,
+		})
 		if err != nil {
 			return err
 		}
 
 		for {
-			character, err = routine.Inventory(character, []string{}, routine.MoveOptions{
-				AllowGold: flags.AllowGold,
-			})
+			character, err = routine.Inventory(character, []string{}, movement)
 			if err != nil {
 				return err
 			}
 
-			_, err = routine.Move(character, code, routine.MoveOptions{
-				AllowGold: flags.AllowGold,
-			})
+			_, err = routine.Move(character, code, movement)
 			if err != nil {
 				return err
 			}
@@ -89,8 +84,4 @@ Arguments:
 
 func init() {
 	rootCmd.AddCommand(gatheringCmd)
-	err := utils.RegisterFlags[gatheringFlags](gatheringCmd)
-	if err != nil {
-		panic(err)
-	}
 }

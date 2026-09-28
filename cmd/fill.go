@@ -16,6 +16,7 @@ var fillData struct {
 	order         schemas.GEOrderSchema
 	bankItem      schemas.SimpleItemSchema
 	inventoryItem schemas.SimpleItemSchema
+	movement      routine.MoveOptions
 }
 
 type fillFlags struct {
@@ -43,6 +44,10 @@ Arguments:
 			return err
 		}
 		fillOptions = flags
+		fillData.movement, err = movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
 		if id == "" {
 			return fmt.Errorf("id must not be empty")
@@ -104,11 +109,13 @@ Arguments:
 			remaining := fillOptions.Quantity - totalFilled
 			if fillData.inventoryItem.Quantity == 0 {
 				var err error
-				fillData.character, err = routine.Move(fillData.character, "bank", routine.MoveOptions{})
+				fillData.character, err = routine.Move(fillData.character, "bank", fillData.movement)
 				if err != nil {
 					return err
 				}
-				items := routine.GetInventoryItems(fillData.character, nil)
+				items := routine.GetInventoryItems(fillData.character, routine.InventoryItemsOptions{
+					KeepTravelPotions: true,
+				})
 				if len(items) > 0 {
 					depositData, err := api.MyActionBankDepositItem(fillData.character.Name, items)
 					if err != nil {
@@ -116,7 +123,11 @@ Arguments:
 					}
 					fillData.character = depositData.Character
 				}
-				withdrawQuantity := min(remaining, fillData.character.InventoryMaxItems)
+				fillData.character, err = routine.RestockTravelPotion(fillData.character, fillData.movement)
+				if err != nil {
+					return err
+				}
+				withdrawQuantity := min(remaining, routine.SpaceAfterDeposit(fillData.character))
 				withdrawData, err := api.MyActionBankWithdrawItem(name, []schemas.SimpleItemSchema{
 					{Code: code, Quantity: withdrawQuantity},
 				})
@@ -130,7 +141,7 @@ Arguments:
 				}
 			}
 			var err error
-			fillData.character, err = routine.Move(fillData.character, "grand_exchange", routine.MoveOptions{})
+			fillData.character, err = routine.Move(fillData.character, "grand_exchange", fillData.movement)
 			if err != nil {
 				return err
 			}

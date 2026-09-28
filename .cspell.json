@@ -12,6 +12,7 @@
 		"craftable",
 		"debuff",
 		"Debugf",
+		"depositable",
 		"equippable",
 		"errgroup",
 		"gearcrafting",

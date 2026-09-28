@@ -13,6 +13,7 @@ import (
 var cancelData struct {
 	character schemas.CharacterSchema
 	order     schemas.GEOrderSchema
+	movement  routine.MoveOptions
 }
 
 var cancelCmd = &cobra.Command{
@@ -28,6 +29,10 @@ Arguments:
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		id := args[1]
+		movement, err := movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 		if id == "" {
 			return fmt.Errorf("id must not be empty")
 		}
@@ -46,6 +51,7 @@ Arguments:
 			return fmt.Errorf("order %q not found", id)
 		}
 		cancelData.order = *found
+		cancelData.movement = movement
 		cancelData.character, err = api.Characters(name)
 		if err != nil {
 			return err
@@ -58,7 +64,7 @@ Arguments:
 		id := args[1]
 
 		var err error
-		cancelData.character, err = routine.Move(cancelData.character, "grand_exchange", routine.MoveOptions{})
+		cancelData.character, err = routine.Move(cancelData.character, "grand_exchange", cancelData.movement)
 		if err != nil {
 			return err
 		}

@@ -31,6 +31,10 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		movement, err := movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 		err = fightValidate(code, flags, true)
 		if err != nil {
 			return err
@@ -88,11 +92,11 @@ Arguments:
 		for {
 			var g errgroup.Group
 			g.Go(func() error {
-				return prepare(charMap[name], *boss, flags)
+				return prepare(charMap[name], *boss, flags, movement)
 			})
 			for _, p := range participants {
 				g.Go(func() error {
-					return prepare(charMap[p], *boss, flags)
+					return prepare(charMap[p], *boss, flags, movement)
 				})
 			}
 			err := g.Wait()

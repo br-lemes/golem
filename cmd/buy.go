@@ -15,6 +15,7 @@ var buyData struct {
 	character schemas.CharacterSchema
 	order     schemas.GEOrderSchema
 	bankGold  int
+	movement  routine.MoveOptions
 }
 
 type buyFlags struct {
@@ -42,6 +43,10 @@ Arguments:
 			return err
 		}
 		buyOptions = flags
+		buyData.movement, err = movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
 		if id == "" {
 			return fmt.Errorf("id must not be empty")
@@ -83,7 +88,7 @@ Arguments:
 		totalBought := 0
 		for totalBought < buyOptions.Quantity {
 			remaining := buyOptions.Quantity - totalBought
-			quantity := min(remaining, buyData.character.InventoryMaxItems, 100)
+			quantity := min(remaining, routine.SpaceAfterDeposit(buyData.character), 100)
 			cost := quantity * buyData.order.Price
 
 			needBank := false
@@ -97,17 +102,23 @@ Arguments:
 			}
 			if needBank || buyData.character.Gold < cost {
 				var err error
-				buyData.character, err = routine.Move(buyData.character, "bank", routine.MoveOptions{})
+				buyData.character, err = routine.Move(buyData.character, "bank", buyData.movement)
 				if err != nil {
 					return err
 				}
-				items := routine.GetInventoryItems(buyData.character, nil)
+				items := routine.GetInventoryItems(buyData.character, routine.InventoryItemsOptions{
+					KeepTravelPotions: true,
+				})
 				if len(items) > 0 {
 					depositData, err := api.MyActionBankDepositItem(name, items)
 					if err != nil {
 						return err
 					}
 					buyData.character = depositData.Character
+				}
+				buyData.character, err = routine.RestockTravelPotion(buyData.character, buyData.movement)
+				if err != nil {
+					return err
 				}
 				if buyData.character.Gold < cost {
 					goldData, err := api.MyActionBankWithdrawGold(name, cost-buyData.character.Gold)
@@ -119,7 +130,7 @@ Arguments:
 			}
 
 			var err error
-			buyData.character, err = routine.Move(buyData.character, "grand_exchange", routine.MoveOptions{})
+			buyData.character, err = routine.Move(buyData.character, "grand_exchange", buyData.movement)
 			if err != nil {
 				return err
 			}

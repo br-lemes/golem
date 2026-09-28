@@ -9,21 +9,21 @@ import (
 	"github.com/br-lemes/golem/pkg/utils"
 )
 
-func Equip(name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
+// EquipOptions configures movement and utility handling.
+type EquipOptions struct {
+	Movement MoveOptions
+	// Utilities gives desired values; only changed slots are reset.
+	Utilities map[string]string
+	// ClearUtilities retains Equip's legacy behavior.
+	ClearUtilities bool
+}
+
+func Equip(name string, equipments []schemas.EquipSchema, options EquipOptions) (schemas.CharacterSchema, error) {
 	// +gocover:ignore:block production wrapper over tested implementation
-	return equip(defaultDeps, name, equipments)
+	return equip(defaultDeps, name, equipments, options)
 }
 
-func equip(d deps, name string, equipments []schemas.EquipSchema) (schemas.CharacterSchema, error) {
-	return equipWithUtilities(d, name, equipments, nil, true)
-}
-
-func EquipWithUtilities(name string, equipments []schemas.EquipSchema, utilities map[string]string) (schemas.CharacterSchema, error) {
-	// +gocover:ignore:block production wrapper over tested implementation
-	return equipWithUtilities(defaultDeps, name, equipments, utilities, false)
-}
-
-func equipWithUtilities(d deps, name string, equipments []schemas.EquipSchema, utilityChanges map[string]string, legacyUtilities bool) (schemas.CharacterSchema, error) {
+func equip(d deps, name string, equipments []schemas.EquipSchema, options EquipOptions) (schemas.CharacterSchema, error) {
 	err := validateEquipments(equipments)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
@@ -38,8 +38,8 @@ func equipWithUtilities(d deps, name string, equipments []schemas.EquipSchema, u
 	}
 	needed := filterNeededEquipments(character, equipments)
 	hasEquipmentChanges := len(needed) > 0
-	utilitySlots := changedUtilitySlots(character, utilityChanges)
-	if legacyUtilities && (character.Utility1Slot != "" || character.Utility2Slot != "") {
+	utilitySlots := changedUtilitySlots(character, options.Utilities)
+	if options.ClearUtilities && (character.Utility1Slot != "" || character.Utility2Slot != "") {
 		utilitySlots = []string{"utility1", "utility2"}
 	}
 	hasUtilityChanges := len(utilitySlots) > 0
@@ -70,7 +70,9 @@ func equipWithUtilities(d deps, name string, equipments []schemas.EquipSchema, u
 	missing := calculateMissingItems(character, needed)
 	shouldPrepare := hasUtilityChanges || len(missing) > 0
 	if shouldPrepare {
-		character, err = deposit(d, character, nil)
+		character, err = deposit(d, character, DepositOptions{
+			Movement: options.Movement,
+		})
 		if err != nil {
 			return character, err
 		}
@@ -97,7 +99,9 @@ func equipWithUtilities(d deps, name string, equipments []schemas.EquipSchema, u
 		character = result.Character
 	}
 	if shouldPrepare {
-		character, err = deposit(d, character, nil)
+		character, err = deposit(d, character, DepositOptions{
+			Movement: options.Movement,
+		})
 		if err != nil {
 			return character, err
 		}

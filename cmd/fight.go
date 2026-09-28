@@ -19,7 +19,6 @@ type fightFlags struct {
 	FoodOnly     string `flag:"food-only" desc:"use only this food code"`
 	NoFood       bool   `flag:"no-food" desc:"do not use food"`
 	AllowUnsafe  bool   `flag:"allow-unsafe" desc:"allow fights with simulated winrate below 100%"`
-	AllowGold    bool   `flag:"allow-gold" desc:"allow paid transitions and withdraw gold from the bank"`
 	UseUtilities bool   `flag:"use-utilities" desc:"use utilities selected by the simulator"`
 	Utility1     string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
 	Utility2     string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
@@ -40,6 +39,10 @@ Arguments:
 		code := args[1]
 
 		flags, err := utils.ReadFlags[fightFlags](cmd)
+		if err != nil {
+			return err
+		}
+		movement, err := movementOptions(cmd)
 		if err != nil {
 			return err
 		}
@@ -91,12 +94,15 @@ Arguments:
 				Slot: slot,
 			})
 		}
-		character, err = routine.EquipWithUtilities(name, equipments, fightResult.Utilities)
+		character, err = routine.Equip(name, equipments, routine.EquipOptions{
+			Movement:  movement,
+			Utilities: fightResult.Utilities,
+		})
 		if err != nil {
 			return err
 		}
 		for {
-			err = prepare(character, *monster, flags)
+			err = prepare(character, *monster, flags, movement)
 			if err != nil {
 				return err
 			}
@@ -181,11 +187,9 @@ func fightFoodValidate(character schemas.CharacterSchema, flags fightFlags) erro
 	return nil
 }
 
-func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, flags fightFlags) error {
+func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, flags fightFlags, movement routine.MoveOptions) error {
 	routine.Cooldown(character)
-	character, err := routine.Inventory(character, []string{"food"}, routine.MoveOptions{
-		AllowGold: flags.AllowGold,
-	})
+	character, err := routine.Inventory(character, []string{"food"}, movement)
 	if err != nil {
 		return err
 	}
@@ -194,12 +198,12 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, f
 		food = flags.FoodOnly
 	}
 	character, err = routine.Bank(character, routine.BankOptions{
-		AllowGold: flags.AllowGold,
-		Food:      food,
-		FoodOnly:  flags.FoodOnly != "",
-		NoFood:    flags.NoFood,
-		Utility1:  flags.Utility1,
-		Utility2:  flags.Utility2,
+		Movement: movement,
+		Food:     food,
+		FoodOnly: flags.FoodOnly != "",
+		NoFood:   flags.NoFood,
+		Utility1: flags.Utility1,
+		Utility2: flags.Utility2,
 	})
 	if err != nil {
 		return err
@@ -216,9 +220,7 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, f
 	if err != nil {
 		return err
 	}
-	_, err = routine.Move(character, monster.Code, routine.MoveOptions{
-		AllowGold: flags.AllowGold,
-	})
+	_, err = routine.Move(character, monster.Code, movement)
 	if err != nil {
 		return err
 	}

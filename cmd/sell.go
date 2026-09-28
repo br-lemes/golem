@@ -16,6 +16,7 @@ var sellData struct {
 	character     schemas.CharacterSchema
 	bankItem      schemas.SimpleItemSchema
 	inventoryItem schemas.SimpleItemSchema
+	movement      routine.MoveOptions
 }
 
 type sellFlags struct {
@@ -44,6 +45,10 @@ Arguments:
 			return err
 		}
 		sellOptions = flags
+		sellData.movement, err = movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
 		_, found := catalog.Items().Tradeables().Get(code)
 		if !found {
@@ -96,11 +101,13 @@ Arguments:
 			remaining := sellOptions.Quantity - totalSold
 			if sellData.inventoryItem.Quantity == 0 {
 				var err error
-				sellData.character, err = routine.Move(sellData.character, "bank", routine.MoveOptions{})
+				sellData.character, err = routine.Move(sellData.character, "bank", sellData.movement)
 				if err != nil {
 					return err
 				}
-				items := routine.GetInventoryItems(sellData.character, nil)
+				items := routine.GetInventoryItems(sellData.character, routine.InventoryItemsOptions{
+					KeepTravelPotions: true,
+				})
 				if len(items) > 0 {
 					depositData, err := api.MyActionBankDepositItem(sellData.character.Name, items)
 					if err != nil {
@@ -108,7 +115,11 @@ Arguments:
 					}
 					sellData.character = depositData.Character
 				}
-				withdrawQuantity := min(remaining, sellData.character.InventoryMaxItems)
+				sellData.character, err = routine.RestockTravelPotion(sellData.character, sellData.movement)
+				if err != nil {
+					return err
+				}
+				withdrawQuantity := min(remaining, routine.SpaceAfterDeposit(sellData.character))
 				withdrawData, err := api.MyActionBankWithdrawItem(name, []schemas.SimpleItemSchema{
 					{Code: code, Quantity: withdrawQuantity},
 				})
@@ -122,7 +133,7 @@ Arguments:
 				}
 			}
 			var err error
-			sellData.character, err = routine.Move(sellData.character, "grand_exchange", routine.MoveOptions{})
+			sellData.character, err = routine.Move(sellData.character, "grand_exchange", sellData.movement)
 			if err != nil {
 				return err
 			}

@@ -20,7 +20,7 @@ func TestEquipValidatesBeforeFetchingCharacter(t *testing.T) {
 	quantity := 2
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon", Quantity: &quantity},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if err == nil {
 		t.Fatal("expected an error")
 	}
@@ -45,7 +45,7 @@ func TestEquipSkipsAlreadyEquippedItem(t *testing.T) {
 	}
 	result, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestEquipClearsUtilitiesBeforeReturning(t *testing.T) {
 	}
 	result, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,6 +115,46 @@ func TestEquipClearsUtilitiesBeforeReturning(t *testing.T) {
 	}
 	if result.Utility1Slot != "" {
 		t.Fatalf("utility1 slot = %q, want empty", result.Utility1Slot)
+	}
+}
+
+func TestEquipUtilityOptionsOnlyClearChangedSlots(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Name:         "hero",
+		Level:        10,
+		X:            4,
+		Y:            1,
+		MapId:        334,
+		Layer:        "overworld",
+		Utility1Slot: "small_health_potion",
+		Utility2Slot: "mana_potion",
+	}
+	var unequipped []schemas.UnequipSchema
+	d := deps{
+		characters: func(string) (schemas.CharacterSchema, error) {
+			return character, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionUnequip: func(_ string, items []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
+			unequipped = items
+			character.Utility1Slot = ""
+			return schemas.EquipmentTransactionSchema{Character: character}, nil
+		},
+	}
+
+	got, err := equip(d, character.Name, nil, EquipOptions{
+		Utilities: map[string]string{"utility1": "health_potion"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(unequipped) != 1 || unequipped[0].Slot != "utility1" {
+		t.Fatalf("unequipped slots = %#v, want only utility1", unequipped)
+	}
+	if got.Utility2Slot != "mana_potion" {
+		t.Fatalf("utility2 slot = %q, want mana_potion", got.Utility2Slot)
 	}
 }
 
@@ -144,7 +184,7 @@ func TestEquipReturnsUtilityClearError(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
@@ -184,7 +224,7 @@ func TestEquipReturnsUtilityDepositError(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
@@ -239,7 +279,7 @@ func TestEquipReturnsFinalDepositError(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
@@ -384,7 +424,7 @@ func TestEquipReturnsCharacterError(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
@@ -403,7 +443,7 @@ func TestEquipReturnsLevelError(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if err == nil {
 		t.Fatal("expected an error")
 	}
@@ -424,7 +464,7 @@ func TestEquipReturnsBankItemsError(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
@@ -448,7 +488,7 @@ func TestEquipReturnsActionError(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
@@ -473,7 +513,7 @@ func TestEquipUsesAvailableInventoryItem(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -511,7 +551,7 @@ func TestEquipWithdrawsMissingItem(t *testing.T) {
 
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -537,7 +577,7 @@ func TestEquipReturnsMoveErrorWhenWithdrawing(t *testing.T) {
 
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
@@ -566,7 +606,7 @@ func TestEquipReturnsWithdrawError(t *testing.T) {
 
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}
@@ -629,7 +669,7 @@ func TestEquipReturnsInsufficientStockError(t *testing.T) {
 	}
 	_, err := equip(deps, "hero", []schemas.EquipSchema{
 		{Code: "iron_sword", Slot: "weapon"},
-	})
+	}, EquipOptions{ClearUtilities: true})
 	if err == nil {
 		t.Fatal("expected an error")
 	}
@@ -789,7 +829,9 @@ func TestEquipRestoresHPBeforeRemovingEquipment(t *testing.T) {
 	}
 
 	equipments := []schemas.EquipSchema{{Code: "iron_boots", Slot: "boots"}}
-	_, err := equip(d, character.Name, equipments)
+	_, err := equip(d, character.Name, equipments, EquipOptions{
+		ClearUtilities: true,
+	})
 	if err != nil || !rested || !equipped {
 		t.Fatalf("equip() error = %v, rested = %t, equipped = %t", err, rested, equipped)
 	}
@@ -821,7 +863,7 @@ func TestEquipReturnsHPRecoveryError(t *testing.T) {
 	}
 
 	equipments := []schemas.EquipSchema{{Code: "iron_boots", Slot: "boots"}}
-	_, err := equip(d, "hero", equipments)
+	_, err := equip(d, "hero", equipments, EquipOptions{ClearUtilities: true})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("equip() error = %v, want %v", err, wantErr)
 	}

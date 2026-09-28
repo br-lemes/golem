@@ -36,8 +36,12 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		movement, err := movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
-		err = StartCraftingBot(name, code, flags.Quantity)
+		err = StartCraftingBot(name, code, flags.Quantity, movement)
 		if err != nil {
 			return err
 		}
@@ -46,7 +50,7 @@ Arguments:
 	},
 }
 
-func StartCraftingBot(name string, code string, qty int) error {
+func StartCraftingBot(name string, code string, qty int, movement routine.MoveOptions) error {
 	item, found := catalog.Items().Get(code)
 	if !found {
 		return fmt.Errorf("item not found: %s", code)
@@ -74,7 +78,10 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
-	character, err = routine.Equip(name, equipments)
+	character, err = routine.Equip(name, equipments, routine.EquipOptions{
+		Movement:       movement,
+		ClearUtilities: true,
+	})
 	if err != nil {
 		return err
 	}
@@ -150,7 +157,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 		}
 
 		if batchActionsPossible > 0 {
-			character, err = routine.Move(character, string(*item.Craft.Skill), routine.MoveOptions{})
+			character, err = routine.Move(character, string(*item.Craft.Skill), movement)
 			if err != nil {
 				return err
 			}
@@ -167,7 +174,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 			continue
 		}
 
-		character, err = routine.Move(character, "bank", routine.MoveOptions{})
+		character, err = routine.Move(character, "bank", movement)
 		if err != nil {
 			return err
 		}
@@ -191,6 +198,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 				})
 			}
 		}
+		depositList = routine.KeepTravelReserve(character, depositList)
 
 		if len(depositList) > 0 {
 			_, err = api.MyActionBankDepositItem(name, depositList)
@@ -201,6 +209,10 @@ func StartCraftingBot(name string, code string, qty int) error {
 			if err != nil {
 				return err
 			}
+		}
+		character, err = routine.RestockTravelPotion(character, movement)
+		if err != nil {
+			return err
 		}
 
 		currentInventory = make(map[string]int)
@@ -302,7 +314,7 @@ func StartCraftingBot(name string, code string, qty int) error {
 	if err != nil {
 		return err
 	}
-	character, err = routine.Move(character, "bank", routine.MoveOptions{})
+	character, err = routine.Move(character, "bank", movement)
 	if err != nil {
 		return err
 	}
@@ -316,12 +328,18 @@ func StartCraftingBot(name string, code string, qty int) error {
 			})
 		}
 	}
+	finalDepositList = routine.KeepTravelReserve(character, finalDepositList)
 
 	if len(finalDepositList) > 0 {
-		_, err = api.MyActionBankDepositItem(name, finalDepositList)
+		depositData, err := api.MyActionBankDepositItem(name, finalDepositList)
 		if err != nil {
 			return err
 		}
+		character = depositData.Character
+	}
+	_, err = routine.RestockTravelPotion(character, movement)
+	if err != nil {
+		return err
 	}
 
 	return nil

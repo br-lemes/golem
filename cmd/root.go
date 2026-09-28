@@ -13,22 +13,25 @@ import (
 	"github.com/br-lemes/golem/pkg/config"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/logs"
+	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 type persistentFlags struct {
-	Config    string   `flag:"config" desc:"Configuration file path"`
-	Debug     bool     `flag:"debug" shorthand:"d" desc:"Enable debug mode"`
-	Color     bool     `flag:"color" desc:"Force colored output"`
-	Exclude   []string `flag:"exclude" desc:"Exclude output paths"`
-	ExcludeIf []string `flag:"exclude-if" desc:"Exclude output entries matching conditions"`
-	Format    string   `flag:"format" shorthand:"f" default:"auto" desc:"Output format: auto, json or yaml"`
-	NoFilters bool     `flag:"no-db-filters" desc:"Ignore output filters from the database"`
-	Only      []string `flag:"only" desc:"Keep only output paths"`
-	Output    string   `flag:"output" shorthand:"o" desc:"Output file path (default: stdout)"`
-	Refresh   bool     `flag:"refresh" desc:"Refresh all caches before running the command"`
-	Style     string   `flag:"style" default:"monokai" desc:"The style to use for syntax highlighting"`
+	Config     string   `flag:"config" desc:"Configuration file path"`
+	Debug      bool     `flag:"debug" shorthand:"d" desc:"Enable debug mode"`
+	Color      bool     `flag:"color" desc:"Force colored output"`
+	Exclude    []string `flag:"exclude" desc:"Exclude output paths"`
+	ExcludeIf  []string `flag:"exclude-if" desc:"Exclude output entries matching conditions"`
+	Format     string   `flag:"format" shorthand:"f" default:"auto" desc:"Output format: auto, json or yaml"`
+	NoFilters  bool     `flag:"no-db-filters" desc:"Ignore output filters from the database"`
+	Only       []string `flag:"only" desc:"Keep only output paths"`
+	Output     string   `flag:"output" shorthand:"o" desc:"Output file path (default: stdout)"`
+	AllowGold  bool     `flag:"allow-gold" desc:"allow paid transitions and withdraw gold from the bank"`
+	NoTeleport bool     `flag:"no-teleport" desc:"disable teleport routes and reserve refills; deposit stores reserved potions"`
+	Refresh    bool     `flag:"refresh" desc:"Refresh all caches before running the command"`
+	Style      string   `flag:"style" default:"monokai" desc:"The style to use for syntax highlighting"`
 }
 
 var rootCmd = &cobra.Command{
@@ -118,6 +121,18 @@ func Execute(version string) error {
 		_ = closer.Close()
 	}
 	return err
+}
+
+func movementOptions(cmd *cobra.Command) (routine.MoveOptions, error) {
+	allowGold, err := cmd.Root().PersistentFlags().GetBool("allow-gold")
+	if err != nil {
+		return routine.MoveOptions{}, err
+	}
+	noTeleport, err := cmd.Root().PersistentFlags().GetBool("no-teleport")
+	if err != nil {
+		return routine.MoveOptions{}, err
+	}
+	return routine.MoveOptions{AllowGold: allowGold, NoTeleport: noTeleport}, nil
 }
 
 func init() {

@@ -35,8 +35,12 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		movement, err := movementOptions(cmd)
+		if err != nil {
+			return err
+		}
 
-		err = StartRecyclingBot(name, code, flags.Quantity, flags.Enhanced)
+		err = StartRecyclingBot(name, code, flags.Quantity, flags.Enhanced, movement)
 		if err != nil {
 			return err
 		}
@@ -45,7 +49,7 @@ Arguments:
 	},
 }
 
-func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
+func StartRecyclingBot(name string, code string, qty int, enhanced bool, movement routine.MoveOptions) error {
 	item, found := catalog.Items().Get(code)
 	if !found {
 		return fmt.Errorf("item not found: %s", code)
@@ -126,7 +130,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 			if character.Gold+bank.Gold < requiredGold {
 				return fmt.Errorf("not enough gold for enhanced recycling: required %d, available %d", requiredGold, character.Gold+bank.Gold)
 			}
-			character, err = routine.Move(character, "bank", routine.MoveOptions{})
+			character, err = routine.Move(character, "bank", movement)
 			if err != nil {
 				return err
 			}
@@ -175,7 +179,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 			netSpaceNeeded := maxMaterialsReturned - batchToRecycle
 
 			if freeSpace >= netSpaceNeeded {
-				character, err = routine.Move(character, string(*item.Craft.Skill), routine.MoveOptions{})
+				character, err = routine.Move(character, string(*item.Craft.Skill), movement)
 				if err != nil {
 					return err
 				}
@@ -196,7 +200,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 			}
 		}
 
-		character, err = routine.Move(character, "bank", routine.MoveOptions{})
+		character, err = routine.Move(character, "bank", movement)
 		if err != nil {
 			return err
 		}
@@ -210,6 +214,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 				})
 			}
 		}
+		depositList = routine.KeepTravelReserve(character, depositList)
 
 		if len(depositList) > 0 {
 			_, err = api.MyActionBankDepositItem(name, depositList)
@@ -221,8 +226,12 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 				return err
 			}
 		}
+		character, err = routine.RestockTravelPotion(character, movement)
+		if err != nil {
+			return err
+		}
 
-		freeSpace = character.InventoryMaxItems
+		freeSpace = routine.InventorySpace(character)
 
 		bankInventory, err = fetchAllBankItems()
 		if err != nil {
@@ -264,7 +273,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 	if err != nil {
 		return err
 	}
-	character, err = routine.Move(character, "bank", routine.MoveOptions{})
+	character, err = routine.Move(character, "bank", movement)
 	if err != nil {
 		return err
 	}
@@ -278,12 +287,18 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool) error {
 			})
 		}
 	}
+	finalDepositList = routine.KeepTravelReserve(character, finalDepositList)
 
 	if len(finalDepositList) > 0 {
-		_, err = api.MyActionBankDepositItem(name, finalDepositList)
+		depositData, err := api.MyActionBankDepositItem(name, finalDepositList)
 		if err != nil {
 			return err
 		}
+		character = depositData.Character
+	}
+	_, err = routine.RestockTravelPotion(character, movement)
+	if err != nil {
+		return err
 	}
 
 	return nil

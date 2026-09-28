@@ -97,7 +97,8 @@ func TestGetInventoryItemsIncludesUnknownItem(t *testing.T) {
 	}
 	character := schemas.CharacterSchema{Inventory: &inventoryItems}
 
-	items := GetInventoryItems(character, []string{"resource"})
+	options := InventoryItemsOptions{KeepTypes: []string{"resource"}}
+	items := GetInventoryItems(character, options)
 	if len(items) != 1 || items[0].Code != "unknown_item" {
 		t.Fatalf("GetInventoryItems() = %#v, want unknown item", items)
 	}
@@ -111,9 +112,76 @@ func TestGetInventoryItemsSkipsEmptySlots(t *testing.T) {
 	}
 	character := schemas.CharacterSchema{Inventory: &inventoryItems}
 
-	items := GetInventoryItems(character, nil)
+	options := InventoryItemsOptions{KeepTravelPotions: true}
+	items := GetInventoryItems(character, options)
 	if len(items) != 0 {
 		t.Fatalf("GetInventoryItems() = %#v, want no items", items)
+	}
+}
+
+func TestGetInventoryItemsPreservesOneTravelPotion(t *testing.T) {
+	inventoryItems := []schemas.InventorySlotSchema{
+		{Code: "forest_bank_potion", Quantity: 3},
+		{Code: "recall_potion", Quantity: 1},
+		{Code: "copper_ore", Quantity: 2},
+	}
+	character := schemas.CharacterSchema{Inventory: &inventoryItems}
+
+	options := InventoryItemsOptions{KeepTravelPotions: true}
+	got := GetInventoryItems(character, options)
+	valid := len(got) == 2
+	valid = valid && got[0].Code == "forest_bank_potion"
+	valid = valid && got[0].Quantity == 2
+	valid = valid && got[1].Code == "copper_ore"
+	valid = valid && got[1].Quantity == 2
+	if !valid {
+		t.Fatalf("GetInventoryItems() = %#v, want excess potion and ore", got)
+	}
+
+	options.KeepTravelPotions = false
+	got = GetInventoryItems(character, options)
+	if len(got) != 3 || got[0].Quantity != 3 || got[1].Quantity != 1 {
+		t.Fatalf("GetInventoryItems() without travel reserve = %#v, want all items", got)
+	}
+}
+
+func TestKeepTravelReserveFiltersCustomDepositList(t *testing.T) {
+	inventoryItems := []schemas.InventorySlotSchema{
+		{Code: "forest_bank_potion", Quantity: 2},
+		{Code: "recall_potion", Quantity: 1},
+	}
+	character := schemas.CharacterSchema{Inventory: &inventoryItems}
+	items := []schemas.SimpleItemSchema{
+		{Code: "forest_bank_potion", Quantity: 2},
+		{Code: "recall_potion", Quantity: 1},
+		{Code: "copper_ore", Quantity: 3},
+	}
+
+	got := KeepTravelReserve(character, items)
+	valid := len(got) == 2
+	valid = valid && got[0].Code == "forest_bank_potion"
+	valid = valid && got[0].Quantity == 1
+	valid = valid && got[1].Code == "copper_ore"
+	valid = valid && got[1].Quantity == 3
+	if !valid {
+		t.Fatalf("KeepTravelReserve() = %#v, want excess potion and ore", got)
+	}
+}
+
+func TestSpaceAfterDepositKeepsTravelPotionReserve(t *testing.T) {
+	inventoryItems := []schemas.InventorySlotSchema{
+		{Code: "forest_bank_potion", Quantity: 2},
+		{Code: "recall_potion", Quantity: 1},
+		{Code: "copper_ore", Quantity: 4},
+	}
+	character := schemas.CharacterSchema{
+		Inventory:         &inventoryItems,
+		InventoryMaxItems: 10,
+	}
+
+	got := SpaceAfterDeposit(character)
+	if got != 8 {
+		t.Fatalf("SpaceAfterDeposit() = %d, want 8", got)
 	}
 }
 

@@ -32,7 +32,14 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		_, err = routine.Equip(character.Name, equipments)
+		movement, err := movementOptions(cmd)
+		if err != nil {
+			return err
+		}
+		_, err = routine.Equip(character.Name, equipments, routine.EquipOptions{
+			Movement:       movement,
+			ClearUtilities: true,
+		})
 		return err
 	},
 }

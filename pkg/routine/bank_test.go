@@ -212,6 +212,53 @@ func TestBankReturnsFoodWithdrawError(t *testing.T) {
 	}
 }
 
+func TestRestockTravelPotionWithdrawsAtBank(t *testing.T) {
+	inventory := []schemas.InventorySlotSchema{
+		{Code: "copper_ore", Quantity: 2},
+	}
+	character := schemas.CharacterSchema{
+		Name:              "hero",
+		X:                 7,
+		Y:                 13,
+		Layer:             "overworld",
+		Inventory:         &inventory,
+		InventoryMaxItems: 10,
+	}
+	var withdrawn []schemas.SimpleItemSchema
+	d := deps{
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{
+				{Code: "forest_bank_potion", Quantity: 2},
+				{Code: "recall_potion", Quantity: 1},
+			}, nil
+		},
+		myActionBankWithdrawItem: func(_ string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			withdrawn = append(withdrawn, items...)
+			for _, item := range items {
+				inventory = append(inventory, schemas.InventorySlotSchema{
+					Code:     item.Code,
+					Quantity: item.Quantity,
+				})
+			}
+			character.Inventory = &inventory
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+	}
+
+	got, err := restockTravelPotion(d, character, MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(withdrawn) != 2 {
+		t.Fatalf("withdrawn items = %#v, want both travel potions", withdrawn)
+	}
+	forestPotionQuantity := inventoryItemQuantity(got, "forest_bank_potion")
+	recallPotionQuantity := inventoryItemQuantity(got, "recall_potion")
+	if forestPotionQuantity != 1 || recallPotionQuantity != 1 {
+		t.Fatalf("travel potion reserve = %#v, want one of each", *got.Inventory)
+	}
+}
+
 func utilityBankDeps(current string, unequipErr func() error) deps {
 	d := deps{
 		myBankItems: func() ([]schemas.SimpleItemSchema, error) {

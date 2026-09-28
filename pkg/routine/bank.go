@@ -3,12 +3,12 @@ package routine
 import "github.com/br-lemes/golem/pkg/schemas"
 
 type BankOptions struct {
-	AllowGold bool
-	Utility1  string
-	Utility2  string
-	Food      string // "" = disabled; "auto" = best available; otherwise, code
-	FoodOnly  bool
-	NoFood    bool
+	Movement MoveOptions
+	Utility1 string
+	Utility2 string
+	Food     string // "" = disabled; "auto" = best available; otherwise, code
+	FoodOnly bool
+	NoFood   bool
 }
 
 func Bank(character schemas.CharacterSchema, opts BankOptions) (schemas.CharacterSchema, error) {
@@ -31,16 +31,16 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	}
 	needsFood := !opts.NoFood && foodCheck(character, opts.Food, bankQty)
 	needsSpace := totalItems(character)+5 >= character.InventoryMaxItems
-	if !needsSpace && !needsUtility && !needsFood {
+	if !needsSpace && !needsUtility && !needsFood && !needsTravelPotions(character, bankQty) {
 		return character, nil
 	}
-	character, err = move(d, character, "bank", MoveOptions{
-		AllowGold: opts.AllowGold,
-	})
+	character, err = move(d, character, "bank", opts.Movement)
 	if err != nil {
 		return character, err
 	}
-	items := GetInventoryItems(character, nil)
+	items := GetInventoryItems(character, InventoryItemsOptions{
+		KeepTravelPotions: true,
+	})
 	if len(items) > 0 {
 		depositData, err := d.myActionBankDepositItem(character.Name, items)
 		if err != nil {
@@ -58,5 +58,14 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 			return character, err
 		}
 	}
-	return character, nil
+	return restockTravelPotion(d, character, opts.Movement)
+}
+
+func needsTravelPotions(character schemas.CharacterSchema, bankQty map[string]int) bool {
+	for _, code := range reservedTravelPotionCodes {
+		if inventoryItemQuantity(character, code) < 1 && bankQty[code] > 0 {
+			return true
+		}
+	}
+	return false
 }
