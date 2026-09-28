@@ -3,33 +3,46 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"strconv"
 
 	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/google/go-querystring/query"
 )
 
 const AccountsAchievementsSize = 100
 
-func AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, error) {
-	//+gocover:ignore:block public compatibility wrapper
-	return defaultClient.AccountsAchievements(account)
+type AccountsAchievementsOptions struct {
+	Completed bool   `url:"completed,omitempty"`
+	Type      string `url:"type,omitempty"`
 }
 
-func (c *Client) AccountsAchievements(account string) ([]schemas.AccountAchievementSchema, error) {
+func AccountsAchievements(account string, options AccountsAchievementsOptions) ([]schemas.AccountAchievementSchema, error) {
+	//+gocover:ignore:block public compatibility wrapper
+	return defaultClient.AccountsAchievements(account, options)
+}
+
+func (c *Client) AccountsAchievements(account string, options AccountsAchievementsOptions) ([]schemas.AccountAchievementSchema, error) {
 	if account == "" {
-		account = cache.GetAccount()
-		if account == "" {
-			_, err := c.MyDetails()
-			if err != nil {
-				return nil, err
-			}
-			account = cache.GetAccount()
+		var err error
+		account, err = c.accountName()
+		if err != nil {
+			return nil, err
 		}
+	}
+	params, err := query.Values(options)
+	if err != nil {
+		//+gocover:ignore:block typed options cannot fail query encoding
+		return nil, err
 	}
 	result := []schemas.AccountAchievementSchema{}
 	page := 1
 	for {
-		resp, err := c.Get(fmt.Sprintf("/accounts/%s/achievements?page=%d&size=%d", account, page, AccountsAchievementsSize), nil)
+		params.Set("page", strconv.Itoa(page))
+		params.Set("size", strconv.Itoa(AccountsAchievementsSize))
+		path := fmt.Sprintf("/accounts/%s/achievements?%s", url.PathEscape(account), params.Encode())
+		resp, err := c.Get(path, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -45,4 +58,16 @@ func (c *Client) AccountsAchievements(account string) ([]schemas.AccountAchievem
 		page++
 	}
 	return result, nil
+}
+
+func (c *Client) accountName() (string, error) {
+	account := cache.GetAccount()
+	if account != "" {
+		return account, nil
+	}
+	_, err := c.MyDetails()
+	if err != nil {
+		return "", err
+	}
+	return cache.GetAccount(), nil
 }

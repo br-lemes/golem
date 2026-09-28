@@ -23,7 +23,7 @@ Arguments:
 			account = args[0]
 		}
 		result := []schemas.AccountAchievementSchema{}
-		achievements, err := api.AccountsAchievements(account)
+		achievements, err := api.AccountsAchievements(account, api.AccountsAchievementsOptions{})
 		if err != nil {
 			return err
 		}

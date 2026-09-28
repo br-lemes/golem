@@ -6,9 +6,9 @@ import (
 )
 
 type deps struct {
-	accountsAchievements     func(string) ([]schemas.AccountAchievementSchema, error)
 	characters               func(name string) (schemas.CharacterSchema, error)
 	eventsActive             func() ([]schemas.ActiveEventSchema, error)
+	hasAchievement           func(string) (bool, error)
 	myActionBankDepositGold  func(name string, quantity int) (schemas.BankGoldTransactionSchema, error)
 	myActionBankDepositItem  func(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error)
 	myActionBankWithdrawGold func(name string, quantity int) (schemas.BankGoldTransactionSchema, error)
@@ -23,9 +23,9 @@ type deps struct {
 }
 
 var defaultDeps = deps{
-	accountsAchievements:     api.AccountsAchievements,
 	characters:               api.Characters,
 	eventsActive:             api.EventsActive,
+	hasAchievement:           api.HasAchievement,
 	myActionBankDepositGold:  api.MyActionBankDepositGold,
 	myActionBankDepositItem:  api.MyActionBankDepositItem,
 	myActionBankWithdrawGold: api.MyActionBankWithdrawGold,

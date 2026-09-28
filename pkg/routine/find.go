@@ -28,15 +28,15 @@ type eventPointSet map[catalog.Point]bool
 
 func Find(character schemas.CharacterSchema, code string, potions []schemas.SimpleItemSchema) []Result {
 	//+gocover:ignore:block production wrapper over tested implementation
-	return find(defaultDeps, character, code, potions)
+	return find(defaultDeps, character, code, potions, eventPoints(defaultDeps, code))
 }
 
-func find(d deps, character schemas.CharacterSchema, code string, potions []schemas.SimpleItemSchema) []Result {
+func find(d deps, character schemas.CharacterSchema, code string, potions []schemas.SimpleItemSchema, events eventPointSet) []Result {
 	results := findFrom(d, character, code, catalog.Point{
 		X:     character.X,
 		Y:     character.Y,
 		Layer: character.Layer,
-	}, nil)
+	}, nil, d.hasAchievement, events)
 	for _, simplePotion := range potions {
 		if simplePotion.Quantity <= 0 {
 			continue
@@ -60,7 +60,7 @@ func find(d deps, character schemas.CharacterSchema, code string, potions []sche
 				X:     target.X,
 				Y:     target.Y,
 				Layer: target.Layer,
-			}, item)
+			}, item, d.hasAchievement, events)
 			results = append(results, potionResults...)
 		}
 	}
@@ -70,34 +70,7 @@ func find(d deps, character schemas.CharacterSchema, code string, potions []sche
 	return results
 }
 
-func findFrom(d deps, character schemas.CharacterSchema, code string, start catalog.Point, potion *schemas.ItemSchema) []Result {
-	events := eventPoints(d, code)
-	var achievementValues []schemas.AccountAchievementSchema
-	loaded := false
-	load := func() bool {
-		if loaded {
-			//+gocover:ignore:block no repeated achievements in catalog paths
-			return achievementValues != nil
-		}
-		loaded = true
-		if d.accountsAchievements == nil {
-			return false
-		}
-		var err error
-		achievementValues, err = d.accountsAchievements(character.Account)
-		return err == nil
-	}
-	hasAchievement := func(code string) bool {
-		if !load() {
-			return false
-		}
-		for _, achievement := range achievementValues {
-			if achievement.Code == code && achievement.CompletedAt != nil {
-				return true
-			}
-		}
-		return false
-	}
+func findFrom(d deps, character schemas.CharacterSchema, code string, start catalog.Point, potion *schemas.ItemSchema, hasAchievement func(string) (bool, error), events eventPointSet) []Result {
 	var bankItems []schemas.SimpleItemSchema
 	bankLoaded := false
 	loadBank := func() bool {
@@ -120,7 +93,11 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 		for _, condition := range *conditions {
 			switch condition.Operator {
 			case "achievement_unlocked":
-				if !hasAchievement(condition.Code) {
+				if hasAchievement == nil {
+					return false
+				}
+				unlocked, err := hasAchievement(condition.Code)
+				if err != nil || !unlocked {
 					return false
 				}
 			case "has_item":
@@ -214,6 +191,20 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 		}
 	}
 	return results
+}
+
+func currentTarget(d deps, character schemas.CharacterSchema, code string) (eventPointSet, bool) {
+	point := catalog.Point{
+		X:     character.X,
+		Y:     character.Y,
+		Layer: character.Layer,
+	}
+	tile, exists := catalog.Maps.Get(point)
+	if exists && tile.Interactions.Content != nil && tile.Interactions.Content.Code == code {
+		return nil, true
+	}
+	events := eventPoints(d, code)
+	return events, events[point]
 }
 
 func conditionSatisfied(level int, condition schemas.ConditionSchema) bool {

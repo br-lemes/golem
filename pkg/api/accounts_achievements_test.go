@@ -19,7 +19,7 @@ func TestAccountsAchievementsUsesCachedAccount(t *testing.T) {
 		return []byte(`{"data":[],"pages":1}`), nil
 	}))
 
-	got, err := client.AccountsAchievements("")
+	got, err := client.AccountsAchievements("", AccountsAchievementsOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +44,7 @@ func TestAccountsAchievementsLoadsAccountFromDetails(t *testing.T) {
 		}
 	}))
 
-	got, err := client.AccountsAchievements("")
+	got, err := client.AccountsAchievements("", AccountsAchievementsOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestAccountsAchievementsReturnsDetailsError(t *testing.T) {
 
 	client := newTestClient(responseTransport(http.StatusBadRequest, []byte(`{"error":{"message":"details unavailable"}}`)))
 
-	_, err := client.AccountsAchievements("")
+	_, err := client.AccountsAchievements("", AccountsAchievementsOptions{})
 	if err == nil {
 		t.Fatal("expected details error")
 	}
@@ -68,7 +68,7 @@ func TestAccountsAchievementsReturnsDetailsError(t *testing.T) {
 func TestAccountsAchievementsPagination(t *testing.T) {
 	testPaginatedEndpoint(t, "/accounts/test/achievements", AccountsAchievementsSize, func(client *Client) (int, error) {
 		cache.CleanAccount()
-		items, err := client.AccountsAchievements("test")
+		items, err := client.AccountsAchievements("test", AccountsAchievementsOptions{})
 		return len(items), err
 	})
 }

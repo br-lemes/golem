@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
@@ -11,9 +12,6 @@ func TestMoveUsesFirstFreePath(t *testing.T) {
 	character := schemas.CharacterSchema{Name: "hero", Layer: "overworld"}
 	var movedTo []struct{ x, y int }
 	d := deps{
-		accountsAchievements: func(string) ([]schemas.AccountAchievementSchema, error) {
-			return nil, nil
-		},
 		myActionMove: func(_ string, x, y int) (schemas.CharacterMovementDataSchema, error) {
 			movedTo = append(movedTo, struct{ x, y int }{x, y})
 			character.X = x
@@ -31,6 +29,137 @@ func TestMoveUsesFirstFreePath(t *testing.T) {
 	}
 	if got.X != movedTo[0].x || got.Y != movedTo[0].y {
 		t.Fatalf("returned character = %#v, want position %#v", got, movedTo[0])
+	}
+}
+
+func TestMoveToCurrentStaticDestinationDoesNothing(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Name:  "hero",
+		X:     4,
+		Y:     1,
+		Layer: "overworld",
+	}
+	d := deps{
+		eventsActive: func() ([]schemas.ActiveEventSchema, error) {
+			t.Fatal("events loaded for a static destination")
+			return nil, nil
+		},
+		hasAchievement: func(string) (bool, error) {
+			t.Fatal("achievements loaded while already at bank")
+			return false, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			t.Fatal("movement action called while already at bank")
+			return schemas.CharacterMovementDataSchema{}, nil
+		},
+	}
+
+	got, err := move(d, character, "bank", MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != character {
+		t.Fatalf("move() = %#v, want unchanged character %#v", got, character)
+	}
+}
+
+func TestMoveToCurrentEventDestinationChecksActiveEvents(t *testing.T) {
+	event, exists := catalog.Events.Get("strange_apparition")
+	if !exists || event.Content == nil || len(event.Maps) == 0 {
+		t.Fatal("strange apparition event is not in the catalog")
+	}
+	eventMap := schemas.MapSchema{
+		Layer: event.Maps[0].Layer,
+		MapId: event.Maps[0].MapId,
+		X:     event.Maps[0].X,
+		Y:     event.Maps[0].Y,
+		Interactions: schemas.InteractionSchema{
+			Content: &schemas.MapContentSchema{Code: event.Content.Code},
+		},
+	}
+	character := schemas.CharacterSchema{
+		X:     eventMap.X,
+		Y:     eventMap.Y,
+		Layer: eventMap.Layer,
+	}
+	eventLoads := 0
+	d := deps{
+		eventsActive: func() ([]schemas.ActiveEventSchema, error) {
+			eventLoads++
+			return []schemas.ActiveEventSchema{{Map: eventMap}}, nil
+		},
+		hasAchievement: func(string) (bool, error) {
+			t.Fatal("achievements loaded while already at event target")
+			return false, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			t.Fatal("movement action called while already at event target")
+			return schemas.CharacterMovementDataSchema{}, nil
+		},
+	}
+
+	got, err := move(d, character, "strange_rocks", MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != character {
+		t.Fatalf("move() = %#v, want unchanged character %#v", got, character)
+	}
+	if eventLoads != 1 {
+		t.Fatalf("active event loads = %d, want 1", eventLoads)
+	}
+}
+
+func TestMakeMoveSkipsAPIWhenAlreadyAtTarget(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Name:  "hero",
+		X:     4,
+		Y:     1,
+		Layer: "overworld",
+	}
+	d := deps{
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			t.Fatal("movement action called at target coordinates")
+			return schemas.CharacterMovementDataSchema{}, nil
+		},
+	}
+	got, err := makeMove(d, character, schemas.MapSchema{
+		X:     4,
+		Y:     1,
+		Layer: "overworld",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != character {
+		t.Fatalf("makeMove() = %#v, want unchanged character %#v", got, character)
+	}
+}
+
+func TestMakeMoveDoesNotTreatSameCoordinatesOnDifferentLayerAsTarget(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Name:  "hero",
+		X:     4,
+		Y:     1,
+		Layer: "overworld",
+	}
+	moves := 0
+	d := deps{
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			moves++
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+	}
+	_, err := makeMove(d, character, schemas.MapSchema{
+		X:     4,
+		Y:     1,
+		Layer: "interior",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if moves != 1 {
+		t.Fatalf("movement calls = %d, want 1 for a different layer", moves)
 	}
 }
 

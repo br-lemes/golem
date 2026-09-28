@@ -18,11 +18,15 @@ func Move(character schemas.CharacterSchema, code string, options MoveOptions) (
 }
 
 func move(d deps, character schemas.CharacterSchema, code string, options MoveOptions) (schemas.CharacterSchema, error) {
+	events, alreadyAtTarget := currentTarget(d, character, code)
+	if alreadyAtTarget {
+		return restockTravelPotion(d, character, options)
+	}
 	potions, bankPotions, atBank, err := availableTeleportPotions(d, character, options)
 	if err != nil {
 		return character, err
 	}
-	results := find(d, character, code, potions)
+	results := find(d, character, code, potions, events)
 	var result *Result
 	for index := range results {
 		if canUseRequirements(results[index].Requirements, options.AllowGold) {
@@ -298,7 +302,7 @@ func equippedItemQuantity(character schemas.CharacterSchema, code string) int {
 }
 
 func makeMove(d deps, character schemas.CharacterSchema, target schemas.MapSchema) (schemas.CharacterSchema, error) {
-	if target.X == character.X && target.Y == character.Y {
+	if target.X == character.X && target.Y == character.Y && target.Layer == character.Layer {
 		return character, nil
 	}
 	moveData, err := d.myActionMove(character.Name, target.X, target.Y)

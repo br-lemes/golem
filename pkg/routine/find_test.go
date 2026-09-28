@@ -3,20 +3,16 @@ package routine
 import (
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func TestFindBankFromStartingPointWithoutAchievements(t *testing.T) {
-	loadAchievements := func(string) ([]schemas.AccountAchievementSchema, error) {
-		return nil, nil
-	}
-	d := deps{accountsAchievements: loadAchievements}
+	d := deps{}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "bank", nil)
+	results := find(d, character, "bank", nil, eventPointSet{})
 
 	if len(results) != 2 {
 		t.Fatalf("find() returned %d results, want 2", len(results))
@@ -31,7 +27,7 @@ func TestFindBankFromStartingPointWithoutAchievements(t *testing.T) {
 
 func TestFindRedSlimeAtEqualDistance(t *testing.T) {
 	character := schemas.CharacterSchema{X: 2, Y: -1, Layer: "overworld"}
-	results := find(deps{}, character, "red_slime", nil)
+	results := find(deps{}, character, "red_slime", nil, eventPointSet{})
 
 	if len(results) != 2 {
 		t.Fatalf("find() returned %d results, want 2", len(results))
@@ -45,17 +41,14 @@ func TestFindRedSlimeAtEqualDistance(t *testing.T) {
 }
 
 func TestFindBankFromStartingPointWithIslandAchievement(t *testing.T) {
-	completedAt := time.Now()
-	loadAchievements := func(string) ([]schemas.AccountAchievementSchema, error) {
-		return []schemas.AccountAchievementSchema{{
-			Code:        "secure_the_island",
-			CompletedAt: &completedAt,
-		}}, nil
+	d := deps{
+		hasAchievement: func(code string) (bool, error) {
+			return code == "secure_the_island", nil
+		},
 	}
-	d := deps{accountsAchievements: loadAchievements}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "bank", nil)
+	results := find(d, character, "bank", nil, eventPointSet{})
 
 	if len(results) != 3 {
 		t.Fatalf("find() returned %d results, want 3", len(results))
@@ -76,7 +69,7 @@ func TestFindStrangeRocksWithoutActiveEvent(t *testing.T) {
 	d := deps{eventsActive: loadEvents}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "strange_rocks", nil)
+	results := find(d, character, "strange_rocks", nil, eventPointSet{})
 
 	if len(results) != 0 {
 		t.Fatalf("find() returned %d results, want 0", len(results))
@@ -121,7 +114,7 @@ func TestFindBankWithoutAchievementDependency(t *testing.T) {
 	d := deps{}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "bank", nil)
+	results := find(d, character, "bank", nil, eventPointSet{})
 
 	if len(results) != 2 {
 		t.Fatalf("find() returned %d results, want 2", len(results))
@@ -129,13 +122,14 @@ func TestFindBankWithoutAchievementDependency(t *testing.T) {
 }
 
 func TestFindBankWithAchievementLoadError(t *testing.T) {
-	loadAchievements := func(string) ([]schemas.AccountAchievementSchema, error) {
-		return nil, errors.New("achievements unavailable")
+	d := deps{
+		hasAchievement: func(string) (bool, error) {
+			return false, errors.New("achievements unavailable")
+		},
 	}
-	d := deps{accountsAchievements: loadAchievements}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "bank", nil)
+	results := find(d, character, "bank", nil, eventPointSet{})
 
 	if len(results) != 2 {
 		t.Fatalf("find() returned %d results, want 2", len(results))
@@ -162,7 +156,7 @@ func TestFindStrangeRocksWithActiveEvent(t *testing.T) {
 	d := deps{eventsActive: loadEvents}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "strange_rocks", nil)
+	results := find(d, character, "strange_rocks", nil, eventPoints(d, "strange_rocks"))
 
 	if len(results) != 1 {
 		t.Fatalf("find() returned %d results, want 1", len(results))
@@ -172,11 +166,44 @@ func TestFindStrangeRocksWithActiveEvent(t *testing.T) {
 	}
 }
 
+func TestFindReusesActiveEventsAcrossTeleportStarts(t *testing.T) {
+	event, exists := catalog.Events.Get("strange_apparition")
+	if !exists || event.Content == nil || len(event.Maps) == 0 {
+		t.Fatal("strange apparition event is not in the catalog")
+	}
+	eventMap := schemas.MapSchema{
+		Layer: event.Maps[0].Layer,
+		MapId: event.Maps[0].MapId,
+		X:     event.Maps[0].X,
+		Y:     event.Maps[0].Y,
+		Interactions: schemas.InteractionSchema{
+			Content: &schemas.MapContentSchema{Code: event.Content.Code},
+		},
+	}
+	eventLoads := 0
+	d := deps{
+		eventsActive: func() ([]schemas.ActiveEventSchema, error) {
+			eventLoads++
+			return []schemas.ActiveEventSchema{{Map: eventMap}}, nil
+		},
+	}
+	character := schemas.CharacterSchema{Layer: "overworld"}
+	potions := []schemas.SimpleItemSchema{
+		{Code: "forest_bank_potion", Quantity: 1},
+		{Code: "recall_potion", Quantity: 1},
+	}
+
+	find(d, character, "strange_rocks", potions, eventPoints(d, "strange_rocks"))
+	if eventLoads != 1 {
+		t.Fatalf("active event loads = %d, want 1", eventLoads)
+	}
+}
+
 func TestFindStrangeRocksWithoutEventDependency(t *testing.T) {
 	d := deps{}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "strange_rocks", nil)
+	results := find(d, character, "strange_rocks", nil, eventPointSet{})
 
 	if len(results) != 0 {
 		t.Fatalf("find() returned %d results, want 0", len(results))
@@ -190,7 +217,7 @@ func TestFindStrangeRocksWithEventLoadError(t *testing.T) {
 	d := deps{eventsActive: loadEvents}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "strange_rocks", nil)
+	results := find(d, character, "strange_rocks", nil, eventPointSet{})
 
 	if len(results) != 0 {
 		t.Fatalf("find() returned %d results, want 0", len(results))
@@ -217,7 +244,7 @@ func TestFindStrangeRocksIgnoresDifferentActiveEventContent(t *testing.T) {
 	d := deps{eventsActive: loadEvents}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
-	results := find(d, character, "strange_rocks", nil)
+	results := find(d, character, "strange_rocks", nil, eventPointSet{})
 
 	if len(results) != 0 {
 		t.Fatalf("find() returned %d results, want 0", len(results))
@@ -225,12 +252,9 @@ func TestFindStrangeRocksIgnoresDifferentActiveEventContent(t *testing.T) {
 }
 
 func TestFindGoldRocksFromStartingPoint(t *testing.T) {
-	loadAchievements := func(string) ([]schemas.AccountAchievementSchema, error) {
-		return nil, nil
-	}
-	d := deps{accountsAchievements: loadAchievements}
+	d := deps{}
 	character := schemas.CharacterSchema{Layer: "overworld"}
-	results := find(d, character, "gold_rocks", nil)
+	results := find(d, character, "gold_rocks", nil, eventPointSet{})
 
 	if len(results) != 2 {
 		t.Fatalf("Find() returned %d results, want 2", len(results))
@@ -250,7 +274,7 @@ func TestFindGoldRocksFromStartingPoint(t *testing.T) {
 
 func TestFindMithrilRocksFromGoldRocksRegion(t *testing.T) {
 	character := schemas.CharacterSchema{X: 5, Y: -4, Layer: "underground"}
-	results := find(deps{}, character, "mithril_rocks", nil)
+	results := find(deps{}, character, "mithril_rocks", nil, eventPointSet{})
 
 	if len(results) != 2 {
 		t.Fatalf("find() returned %d results, want 2", len(results))
@@ -275,13 +299,10 @@ func TestFindMithrilRocksFromGoldRocksRegion(t *testing.T) {
 }
 
 func TestFindBankFromBank(t *testing.T) {
-	loadAchievements := func(string) ([]schemas.AccountAchievementSchema, error) {
-		return nil, nil
-	}
-	d := deps{accountsAchievements: loadAchievements}
+	d := deps{}
 	character := schemas.CharacterSchema{X: 4, Y: 1, Layer: "overworld"}
 
-	results := find(d, character, "bank", nil)
+	results := find(d, character, "bank", nil, eventPointSet{})
 
 	if len(results) == 0 {
 		t.Fatal("find() returned no banks")
@@ -296,7 +317,7 @@ func TestFindBankFromBank(t *testing.T) {
 
 func TestFindInvalidCode(t *testing.T) {
 	character := schemas.CharacterSchema{Layer: "overworld"}
-	results := find(deps{}, character, "invalid_code", nil)
+	results := find(deps{}, character, "invalid_code", nil, eventPointSet{})
 
 	if len(results) != 0 {
 		t.Fatalf("find() returned %d results, want 0", len(results))
@@ -304,19 +325,17 @@ func TestFindInvalidCode(t *testing.T) {
 }
 
 func TestFindBankWithForestBankPotion(t *testing.T) {
-	loadAchievements := func(string) ([]schemas.AccountAchievementSchema, error) {
-		return nil, nil
-	}
-	d := deps{accountsAchievements: loadAchievements}
+	d := deps{}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 	potions := []schemas.SimpleItemSchema{
 		{Code: "forest_bank_potion", Quantity: 1},
+		{Code: "recall_potion", Quantity: 1},
 	}
 
-	results := find(d, character, "bank", potions)
+	results := find(d, character, "bank", potions, eventPointSet{})
 
-	if len(results) != 4 {
-		t.Fatalf("find() returned %d results, want 4", len(results))
+	if len(results) != 6 {
+		t.Fatalf("find() returned %d results, want 6", len(results))
 	}
 	var potionResult *Result
 	for index := range results {
@@ -337,17 +356,13 @@ func TestFindBankWithForestBankPotion(t *testing.T) {
 }
 
 func TestFindPrefersNearbyWalkingRouteOverTeleportPotion(t *testing.T) {
-	d := deps{
-		accountsAchievements: func(string) ([]schemas.AccountAchievementSchema, error) {
-			return nil, nil
-		},
-	}
+	d := deps{}
 	character := schemas.CharacterSchema{X: 3, Y: 2, Layer: "overworld"}
 	potions := []schemas.SimpleItemSchema{
 		{Code: "forest_bank_potion", Quantity: 1},
 	}
 
-	results := find(d, character, "bank", potions)
+	results := find(d, character, "bank", potions, eventPointSet{})
 	if len(results) == 0 {
 		t.Fatal("find() returned no bank routes")
 	}
@@ -357,16 +372,13 @@ func TestFindPrefersNearbyWalkingRouteOverTeleportPotion(t *testing.T) {
 }
 
 func TestFindBankIgnoresNonTeleportPotion(t *testing.T) {
-	loadAchievements := func(string) ([]schemas.AccountAchievementSchema, error) {
-		return nil, nil
-	}
-	d := deps{accountsAchievements: loadAchievements}
+	d := deps{}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 	potions := []schemas.SimpleItemSchema{
 		{Code: "small_health_potion", Quantity: 1},
 	}
 
-	results := find(d, character, "bank", potions)
+	results := find(d, character, "bank", potions, eventPointSet{})
 
 	if len(results) != 2 {
 		t.Fatalf("find() returned %d results, want 2", len(results))
@@ -379,14 +391,11 @@ func TestFindBankIgnoresNonTeleportPotion(t *testing.T) {
 }
 
 func TestFindBankIgnoresUnknownPotion(t *testing.T) {
-	loadAchievements := func(string) ([]schemas.AccountAchievementSchema, error) {
-		return nil, nil
-	}
-	d := deps{accountsAchievements: loadAchievements}
+	d := deps{}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 	potions := []schemas.SimpleItemSchema{{Code: "unknown_potion", Quantity: 1}}
 
-	results := find(d, character, "bank", potions)
+	results := find(d, character, "bank", potions, eventPointSet{})
 
 	if len(results) != 2 {
 		t.Fatalf("find() returned %d results, want 2", len(results))
