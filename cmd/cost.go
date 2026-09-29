@@ -8,6 +8,7 @@ import (
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
+	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -17,18 +18,16 @@ type costFlags struct {
 }
 
 var costCmd = &cobra.Command{
-	Args:  cobra.ExactArgs(2),
-	Use:   "cost <name> <code>",
+	Args:  cobra.ExactArgs(1),
+	Use:   "cost <code>",
 	Short: "Calculate resources and XP for crafting an item",
 	Long: `Calculate resources and XP for crafting an item
 
 Arguments:
-  name   Name of your character.
   code   The code of the item.`,
-	ValidArgsFunction: completion.CharacterName(1).Item(1).Build(),
+	ValidArgsFunction: completion.Item(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		name := args[0]
-		code := args[1]
+		code := args[0]
 
 		flags, err := utils.ReadFlags[costFlags](cmd)
 		if err != nil {
@@ -41,12 +40,9 @@ Arguments:
 		if !found {
 			return fmt.Errorf("item not found: %s", code)
 		}
-		if !isCraftable(*item) && flags.Quantity != 0 {
-			return fmt.Errorf("quantity is only supported for craftable items")
-		}
 		cmd.SilenceUsage = true
 
-		character, err := api.Characters(name)
+		characters, err := api.AccountsCharacters("")
 		if err != nil {
 			return err
 		}
@@ -67,17 +63,29 @@ Arguments:
 				if err != nil {
 					return err
 				}
-				available = bank.Gold + character.Gold
+				available = bank.Gold
+				for _, character := range characters {
+					available += character.Gold
+				}
 			} else {
 				available = bankInventory[npcItem.Currency]
-				for _, invItem := range *character.Inventory {
-					if invItem.Code == npcItem.Currency {
-						available += invItem.Quantity
+				for _, character := range characters {
+					if character.Inventory == nil {
+						continue
+					}
+					for _, invItem := range *character.Inventory {
+						if invItem.Code == npcItem.Currency {
+							available += invItem.Quantity
+						}
 					}
 				}
 			}
 
 			cost := *npcItem.BuyPrice
+			quantity := flags.Quantity
+			if quantity == 0 {
+				quantity = available / cost
+			}
 			return console.Auto(map[string]interface{}{
 				"item":               item.Code,
 				"npc":                npcItem.Npc,
@@ -85,12 +93,16 @@ Arguments:
 				"cost_per_unit":      cost,
 				"currency_available": available,
 				"max_exchange":       available / cost,
+				"quantity":           quantity,
+				"total_cost":         quantity * cost,
 			})
 		}
 
-		skillLevel, _ := utils.GetCharacterCraftingSkillLevel(character, string(*item.Craft.Skill))
-		if skillLevel < *item.Craft.Level {
-			return fmt.Errorf("character %s level too low. Required: %d, Current: %d", name, *item.Craft.Level, skillLevel)
+		skill := string(*item.Craft.Skill)
+		character, compatible := costCraftingCharacter(characters, skill, *item.Craft.Level)
+		skillLevel, _ := utils.GetCharacterCraftingSkillLevel(character, skill)
+		if character.Name == "" {
+			skillLevel = *item.Craft.Level
 		}
 
 		bankInventory, err := fetchAllBankItems()
@@ -99,19 +111,27 @@ Arguments:
 		}
 
 		totalInventory := make(map[string]int)
-		for _, invItem := range *character.Inventory {
-			if invItem.Code != "" {
-				totalInventory[invItem.Code] = totalInventory[invItem.Code] + invItem.Quantity
+		if character.Inventory != nil {
+			for _, invItem := range *character.Inventory {
+				if invItem.Code != "" {
+					totalInventory[invItem.Code] = totalInventory[invItem.Code] + invItem.Quantity
+				}
 			}
 		}
 		for bCode, amount := range bankInventory {
 			totalInventory[bCode] = totalInventory[bCode] + amount
 		}
 
-		maxCraft := craftingCapacity(*item, totalInventory)
-		quantity, actions, err := craftingTarget(flags.Quantity, maxCraft, *item.Craft.Quantity)
-		if err != nil {
-			return err
+		materialCapacity := craftingCapacity(*item, totalInventory)
+		maxCraft := materialCapacity
+		quantity, actions := 0, 0
+		if compatible {
+			quantity, actions, err = craftingTarget(flags.Quantity, maxCraft, *item.Craft.Quantity)
+			if err != nil {
+				return err
+			}
+		} else {
+			maxCraft = 0
 		}
 		var bottleneckIngredient string
 
@@ -126,16 +146,17 @@ Arguments:
 				"can_craft": possibleCraft,
 			}
 
-			if bottleneckIngredient == "" && possibleCraft == maxCraft {
+			if bottleneckIngredient == "" && possibleCraft == materialCapacity {
 				bottleneckIngredient = req.Code
 			}
 		}
 
-		xpPerCraft := CalculateArtifactsXP(*item.Craft.Level, skillLevel, string(*item.Craft.Skill), character.Wisdom)
+		xpPerCraft := CalculateArtifactsXP(*item.Craft.Level, skillLevel, skill, character.Wisdom)
 		totalXpGained := actions * xpPerCraft
 
 		output := map[string]interface{}{
 			"bottleneck":    bottleneckIngredient,
+			"character":     character.Name,
 			"ingredients":   ingredientsMap,
 			"item":          item.Code,
 			"max_craft":     maxCraft,
@@ -144,9 +165,49 @@ Arguments:
 			"xp_per_action": xpPerCraft,
 			"xp_total":      totalXpGained,
 		}
+		if !compatible {
+			output["reason"] = costIneligibleReason(character, skill, *item.Craft.Level)
+		}
 
 		return console.Auto(output)
 	},
+}
+
+func costCraftingCharacter(characters []schemas.CharacterSchema, skill string, requiredLevel int) (schemas.CharacterSchema, bool) {
+	var lowestCompatible, highestIncompatible schemas.CharacterSchema
+	compatibleFound, incompatibleFound := false, false
+	for _, character := range characters {
+		level, xp := characterSkillProgress(character, skill)
+		if level >= requiredLevel {
+			selectedLevel, selectedXP := characterSkillProgress(lowestCompatible, skill)
+			lowerProgress := level < selectedLevel || level == selectedLevel && xp < selectedXP
+			sameProgress := level == selectedLevel && xp == selectedXP
+			if !compatibleFound || lowerProgress || sameProgress && character.Name < lowestCompatible.Name {
+				lowestCompatible = character
+				compatibleFound = true
+			}
+			continue
+		}
+		selectedLevel, selectedXP := characterSkillProgress(highestIncompatible, skill)
+		higherProgress := level > selectedLevel || level == selectedLevel && xp > selectedXP
+		sameProgress := level == selectedLevel && xp == selectedXP
+		if !incompatibleFound || higherProgress || sameProgress && character.Name < highestIncompatible.Name {
+			highestIncompatible = character
+			incompatibleFound = true
+		}
+	}
+	if compatibleFound {
+		return lowestCompatible, true
+	}
+	return highestIncompatible, false
+}
+
+func costIneligibleReason(character schemas.CharacterSchema, skill string, requiredLevel int) string {
+	if character.Name == "" {
+		return fmt.Sprintf("no character can craft %s at level %d", skill, requiredLevel)
+	}
+	level, _ := utils.GetCharacterCraftingSkillLevel(character, skill)
+	return fmt.Sprintf("character %s has %s level %d; requires %d", character.Name, skill, level, requiredLevel)
 }
 
 func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom int) int {

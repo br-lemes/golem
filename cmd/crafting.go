@@ -357,7 +357,7 @@ func craftingCapacity(item schemas.ItemSchema, inventory map[string]int) int {
 
 func craftingTarget(quantity, maximum, outputQuantity int) (int, int, error) {
 	if quantity == 0 {
-		quantity = maximum
+		return maximum, maximum / outputQuantity, nil
 	}
 	if quantity < 1 {
 		return 0, 0, fmt.Errorf("quantity must be greater than 0")
