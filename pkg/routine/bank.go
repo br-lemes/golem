@@ -31,7 +31,7 @@ func bank(d deps, character schemas.CharacterSchema, opts BankOptions) (schemas.
 	}
 	needsFood := !opts.NoFood && foodCheck(character, opts.Food, bankQty)
 	needsSpace := totalItems(character)+5 >= character.InventoryMaxItems
-	if !needsSpace && !needsUtility && !needsFood && !needsTravelPotions(character, bankQty) {
+	if !needsSpace && !needsUtility && !needsFood && (opts.Movement.NoTeleport || !needsTravelPotions(character, bankQty)) {
 		return character, nil
 	}
 	character, err = move(d, character, "bank", opts.Movement)

@@ -29,6 +29,31 @@ func TestBankDoesNothingWhenNoActionIsNeeded(t *testing.T) {
 	}
 }
 
+func TestBankDoesNotRestockTravelPotionsWhenTeleportIsDisabled(t *testing.T) {
+	character := schemas.CharacterSchema{InventoryMaxItems: 10}
+	moved := false
+	d := deps{
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{
+				{Code: "recall_potion", Quantity: 1},
+			}, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			moved = true
+			return schemas.CharacterMovementDataSchema{}, nil
+		},
+	}
+
+	options := BankOptions{Movement: MoveOptions{NoTeleport: true}}
+	_, err := bank(d, character, options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if moved {
+		t.Fatal("bank moved to restock travel potions with --no-teleport")
+	}
+}
+
 func TestBankReturnsBankItemsError(t *testing.T) {
 	wantErr := errors.New("bank unavailable")
 	d := deps{

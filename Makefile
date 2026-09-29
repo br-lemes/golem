@@ -1,6 +1,6 @@
 PLATFORMS := linux-amd64 linux-arm64 windows-amd64
 
-.PHONY: all bun clean coverage dev release serve tailwind templ test version FORCE $(PLATFORMS)
+.PHONY: all clean coverage dev release serve templ test version FORCE $(PLATFORMS)
 
 TARGET := $(notdir $(shell go list -m 2>/dev/null))
 ifeq ($(TARGET),)
@@ -15,8 +15,11 @@ ARTIFACTS := $(foreach p,$(PLATFORMS),\
 GOCOVER := github.com/Azure/gocover@latest
 CODEGEN := github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 SEMVER := github.com/br-lemes/semver@latest
+BUN_SCRIPT ?= build
 
-GENERATED_FILES := pkg/catalog/enums.json \
+GENERATED_FILES := assets/css/output.css \
+	assets/js/swr.js \
+	pkg/catalog/enums.json \
 	pkg/schemas/params.go \
 	pkg/schemas/schemas.go
 
@@ -31,35 +34,40 @@ standard.json: URL := https://api.artifactsmmo.com/openapi.json
 all: $(PLATFORMS)
 
 assets/css/output.css: FORCE
-	@tailwindcss -i assets/css/globals.css -o $@
+	@bun run tailwindcss -i assets/css/globals.css -o $@
 
-assets/js/swr.js: FORCE node_modules/.bun-install
-	@bun run build
+assets/js/swr.js: FORCE assets/src/swr.ts package.json bun.lock node_modules/.bun-install
+	@bun run $(BUN_SCRIPT)
 
 bin/golangci-lint:
 	@curl -sSfL https://golangci-lint.run/install.sh | sh -s v2.14.0
 
-bun:
-	@bun run dev
-
 bun.lock: package.json
-	@bun install
+	@bun install --lockfile-only
 	@touch $@
 
 clean:
 	$(RM) $(ARTIFACTS) $(OPENAPI_FILES)
 
-coverage: $(GENERATED_FILES) lint
+coverage: lint
 	@go test ./... -coverprofile=coverage.out && \
 		sed -i '/cmd\/api/d' coverage.out && \
 		go run $(GOCOVER) full --cover-profile=coverage.out
 
-dev: $(GENERATED_FILES) assets/css/output.css assets/js/swr.js
-	@$(MAKE) -j3 bun tailwind templ
+dev:
+	go tool templ generate --watch \
+		--cmd="make serve" \
+		--open-browser=false \
+		--proxy="http://localhost:8080" \
+		--proxybind="$(DEV_HOST)" \
+		--watch-pattern='(.+\.go$$)|(.+\.templ$$)|(.+assets/src/.*\.ts$$)|(.+assets/css/.*\.css$$)' \
+		--ignore-pattern='(.+_templ\.go$$)|(.+assets/css/output\.css$$)'
 
 FORCE:
 
-lint: bin/golangci-lint
+$(GENERATED_FILES) $(OPENAPI_FILES): node_modules/.bun-install
+
+lint: $(GENERATED_FILES) bin/golangci-lint
 	@if ! git merge-base --is-ancestor master HEAD; then \
 		echo "Branch is behind or has diverged from master."; \
 		exit 1; \
@@ -68,24 +76,25 @@ lint: bin/golangci-lint
 	@./bin/golangci-lint run
 
 node_modules/.bun-install: bun.lock
+	@bun install --frozen-lockfile
 	@touch $@
 
 pkg/catalog/enums.json: pkg/catalog/openapi.json enums.jq
 	@jq -f enums.jq pkg/catalog/openapi.json > $@
-	@biome format --write --indent-width 4 $@
+	@bun run biome format --write $@
 
 pkg/catalog/openapi.json: $(OPENAPI_FILES) check.jq merge.jq
 	@jq -e -s -f check.jq $(OPENAPI_FILES) > /dev/null
 	@jq -s -f merge.jq $(OPENAPI_FILES) > $@
-	@biome format --write --indent-width 4 $@
+	@bun run biome format --write $@
 
 pkg/schemas/params.json: pkg/catalog/openapi.json params.jq
 	@jq -f params.jq pkg/catalog/openapi.json > $@
-	@biome format --write --indent-width 4 $@
+	@bun run biome format --write $@
 
 pkg/schemas/schemas.json: pkg/catalog/openapi.json schemas.jq
 	@jq -f schemas.jq pkg/catalog/openapi.json > $@
-	@biome format --write --indent-width 4 $@
+	@bun run biome format --write $@
 
 $(OPENAPI_FILES):
 	@curl $(URL) -o $@
@@ -93,9 +102,9 @@ $(OPENAPI_FILES):
 		'"type":"boolean","nullable":true' $@
 	@sd -F '"exclusiveMinimum":0.0' \
 		'"minimum":0.0,"exclusiveMinimum":true' $@
-	@biome format --write --indent-width 4 $@
+	@bun run biome format --write $@
 
-$(PLATFORMS): $(GENERATED_FILES) lint test
+$(PLATFORMS): lint test
 	@$(eval GOOS := $(word 1,$(subst -, ,$@)))
 	@$(eval GOARCH := $(word 2,$(subst -, ,$@)))
 	@$(eval OUTPUT := $(TARGET)-$@$(if $(filter windows,$(GOOS)),.exe))
@@ -104,21 +113,12 @@ $(PLATFORMS): $(GENERATED_FILES) lint test
 release: version $(PLATFORMS)
 	@GOLEM_RELEASE=1 go run $(SEMVER) release $(ARTIFACTS)
 
-serve:
-	@go run -ldflags="-X 'main.version=$(BUILD_TIME)'" . serve
+serve: BUN_SCRIPT = dev
+serve: $(GENERATED_FILES)
+	@go build -ldflags="-X 'main.version=$(BUILD_TIME)'"
+	@./golem serve
 
-tailwind:
-	@tailwindcss -i assets/css/globals.css -o assets/css/output.css --watch=always
-
-templ:
-	go tool templ generate --watch \
-		--cmd="env MAKEFLAGS= make serve" \
-		--open-browser=false \
-		--proxy="http://localhost:8080" \
-		--proxybind="$(DEV_HOST)" \
-		--watch-pattern='(.+\.go$$)|(.+\.templ$$)|(.+assets/js/.*\.js$$)'
-
-test:
+test: $(GENERATED_FILES)
 	@go test ./...
 
 version: test

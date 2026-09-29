@@ -1,5 +1,4 @@
-/assets/css/output.css
-/assets/js
+/assets/js/*.map
 /bin/golangci-lint
 /cmd/test.go
 /coverage.html
