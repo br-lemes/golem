@@ -371,6 +371,30 @@ func TestFindPrefersNearbyWalkingRouteOverTeleportPotion(t *testing.T) {
 	}
 }
 
+func TestFindTeleportRouteLeavesRestrictedAreaThroughTransition(t *testing.T) {
+	character := schemas.CharacterSchema{X: 7, Y: 13, Layer: "overworld"}
+	potions := []schemas.SimpleItemSchema{{
+		Code:     "enchanted_potion",
+		Quantity: 1,
+	}}
+	results := find(deps{}, character, "baby_red_dragon", potions, eventPointSet{})
+
+	for _, result := range results {
+		if result.Potion == nil || result.Potion.Code != "enchanted_potion" {
+			continue
+		}
+		if len(result.Requirements) != 0 {
+			continue
+		}
+		for _, transition := range result.Transitions {
+			if transition.MapId == 667 {
+				return
+			}
+		}
+	}
+	t.Fatal("find() returned no free exit from the Enchanted Forest")
+}
+
 func TestFindBankIgnoresNonTeleportPotion(t *testing.T) {
 	d := deps{}
 	character := schemas.CharacterSchema{Layer: "overworld"}

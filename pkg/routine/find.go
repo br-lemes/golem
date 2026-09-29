@@ -180,6 +180,9 @@ func findFrom(d deps, character schemas.CharacterSchema, code string, start cata
 			}
 			nextTile, exists := catalog.Maps.Get(next)
 			if exists && nextTile.Access.Type != "blocked" {
+				if (tile.Access.Type == "restricted") != (nextTile.Access.Type == "restricted") {
+					continue
+				}
 				visited[next] = true
 				queue = append(queue, node{
 					point:        next,
