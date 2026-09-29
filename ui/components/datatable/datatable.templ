@@ -1,0 +1,146 @@
+package datatable
+
+import (
+	"fmt"
+	"reflect"
+	"strings"
+
+	"github.com/br-lemes/golem/ui/shadcn/table"
+)
+
+type Column[T any] struct {
+	Cell   func(T) templ.Component
+	Class  string
+	Field  string
+	Header string
+}
+
+type DataTableProps[T any] struct {
+	Columns      []Column[T]
+	Data         []T
+	EmptyMessage string
+	RowHref      func(T) string
+}
+
+type dataTableColumn struct {
+	Class  string
+	Header string
+}
+
+type dataTableCell struct {
+	Class     string
+	Component templ.Component
+	Text      string
+}
+
+func DataTable[T any](props DataTableProps[T]) templ.Component {
+	value := reflect.ValueOf(props.Data)
+
+	rows := make([][]dataTableCell, value.Len())
+	rowHrefs := make([]string, value.Len())
+	for rowIndex := 0; rowIndex < value.Len(); rowIndex++ {
+		item := value.Index(rowIndex)
+		rows[rowIndex] = make([]dataTableCell, len(props.Columns))
+		for columnIndex, column := range props.Columns {
+			cell := dataTableCell{Class: column.Class}
+			if column.Cell != nil {
+				cell.Component = column.Cell(item.Interface().(T))
+			} else if column.Field != "" {
+				cell.Text = tableFieldText(item, column.Field)
+			}
+			rows[rowIndex][columnIndex] = cell
+		}
+		if props.RowHref != nil {
+			rowHrefs[rowIndex] = props.RowHref(item.Interface().(T))
+		}
+	}
+
+	definitions := make([]dataTableColumn, len(props.Columns))
+	for index, column := range props.Columns {
+		definitions[index] = dataTableColumn{
+			Header: column.Header,
+			Class:  column.Class,
+		}
+	}
+	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage)
+}
+
+func tableFieldText(item reflect.Value, fieldName string) string {
+	for item.Kind() == reflect.Pointer {
+		if item.IsNil() {
+			return ""
+		}
+		item = item.Elem()
+	}
+	if item.Kind() != reflect.Struct {
+		panic("data table items must contain structs")
+	}
+
+	typeOfItem := item.Type()
+	for index := 0; index < item.NumField(); index++ {
+		field := typeOfItem.Field(index)
+		jsonName := strings.Split(field.Tag.Get("json"), ",")[0]
+		if jsonName == fieldName {
+			return fmt.Sprint(item.Field(index).Interface())
+		}
+	}
+	panic(fmt.Sprintf("data table field %q not found in %s", fieldName, typeOfItem))
+}
+
+templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []string, emptyMessage string) {
+	<div class="shadow-sm">
+		@table.Table() {
+			@table.Header() {
+				@table.Row() {
+					for _, column := range columns {
+						@table.Head(table.HeadProps{
+							Class: "bg-sidebar font-semibold text-sidebar-foreground",
+						}) {
+							{ column.Header }
+						}
+					}
+				}
+			}
+			@table.Body() {
+				for rowIndex, row := range rows {
+					{{ attributes := map[string]any{} }}
+					if rowHrefs[rowIndex] != "" {
+						{{
+							attributes = map[string]any{
+								"data-swr": rowHrefs[rowIndex],
+							}
+						}}
+					}
+					@table.Row(table.RowProps{
+						Attributes: attributes,
+						Class:      "even:bg-sidebar even:text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
+					}) {
+						for index := range columns {
+							@table.Cell(table.CellProps{Class: row[index].Class}) {
+								if row[index].Component != nil {
+									@row[index].Component
+								} else {
+									{ row[index].Text }
+								}
+							}
+						}
+					}
+				}
+				if len(rows) == 0 {
+					@table.Row() {
+						@table.Cell(table.CellProps{
+							Attributes: map[string]any{"colspan": len(columns)},
+							Class:      "text-center",
+						}) {
+							if emptyMessage == "" {
+								No data available
+							} else {
+								{ emptyMessage }
+							}
+						}
+					}
+				}
+			}
+		}
+	</div>
+}

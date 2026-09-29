@@ -1,0 +1,43 @@
+package loading
+
+import "github.com/br-lemes/golem/ui/shadcn/icon"
+
+templ Bar() {
+	<style>
+		@keyframes swr-loading-bar {
+			from {
+				transform: translateX(-100%);
+			}
+			to {
+				transform: translateX(400%);
+			}
+		}
+
+		.swr-loading-bar-indicator {
+			animation: swr-loading-bar 1.25s ease-in-out infinite;
+		}
+	</style>
+	<div
+		id="swr-loading-bar"
+		aria-hidden="true"
+		class="bg-secondary h-1 opacity-0 overflow-hidden transition-opacity"
+	>
+		<div class="bg-primary h-full rounded-full swr-loading-bar-indicator w-1/3"></div>
+	</div>
+}
+
+templ Overlay() {
+	<div
+		id="swr-loading-overlay"
+		class="absolute backdrop-blur-sm bg-background/60 hidden inset-0 z-10"
+		aria-hidden="true"
+		role="status"
+	>
+		<div class="flex flex-col gap-3 h-screen items-center justify-center sticky text-muted-foreground top-0">
+			@icon.LoaderCircle(icon.Props{
+				Class: "animate-spin size-8 text-primary",
+			})
+			<span class="sr-only">Loading...</span>
+		</div>
+	</div>
+}

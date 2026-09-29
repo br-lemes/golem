@@ -1,0 +1,166 @@
+package navigation
+
+import (
+	"strings"
+
+	"github.com/br-lemes/golem/ui/routes"
+	"github.com/br-lemes/golem/ui/shadcn/badge"
+	"github.com/br-lemes/golem/ui/shadcn/collapsible"
+	"github.com/br-lemes/golem/ui/shadcn/icon"
+	"github.com/br-lemes/golem/ui/shadcn/sidebar"
+	"github.com/br-lemes/golem/ui/shadcnutils"
+)
+
+var appVersion string
+
+func SetVersion(version string) {
+	appVersion = version
+}
+
+type Props struct {
+	Path   string
+	Groups bool
+}
+
+func hasVisibleChildren(node *routes.Node) bool {
+	for _, child := range node.Children {
+		if child.Segment.Label != "" {
+			return true
+		}
+	}
+	return false
+}
+
+func isPathOpen(node *routes.Node, currentPath string) bool {
+	return node.Path != "" && (currentPath == node.Path || strings.HasPrefix(currentPath, node.Path+"/"))
+}
+
+templ Navigation(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	{{ var badgeVariant = badge.VariantSecondary }}
+	if !strings.HasPrefix(appVersion, "v") {
+		{{ badgeVariant = badge.VariantDestructive }}
+	}
+	@sidebar.Sidebar(sidebar.Props{Collapsible: sidebar.CollapsibleIcon}) {
+		@sidebar.Header(sidebar.HeaderProps{Class: "items-center justify-center"}) {
+			<div class="group-data-[collapsible=icon]:invisible">
+				@badge.Badge(badge.Props{Variant: badgeVariant}) {
+					Version: { appVersion }
+				}
+			</div>
+		}
+		@sidebar.Content() {
+			if p.Groups {
+				@groupedItems(p.Path)
+			} else {
+				@sidebar.Menu(sidebar.MenuProps{Class: "p-2"}) {
+					@menuItems(routes.Navigation(), p.Path)
+				}
+			}
+		}
+	}
+}
+
+templ groupedItems(currentPath string) {
+	for _, group := range routes.Navigation() {
+		if group.Segment.Label != "" {
+			if hasVisibleChildren(group) {
+				@groupMenu(group, currentPath)
+			} else if group.Handler != nil {
+				@groupLink(group, currentPath)
+			}
+		}
+	}
+}
+
+templ groupMenu(group *routes.Node, currentPath string) {
+	@sidebar.Group() {
+		@sidebar.GroupLabel() {
+			{ group.Segment.Label }
+		}
+		@sidebar.Menu() {
+			@menuItems(group.Children, currentPath)
+		}
+	}
+}
+
+templ groupLink(group *routes.Node, currentPath string) {
+	@sidebar.Group() {
+		@sidebar.Menu() {
+			@sidebar.MenuItem() {
+				@sidebar.MenuButton(sidebar.MenuButtonProps{
+					Class: "rounded-none",
+					Attributes: map[string]any{
+						"data-swr":    "true",
+						"hx-on:click": "window.tui.sidebar.setOpenMobile(false)",
+					},
+					Href:     group.Path,
+					IsActive: group.Path == currentPath,
+					Tooltip:  group.Segment.Label,
+				}) {
+					if group.Segment.Icon != nil {
+						@group.Segment.Icon
+					}
+					{ group.Segment.Label }
+				}
+			}
+		}
+	}
+}
+
+templ menuItems(items []*routes.Node, currentPath string) {
+	for _, item := range items {
+		if item.Segment.Label != "" && hasVisibleChildren(item) {
+			@sidebar.MenuSubItem() {
+				@collapsible.Collapsible(collapsible.Props{
+					Class:       "group/collapsible w-full",
+					DefaultOpen: isPathOpen(item, currentPath),
+				}) {
+					@sidebar.MenuButton(sidebar.MenuButtonProps{
+						Class: "rounded-none",
+						Attributes: shadcnutils.MergeAttributes(templ.Attributes{
+							"data-swr-href": item.Path,
+						}, collapsible.Trigger(ctx)),
+						IsActive: item.Path == currentPath,
+						Tooltip:  item.Segment.Label,
+					}) {
+						if item.Segment.Icon != nil {
+							@item.Segment.Icon
+						}
+						<span>{ item.Segment.Label }</span>
+						@icon.ChevronRight(icon.Props{
+							Class: "ml-auto size-4 transition-transform group-data-open/collapsible:rotate-90",
+						})
+					}
+					@collapsible.Content() {
+						@sidebar.MenuSub(sidebar.MenuSubProps{
+							Class: "ml-3.5 mr-0 px-0",
+						}) {
+							@menuItems(item.Children, currentPath)
+						}
+					}
+				}
+			}
+		} else if item.Segment.Label != "" && item.Handler != nil {
+			@sidebar.MenuSubItem() {
+				@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+					Class: "rounded-none",
+					Attributes: map[string]any{
+						"data-swr":    "true",
+						"hx-on:click": "window.tui.sidebar.setOpenMobile(false)",
+					},
+					Href:     item.Path,
+					IsActive: item.Path == currentPath,
+				}) {
+					if item.Segment.Icon != nil {
+						@item.Segment.Icon
+					}
+					{ item.Segment.Label }
+				}
+			}
+		}
+	}
+}

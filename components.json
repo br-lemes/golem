@@ -1,0 +1,21 @@
+{
+	"$schema": "https://shadcn-templ.com/schema/components.json",
+	"aliases": {
+		"components": "github.com/br-lemes/golem/ui/shadcn",
+		"utils": "github.com/br-lemes/golem/ui/shadcnutils"
+	},
+	"iconLibrary": "lucide",
+	"menuAccent": "subtle",
+	"menuColor": "default",
+	"rtl": false,
+	"scripts": {
+		"dir": "assets/js",
+		"path": "/assets/js"
+	},
+	"style": "base-nova",
+	"tailwind": {
+		"baseColor": "zinc",
+		"css": "assets/css/globals.css",
+		"cssVariables": true
+	}
+}

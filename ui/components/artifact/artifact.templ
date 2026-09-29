@@ -1,0 +1,51 @@
+package artifact
+
+import (
+	"fmt"
+
+	"github.com/br-lemes/golem/ui/shadcnutils"
+)
+
+type Type string
+
+const (
+	TypeBadge      Type = "badges"
+	TypeCharacters Type = "characters"
+	TypeEffects    Type = "effects"
+	TypeItems      Type = "items"
+	TypeMaps       Type = "maps"
+	TypeMonsters   Type = "monsters"
+	TypeNPCs       Type = "npcs"
+	TypeResources  Type = "resources"
+)
+
+type Props struct {
+	Class string
+	Code  string
+	Name  string
+	Type  Type
+}
+
+templ Image(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	{{ src := fmt.Sprintf("https://artifactsmmo.com/images/%s/%s.png", p.Type, p.Code) }}
+	<img
+		alt={ p.Name }
+		class={ shadcnutils.CN("object-contain size-4", p.Class) }
+		src={ src }
+	/>
+}
+
+templ Label(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<span class={ shadcnutils.CN("gap-1 inline-flex items-center") }>
+		@Image(p)
+		{ p.Code }
+	</span>
+}

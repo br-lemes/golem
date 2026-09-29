@@ -1,0 +1,84 @@
+package layouts
+
+import (
+	"github.com/br-lemes/golem/ui/components/loading"
+	"github.com/br-lemes/golem/ui/components/navbar"
+	"github.com/br-lemes/golem/ui/components/navigation"
+	"github.com/br-lemes/golem/ui/components/routetrail"
+	"github.com/br-lemes/golem/ui/routes"
+	"github.com/br-lemes/golem/ui/shadcn"
+	"github.com/br-lemes/golem/ui/shadcn/sidebar"
+	"github.com/br-lemes/golem/ui/shadcn/toast"
+)
+
+type Props = routes.Route
+
+templ Base(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	{{ var currentPath string }}
+	if p.Route != nil {
+		{{ currentPath = p.Route.Path }}
+	}
+	<!DOCTYPE html>
+	<html lang="en" class="dark h-full">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta
+				content="initial-scale=1.0, width=device-width"
+				name="viewport"
+			/>
+			<link
+				href="/assets/images/head.png"
+				rel="icon"
+				type="image/png"
+			/>
+			<link
+				as="font"
+				crossorigin="anonymous"
+				href="/assets/fonts/geist/geist-variable.woff2"
+				rel="preload"
+				type="font/woff2"
+			/>
+			<link
+				as="font"
+				crossorigin="anonymous"
+				href="/assets/fonts/geist/geist-mono-variable.woff2"
+				rel="preload"
+				type="font/woff2"
+			/>
+			<script type="module" src="/assets/js/swr.js"></script>
+			<link href="/assets/css/output.css" rel="stylesheet"/>
+			<title>Golem</title>
+			@shadcn.Scripts()
+		</head>
+		<body class="h-full">
+			@sidebar.Provider() {
+				@navigation.Navigation(navigation.Props{
+					// Groups: true,
+					Path: currentPath,
+				})
+				@sidebar.Inset() {
+					@navbar.Navbar()
+					@loading.Bar()
+					<div
+						id="swr-content-wrapper"
+						class="flex flex-1 min-h-0 min-w-0 relative"
+					>
+						<div
+							id="main-content"
+							class="flex flex-1 flex-col max-w-6xl min-w-0 mx-auto overflow-x-auto px-6 py-10 w-full"
+						>
+							@routetrail.RouteTrail(p)
+							{ children... }
+						</div>
+						@loading.Overlay()
+					</div>
+				}
+			}
+			@toast.Toaster()
+		</body>
+	</html>
+}

@@ -1,15 +1,37 @@
 {
-	"ignorePaths": ["go.mod", "go.sum", "pkg/catalog/*.json"],
+	"ignorePaths": [
+		"**_templ.go",
+		"assets/css/*.css",
+		"assets/js/htmx.min.js",
+		"coverage.html",
+		"coverage.out",
+		"go.mod",
+		"go.sum",
+		"pkg/catalog/*.json",
+		"ui/shadcn",
+		"ui/shadcnutils"
+	],
 	"language": "en",
-	"overrides": [{ "filename": "**/*.tmpl", "languageId": "go" }],
+	"overrides": [
+		{
+			"filename": "**/*.tmpl",
+			"languageId": "go"
+		},
+		{
+			"filename": "**/*.templ",
+			"languageId": "go"
+		}
+	],
 	"words": [
 		"alecthomas",
 		"berserked",
 		"codegen",
+		"contenteditable",
 		"cooldown",
 		"Cooldowns",
 		"coverprofile",
 		"craftable",
+		"datatable",
 		"debuff",
 		"Debugf",
 		"depositable",
@@ -27,6 +49,7 @@
 		"golangci",
 		"gorm",
 		"grandexchange",
+		"htmx",
 		"iancoleman",
 		"jewelrycrafting",
 		"ldflags",
@@ -44,8 +67,16 @@
 		"openapi",
 		"overworld",
 		"pflag",
+		"proxybind",
+		"routecards",
+		"routetrail",
+		"shadcn",
+		"shadcnutils",
 		"strangold",
 		"strcase",
+		"stylesheet",
+		"templ",
+		"themeswitcher",
 		"tidwall",
 		"tmpl",
 		"tradeables",

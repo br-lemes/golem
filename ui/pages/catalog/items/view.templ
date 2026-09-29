@@ -1,0 +1,101 @@
+package items
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/br-lemes/golem/pkg/catalog"
+	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/ui/components/artifact"
+	"github.com/br-lemes/golem/ui/components/datatable"
+	"github.com/br-lemes/golem/ui/components/error404"
+	"github.com/br-lemes/golem/ui/layouts"
+	"github.com/br-lemes/golem/ui/routes"
+	"github.com/br-lemes/golem/ui/shadcn/tabs"
+)
+
+var view *routes.Node
+
+func init() {
+	view = routes.RegisterRoute(routes.Definition{
+		Path: "/catalog/items/{code}",
+		Handler: func(request *http.Request) (templ.Component, int) {
+			item, found := catalog.Items().Get(request.PathValue("code"))
+			if !found {
+				return error404.Error404(), http.StatusNotFound
+			}
+			return View(item), http.StatusOK
+		},
+	})
+}
+
+templ View(item *schemas.ItemSchema) {
+	@layouts.Base(layouts.Props{Route: view, Label: item.Name}) {
+		@tabs.Tabs(tabs.Props{DefaultValue: "overview"}) {
+			@tabs.List(tabs.ListProps{Class: "w-full"}) {
+				@tabs.Trigger(tabs.TriggerProps{Value: "overview"}) {
+					Overview
+				}
+				@tabs.Trigger(tabs.TriggerProps{Value: "source"}) {
+					Source
+				}
+			}
+			<div class="mt-4">
+				@tabs.Content(tabs.ContentProps{Value: "overview"}) {
+					@Overview(item)
+				}
+				@tabs.Content(tabs.ContentProps{Value: "source"}) {
+					@Source(item)
+				}
+			</div>
+		}
+	}
+}
+
+templ Overview(item *schemas.ItemSchema) {
+	<div class="flex flex-wrap gap-6 items-center">
+		@artifact.Image(artifact.Props{
+			Class: "size-24",
+			Code:  item.Code,
+			Type:  artifact.TypeItems,
+			Name:  item.Name,
+		})
+		<div>
+			<h1 class="font-bold text-2xl">{ item.Code }</h1>
+			<p>Level: { item.Level }</p>
+			<p>Type: { item.Type }</p>
+			if item.Subtype != "" {
+				<p>Subtype: { item.Subtype }</p>
+			}
+		</div>
+		<div>
+			<p>{ item.Description }</p>
+		</div>
+	</div>
+	@EffectsList(*item.Effects)
+}
+
+templ Source(item *schemas.ItemSchema) {
+	{{ json, _ := json.MarshalIndent(item, "", "  ") }}
+	<pre>{ string(json) }</pre>
+}
+
+templ EffectsList(effects []schemas.SimpleEffectSchema) {
+	<h2 class="font-semibold mt-8 text-lg">Effects</h2>
+	@datatable.DataTable(datatable.DataTableProps[schemas.SimpleEffectSchema]{
+		Data: effects,
+		Columns: []datatable.Column[schemas.SimpleEffectSchema]{
+			{Header: "Code", Field: "code", Cell: effectCell},
+			{Header: "Description", Field: "description"},
+			{Header: "Value", Field: "value"},
+		},
+	})
+}
+
+templ effectCell(effect schemas.SimpleEffectSchema) {
+	@artifact.Label(artifact.Props{
+		Class: "font-mono text-xs",
+		Code:  effect.Code,
+		Type:  artifact.TypeEffects,
+	})
+}

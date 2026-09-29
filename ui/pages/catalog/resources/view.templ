@@ -1,0 +1,95 @@
+package resources
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/br-lemes/golem/pkg/catalog"
+	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/ui/components/artifact"
+	"github.com/br-lemes/golem/ui/components/datatable"
+	"github.com/br-lemes/golem/ui/components/error404"
+	"github.com/br-lemes/golem/ui/layouts"
+	"github.com/br-lemes/golem/ui/routes"
+	"github.com/br-lemes/golem/ui/shadcn/tabs"
+)
+
+var view *routes.Node
+
+func init() {
+	view = routes.RegisterRoute(routes.Definition{
+		Path: "/catalog/resources/{code}",
+		Handler: func(request *http.Request) (templ.Component, int) {
+			resource, found := catalog.Resources.Get(request.PathValue("code"))
+			if !found {
+				return error404.Error404(), http.StatusNotFound
+			}
+			return View(resource), http.StatusOK
+		},
+	})
+}
+
+templ View(resource *schemas.ResourceSchema) {
+	@layouts.Base(layouts.Props{Route: view, Label: resource.Name}) {
+		@tabs.Tabs(tabs.Props{DefaultValue: "overview"}) {
+			@tabs.List(tabs.ListProps{Class: "w-full"}) {
+				@tabs.Trigger(tabs.TriggerProps{Value: "overview"}) {
+					Overview
+				}
+				@tabs.Trigger(tabs.TriggerProps{Value: "source"}) {
+					Source
+				}
+			}
+			<div class="mt-4">
+				@tabs.Content(tabs.ContentProps{Value: "overview"}) {
+					@Overview(resource)
+				}
+				@tabs.Content(tabs.ContentProps{Value: "source"}) {
+					@Source(resource)
+				}
+			</div>
+		}
+	}
+}
+
+templ Overview(resource *schemas.ResourceSchema) {
+	<div class="flex gap-6 items-center">
+		@artifact.Image(artifact.Props{
+			Class: "size-24",
+			Code:  resource.Code,
+			Type:  artifact.TypeResources,
+			Name:  resource.Name,
+		})
+		<div>
+			<h1 class="font-bold text-2xl">{ resource.Code }</h1>
+			<p>Level: { resource.Level }</p>
+			<p>Skill: { resource.Skill }</p>
+		</div>
+	</div>
+	<h2 class="font-semibold mt-8 text-lg">Drops</h2>
+	@datatable.DataTable(datatable.DataTableProps[schemas.DropRateSchema]{
+		Data: resource.Drops,
+		Columns: []datatable.Column[schemas.DropRateSchema]{
+			{Header: "Code", Field: "code", Cell: dropCell},
+			{Header: "Minimum", Field: "min_quantity"},
+			{Header: "Maximum", Field: "max_quantity"},
+			{Header: "Rate", Field: "rate"},
+		},
+		RowHref: func(drop schemas.DropRateSchema) string {
+			return "/catalog/items/" + drop.Code
+		},
+	})
+}
+
+templ Source(resource *schemas.ResourceSchema) {
+	{{ json, _ := json.MarshalIndent(resource, "", "  ") }}
+	<pre>{ string(json) }</pre>
+}
+
+templ dropCell(drop schemas.DropRateSchema) {
+	@artifact.Label(artifact.Props{
+		Class: "font-mono text-xs",
+		Code:  drop.Code,
+		Type:  artifact.TypeItems,
+	})
+}

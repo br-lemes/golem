@@ -1,0 +1,34 @@
+package routecards
+
+import (
+	"github.com/br-lemes/golem/ui/routes"
+	"github.com/br-lemes/golem/ui/shadcn/button"
+)
+
+type Props = routes.Route
+
+templ RouteCards(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div class="flex flex-wrap gap-4 justify-center">
+		for _, child := range p.Route.Children {
+			if child.Handler != nil {
+				@button.Button(button.Props{
+					Attributes: map[string]any{"data-swr": "true"},
+					Class:      "flex-col h-24 items-center justify-center p-4 w-40",
+					Href:       child.Path,
+					Variant:    button.VariantOutline,
+				}) {
+					if child.Segment.Icon != nil {
+						@child.Segment.Icon
+					}
+					<span class="font-semibold mt-3 text-base">
+						{ child.Segment.Label }
+					</span>
+				}
+			}
+		}
+	</div>
+}

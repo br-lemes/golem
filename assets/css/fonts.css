@@ -1,0 +1,24 @@
+@font-face {
+	font-family: "Geist";
+	src: url("/assets/fonts/geist/geist-variable.woff2")
+		format("woff2-variations");
+	font-weight: 100 900;
+	font-display: optional;
+}
+
+@font-face {
+	font-family: "Geist Mono";
+	src: url("/assets/fonts/geist/geist-mono-variable.woff2")
+		format("woff2-variations");
+	font-weight: 100 900;
+	font-display: optional;
+}
+
+@theme inline {
+	--font-sans:
+		"Geist", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+		"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-mono:
+		"Geist Mono", ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+		"Liberation Mono", Menlo, monospace;
+}

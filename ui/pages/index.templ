@@ -1,0 +1,41 @@
+package pages
+
+import (
+	"net/http"
+
+	"github.com/br-lemes/golem/ui/components/error404"
+	"github.com/br-lemes/golem/ui/layouts"
+	_ "github.com/br-lemes/golem/ui/pages/cache"
+	_ "github.com/br-lemes/golem/ui/pages/catalog"
+	"github.com/br-lemes/golem/ui/routes"
+)
+
+func init() {
+	routes.RegisterRoute(routes.Definition{
+		Path: "/",
+		Handler: func(_ *http.Request) (templ.Component, int) {
+			return Index(), http.StatusOK
+		},
+	})
+	routes.RegisterNotFound(error404.Error404())
+}
+
+templ Index() {
+	@layouts.Base() {
+		<div class="flex h-full items-center justify-center">
+			<div class="max-w-[400px] w-[80vw]">
+				<img
+					alt="Golem Logo"
+					class="h-auto w-full"
+					src="/assets/images/golem.png"
+				/>
+				<h1 class="[font-variant-caps:small-caps] font-bold text-4xl text-center">
+					Golem
+				</h1>
+				<p class="text-3xl text-center">
+					ArtifactsMMO Client
+				</p>
+			</div>
+		</div>
+	}
+}

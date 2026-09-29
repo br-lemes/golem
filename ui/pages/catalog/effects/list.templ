@@ -1,0 +1,50 @@
+package effects
+
+import (
+	"net/http"
+
+	"github.com/br-lemes/golem/pkg/catalog"
+	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/ui/components/artifact"
+	"github.com/br-lemes/golem/ui/components/datatable"
+	"github.com/br-lemes/golem/ui/layouts"
+	"github.com/br-lemes/golem/ui/routes"
+	"github.com/br-lemes/golem/ui/shadcn/icon"
+)
+
+var route *routes.Node
+
+func init() {
+	route = routes.RegisterRoute(routes.Definition{
+		Label: "Effects",
+		Path:  "/catalog/effects",
+		Icon:  icon.Sparkles(icon.Props{Class: "shrink-0 size-4"}),
+		Handler: func(_ *http.Request) (templ.Component, int) {
+			return List(catalog.Effects().All()), http.StatusOK
+		},
+	})
+}
+
+templ List(effects []*schemas.EffectSchema) {
+	@layouts.Base(layouts.Props{Route: route}) {
+		@datatable.DataTable(datatable.DataTableProps[*schemas.EffectSchema]{
+			Data: effects,
+			Columns: []datatable.Column[*schemas.EffectSchema]{
+				{Header: "Code", Field: "code", Cell: cell},
+				{Header: "Name", Field: "name"},
+				{Header: "Type", Field: "type"},
+				{Header: "Subtype", Field: "subtype"},
+				{Header: "Description", Field: "description"},
+			},
+		})
+	}
+}
+
+templ cell(effect *schemas.EffectSchema) {
+	@artifact.Label(artifact.Props{
+		Class: "font-mono text-xs",
+		Code:  effect.Code,
+		Name:  effect.Name,
+		Type:  artifact.TypeEffects,
+	})
+}

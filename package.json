@@ -1,0 +1,9 @@
+{
+	"devDependencies": {
+		"htmx.org": "^4.0.0"
+	},
+	"scripts": {
+		"build": "bun build assets/src/swr.ts --outdir=assets/js --minify",
+		"dev": "bun build assets/src/swr.ts --outdir=assets/js --minify --sourcemap=linked"
+	}
+}

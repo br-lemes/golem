@@ -1,0 +1,35 @@
+package navbar
+
+import (
+	"github.com/br-lemes/golem/ui/components/themeswitcher"
+	"github.com/br-lemes/golem/ui/shadcn/sidebar"
+)
+
+templ Navbar() {
+	<nav class="bg-sidebar py-1 shadow-sm sticky text-sidebar-foreground top-0 z-50">
+		<div class="grid grid-cols-3 h-10 items-center px-6">
+			<div class="justify-self-start">
+				@sidebar.Trigger()
+			</div>
+			<a
+				class="flex gap-1.5 items-center justify-self-center"
+				data-swr="true"
+				href="/"
+			>
+				<img
+					alt="Golem Logo"
+					class="size-6"
+					src="/assets/images/head.png"
+				/>
+				<span class="[font-variant-caps:small-caps] font-bold text-xl">
+					Golem
+				</span>
+			</a>
+			<div class="justify-self-end">
+				@themeswitcher.ThemeSwitcher(themeswitcher.Props{
+					Class: "size-7 [&_svg]:size-4",
+				})
+			</div>
+		</div>
+	</nav>
+}

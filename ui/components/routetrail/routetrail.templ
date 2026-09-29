@@ -1,0 +1,60 @@
+package routetrail
+
+import (
+	"github.com/br-lemes/golem/ui/routes"
+	"github.com/br-lemes/golem/ui/shadcn/breadcrumb"
+	"github.com/br-lemes/golem/ui/shadcn/icon"
+)
+
+type Props = routes.Route
+
+templ RouteTrail(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	{{
+		trail := routes.Trail(p.Route)
+		if len(trail) <= 0 {
+			return
+		}
+		name := trail[len(trail)-1].Segment.Label
+		if p.Label != "" {
+			name = p.Label
+		}
+	}}
+	<h1 class="font-bold text-3xl tracking-tight">
+		{ name }
+	</h1>
+	@breadcrumb.Breadcrumb(breadcrumb.Props{Class: "mb-8 mt-4"}) {
+		@breadcrumb.List() {
+			@breadcrumb.Item() {
+				@breadcrumb.Link(breadcrumb.LinkProps{
+					Attributes: map[string]any{"data-swr": "true"},
+					Href:       "/",
+				}) {
+					@icon.House(icon.Props{Class: "shrink-0 size-4"})
+				}
+			}
+			for i, item := range trail {
+				@breadcrumb.Separator()
+				if i == len(trail)-1 {
+					@breadcrumb.Item() {
+						@breadcrumb.Page() {
+							{ name }
+						}
+					}
+				} else {
+					@breadcrumb.Item() {
+						@breadcrumb.Link(breadcrumb.LinkProps{
+							Attributes: map[string]any{"data-swr": "true"},
+							Href:       item.Path,
+						}) {
+							{ item.Segment.Label }
+						}
+					}
+				}
+			}
+		}
+	}
+}

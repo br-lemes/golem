@@ -1,3 +1,5 @@
+/assets/css/output.css
+/assets/js
 /bin/golangci-lint
 /cmd/test.go
 /coverage.html
@@ -6,6 +8,7 @@
 /golem-linux-amd64
 /golem-linux-arm64
 /golem-windows-amd64.exe
+/node_modules
 /pkg/schemas/params.json
 /pkg/schemas/schemas.json
 /sandbox.json
