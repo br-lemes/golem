@@ -12,6 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type costFlags struct {
+	Quantity int `flag:"quantity" shorthand:"q" desc:"Amount of items to craft (0 for maximum available)"`
+}
+
 var costCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	Use:   "cost <name> <code>",
@@ -26,9 +30,19 @@ Arguments:
 		name := args[0]
 		code := args[1]
 
+		flags, err := utils.ReadFlags[costFlags](cmd)
+		if err != nil {
+			return err
+		}
+		if flags.Quantity < 0 {
+			return fmt.Errorf("quantity must be greater than 0")
+		}
 		item, found := catalog.Items().Get(code)
 		if !found {
 			return fmt.Errorf("item not found: %s", code)
+		}
+		if !isCraftable(*item) && flags.Quantity != 0 {
+			return fmt.Errorf("quantity is only supported for craftable items")
 		}
 		cmd.SilenceUsage = true
 
@@ -94,41 +108,41 @@ Arguments:
 			totalInventory[bCode] = totalInventory[bCode] + amount
 		}
 
-		maxPossible := math.MaxInt32
+		maxCraft := craftingCapacity(*item, totalInventory)
+		quantity, actions, err := craftingTarget(flags.Quantity, maxCraft, *item.Craft.Quantity)
+		if err != nil {
+			return err
+		}
 		var bottleneckIngredient string
 
 		ingredientsMap := make(map[string]map[string]int)
 		for _, req := range *item.Craft.Items {
 			available := totalInventory[req.Code]
-			possibleWithThisIngredient := available / req.Quantity
+			possibleCraft := available / req.Quantity * *item.Craft.Quantity
 
 			ingredientsMap[req.Code] = map[string]int{
 				"required":  req.Quantity,
 				"available": available,
-				"can_craft": possibleWithThisIngredient,
+				"can_craft": possibleCraft,
 			}
 
-			if possibleWithThisIngredient < maxPossible {
-				maxPossible = possibleWithThisIngredient
+			if bottleneckIngredient == "" && possibleCraft == maxCraft {
 				bottleneckIngredient = req.Code
 			}
 		}
 
-		if maxPossible == math.MaxInt32 {
-			maxPossible = 0
-		}
-
 		xpPerCraft := CalculateArtifactsXP(*item.Craft.Level, skillLevel, string(*item.Craft.Skill), character.Wisdom)
-		totalXpGained := maxPossible * xpPerCraft
+		totalXpGained := actions * xpPerCraft
 
 		output := map[string]interface{}{
-			"bottleneck":  bottleneckIngredient,
-			"ingredients": ingredientsMap,
-			"item":        item.Code,
-			"max_craft":   maxPossible,
-			"skill":       string(*item.Craft.Skill),
-			"xp_per_unit": xpPerCraft,
-			"xp_total":    totalXpGained,
+			"bottleneck":    bottleneckIngredient,
+			"ingredients":   ingredientsMap,
+			"item":          item.Code,
+			"max_craft":     maxCraft,
+			"quantity":      quantity,
+			"skill":         string(*item.Craft.Skill),
+			"xp_per_action": xpPerCraft,
+			"xp_total":      totalXpGained,
 		}
 
 		return console.Auto(output)
@@ -198,4 +212,8 @@ func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom i
 
 func init() {
 	rootCmd.AddCommand(costCmd)
+	err := utils.RegisterFlags[costFlags](costCmd)
+	if err != nil {
+		panic(err)
+	}
 }

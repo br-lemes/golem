@@ -100,29 +100,16 @@ func StartCraftingBot(name string, code string, qty int, movement routine.MoveOp
 		totalInventory[code] = totalInventory[code] + amount
 	}
 
-	maxActionsPossible := math.MaxInt32
-	for _, req := range *item.Craft.Items {
-		available := totalInventory[req.Code]
-		possibleWithThisIngredient := available / req.Quantity
-		if possibleWithThisIngredient < maxActionsPossible {
-			maxActionsPossible = possibleWithThisIngredient
-		}
-	}
-
+	maxYieldPossible := craftingCapacity(*item, totalInventory)
 	recipeOutputQty := *item.Craft.Quantity
-	maxYieldPossible := maxActionsPossible * recipeOutputQty
 
 	if maxYieldPossible == 0 {
 		return fmt.Errorf("insufficient materials in inventory and bank to craft even %d %s", recipeOutputQty, item.Code)
 	}
 
-	targetQty := qty
-	if targetQty == 0 {
-		targetQty = maxYieldPossible
-	}
-
-	if targetQty > maxYieldPossible {
-		return fmt.Errorf("requested %d items, but combined inventory and bank can only produce %d", targetQty, maxYieldPossible)
+	targetQty, _, err := craftingTarget(qty, maxYieldPossible, recipeOutputQty)
+	if err != nil {
+		return err
 	}
 
 	routine.Cooldown(character)
@@ -355,6 +342,33 @@ func fetchAllBankItems() (map[string]int, error) {
 		result[item.Code] = result[item.Code] + item.Quantity
 	}
 	return result, nil
+}
+
+func craftingCapacity(item schemas.ItemSchema, inventory map[string]int) int {
+	maxActions := math.MaxInt32
+	for _, requirement := range *item.Craft.Items {
+		maxActions = min(maxActions, inventory[requirement.Code]/requirement.Quantity)
+	}
+	if maxActions == math.MaxInt32 {
+		return 0
+	}
+	return maxActions * *item.Craft.Quantity
+}
+
+func craftingTarget(quantity, maximum, outputQuantity int) (int, int, error) {
+	if quantity == 0 {
+		quantity = maximum
+	}
+	if quantity < 1 {
+		return 0, 0, fmt.Errorf("quantity must be greater than 0")
+	}
+	if quantity%outputQuantity != 0 {
+		return 0, 0, fmt.Errorf("quantity must be a multiple of %d", outputQuantity)
+	}
+	if quantity > maximum {
+		return 0, 0, fmt.Errorf("requested %d items, but can only produce %d", quantity, maximum)
+	}
+	return quantity, quantity / outputQuantity, nil
 }
 
 func isCraftable(item schemas.ItemSchema) bool {
