@@ -52,6 +52,11 @@ document.addEventListener("click", (event: MouseEvent) => {
 	navigate(href);
 });
 
+window.addEventListener("popstate", () => {
+	console.log("[swr] popstate", { url: window.location.href });
+	void navigate(window.location.href, false);
+});
+
 document.addEventListener("collapsible-open-change", (event) => {
 	if (
 		!(event instanceof CustomEvent) ||
@@ -96,7 +101,10 @@ document.addEventListener("collapsible-open-change", (event) => {
 	}
 });
 
-const navigate = async (href: string): Promise<void> => {
+const navigate = async (
+	href: string,
+	pushHistory = true,
+): Promise<void> => {
 	cancel(currentOperation);
 	const previousURL = window.location.href;
 	const requestSource = document.getElementById("swr-loading-overlay");
@@ -111,7 +119,9 @@ const navigate = async (href: string): Promise<void> => {
 		controller: new AbortController(),
 	};
 	currentOperation = operation;
-	history.pushState({}, "", operation.href);
+	if (pushHistory) {
+		history.pushState({}, "", operation.href);
+	}
 	updateNavigation(operation.href);
 
 	const cached = pages.get(operation.href);
@@ -179,7 +189,7 @@ const navigate = async (href: string): Promise<void> => {
 			sourceElement: requestSource,
 		});
 	} catch (error) {
-		if (!operation.cancelled) {
+		if (!operation.cancelled && pushHistory) {
 			history.replaceState({}, "", previousURL);
 			showError(
 				error instanceof Error ? error.message : "request failed",
