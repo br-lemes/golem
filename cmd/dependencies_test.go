@@ -2,13 +2,10 @@ package cmd
 
 import (
 	"testing"
-
-	"github.com/br-lemes/golem/pkg/catalog"
-	"github.com/br-lemes/golem/pkg/schemas"
 )
 
 func TestDependencyTreeIncludesOnlyRequestedPaths(t *testing.T) {
-	tree := dependencyTree([]string{"copper_ore"}, catalog.Items().All(), nil, nil, false)
+	tree := dependencyTree([]string{"copper_ore"}, nil, false)
 	ore := dependencyChild(t, tree, "copper_ore")
 	dependencyNoQuantity(t, ore)
 	if len(ore) != 0 {
@@ -17,7 +14,7 @@ func TestDependencyTreeIncludesOnlyRequestedPaths(t *testing.T) {
 }
 
 func TestDependencyTreeIncludesBankQuantities(t *testing.T) {
-	tree := dependencyTree([]string{"copper_ore"}, catalog.Items().All(), nil, map[string]int{
+	tree := dependencyTree([]string{"copper_ore"}, map[string]int{
 		"copper_ore": 42,
 		"copper_bar": 8,
 	}, false)
@@ -29,7 +26,7 @@ func TestDependencyTreeIncludesBankQuantities(t *testing.T) {
 }
 
 func TestDependencyTreeResolvesToCurrencySource(t *testing.T) {
-	tree := dependencyTree([]string{"powerful_rune"}, catalog.Items().All(), catalog.NpcsItems.All(), nil, false)
+	tree := dependencyTree([]string{"powerful_rune"}, nil, false)
 	coins := dependencyChild(t, tree, "sonnengott_coin")
 	dependencyChild(t, coins, "powerful_rune")
 	_, exists := coins["sonnengott_cloak"]
@@ -38,8 +35,15 @@ func TestDependencyTreeResolvesToCurrencySource(t *testing.T) {
 	}
 }
 
+func TestDependencyTreeExcludesNonItemCurrencies(t *testing.T) {
+	tree := dependencyTree([]string{"cultist_boots"}, nil, false)
+	if tree["gold"] != nil {
+		t.Fatalf("gold = %#v, want absent", tree["gold"])
+	}
+}
+
 func TestDependencyTreeIncludesZeroBankQuantities(t *testing.T) {
-	tree := dependencyTree([]string{"powerful_rune"}, catalog.Items().All(), catalog.NpcsItems.All(), map[string]int{}, false)
+	tree := dependencyTree([]string{"powerful_rune"}, map[string]int{}, false)
 	coins := dependencyChild(t, tree, "sonnengott_coin")
 	dependencyQuantity(t, coins, 0)
 	rune := dependencyChild(t, coins, "powerful_rune")
@@ -70,7 +74,7 @@ func TestDependenciesExpand(t *testing.T) {
 }
 
 func TestDependencyTreeExpandsSourceUses(t *testing.T) {
-	tree := dependencyTree([]string{"powerful_rune"}, catalog.Items().All(), catalog.NpcsItems.All(), map[string]int{}, true)
+	tree := dependencyTree([]string{"powerful_rune"}, map[string]int{}, true)
 	coins := dependencyChild(t, tree, "sonnengott_coin")
 	dependencyQuantity(t, coins, 0)
 	rune := dependencyChild(t, coins, "powerful_rune")
@@ -80,28 +84,9 @@ func TestDependencyTreeExpandsSourceUses(t *testing.T) {
 }
 
 func TestDependencyTreeResolvesToCraftingSource(t *testing.T) {
-	tree := dependencyTree([]string{"copper_bar"}, catalog.Items().All(), nil, nil, false)
+	tree := dependencyTree([]string{"copper_bar"}, nil, false)
 	ore := dependencyChild(t, tree, "copper_ore")
 	dependencyChild(t, ore, "copper_bar")
-}
-
-func TestDependencyTreeStopsAtCycles(t *testing.T) {
-	recipe := func(code, ingredient string) *schemas.ItemSchema {
-		items := []schemas.SimpleItemSchema{{Code: ingredient, Quantity: 1}}
-		return &schemas.ItemSchema{
-			Code:  code,
-			Craft: &schemas.CraftSchema{Items: &items},
-		}
-	}
-	tree := dependencyTree([]string{"a"}, []*schemas.ItemSchema{
-		recipe("a", "b"),
-		recipe("b", "a"),
-	}, nil, nil, false)
-	a := dependencyChild(t, tree, "a")
-	b := dependencyChild(t, a, "b")
-	if len(b) != 0 {
-		t.Fatalf("cycle descendants = %#v, want none", b)
-	}
 }
 
 func dependencyChild(t *testing.T, tree map[string]any, code string) map[string]any {

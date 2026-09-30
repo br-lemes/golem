@@ -8,7 +8,6 @@ import (
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -70,7 +69,7 @@ func dependenciesRun(codes []string, flags dependenciesFlags) error {
 			}
 		}
 	}
-	return console.Auto(dependencyTree(codes, catalog.Items().All(), catalog.NpcsItems.All(), quantities, expand))
+	return console.Auto(dependencyTree(codes, quantities, expand))
 }
 
 func dependenciesExpand(mode string, hasCodes bool) bool {
@@ -84,7 +83,9 @@ func dependenciesExpand(mode string, hasCodes bool) bool {
 	}
 }
 
-func dependencyTree(codes []string, items []*schemas.ItemSchema, npcItems []*schemas.NPCItemSchema, quantities map[string]int, expand bool) map[string]any {
+func dependencyTree(codes []string, quantities map[string]int, expand bool) map[string]any {
+	items := catalog.Items().All()
+	npcItems := catalog.NpcsItems.All()
 	products := make(map[string][]string)
 	ingredients := make(map[string][]string)
 	for _, item := range items {
@@ -97,7 +98,11 @@ func dependencyTree(codes []string, items []*schemas.ItemSchema, npcItems []*sch
 		}
 	}
 	for _, item := range npcItems {
-		if item.BuyPrice == nil || *item.BuyPrice <= 0 || item.Currency == "" {
+		if item.BuyPrice == nil || *item.BuyPrice <= 0 {
+			continue
+		}
+		_, currencyIsItem := catalog.Items().Get(item.Currency)
+		if !currencyIsItem {
 			continue
 		}
 		products[item.Currency] = append(products[item.Currency], item.Code)
