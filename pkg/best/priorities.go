@@ -13,13 +13,22 @@ func GatheringPriorities(c schemas.CharacterSchema, resource *schemas.ResourceSc
 	skill := string(resource.Skill)
 	priorities := []string{skill, "prospecting"}
 	level, _ := utils.GetCharacterGatheringSkillLevel(c, skill)
-	if level-resource.Level <= 10 {
-		if isEventResource(resource.Code) {
-			return []string{skill, "prospecting", "wisdom"}
-		}
-		priorities = []string{skill, "wisdom", "prospecting"}
+	if level == 50 {
+		return priorities
 	}
-	return priorities
+	if level-resource.Level > 10 {
+		if len(resource.Drops) == 1 {
+			return nil
+		}
+		return priorities
+	}
+	if len(resource.Drops) == 1 {
+		return []string{"wisdom"}
+	}
+	if isEventResource(resource.Code) {
+		return []string{skill, "prospecting", "wisdom"}
+	}
+	return []string{skill, "wisdom", "prospecting"}
 }
 
 func isEventResource(code string) bool {
@@ -33,11 +42,10 @@ func isEventResource(code string) bool {
 
 func CraftingPriorities(c schemas.CharacterSchema, item *schemas.ItemSchema) []string {
 	skillLevel, _ := utils.GetCharacterCraftingSkillLevel(c, string(*item.Craft.Skill))
-	priorities := []string{"inventory_space"}
-	if skillLevel-item.Level <= 10 && skillLevel > 0 {
-		priorities = []string{"wisdom", "inventory_space"}
+	if skillLevel != 50 && skillLevel-item.Level <= 10 && skillLevel > 0 {
+		return []string{"wisdom"}
 	}
-	return priorities
+	return nil
 }
 
 func NormalizePriorities(priorities []string) ([]string, error) {

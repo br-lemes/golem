@@ -27,6 +27,30 @@ func TestGatheringPriorities(t *testing.T) {
 			priorities: []string{"mining", "prospecting"},
 		},
 		{
+			name:       "maximum level near resource level",
+			level:      50,
+			resource:   schemas.ResourceSchema{Level: 45, Skill: "mining"},
+			priorities: []string{"mining", "prospecting"},
+		},
+		{
+			name: "single drop resource with XP",
+			resource: schemas.ResourceSchema{
+				Level: 10,
+				Skill: "mining",
+				Drops: []schemas.DropRateSchema{{Code: "iron_ore"}},
+			},
+			priorities: []string{"wisdom"},
+		},
+		{
+			name:  "single drop resource without XP",
+			level: 25,
+			resource: schemas.ResourceSchema{
+				Level: 10,
+				Skill: "mining",
+				Drops: []schemas.DropRateSchema{{Code: "iron_ore"}},
+			},
+		},
+		{
 			name:  "event near resource level",
 			level: 5,
 			resource: schemas.ResourceSchema{
@@ -70,19 +94,22 @@ func TestCraftingPriorities(t *testing.T) {
 			name:       "near item level",
 			level:      5,
 			itemLevel:  10,
-			priorities: []string{"wisdom", "inventory_space"},
+			priorities: []string{"wisdom"},
 		},
 		{
-			name:       "far above item level",
-			level:      25,
-			itemLevel:  10,
-			priorities: []string{"inventory_space"},
+			name:      "far above item level",
+			level:     25,
+			itemLevel: 10,
 		},
 		{
-			name:       "missing skill level",
-			level:      0,
-			itemLevel:  1,
-			priorities: []string{"inventory_space"},
+			name:      "maximum level near item level",
+			level:     50,
+			itemLevel: 45,
+		},
+		{
+			name:      "missing skill level",
+			level:     0,
+			itemLevel: 1,
 		},
 	}
 	for _, test := range tests {
@@ -106,6 +133,17 @@ func TestNormalizePriorities(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []string{"mining", "wisdom", "prospecting", "inventory_space"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("priorities = %#v, want %#v", got, want)
+	}
+}
+
+func TestNormalizePrioritiesDefaultsToInventorySpace(t *testing.T) {
+	got, err := NormalizePriorities(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"inventory_space"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("priorities = %#v, want %#v", got, want)
 	}
