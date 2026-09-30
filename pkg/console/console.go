@@ -105,6 +105,13 @@ func excludeIfPaths(data any, expressions []string) (any, error) {
 }
 
 func excludeIfPath(value any, parts []string, operator, expected string) (any, error) {
+	if parts[0] == "**" {
+		filtered, err := excludeIfPath(value, append([]string{"*"}, parts[1:]...), operator, expected)
+		if err != nil {
+			return nil, err
+		}
+		return excludeIfDescendants(filtered, parts, operator, expected)
+	}
 	current, ok := value.(map[string]any)
 	if !ok {
 		return value, nil
@@ -131,6 +138,28 @@ func excludeIfPath(value any, parts []string, operator, expected string) (any, e
 		}
 	}
 	return current, nil
+}
+
+func excludeIfDescendants(value any, parts []string, operator, expected string) (any, error) {
+	switch current := value.(type) {
+	case map[string]any:
+		for key, child := range current {
+			filtered, err := excludeIfPath(child, parts, operator, expected)
+			if err != nil {
+				return nil, err
+			}
+			current[key] = filtered
+		}
+	case []any:
+		for index, child := range current {
+			filtered, err := excludeIfPath(child, parts, operator, expected)
+			if err != nil {
+				return nil, err
+			}
+			current[index] = filtered
+		}
+	}
+	return value, nil
 }
 
 func excludeIfArrayItems(value any, parts []string, operator, expected string) (any, bool) {
@@ -231,19 +260,17 @@ func onlyPaths(data any, patterns []string) (any, error) {
 func onlyPath(value any, paths [][]string) (any, bool) {
 	switch current := value.(type) {
 	case map[string]any:
+		keepAny := false
 		for key, child := range current {
 			keep := false
 			var childPaths [][]string
 			for _, pathParts := range paths {
-				matched, err := path.Match(pathParts[0], key)
-				if err != nil || !matched {
-					continue
-				}
-				if len(pathParts) == 1 {
+				keepPath, descendants := onlyMapPath(key, pathParts)
+				if keepPath {
 					keep = true
 					break
 				}
-				childPaths = append(childPaths, pathParts[1:])
+				childPaths = append(childPaths, descendants...)
 			}
 			if !keep && len(childPaths) > 0 {
 				updated, childKeep := onlyPath(child, childPaths)
@@ -254,9 +281,11 @@ func onlyPath(value any, paths [][]string) (any, bool) {
 			}
 			if !keep {
 				delete(current, key)
+			} else {
+				keepAny = true
 			}
 		}
-		return current, true
+		return current, keepAny
 	case []any:
 		keepAny := false
 		for index := range current {
@@ -264,14 +293,12 @@ func onlyPath(value any, paths [][]string) (any, bool) {
 			keep := false
 			var childPaths [][]string
 			for _, pathParts := range paths {
-				if pathParts[0] != "*" && pathParts[0] != indexString {
-					continue
-				}
-				if len(pathParts) == 1 {
+				keepPath, descendants := onlyArrayPath(indexString, pathParts)
+				if keepPath {
 					keep = true
 					break
 				}
-				childPaths = append(childPaths, pathParts[1:])
+				childPaths = append(childPaths, descendants...)
 			}
 			if !keep && len(childPaths) > 0 {
 				updated, childKeep := onlyPath(current[index], childPaths)
@@ -290,6 +317,58 @@ func onlyPath(value any, paths [][]string) (any, bool) {
 	default:
 		return value, false
 	}
+}
+
+func onlyMapPath(key string, parts []string) (bool, [][]string) {
+	if parts[0] == "**" {
+		if len(parts) == 1 {
+			return true, nil
+		}
+		matched, err := path.Match(parts[1], key)
+		if err != nil {
+			return false, nil
+		}
+		if matched && len(parts) == 2 {
+			return true, nil
+		}
+		paths := [][]string{parts}
+		if matched {
+			paths = append(paths, parts[2:])
+		}
+		return false, paths
+	}
+	matched, err := path.Match(parts[0], key)
+	if err != nil || !matched {
+		return false, nil
+	}
+	if len(parts) == 1 {
+		return true, nil
+	}
+	return false, [][]string{parts[1:]}
+}
+
+func onlyArrayPath(index string, parts []string) (bool, [][]string) {
+	if parts[0] == "**" {
+		if len(parts) == 1 {
+			return true, nil
+		}
+		matched := parts[1] == "*" || parts[1] == index
+		if matched && len(parts) == 2 {
+			return true, nil
+		}
+		paths := [][]string{parts}
+		if matched {
+			paths = append(paths, parts[2:])
+		}
+		return false, paths
+	}
+	if parts[0] != "*" && parts[0] != index {
+		return false, nil
+	}
+	if len(parts) == 1 {
+		return true, nil
+	}
+	return false, [][]string{parts[1:]}
 }
 
 func excludePaths(data any, patterns []string) (any, error) {
@@ -313,6 +392,13 @@ func excludePaths(data any, patterns []string) (any, error) {
 func excludePath(value any, parts []string) (any, bool) {
 	if len(parts) == 0 {
 		return nil, true
+	}
+	if parts[0] == "**" {
+		updated, remove := excludePath(value, parts[1:])
+		if remove {
+			return nil, true
+		}
+		return excludeDescendants(updated, parts)
 	}
 	switch current := value.(type) {
 	case map[string]any:
@@ -352,6 +438,30 @@ func excludePath(value any, parts []string) (any, bool) {
 			updated, _ := excludePath(current[index], parts[1:])
 			current[index] = updated
 		}
+	}
+	return value, false
+}
+
+func excludeDescendants(value any, parts []string) (any, bool) {
+	switch current := value.(type) {
+	case map[string]any:
+		for key, child := range current {
+			updated, remove := excludePath(child, parts)
+			if remove {
+				delete(current, key)
+				continue
+			}
+			current[key] = updated
+		}
+	case []any:
+		filtered := make([]any, 0, len(current))
+		for _, child := range current {
+			updated, remove := excludePath(child, parts)
+			if !remove {
+				filtered = append(filtered, updated)
+			}
+		}
+		return filtered, false
 	}
 	return value, false
 }

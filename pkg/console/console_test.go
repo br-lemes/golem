@@ -275,6 +275,67 @@ func TestExcludeIfComparisons(t *testing.T) {
 	}
 }
 
+func TestRecursiveFilterPaths(t *testing.T) {
+	t.Run("exclude", func(t *testing.T) {
+		data := map[string]any{
+			"root": map[string]any{
+				"_quantity":    0,
+				"child":        map[string]any{"_quantity": 1},
+				"earth_potion": map[string]any{},
+			},
+		}
+		filtered, err := excludePaths(data, []string{
+			"**._quantity",
+			"**.*_potion",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		root := filtered.(map[string]any)["root"].(map[string]any)
+		if len(root) != 1 || root["child"].(map[string]any)["_quantity"] != nil || root["earth_potion"] != nil {
+			t.Fatalf("excludePaths() = %#v", filtered)
+		}
+	})
+	t.Run("exclude-if", func(t *testing.T) {
+		data := map[string]any{
+			"root": map[string]any{
+				"available": map[string]any{"_quantity": 0},
+				"owned":     map[string]any{"_quantity": 1},
+				"nested": map[string]any{
+					"owned": map[string]any{"_quantity": 2},
+				},
+			},
+		}
+		filtered, err := excludeIfPaths(data, []string{"**._quantity != 0"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		root := filtered.(map[string]any)["root"].(map[string]any)
+		if len(root) != 2 || root["owned"] != nil || root["nested"].(map[string]any)["owned"] != nil {
+			t.Fatalf("excludeIfPaths() = %#v", filtered)
+		}
+	})
+	t.Run("only", func(t *testing.T) {
+		data := map[string]any{
+			"materials": map[string]any{
+				"yellow_slimeball": map[string]any{
+					"earth_boost_potion": map[string]any{},
+				},
+			},
+			"other": map[string]any{},
+		}
+		filtered, err := onlyPaths(data, []string{"**.*_potion"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		materials := filtered.(map[string]any)["materials"].(map[string]any)
+		slimeball := materials["yellow_slimeball"].(map[string]any)
+		if len(filtered.(map[string]any)) != 1 || slimeball["earth_boost_potion"] == nil {
+			t.Fatalf("onlyPaths() = %#v", filtered)
+		}
+	})
+}
+
 func TestExcludeIfReturnsExpressionErrors(t *testing.T) {
 	tests := []struct {
 		name       string
