@@ -1,8 +1,10 @@
 package routes
 
 import (
+	"cmp"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -15,6 +17,7 @@ type Segment struct {
 }
 
 type Definition struct {
+	Order   int
 	Label   string
 	Path    string
 	Icon    templ.Component
@@ -27,6 +30,7 @@ type Node struct {
 	Parent   *Node
 	Path     string
 	Segment  Segment
+	order    int
 }
 
 type Route struct {
@@ -79,6 +83,7 @@ func RegisterRoute(definition Definition) *Node {
 	}
 	node.Path = definition.Path
 	node.Handler = definition.Handler
+	node.order = definition.Order
 	if len(paths) > 0 {
 		node.Segment.Label = definition.Label
 		node.Segment.Icon = definition.Icon
@@ -94,7 +99,28 @@ func RegisterNotFound(component templ.Component) {
 }
 
 func RegisterRoutes(mux *http.ServeMux) {
+	sortChildren(root)
 	registerRoutes(mux, root)
+}
+
+func sortChildren(node *Node) {
+	slices.SortFunc(node.Children, func(left, right *Node) int {
+		leftOrdered := left.order > 0
+		rightOrdered := right.order > 0
+		if leftOrdered != rightOrdered {
+			if leftOrdered {
+				return -1
+			}
+			return 1
+		}
+		if leftOrdered && left.order != right.order {
+			return cmp.Compare(left.order, right.order)
+		}
+		return strings.Compare(left.Segment.Label, right.Segment.Label)
+	})
+	for _, child := range node.Children {
+		sortChildren(child)
+	}
 }
 
 func registerRoutes(mux *http.ServeMux, node *Node) {
