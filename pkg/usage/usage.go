@@ -17,12 +17,6 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-// CACHE_VERSION / ACTION REQUIRED: increment when usage logic, its cached
-// result format, or a dependency changes the selected combat loadouts.
-// This cache also depends on bestFightSimulationCacheVersion; increment this
-// version too whenever that simulator version is incremented.
-const combatCacheVersion = 2
-
 type Evaluation struct {
 	Needed   bool     `json:"needed"`
 	Monsters []string `json:"monsters,omitempty"`
@@ -126,7 +120,7 @@ func evaluate(d deps, codes []string, details bool) (map[string]Evaluation, erro
 func cachedMarkCombat(d deps, character schemas.CharacterSchema, monsters []*schemas.MonsterSchema, available map[string]int, scenario string) (map[string]map[string]string, error) {
 	key := combatCacheKey(character.Level, monsters, available)
 	console.Debugf("usage: combat cache scenario=%s key=%s available=%s\n", scenario, key, canonicalAvailable(available))
-	stored, ok := cache.GetUsageCombat(key, combatCacheVersion)
+	stored, ok := cache.GetUsageCombat(cache.UsageCombatType, key)
 	if ok {
 		var loadouts map[string]map[string]string
 		err := json.Unmarshal([]byte(stored.Results), &loadouts)
@@ -144,8 +138,9 @@ func cachedMarkCombat(d deps, character schemas.CharacterSchema, monsters []*sch
 		return nil, err
 	}
 	cache.SaveUsageCombat(models.UsageCombat{
+		Type:    cache.UsageCombatType,
 		Key:     key,
-		Version: combatCacheVersion,
+		Version: cache.UsageCombatVersion,
 		Results: string(encoded),
 	})
 	return loadouts, nil
