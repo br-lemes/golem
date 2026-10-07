@@ -162,6 +162,30 @@ func TestAutoExcludeIfRemovesMatchingArrayItems(t *testing.T) {
 	ExcludeIf = nil
 }
 
+func TestAutoExcludeIfRemovesTopLevelArrayItems(t *testing.T) {
+	Format = "json"
+	Exclude = nil
+	Only = nil
+	ExcludeIf = []string{"**.enabled == true"}
+	Stdout = &bytes.Buffer{}
+	data := []any{
+		map[string]any{"code": "enabled", "enabled": true},
+		map[string]any{"code": "disabled", "enabled": false},
+	}
+
+	err := Auto(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := strings.TrimSpace(Stdout.(*bytes.Buffer).String())
+	if got != `[{"code":"disabled","enabled":false}]` {
+		t.Fatalf("Auto() = %q", got)
+	}
+
+	ExcludeIf = nil
+}
+
 func TestAutoReturnsPathFilterErrors(t *testing.T) {
 	tests := []struct {
 		name    string

@@ -112,6 +112,14 @@ func excludeIfPath(value any, parts []string, operator, expected string) (any, e
 		}
 		return excludeIfDescendants(filtered, parts, operator, expected)
 	}
+	items, ok := value.([]any)
+	if ok {
+		filtered, isArray := excludeIfArrayItems(items, parts, operator, expected)
+		if isArray {
+			return filtered, nil
+		}
+		return value, nil
+	}
 	current, ok := value.(map[string]any)
 	if !ok {
 		return value, nil
