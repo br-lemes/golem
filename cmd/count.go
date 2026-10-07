@@ -62,6 +62,10 @@ func countRun(args []string) error {
 	}
 
 	output := map[string][]map[string]int{}
+	slotQuantities := make([]map[string]int, len(characters))
+	for index, character := range characters {
+		slotQuantities[index] = countInSlots(character)
+	}
 
 	for _, code := range args {
 		result := []map[string]int{}
@@ -80,7 +84,7 @@ func countRun(args []string) error {
 			}
 		}
 
-		for _, character := range characters {
+		for index, character := range characters {
 			if code == "gold" {
 				if character.Gold > 0 {
 					result = append(result, map[string]int{
@@ -99,7 +103,7 @@ func countRun(args []string) error {
 					qty += item.Quantity
 				}
 			}
-			qty += countInSlots(character, code)
+			qty += slotQuantities[index][code]
 			if qty > 0 {
 				result = append(result, map[string]int{character.Name: qty})
 			}
@@ -119,8 +123,8 @@ func countRun(args []string) error {
 	return console.Auto(output)
 }
 
-func countInSlots(character schemas.CharacterSchema, code string) int {
-	total := 0
+func countInSlots(character schemas.CharacterSchema) map[string]int {
+	quantities := map[string]int{}
 	v := reflect.ValueOf(character)
 	t := v.Type()
 	for i := 0; i < v.NumField(); i++ {
@@ -128,17 +132,18 @@ func countInSlots(character schemas.CharacterSchema, code string) int {
 		if !strings.HasSuffix(fieldName, "Slot") || t.Field(i).Type.Kind() != reflect.String {
 			continue
 		}
-		if v.Field(i).String() != code {
+		code := v.Field(i).String()
+		if code == "" {
 			continue
 		}
 		quantityField := v.FieldByName(fieldName + "Quantity")
 		if quantityField.IsValid() && quantityField.Kind() == reflect.Int {
-			total += int(quantityField.Int())
+			quantities[code] += int(quantityField.Int())
 		} else {
-			total += 1
+			quantities[code]++
 		}
 	}
-	return total
+	return quantities
 }
 
 func init() {

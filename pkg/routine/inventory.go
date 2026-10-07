@@ -1,9 +1,12 @@
 package routine
 
 import (
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
 )
+
+const inventorySpaceReserve = 5
 
 var reservedTravelPotionCodes = []string{"forest_bank_potion", "recall_potion"}
 
@@ -14,7 +17,7 @@ type InventoryItemsOptions struct {
 
 func Inventory(character schemas.CharacterSchema, keepTypes []string, options MoveOptions) (schemas.CharacterSchema, error) {
 	//+gocover:ignore:block production wrapper over tested implementation
-	return inventory(defaultDeps, character, keepTypes, options)
+	return inventory(defaultDeps, cache.DiscardStockCodes(), character, keepTypes, options)
 }
 
 func InventorySpace(character schemas.CharacterSchema) int {
@@ -81,12 +84,19 @@ func RestockTravelPotion(character schemas.CharacterSchema, options MoveOptions)
 	return restockTravelPotion(defaultDeps, character, options)
 }
 
-func inventory(d deps, character schemas.CharacterSchema, keepTypes []string, options MoveOptions) (schemas.CharacterSchema, error) {
+func inventory(d deps, discardCodes []string, character schemas.CharacterSchema, keepTypes []string, options MoveOptions) (schemas.CharacterSchema, error) {
 	total := totalItems(character)
-	if total+5 < character.InventoryMaxItems {
+	if total+inventorySpaceReserve < character.InventoryMaxItems {
 		return character, nil
 	}
-	character, err := move(d, character, "bank", options)
+	character, err := discardInventory(d, discardCodes, character)
+	if err != nil {
+		return character, err
+	}
+	if totalItems(character) < total && InventorySpace(character) >= inventorySpaceReserve*2 {
+		return character, nil
+	}
+	character, err = move(d, character, "bank", options)
 	if err != nil {
 		return character, err
 	}
@@ -102,6 +112,36 @@ func inventory(d deps, character schemas.CharacterSchema, keepTypes []string, op
 		character = transaction.Character
 	}
 	return restockTravelPotion(d, character, options)
+}
+
+func discardInventory(d deps, codes []string, character schemas.CharacterSchema) (schemas.CharacterSchema, error) {
+	if len(codes) == 0 || d.myActionDelete == nil {
+		return character, nil
+	}
+	if character.Inventory == nil {
+		return character, nil
+	}
+	discard := map[string]bool{}
+	for _, code := range codes {
+		discard[code] = true
+	}
+	quantities := map[string]int{}
+	for _, item := range *character.Inventory {
+		if discard[item.Code] {
+			quantities[item.Code] += item.Quantity
+		}
+	}
+	for code, quantity := range quantities {
+		result, err := d.myActionDelete(character.Name, schemas.SimpleItemSchema{
+			Code:     code,
+			Quantity: quantity,
+		})
+		if err != nil {
+			return character, err
+		}
+		character = result.Character
+	}
+	return character, nil
 }
 
 func totalItems(character schemas.CharacterSchema) int {

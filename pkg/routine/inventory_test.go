@@ -9,7 +9,7 @@ import (
 
 func TestInventoryDoesNothingWithEnoughSpace(t *testing.T) {
 	character := schemas.CharacterSchema{InventoryMaxItems: 10}
-	got, err := inventory(deps{}, character, nil, MoveOptions{})
+	got, err := inventory(deps{}, nil, character, nil, MoveOptions{})
 	if err != nil || got != character {
 		t.Fatalf("inventory() = %#v, %v, want unchanged character", got, err)
 	}
@@ -39,12 +39,88 @@ func TestInventoryUsesInjectedDeposit(t *testing.T) {
 		},
 	}
 
-	_, err := inventory(d, character, nil, MoveOptions{})
+	_, err := inventory(d, nil, character, nil, MoveOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !called {
 		t.Fatal("deposit was not called")
+	}
+}
+
+func TestInventoryDiscardsBeforeBanking(t *testing.T) {
+	inventoryItems := []schemas.InventorySlotSchema{
+		{Code: "raw_chicken", Quantity: 6},
+	}
+	character := schemas.CharacterSchema{
+		Name:              "hero",
+		Inventory:         &inventoryItems,
+		InventoryMaxItems: 10,
+		Layer:             "overworld",
+	}
+	deleted := false
+	d := deps{
+		myActionDelete: func(_ string, item schemas.SimpleItemSchema) (schemas.DeleteItemSchema, error) {
+			if item.Code != "raw_chicken" || item.Quantity != 6 {
+				t.Fatalf("deleted item = %#v", item)
+			}
+			deleted = true
+			empty := []schemas.InventorySlotSchema{}
+			character.Inventory = &empty
+			return schemas.DeleteItemSchema{Character: character, Item: item}, nil
+		},
+	}
+
+	got, err := inventory(d, []string{"raw_chicken"}, character, nil, MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !deleted || totalItems(got) != 0 {
+		t.Fatalf("inventory() = %#v, deleted = %t", got, deleted)
+	}
+}
+
+func TestInventoryBanksAfterSmallDiscard(t *testing.T) {
+	inventoryItems := []schemas.InventorySlotSchema{
+		{Code: "egg", Quantity: 14},
+		{Code: "raw_chicken", Quantity: 1},
+	}
+	character := schemas.CharacterSchema{
+		Name:              "hero",
+		Inventory:         &inventoryItems,
+		InventoryMaxItems: 20,
+		Layer:             "overworld",
+	}
+	deleted := false
+	deposited := false
+	d := deps{
+		myActionDelete: func(_ string, item schemas.SimpleItemSchema) (schemas.DeleteItemSchema, error) {
+			if item.Code != "raw_chicken" || item.Quantity != 1 {
+				t.Fatalf("deleted item = %#v", item)
+			}
+			deleted = true
+			kept := []schemas.InventorySlotSchema{{Code: "egg", Quantity: 14}}
+			character.Inventory = &kept
+			return schemas.DeleteItemSchema{Character: character, Item: item}, nil
+		},
+		myActionMove: func(_ string, _, _ int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionBankDepositItem: func(_ string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			if len(items) != 1 || items[0].Code != "egg" || items[0].Quantity != 14 {
+				t.Fatalf("deposited items = %#v", items)
+			}
+			deposited = true
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+	}
+
+	_, err := inventory(d, []string{"raw_chicken"}, character, nil, MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !deleted || !deposited {
+		t.Fatalf("deleted = %t, deposited = %t", deleted, deposited)
 	}
 }
 
@@ -60,7 +136,7 @@ func TestInventoryReturnsMoveError(t *testing.T) {
 		Layer:             "overworld",
 	}
 
-	_, err := inventory(d, character, nil, MoveOptions{})
+	_, err := inventory(d, nil, character, nil, MoveOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("inventory() error = %v, want %v", err, wantErr)
 	}
@@ -85,7 +161,7 @@ func TestInventoryReturnsDepositError(t *testing.T) {
 		},
 	}
 
-	_, err := inventory(d, character, nil, MoveOptions{})
+	_, err := inventory(d, nil, character, nil, MoveOptions{})
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("inventory() error = %v, want %v", err, wantErr)
 	}

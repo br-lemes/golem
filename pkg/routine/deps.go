@@ -13,6 +13,7 @@ type deps struct {
 	myActionBankDepositItem  func(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error)
 	myActionBankWithdrawGold func(name string, quantity int) (schemas.BankGoldTransactionSchema, error)
 	myActionBankWithdrawItem func(name string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error)
+	myActionDelete           func(name string, item schemas.SimpleItemSchema) (schemas.DeleteItemSchema, error)
 	myActionEquip            func(name string, equips []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error)
 	myActionMove             func(name string, x, y int) (schemas.CharacterMovementDataSchema, error)
 	myActionRest             func(name string) (schemas.CharacterRestDataSchema, error)
@@ -30,6 +31,7 @@ var defaultDeps = deps{
 	myActionBankDepositItem:  api.MyActionBankDepositItem,
 	myActionBankWithdrawGold: api.MyActionBankWithdrawGold,
 	myActionBankWithdrawItem: api.MyActionBankWithdrawItem,
+	myActionDelete:           api.MyActionDelete,
 	myActionEquip:            api.MyActionEquip,
 	myActionMove:             api.MyActionMove,
 	myActionRest:             api.MyActionRest,
