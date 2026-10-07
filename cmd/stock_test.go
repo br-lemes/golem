@@ -23,6 +23,13 @@ func TestStockItemQuantitiesIncludesEquippedItems(t *testing.T) {
 	}
 }
 
+func TestStockShowCommand(t *testing.T) {
+	command, _, err := stockCmd.Find([]string{"show"})
+	if err != nil || command != stockShowCmd || stockCmd.Flags().Lookup("target") == nil || stockShowCmd.Flags().Lookup("target") == nil {
+		t.Fatalf("stock show command = %#v, %v", command, err)
+	}
+}
+
 func TestStockGoldQuantityIncludesCharacters(t *testing.T) {
 	characters := []schemas.CharacterSchema{{Gold: 20}, {Gold: 30}}
 	quantity := stockGoldQuantity(50, characters)
@@ -112,6 +119,29 @@ func TestStockRequirementsTarget(t *testing.T) {
 	result = stockRequirements(stocks, quantities, nil, taskCodes, reachable, nil, true)
 	if result["ash_wood"].Needed != 23 {
 		t.Fatalf("target stock = %#v", result)
+	}
+}
+
+func TestStockRequirementsFiltersOutputAfterExpansion(t *testing.T) {
+	stocks := map[string]models.Stock{
+		"gold_bar": {
+			Code:     "gold_bar",
+			Quantity: 1,
+			Mode:     models.StockModeExact,
+			Enabled:  true,
+		},
+		"gold_ore": {
+			Code:     "gold_ore",
+			Quantity: 0,
+			Mode:     models.StockModeExact,
+			Enabled:  true,
+		},
+	}
+	characters := []schemas.CharacterSchema{{Level: 100, MiningLevel: 100}}
+
+	result := stockRequirements(stocks, nil, characters, nil, nil, []string{"gold_ore"}, false)
+	if len(result) != 1 || result["gold_ore"].Needed != 10 || result["gold_ore"].Required != 10 {
+		t.Fatalf("stockRequirements() = %#v", result)
 	}
 }
 

@@ -6,7 +6,6 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/catalog"
-	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/models"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -33,45 +32,43 @@ type stockGoal struct {
 }
 
 var stockCmd = &cobra.Command{
-	Use:   "stock [code...]",
+	Args:  cobra.NoArgs,
+	Use:   "stock",
 	Short: "Show stock requirements",
-	Long: `Show stock requirements
+	RunE:  stockRun,
+}
 
-Arguments:
-  code   The code of the item.`,
-	ValidArgsFunction: completion.Item(0).Build(),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		flags, err := utils.ReadFlags[stockFlags](cmd)
-		if err != nil {
-			return err
-		}
-		cmd.SilenceUsage = true
-		characters, err := api.AccountsCharacters("")
-		if err != nil {
-			return err
-		}
-		bankItems, err := api.MyBankItems()
-		if err != nil {
-			return err
-		}
-		bank, err := api.MyBank()
-		if err != nil {
-			return err
-		}
-		quantities := stockItemQuantities(bankItems, characters)
-		quantities["gold"] = stockGoldQuantity(bank.Gold, characters)
-		reachable := stockTaskSafeties(catalog.Tasks().All(), nil, stockMaxSkillLevels(characters))
-		stocks := stockConfigured(cache.ListStocks())
-		err = stockInitialize(stocks, stockPotionSafeties())
-		if err != nil {
-			return err
-		}
-		err = stockInitialize(stocks, stockAllTaskSafeties(catalog.Tasks().All()))
-		if err != nil {
-			return err
-		}
-		return console.Auto(stockRequirements(stocks, quantities, characters, stockTaskCodes(), reachable, args, flags.Target))
-	},
+func stockRun(cmd *cobra.Command, args []string) error {
+	flags, err := utils.ReadFlags[stockFlags](cmd)
+	if err != nil {
+		return err
+	}
+	cmd.SilenceUsage = true
+	characters, err := api.AccountsCharacters("")
+	if err != nil {
+		return err
+	}
+	bankItems, err := api.MyBankItems()
+	if err != nil {
+		return err
+	}
+	bank, err := api.MyBank()
+	if err != nil {
+		return err
+	}
+	quantities := stockItemQuantities(bankItems, characters)
+	quantities["gold"] = stockGoldQuantity(bank.Gold, characters)
+	reachable := stockTaskSafeties(catalog.Tasks().All(), nil, stockMaxSkillLevels(characters))
+	stocks := stockConfigured(cache.ListStocks())
+	err = stockInitialize(stocks, stockPotionSafeties())
+	if err != nil {
+		return err
+	}
+	err = stockInitialize(stocks, stockAllTaskSafeties(catalog.Tasks().All()))
+	if err != nil {
+		return err
+	}
+	return console.Auto(stockRequirements(stocks, quantities, characters, stockTaskCodes(), reachable, args, flags.Target))
 }
 
 func stockItemQuantities(bankItems []schemas.SimpleItemSchema, characters []schemas.CharacterSchema) map[string]int {
@@ -193,7 +190,7 @@ func stockTaskSafety(task *schemas.TaskFullSchema) int {
 }
 
 func stockRequirements(stocks map[string]models.Stock, quantities map[string]int, characters []schemas.CharacterSchema, taskCodes map[string]bool, reachable map[string]int, codes []string, target bool) map[string]ItemStock {
-	direct := stockDirectRequirements(stocks, quantities, characters, taskCodes, reachable, codes, target)
+	direct := stockDirectRequirements(stocks, quantities, characters, taskCodes, reachable, target)
 	required, needed := stockRecipeRequirements(stockCatalogItems(), stockNPCOffers(), direct, quantities, characters)
 	result := map[string]ItemStock{}
 	for code, stock := range stocks {
@@ -221,7 +218,7 @@ func stockRequirements(stocks map[string]models.Stock, quantities map[string]int
 		result[code] = item
 	}
 	for code, quantity := range needed {
-		if quantity == 0 {
+		if quantity == 0 || (len(codes) > 0 && !slices.Contains(codes, code)) {
 			continue
 		}
 		stock, configured := stocks[code]
@@ -254,10 +251,10 @@ func stockRequired(stock models.Stock, required int) int {
 	return required
 }
 
-func stockDirectRequirements(stocks map[string]models.Stock, quantities map[string]int, characters []schemas.CharacterSchema, taskCodes map[string]bool, reachable map[string]int, codes []string, target bool) map[string]stockGoal {
+func stockDirectRequirements(stocks map[string]models.Stock, quantities map[string]int, characters []schemas.CharacterSchema, taskCodes map[string]bool, reachable map[string]int, target bool) map[string]stockGoal {
 	direct := map[string]stockGoal{}
 	for code, stock := range stocks {
-		if !stock.Enabled || stock.Mode == "" || (len(codes) > 0 && !slices.Contains(codes, code)) {
+		if !stock.Enabled || stock.Mode == "" {
 			continue
 		}
 		current := quantities[code]
