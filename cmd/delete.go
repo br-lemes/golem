@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/routine"
@@ -14,25 +15,26 @@ import (
 
 type deleteFlags struct {
 	All      bool `flag:"all" desc:"Delete all of this item from inventory and bank"`
+	Discard  bool `flag:"discard" desc:"Delete items marked for discard from inventory and bank"`
 	Quantity int  `flag:"quantity" shorthand:"q" desc:"Item quantity to delete"`
 }
 
 var deleteCmd = &cobra.Command{
-	Args:  cobra.ExactArgs(2),
-	Use:   "delete <name> <code>",
+	Args:  cobra.RangeArgs(1, 2),
+	Use:   "delete <name> [code]",
 	Short: "Delete items from a character's inventory and bank",
 	Long: `Delete items from a character's inventory and bank
 
 Arguments:
   name   Name of your character.
-  code   The code of the item.`,
+  code   The code of the item, unless --discard is used.`,
 	ValidArgsFunction: completion.CharacterName(1).Item(1).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		flags, err := utils.ReadFlags[deleteFlags](cmd)
 		if err != nil {
 			return err
 		}
-		err = deleteValidate(args[1], flags, cmd.Flags().Changed("quantity"))
+		err = deleteValidate(args, flags, cmd.Flags().Changed("quantity"))
 		if err != nil {
 			return err
 		}
@@ -41,11 +43,26 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		if flags.Discard {
+			return deleteDiscardRun(args[0], movement)
+		}
 		return deleteRun(args[0], args[1], flags, movement)
 	},
 }
 
-func deleteValidate(code string, options deleteFlags, quantityChanged bool) error {
+func deleteValidate(args []string, options deleteFlags, quantityChanged bool) error {
+	if options.Discard {
+		if len(args) != 1 {
+			return fmt.Errorf("--discard does not accept an item code")
+		}
+		if options.All || quantityChanged {
+			return fmt.Errorf("--discard cannot be combined with --all or --quantity")
+		}
+		return nil
+	}
+	if len(args) != 2 {
+		return fmt.Errorf("item code is required unless --discard is used")
+	}
 	if options.All && quantityChanged {
 		return fmt.Errorf("--all cannot be combined with --quantity")
 	}
@@ -55,9 +72,39 @@ func deleteValidate(code string, options deleteFlags, quantityChanged bool) erro
 	if quantityChanged && options.Quantity <= 0 {
 		return fmt.Errorf("quantity must be greater than 0")
 	}
-	_, found := catalog.Items().Get(code)
+	_, found := catalog.Items().Get(args[1])
 	if !found {
-		return fmt.Errorf("item %q not found", code)
+		return fmt.Errorf("item %q not found", args[1])
+	}
+	return nil
+}
+
+func deleteDiscardRun(name string, movement routine.MoveOptions) error {
+	character, err := api.Characters(name)
+	if err != nil {
+		return err
+	}
+	bankItems, err := api.MyBankItems()
+	if err != nil {
+		return err
+	}
+	quantities := map[string]int{}
+	if character.Inventory != nil {
+		for _, item := range *character.Inventory {
+			quantities[item.Code] += item.Quantity
+		}
+	}
+	for _, item := range bankItems {
+		quantities[item.Code] += item.Quantity
+	}
+	for _, code := range cache.DiscardStockCodes() {
+		if quantities[code] == 0 {
+			continue
+		}
+		err = deleteRun(name, code, deleteFlags{All: true}, movement)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
