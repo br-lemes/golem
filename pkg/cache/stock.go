@@ -58,6 +58,16 @@ func DiscardStockCodes() []string {
 	return codes
 }
 
+func ExactZeroStockCodes() []string {
+	var codes []string
+	result := cache.Model(&models.Stock{}).Where("enabled = ? AND mode = ? AND quantity = ?", true, models.StockModeExact, 0).Order("code").Pluck("code", &codes)
+	if result.Error != nil {
+		//+gocover:ignore:block SQLite query failure is environmental
+		return nil
+	}
+	return codes
+}
+
 func RemoveStock(code string) error {
 	return cache.Where("code = ?", code).Delete(&models.Stock{}).Error
 }

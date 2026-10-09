@@ -16,13 +16,14 @@ import (
 )
 
 type missingFlags struct {
-	Name          []string `flag:"name" shorthand:"n" desc:"Character names to analyze"`
-	EquipmentType []string `flag:"type" shorthand:"t" desc:"Equipment types to filter"`
-	MinLevel      int      `flag:"min-level" default:"1" desc:"Minimum item level"`
-	MaxLevel      int      `flag:"max-level" default:"50" desc:"Maximum item level"`
-	Level         bool     `flag:"level" desc:"Include item levels in the output"`
-	Skill         []string `flag:"skill" shorthand:"s" desc:"Crafting skills to include"`
-	Craftable     bool     `flag:"craftable" desc:"Only include items craftable by a character"`
+	Name             []string `flag:"name" shorthand:"n" desc:"Character names to analyze"`
+	EquipmentType    []string `flag:"type" shorthand:"t" desc:"Equipment types to filter"`
+	MinLevel         int      `flag:"min-level" default:"1" desc:"Minimum item level"`
+	MaxLevel         int      `flag:"max-level" default:"50" desc:"Maximum item level"`
+	Level            bool     `flag:"level" desc:"Include item levels in the output"`
+	Skill            []string `flag:"skill" shorthand:"s" desc:"Crafting skills to include"`
+	Craftable        bool     `flag:"craftable" desc:"Only include items craftable by a character"`
+	IncludeExactZero bool     `flag:"include-exact-zero" desc:"Include items configured with exact zero stock"`
 }
 
 var missingOptions missingFlags
@@ -192,6 +193,12 @@ func executeMissing(flags missingFlags) error {
 		}
 	}
 	missingItems := make(map[string]int)
+	exactZeroCodes := map[string]bool{}
+	if !flags.IncludeExactZero {
+		for _, code := range cache.ExactZeroStockCodes() {
+			exactZeroCodes[code] = true
+		}
+	}
 	for code, required := range requiredItems {
 		if flags.Craftable && !craftableItems[code] {
 			continue
@@ -201,6 +208,9 @@ func executeMissing(flags missingFlags) error {
 			continue
 		}
 		if len(flags.Skill) > 0 && (item.Craft == nil || item.Craft.Skill == nil || !slices.Contains(flags.Skill, *item.Craft.Skill)) {
+			continue
+		}
+		if exactZeroCodes[code] {
 			continue
 		}
 		missing := required - ownedItems[code]

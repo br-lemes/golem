@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/models"
@@ -54,5 +55,43 @@ func TestStockCache(t *testing.T) {
 	}
 	if stocks[1].Code != "raw_chicken" || stocks[1].Quantity != 0 || stocks[1].Mode != models.StockModeExact || !stocks[1].Enabled || stocks[1].Discard {
 		t.Fatalf("raw_chicken stock = %#v", stocks[1])
+	}
+}
+
+func TestExactZeroStockCodes(t *testing.T) {
+	initializeTestCache(t)
+	for _, stock := range []models.Stock{
+		{
+			Code:     "enabled_zero",
+			Quantity: 0,
+			Mode:     models.StockModeExact,
+			Enabled:  true,
+		},
+		{
+			Code:     "disabled_zero",
+			Quantity: 0,
+			Mode:     models.StockModeExact,
+		},
+		{
+			Code:     "enabled_one",
+			Quantity: 1,
+			Mode:     models.StockModeExact,
+			Enabled:  true,
+		},
+		{
+			Code:     "safety_zero",
+			Quantity: 0,
+			Mode:     models.StockModeSafety,
+			Enabled:  true,
+		},
+	} {
+		err := cache.Create(&stock).Error
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	codes := ExactZeroStockCodes()
+	if !slices.Equal(codes, []string{"enabled_zero"}) {
+		t.Fatalf("ExactZeroStockCodes() = %#v", codes)
 	}
 }

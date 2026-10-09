@@ -5,7 +5,7 @@ import (
 )
 
 func TestDependencyTreeIncludesOnlyRequestedPaths(t *testing.T) {
-	tree := dependencyTree([]string{"copper_ore"}, nil, false, false)
+	tree := dependencyTree([]string{"copper_ore"}, nil, false, false, nil)
 	ore := dependencyChild(t, tree, "copper_ore")
 	dependencyNoQuantity(t, ore)
 	if len(ore) != 0 {
@@ -17,7 +17,7 @@ func TestDependencyTreeIncludesBankQuantities(t *testing.T) {
 	tree := dependencyTree([]string{"copper_ore"}, map[string]int{
 		"copper_ore": 42,
 		"copper_bar": 8,
-	}, false, false)
+	}, false, false, nil)
 	ore := dependencyChild(t, tree, "copper_ore")
 	dependencyQuantity(t, ore, 42)
 	if len(ore) != 1 {
@@ -26,7 +26,7 @@ func TestDependencyTreeIncludesBankQuantities(t *testing.T) {
 }
 
 func TestDependencyTreeResolvesToCurrencySource(t *testing.T) {
-	tree := dependencyTree([]string{"powerful_rune"}, nil, false, false)
+	tree := dependencyTree([]string{"powerful_rune"}, nil, false, false, nil)
 	coins := dependencyChild(t, tree, "sonnengott_coin")
 	dependencyChild(t, coins, "powerful_rune")
 	_, exists := coins["sonnengott_cloak"]
@@ -36,14 +36,14 @@ func TestDependencyTreeResolvesToCurrencySource(t *testing.T) {
 }
 
 func TestDependencyTreeExcludesNonItemCurrencies(t *testing.T) {
-	tree := dependencyTree([]string{"cultist_boots"}, nil, false, false)
+	tree := dependencyTree([]string{"cultist_boots"}, nil, false, false, nil)
 	if tree["gold"] != nil {
 		t.Fatalf("gold = %#v, want absent", tree["gold"])
 	}
 }
 
 func TestDependencyTreeIncludesZeroBankQuantities(t *testing.T) {
-	tree := dependencyTree([]string{"powerful_rune"}, map[string]int{}, false, false)
+	tree := dependencyTree([]string{"powerful_rune"}, map[string]int{}, false, false, nil)
 	coins := dependencyChild(t, tree, "sonnengott_coin")
 	dependencyQuantity(t, coins, 0)
 	rune := dependencyChild(t, coins, "powerful_rune")
@@ -51,7 +51,7 @@ func TestDependencyTreeIncludesZeroBankQuantities(t *testing.T) {
 }
 
 func TestDependencyTreeExpandsSourceUses(t *testing.T) {
-	tree := dependencyTree([]string{"powerful_rune"}, map[string]int{}, true, false)
+	tree := dependencyTree([]string{"powerful_rune"}, map[string]int{}, true, false, nil)
 	coins := dependencyChild(t, tree, "sonnengott_coin")
 	dependencyQuantity(t, coins, 0)
 	rune := dependencyChild(t, coins, "powerful_rune")
@@ -60,8 +60,30 @@ func TestDependencyTreeExpandsSourceUses(t *testing.T) {
 	dependencyQuantity(t, cloak, 0)
 }
 
+func TestDependencyTreeExcludesExactZeroProducts(t *testing.T) {
+	tree := dependencyTree([]string{"powerful_rune"}, nil, true, false, map[string]bool{
+		"powerful_rune": true,
+	})
+	coins := dependencyChild(t, tree, "sonnengott_coin")
+	_, exists := coins["powerful_rune"]
+	if exists {
+		t.Fatalf("exact zero product = %#v", coins["powerful_rune"])
+	}
+	dependencyChild(t, coins, "sonnengott_cloak")
+}
+
+func TestDependencyPathsExcludeExactZeroProducts(t *testing.T) {
+	tree := dependencyTree([]string{"powerful_rune"}, nil, false, false, map[string]bool{
+		"powerful_rune": true,
+	})
+	coins := dependencyChild(t, tree, "sonnengott_coin")
+	if len(coins) != 0 {
+		t.Fatalf("exact zero path = %#v", coins)
+	}
+}
+
 func TestDependencyTreeResolvesToCraftingSource(t *testing.T) {
-	tree := dependencyTree([]string{"copper_bar"}, nil, false, false)
+	tree := dependencyTree([]string{"copper_bar"}, nil, false, false, nil)
 	ore := dependencyChild(t, tree, "copper_ore")
 	dependencyChild(t, ore, "copper_bar")
 }
@@ -92,10 +114,10 @@ func dependencyNoQuantity(t *testing.T, tree map[string]any) {
 }
 
 func TestDependencyTreeIncludesItemLevels(t *testing.T) {
-	tree := dependencyTree([]string{"copper_ore"}, nil, false, true)
+	tree := dependencyTree([]string{"copper_ore"}, nil, false, true, nil)
 	dependencyLevel(t, dependencyChild(t, tree, "copper_ore"), 1)
 
-	tree = dependencyTree([]string{"copper_ore"}, nil, true, true)
+	tree = dependencyTree([]string{"copper_ore"}, nil, true, true, nil)
 	dependencyLevel(t, dependencyChild(t, tree, "copper_ore"), 1)
 }
 

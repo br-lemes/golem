@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	"github.com/br-lemes/golem/pkg/api"
+	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
@@ -12,9 +13,10 @@ import (
 )
 
 type dependenciesFlags struct {
-	Quantities bool `flag:"quantities" shorthand:"q" desc:"Include quantities available in the bank"`
-	Level      bool `flag:"level" desc:"Include item levels"`
-	Paths      bool `flag:"paths" shorthand:"p" desc:"Show only dependency paths"`
+	Quantities       bool `flag:"quantities" shorthand:"q" desc:"Include quantities available in the bank"`
+	Level            bool `flag:"level" desc:"Include item levels"`
+	Paths            bool `flag:"paths" shorthand:"p" desc:"Show only dependency paths"`
+	IncludeExactZero bool `flag:"include-exact-zero" desc:"Include items configured with exact zero stock"`
 }
 
 var dependenciesCmd = &cobra.Command{
@@ -37,6 +39,12 @@ Arguments:
 }
 
 func dependenciesRun(codes []string, flags dependenciesFlags) error {
+	exactZeroCodes := map[string]bool{}
+	if !flags.IncludeExactZero {
+		for _, code := range cache.ExactZeroStockCodes() {
+			exactZeroCodes[code] = true
+		}
+	}
 	quantities := map[string]int(nil)
 	if len(codes) == 0 || flags.Quantities {
 		bankItems, err := api.MyBankItems()
@@ -51,14 +59,17 @@ func dependenciesRun(codes []string, flags dependenciesFlags) error {
 		}
 		if len(codes) == 0 {
 			for _, item := range bankItems {
+				if exactZeroCodes[item.Code] {
+					continue
+				}
 				codes = append(codes, item.Code)
 			}
 		}
 	}
-	return console.Auto(dependencyTree(codes, quantities, !flags.Paths, flags.Level))
+	return console.Auto(dependencyTree(codes, quantities, !flags.Paths, flags.Level, exactZeroCodes))
 }
 
-func dependencyTree(codes []string, quantities map[string]int, expand bool, includeLevels bool) map[string]any {
+func dependencyTree(codes []string, quantities map[string]int, expand bool, includeLevels bool, exactZeroCodes map[string]bool) map[string]any {
 	items := catalog.Items().All()
 	npcItems := catalog.NpcsItems.All()
 	levels := map[string]int(nil)
@@ -105,11 +116,17 @@ func dependencyTree(codes []string, quantities map[string]int, expand bool, incl
 		if expand {
 			for _, path := range paths {
 				root := path[0]
-				result[root] = dependencyProducts(root, products, quantities, levels, map[string]bool{})
+				result[root] = dependencyProducts(root, products, quantities, levels, exactZeroCodes, map[string]bool{})
 			}
 			continue
 		}
 		for _, path := range paths {
+			for index, pathCode := range path {
+				if exactZeroCodes[pathCode] {
+					path = path[:index]
+					break
+				}
+			}
 			addDependencyPath(result, path, quantities, levels)
 		}
 	}
@@ -159,7 +176,7 @@ func addDependencyPath(tree map[string]any, path []string, quantities map[string
 	}
 }
 
-func dependencyProducts(code string, products map[string][]string, quantities map[string]int, levels map[string]int, ancestors map[string]bool) map[string]any {
+func dependencyProducts(code string, products map[string][]string, quantities map[string]int, levels map[string]int, exactZeroCodes map[string]bool, ancestors map[string]bool) map[string]any {
 	ancestors[code] = true
 	defer delete(ancestors, code)
 
@@ -171,10 +188,10 @@ func dependencyProducts(code string, products map[string][]string, quantities ma
 		result["_level"] = levels[code]
 	}
 	for _, product := range products[code] {
-		if ancestors[product] {
+		if exactZeroCodes[product] || ancestors[product] {
 			continue
 		}
-		result[product] = dependencyProducts(product, products, quantities, levels, ancestors)
+		result[product] = dependencyProducts(product, products, quantities, levels, exactZeroCodes, ancestors)
 	}
 	return result
 }
