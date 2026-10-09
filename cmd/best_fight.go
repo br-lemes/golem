@@ -48,8 +48,9 @@ func bestFightValidate(monster string, flags bestFightFlags, levelChanged bool) 
 	if !ok {
 		return fmt.Errorf("invalid monster: %s", monster)
 	}
-	if flags.Level < 1 || flags.Level > 50 {
-		return fmt.Errorf("level must be between 1 and 50")
+	err := validateGameLevel(flags.Level)
+	if err != nil {
+		return err
 	}
 	if flags.Name != "" && levelChanged {
 		return fmt.Errorf("--name and --level are mutually exclusive")

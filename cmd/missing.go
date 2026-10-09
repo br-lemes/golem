@@ -18,6 +18,10 @@ import (
 type missingFlags struct {
 	Name          []string `flag:"name" shorthand:"n" desc:"Character names to analyze"`
 	EquipmentType []string `flag:"type" shorthand:"t" desc:"Equipment types to filter"`
+	MinLevel      int      `flag:"min-level" default:"1" desc:"Minimum item level"`
+	MaxLevel      int      `flag:"max-level" default:"50" desc:"Maximum item level"`
+	Level         bool     `flag:"level" desc:"Include item levels in the output"`
+	Skill         []string `flag:"skill" shorthand:"s" desc:"Crafting skills to include"`
 	Craftable     bool     `flag:"craftable" desc:"Only include items craftable by a character"`
 }
 
@@ -35,17 +39,37 @@ var missingCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, equipmentType := range missingOptions.EquipmentType {
-			if !slices.Contains(catalog.EquipmentTypes, equipmentType) {
-				return fmt.Errorf("invalid equipment type specified: %s", equipmentType)
-			}
-		}
-		return nil
+		return missingValidate(missingOptions)
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
 		return executeMissing(missingOptions)
 	},
+}
+
+func missingValidate(flags missingFlags) error {
+	for _, equipmentType := range flags.EquipmentType {
+		if !slices.Contains(catalog.EquipmentTypes, equipmentType) {
+			return fmt.Errorf("invalid equipment type specified: %s", equipmentType)
+		}
+	}
+	for _, skill := range flags.Skill {
+		if !slices.Contains(catalog.Enums()["CraftSkill"], skill) {
+			return fmt.Errorf("invalid crafting skill %q", skill)
+		}
+	}
+	err := validateGameLevel(flags.MinLevel)
+	if err != nil {
+		return err
+	}
+	err = validateGameLevel(flags.MaxLevel)
+	if err != nil {
+		return err
+	}
+	if flags.MinLevel > flags.MaxLevel {
+		return fmt.Errorf("minimum level cannot exceed maximum level")
+	}
+	return nil
 }
 
 func executeMissing(flags missingFlags) error {
@@ -172,12 +196,27 @@ func executeMissing(flags missingFlags) error {
 		if flags.Craftable && !craftableItems[code] {
 			continue
 		}
+		item, _ := catalog.Items().Get(code)
+		if item.Level < flags.MinLevel || item.Level > flags.MaxLevel {
+			continue
+		}
+		if len(flags.Skill) > 0 && (item.Craft == nil || item.Craft.Skill == nil || !slices.Contains(flags.Skill, *item.Craft.Skill)) {
+			continue
+		}
 		missing := required - ownedItems[code]
 		if missing > 0 {
 			missingItems[code] = missing
 		}
 	}
-	return console.Auto(missingItems)
+	if !flags.Level {
+		return console.Auto(missingItems)
+	}
+	result := map[string]map[string]int{}
+	for code, quantity := range missingItems {
+		item, _ := catalog.Items().Get(code)
+		result[code] = map[string]int{"level": item.Level, "quantity": quantity}
+	}
+	return console.Auto(result)
 }
 
 func requiredEquipmentQuantity(item schemas.ItemSchema) int {
@@ -236,6 +275,16 @@ func init() {
 	err = missingCmd.RegisterFlagCompletionFunc("type", completion.StringSlice(func() []string {
 		return catalog.EquipmentTypes
 	}))
+	if err != nil {
+		panic(err)
+	}
+	err = missingCmd.RegisterFlagCompletionFunc("skill", func(
+		cmd *cobra.Command,
+		args []string,
+		toComplete string,
+	) ([]string, cobra.ShellCompDirective) {
+		return catalog.Enums()["CraftSkill"], cobra.ShellCompDirectiveNoFileComp
+	})
 	if err != nil {
 		panic(err)
 	}

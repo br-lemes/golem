@@ -53,7 +53,10 @@ Arguments:
 		if len(codes) == 0 {
 			return fmt.Errorf("no suitable food available in bank")
 		}
-		return countRun(uniqueStrings(codes))
+		return countRun(uniqueStrings(codes), countFlags{
+			MinLevel: minGameLevel,
+			MaxLevel: maxGameLevel,
+		})
 	},
 }
 

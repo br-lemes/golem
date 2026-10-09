@@ -14,6 +14,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	minGameLevel = 1
+	maxGameLevel = 50
+)
+
 var levelGroups = []string{"skill", "character"}
 
 type levelFlags struct {
@@ -131,6 +136,13 @@ func levelsBySkill(characters []schemas.CharacterSchema, filterSkills []string) 
 		}
 	}
 	return levels
+}
+
+func validateGameLevel(level int) error {
+	if level >= minGameLevel && level <= maxGameLevel {
+		return nil
+	}
+	return fmt.Errorf("level must be between %d and %d", minGameLevel, maxGameLevel)
 }
 
 func init() {

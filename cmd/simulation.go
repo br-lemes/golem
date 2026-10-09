@@ -136,8 +136,9 @@ func validateSimulationFlags(flags simulationFlags) error {
 	if flags.Iterations < 1 {
 		return fmt.Errorf("iterations must be at least 1")
 	}
-	if flags.Level < 1 || flags.Level > 50 {
-		return fmt.Errorf("level must be between 1 and 50")
+	err := validateGameLevel(flags.Level)
+	if err != nil {
+		return err
 	}
 	if flags.Utility1SlotQuantity < 1 || flags.Utility1SlotQuantity > 100 || flags.Utility2SlotQuantity < 1 || flags.Utility2SlotQuantity > 100 {
 		return fmt.Errorf("utility quantities must be between 1 and 100")
