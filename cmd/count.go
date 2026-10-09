@@ -297,13 +297,9 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = countCmd.RegisterFlagCompletionFunc("skill", func(
-		cmd *cobra.Command,
-		args []string,
-		toComplete string,
-	) ([]string, cobra.ShellCompDirective) {
-		return catalog.Enums()["CraftSkill"], cobra.ShellCompDirectiveNoFileComp
-	})
+	err = countCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
+		return catalog.Enums()["CraftSkill"]
+	}))
 	if err != nil {
 		panic(err)
 	}
