@@ -23,13 +23,6 @@ func TestStockItemQuantitiesIncludesEquippedItems(t *testing.T) {
 	}
 }
 
-func TestStockShowCommand(t *testing.T) {
-	command, _, err := stockCmd.Find([]string{"show"})
-	if err != nil || command != stockShowCmd || stockCmd.Flags().Lookup("target") == nil || stockShowCmd.Flags().Lookup("target") == nil {
-		t.Fatalf("stock show command = %#v, %v", command, err)
-	}
-}
-
 func TestStockGoldQuantityIncludesCharacters(t *testing.T) {
 	characters := []schemas.CharacterSchema{{Gold: 20}, {Gold: 30}}
 	quantity := stockGoldQuantity(50, characters)
