@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"testing"
+
+	"github.com/br-lemes/golem/pkg/models"
 )
 
 func TestDependencyTreeIncludesOnlyRequestedPaths(t *testing.T) {
@@ -10,6 +12,17 @@ func TestDependencyTreeIncludesOnlyRequestedPaths(t *testing.T) {
 	dependencyNoQuantity(t, ore)
 	if len(ore) != 0 {
 		t.Fatalf("ore descendants = %#v, want none", ore)
+	}
+}
+
+func TestDependenciesValidate(t *testing.T) {
+	err := dependenciesValidate([]string{"ash_wood"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = dependenciesValidate([]string{"unknown"})
+	if err == nil {
+		t.Fatal("dependenciesValidate() accepted an unknown item")
 	}
 }
 
@@ -79,6 +92,43 @@ func TestDependencyPathsExcludeExactZeroProducts(t *testing.T) {
 	coins := dependencyChild(t, tree, "sonnengott_coin")
 	if len(coins) != 0 {
 		t.Fatalf("exact zero path = %#v", coins)
+	}
+}
+
+func TestDependenciesIgnoredStockCodes(t *testing.T) {
+	stocks := []models.Stock{
+		{
+			Code:    "zero",
+			Mode:    models.StockModeExact,
+			Enabled: true,
+		},
+		{
+			Code:     "satisfied",
+			Quantity: 2,
+			Mode:     models.StockModeExact,
+			Enabled:  true,
+		},
+		{
+			Code:     "missing",
+			Quantity: 3,
+			Mode:     models.StockModeExact,
+			Enabled:  true,
+		},
+		{
+			Code: "disabled",
+			Mode: models.StockModeExact,
+		},
+		{
+			Code:    "safety",
+			Mode:    models.StockModeSafety,
+			Enabled: true,
+		},
+	}
+	quantities := map[string]int{"satisfied": 2, "missing": 1}
+
+	result := dependenciesIgnoredStockCodes(stocks, quantities)
+	if len(result) != 2 || !result["zero"] || !result["satisfied"] {
+		t.Fatalf("dependenciesIgnoredStockCodes() = %#v", result)
 	}
 }
 
