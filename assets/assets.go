@@ -2,5 +2,5 @@ package assets
 
 import "embed"
 
-//go:embed css/output.css fonts/geist/*.woff2 images/* js/*.js
+//go:embed golem.css golem.js images/* tabler-icons-* theme.js
 var Assets embed.FS

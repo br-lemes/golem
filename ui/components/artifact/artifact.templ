@@ -1,10 +1,6 @@
 package artifact
 
-import (
-	"fmt"
-
-	"github.com/br-lemes/golem/ui/shadcnutils"
-)
+import "fmt"
 
 type Type string
 
@@ -23,6 +19,7 @@ type Props struct {
 	Class string
 	Code  string
 	Name  string
+	Size  string
 	Type  Type
 }
 
@@ -34,7 +31,10 @@ templ Image(props ...Props) {
 	{{ src := fmt.Sprintf("https://artifactsmmo.com/images/%s/%s.png", p.Type, p.Code) }}
 	<img
 		alt={ p.Name }
-		class={ shadcnutils.CN("object-contain size-4", p.Class) }
+		class={ "object-fit-contain", p.Class }
+		if p.Size != "" {
+			style={ fmt.Sprintf("width: %s; height: %s;", p.Size, p.Size) }
+		}
 		src={ src }
 	/>
 }
@@ -44,8 +44,11 @@ templ Label(props ...Props) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	<span class={ shadcnutils.CN("gap-1 inline-flex items-center") }>
-		@Image(p)
+	if p.Size == "" {
+		{{ p.Size = "1rem" }}
+	}
+	<span class={ "align-items-center d-inline-flex gap-1", p.Class }>
+		@Image(Props{Code: p.Code, Name: p.Name, Size: p.Size, Type: p.Type})
 		{ p.Code }
 	</span>
 }

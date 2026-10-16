@@ -3,7 +3,6 @@ module github.com/br-lemes/golem
 go 1.26.5
 
 require (
-	github.com/Oudwins/tailwind-merge-go v0.2.3
 	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/a-h/templ v0.3.1020
 	github.com/alecthomas/chroma/v2 v2.27.0

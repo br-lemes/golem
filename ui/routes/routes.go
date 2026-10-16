@@ -11,7 +11,7 @@ import (
 )
 
 type Segment struct {
-	Icon  templ.Component
+	Icon  string
 	Label string
 	Path  string
 }
@@ -20,7 +20,7 @@ type Definition struct {
 	Order   int
 	Label   string
 	Path    string
-	Icon    templ.Component
+	Icon    string
 	Handler func(*http.Request) (templ.Component, int)
 }
 

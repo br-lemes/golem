@@ -17,7 +17,6 @@ import (
 	"github.com/br-lemes/golem/ui/components/datatable"
 	"github.com/br-lemes/golem/ui/layouts"
 	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn/icon"
 )
 
 var route *routes.Node
@@ -26,7 +25,7 @@ func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Effects",
 		Path:  "/catalog/effects",
-		Icon:  icon.Sparkles(icon.Props{Class: "shrink-0 size-4"}),
+		Icon:  "ti-sparkles",
 		Handler: func(_ *http.Request) (templ.Component, int) {
 			return List(catalog.Effects().All()), http.StatusOK
 		},
@@ -66,6 +65,10 @@ func List(effects []*schemas.EffectSchema) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[*schemas.EffectSchema]{
 				Data: effects,
 				Columns: []datatable.Column[*schemas.EffectSchema]{
@@ -76,6 +79,10 @@ func List(effects []*schemas.EffectSchema) templ.Component {
 					{Header: "Description", Field: "description"},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -111,7 +118,7 @@ func cell(effect *schemas.EffectSchema) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = artifact.Label(artifact.Props{
-			Class: "font-mono text-xs",
+			Class: "font-monospace small",
 			Code:  effect.Code,
 			Name:  effect.Name,
 			Type:  artifact.TypeEffects,

@@ -1,6 +1,7 @@
 PLATFORMS := linux-amd64 linux-arm64 windows-amd64
 
-.PHONY: all clean coverage dev release serve templ test version FORCE $(PLATFORMS)
+.PHONY: all assets clean coverage dev lint release serve test version \
+	$(PLATFORMS)
 
 TARGET := $(notdir $(shell go list -m 2>/dev/null))
 ifeq ($(TARGET),)
@@ -17,8 +18,7 @@ CODEGEN := github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 SEMVER := github.com/br-lemes/semver@latest
 BUN_SCRIPT ?= build
 
-GENERATED_FILES := assets/css/output.css \
-	assets/js/swr.js \
+API_GENERATED_FILES := \
 	pkg/catalog/enums.json \
 	pkg/schemas/params.go \
 	pkg/schemas/schemas.go
@@ -33,10 +33,7 @@ standard.json: URL := https://api.artifactsmmo.com/openapi.json
 
 all: $(PLATFORMS)
 
-assets/css/output.css: FORCE
-	@bun run tailwindcss -i assets/css/globals.css -o $@
-
-assets/js/swr.js: FORCE assets/src/swr.ts package.json bun.lock node_modules/.bun-install
+assets: node_modules/.bun-install
 	@bun run $(BUN_SCRIPT)
 
 bin/golangci-lint:
@@ -60,18 +57,18 @@ dev:
 		--open-browser=false \
 		--proxy="http://localhost:8080" \
 		--proxybind="$(DEV_HOST)" \
-		--watch-pattern='(.+\.go$$)|(.+\.templ$$)|(.+assets/src/.*\.ts$$)|(.+assets/css/.*\.css$$)' \
-		--ignore-pattern='(.+_templ\.go$$)|(.+assets/css/output\.css$$)'
+		--watch-pattern='(.+\.(go|templ)|.*/assets/src/.*\.(ts|css))$$' \
+		--ignore-pattern='(.+_templ\.go$$)'
 
-FORCE:
+$(API_GENERATED_FILES) $(OPENAPI_FILES): node_modules/.bun-install
 
-$(GENERATED_FILES) $(OPENAPI_FILES): node_modules/.bun-install
-
-lint: $(GENERATED_FILES) bin/golangci-lint
+lint: assets $(API_GENERATED_FILES) bin/golangci-lint
 	@if ! git merge-base --is-ancestor master HEAD; then \
 		echo "Branch is behind or has diverged from master."; \
 		exit 1; \
 	fi
+	@go tool templ fmt .
+	@bun run biome format --write .
 	@gofmt -w $$(go list -f '{{.Dir}}/*.go' ./...)
 	@./bin/golangci-lint run
 
@@ -105,20 +102,20 @@ $(OPENAPI_FILES):
 	@bun run biome format --write $@
 
 $(PLATFORMS): lint test
-	@$(eval GOOS := $(word 1,$(subst -, ,$@)))
-	@$(eval GOARCH := $(word 2,$(subst -, ,$@)))
-	@$(eval OUTPUT := $(TARGET)-$@$(if $(filter windows,$(GOOS)),.exe))
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags "-s -w" -o $(OUTPUT)
+	@GOOS=$(word 1,$(subst -, ,$@)) \
+		GOARCH=$(word 2,$(subst -, ,$@)) \
+		go build -ldflags "-s -w" \
+			-o $(TARGET)-$@$(if $(filter windows-%,$@),.exe)
 
 release: version $(PLATFORMS)
 	@GOLEM_RELEASE=1 go run $(SEMVER) release $(ARTIFACTS)
 
 serve: BUN_SCRIPT = dev
-serve: $(GENERATED_FILES)
+serve: assets $(API_GENERATED_FILES)
 	@go build -ldflags="-X 'main.version=$(BUILD_TIME)'"
 	@./golem serve
 
-test: $(GENERATED_FILES)
+test: assets $(API_GENERATED_FILES)
 	@go test ./...
 
 version: test

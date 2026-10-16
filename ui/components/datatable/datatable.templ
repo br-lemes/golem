@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"github.com/br-lemes/golem/ui/shadcn/table"
 )
 
 type Column[T any] struct {
@@ -65,6 +63,35 @@ func DataTable[T any](props DataTableProps[T]) templ.Component {
 	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage)
 }
 
+templ Styles() {
+	<style>
+		.data-table {
+			--tblr-table-striped-bg: color-mix(
+				in oklab,
+				var(--tblr-body-color) 3%,
+				transparent
+			);
+			font-size: 1rem;
+			line-height: 1.5;
+		}
+
+		.data-table > :not(caption) > * > * {
+			padding: 0.5rem;
+		}
+
+		.data-table > thead > tr > th {
+			background: var(--tblr-table-striped-bg);
+			color: inherit;
+			font-size: inherit;
+			font-weight: bold;
+			letter-spacing: normal;
+			line-height: inherit;
+			text-transform: none;
+			white-space: normal;
+		}
+	</style>
+}
+
 func tableFieldText(item reflect.Value, fieldName string) string {
 	for item.Kind() == reflect.Pointer {
 		if item.IsNil() {
@@ -88,59 +115,51 @@ func tableFieldText(item reflect.Value, fieldName string) string {
 }
 
 templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []string, emptyMessage string) {
-	<div class="shadow-sm">
-		@table.Table() {
-			@table.Header() {
-				@table.Row() {
+	<div class="table-responsive">
+		<table class="data-table table table-hover table-striped table-vcenter">
+			<thead>
+				<tr>
 					for _, column := range columns {
-						@table.Head(table.HeadProps{
-							Class: "bg-sidebar font-semibold text-sidebar-foreground",
-						}) {
-							{ column.Header }
-						}
+						<th>{ column.Header }</th>
 					}
-				}
-			}
-			@table.Body() {
+				</tr>
+			</thead>
+			<tbody>
 				for rowIndex, row := range rows {
-					{{ attributes := map[string]any{} }}
 					if rowHrefs[rowIndex] != "" {
-						{{
-							attributes = map[string]any{
-								"data-swr": rowHrefs[rowIndex],
-							}
-						}}
-					}
-					@table.Row(table.RowProps{
-						Attributes: attributes,
-						Class:      "even:bg-sidebar even:text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
-					}) {
-						for index := range columns {
-							@table.Cell(table.CellProps{Class: row[index].Class}) {
-								if row[index].Component != nil {
-									@row[index].Component
-								} else {
-									{ row[index].Text }
-								}
-							}
-						}
+						<tr data-swr={ rowHrefs[rowIndex] }>
+							@cells(row, columns)
+						</tr>
+					} else {
+						<tr>
+							@cells(row, columns)
+						</tr>
 					}
 				}
 				if len(rows) == 0 {
-					@table.Row() {
-						@table.Cell(table.CellProps{
-							Attributes: map[string]any{"colspan": len(columns)},
-							Class:      "text-center",
-						}) {
+					<tr>
+						<td class="text-center text-secondary" colspan={ fmt.Sprint(len(columns)) }>
 							if emptyMessage == "" {
 								No data available
 							} else {
 								{ emptyMessage }
 							}
-						}
-					}
+						</td>
+					</tr>
 				}
-			}
-		}
+			</tbody>
+		</table>
 	</div>
+}
+
+templ cells(row []dataTableCell, columns []dataTableColumn) {
+	for index := range columns {
+		<td class={ row[index].Class }>
+			if row[index].Component != nil {
+				@row[index].Component
+			} else {
+				{ row[index].Text }
+			}
+		</td>
+	}
 }

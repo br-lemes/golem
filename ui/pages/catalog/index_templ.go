@@ -19,7 +19,6 @@ import (
 	_ "github.com/br-lemes/golem/ui/pages/catalog/monsters"
 	_ "github.com/br-lemes/golem/ui/pages/catalog/resources"
 	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn/icon"
 )
 
 var route *routes.Node
@@ -28,7 +27,7 @@ func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Catalog",
 		Path:  "/catalog",
-		Icon:  icon.Boxes(icon.Props{Class: "shrink-0 size-4"}),
+		Icon:  "ti-box",
 		Handler: func(_ *http.Request) (templ.Component, int) {
 			return Catalog(), http.StatusOK
 		},

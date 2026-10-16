@@ -1,14 +1,12 @@
 package layouts
 
 import (
+	"github.com/br-lemes/golem/ui/components/datatable"
 	"github.com/br-lemes/golem/ui/components/loading"
-	"github.com/br-lemes/golem/ui/components/navbar"
 	"github.com/br-lemes/golem/ui/components/navigation"
+	"github.com/br-lemes/golem/ui/components/notifications"
 	"github.com/br-lemes/golem/ui/components/routetrail"
 	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn"
-	"github.com/br-lemes/golem/ui/shadcn/sidebar"
-	"github.com/br-lemes/golem/ui/shadcn/toast"
 )
 
 type Props = routes.Route
@@ -23,7 +21,7 @@ templ Base(props ...Props) {
 		{{ currentPath = p.Route.Path }}
 	}
 	<!DOCTYPE html>
-	<html lang="en" class="dark h-full">
+	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta
@@ -35,50 +33,31 @@ templ Base(props ...Props) {
 				rel="icon"
 				type="image/png"
 			/>
-			<link
-				as="font"
-				crossorigin="anonymous"
-				href="/assets/fonts/geist/geist-variable.woff2"
-				rel="preload"
-				type="font/woff2"
-			/>
-			<link
-				as="font"
-				crossorigin="anonymous"
-				href="/assets/fonts/geist/geist-mono-variable.woff2"
-				rel="preload"
-				type="font/woff2"
-			/>
-			<script type="module" src="/assets/js/swr.js"></script>
-			<link href="/assets/css/output.css" rel="stylesheet"/>
+			<link href="/assets/golem.css" rel="stylesheet"/>
+			@datatable.Styles()
+			@navigation.Styles()
 			<title>Golem</title>
-			@shadcn.Scripts()
 		</head>
-		<body class="h-full">
-			@sidebar.Provider() {
+		<body>
+			<script src="/assets/theme.js"></script>
+			<div class="page">
 				@navigation.Navigation(navigation.Props{
-					// Groups: true,
-					Path: currentPath,
+					Groups: true,
+					Path:   currentPath,
 				})
-				@sidebar.Inset() {
-					@navbar.Navbar()
+				<div class="page-wrapper">
 					@loading.Bar()
-					<div
-						id="swr-content-wrapper"
-						class="flex flex-1 min-h-0 min-w-0 relative"
-					>
-						<div
-							id="main-content"
-							class="flex flex-1 flex-col max-w-6xl min-w-0 mx-auto overflow-x-auto px-6 py-10 w-full"
-						>
+					<main id="swr-content-wrapper" class="page-body position-relative">
+						<div id="main-content" class="container-xl d-flex flex-column flex-fill">
 							@routetrail.RouteTrail(p)
 							{ children... }
 						</div>
 						@loading.Overlay()
-					</div>
-				}
-			}
-			@toast.Toaster()
+					</main>
+				</div>
+			</div>
+			@notifications.Notifications()
+			<script src="/assets/golem.js"></script>
 		</body>
 	</html>
 }

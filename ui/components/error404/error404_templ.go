@@ -43,7 +43,7 @@ func Error404() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex h-full items-center justify-center\"><div class=\"max-w-[400px] w-[80vw]\"><img alt=\"Golem 404 Logo\" class=\"h-auto w-full\" src=\"/assets/images/404.png\"><h1 class=\"[font-variant-caps:small-caps] font-bold text-4xl text-center\">Page Not Found</h1><p class=\"text-3xl text-center\">The requested page does not exist.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"align-items-center d-flex flex-column flex-fill justify-content-center\"><img alt=\"Golem 404 Logo\" class=\"img-fluid\" src=\"/assets/images/404.png\" style=\"width: min(80vw, 400px);\"><h1 class=\"display-5 fw-semibold mt-3\" style=\"font-variant-caps: small-caps;\">Page Not Found</h1><p class=\"fs-1\">The requested page does not exist.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

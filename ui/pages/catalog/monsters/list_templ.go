@@ -17,7 +17,6 @@ import (
 	"github.com/br-lemes/golem/ui/components/datatable"
 	"github.com/br-lemes/golem/ui/layouts"
 	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn/icon"
 )
 
 var route *routes.Node
@@ -26,7 +25,7 @@ func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Monsters",
 		Path:  "/catalog/monsters",
-		Icon:  icon.Skull(icon.Props{Class: "shrink-0 size-4"}),
+		Icon:  "ti-skull",
 		Handler: func(_ *http.Request) (templ.Component, int) {
 			return List(catalog.Monsters.All()), http.StatusOK
 		},
@@ -66,6 +65,10 @@ func List(monsters []*schemas.MonsterSchema) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[*schemas.MonsterSchema]{
 				Data: monsters,
 				Columns: []datatable.Column[*schemas.MonsterSchema]{
@@ -76,6 +79,10 @@ func List(monsters []*schemas.MonsterSchema) templ.Component {
 					{Header: "HP", Field: "hp"},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -111,7 +118,7 @@ func cell(monster *schemas.MonsterSchema) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = artifact.Label(artifact.Props{
-			Class: "font-mono text-xs",
+			Class: "font-monospace small",
 			Code:  monster.Code,
 			Name:  monster.Name,
 			Type:  artifact.TypeMonsters,

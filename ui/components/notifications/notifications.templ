@@ -1,0 +1,21 @@
+package notifications
+
+templ Notifications() {
+	<div
+		id="notifications"
+		class="end-0 p-3 position-fixed toast-container top-0"
+	></div>
+	<template id="notification-template">
+		<div class="align-items-center border-0 toast" role="alert">
+			<div class="d-flex">
+				<div class="toast-body" data-notification-message></div>
+				<button
+					aria-label="Close"
+					class="btn-close btn-close-white m-auto me-2"
+					data-bs-dismiss="toast"
+					type="button"
+				></button>
+			</div>
+		</div>
+	</template>
+}

@@ -15,7 +15,6 @@ import (
 	"github.com/br-lemes/golem/ui/layouts"
 	_ "github.com/br-lemes/golem/ui/pages/cache/filters"
 	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn/icon"
 )
 
 var route *routes.Node
@@ -24,7 +23,7 @@ func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Cache",
 		Path:  "/cache",
-		Icon:  icon.Database(icon.Props{Class: "shrink-0 size-4"}),
+		Icon:  "ti-database",
 		Handler: func(_ *http.Request) (templ.Component, int) {
 			return Cache(), http.StatusOK
 		},

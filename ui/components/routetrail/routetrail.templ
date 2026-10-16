@@ -1,10 +1,6 @@
 package routetrail
 
-import (
-	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn/breadcrumb"
-	"github.com/br-lemes/golem/ui/shadcn/icon"
-)
+import "github.com/br-lemes/golem/ui/routes"
 
 type Props = routes.Route
 
@@ -23,38 +19,36 @@ templ RouteTrail(props ...Props) {
 			name = p.Label
 		}
 	}}
-	<h1 class="font-bold text-3xl tracking-tight">
-		{ name }
-	</h1>
-	@breadcrumb.Breadcrumb(breadcrumb.Props{Class: "mb-8 mt-4"}) {
-		@breadcrumb.List() {
-			@breadcrumb.Item() {
-				@breadcrumb.Link(breadcrumb.LinkProps{
-					Attributes: map[string]any{"data-swr": "true"},
-					Href:       "/",
-				}) {
-					@icon.House(icon.Props{Class: "shrink-0 size-4"})
-				}
-			}
+	<h1 class="display-6 fw-bold">{ name }</h1>
+	<nav aria-label="Breadcrumb" class="mb-5">
+		<ol class="breadcrumb breadcrumb-arrows breadcrumb-muted fs-3 mb-0">
+			<li class="breadcrumb-item">
+				<a
+					aria-label="Home"
+					class="text-decoration-none"
+					data-swr="true"
+					href="/"
+				>
+					<i aria-hidden="true" class="ti ti-home"></i>
+				</a>
+			</li>
 			for i, item := range trail {
-				@breadcrumb.Separator()
 				if i == len(trail)-1 {
-					@breadcrumb.Item() {
-						@breadcrumb.Page() {
-							{ name }
-						}
-					}
+					<li aria-current="page" class="breadcrumb-item active">
+						{ name }
+					</li>
 				} else {
-					@breadcrumb.Item() {
-						@breadcrumb.Link(breadcrumb.LinkProps{
-							Attributes: map[string]any{"data-swr": "true"},
-							Href:       item.Path,
-						}) {
+					<li class="breadcrumb-item">
+						<a
+							class="text-decoration-none"
+							data-swr="true"
+							href={ item.Path }
+						>
 							{ item.Segment.Label }
-						}
-					}
+						</a>
+					</li>
 				}
 			}
-		}
-	}
+		</ol>
+	</nav>
 }

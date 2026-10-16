@@ -11,7 +11,6 @@ import (
 	"github.com/br-lemes/golem/ui/components/error404"
 	"github.com/br-lemes/golem/ui/layouts"
 	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn/tabs"
 )
 
 var view *routes.Node
@@ -31,64 +30,97 @@ func init() {
 
 templ View(resource *schemas.ResourceSchema) {
 	@layouts.Base(layouts.Props{Route: view, Label: resource.Name}) {
-		@tabs.Tabs(tabs.Props{DefaultValue: "overview"}) {
-			@tabs.List(tabs.ListProps{Class: "w-full"}) {
-				@tabs.Trigger(tabs.TriggerProps{Value: "overview"}) {
-					Overview
-				}
-				@tabs.Trigger(tabs.TriggerProps{Value: "source"}) {
-					Source
-				}
-			}
-			<div class="mt-4">
-				@tabs.Content(tabs.ContentProps{Value: "overview"}) {
-					@Overview(resource)
-				}
-				@tabs.Content(tabs.ContentProps{Value: "source"}) {
-					@Source(resource)
-				}
+		<div class="card">
+			<div class="card-header">
+				<ul
+					class="card-header-tabs nav nav-tabs"
+					data-bs-toggle="tabs"
+					role="tablist"
+				>
+					<li class="nav-item" role="presentation">
+						<a
+							aria-selected="true"
+							class="active nav-link"
+							data-bs-toggle="tab"
+							href="#resource-overview"
+							role="tab"
+						>
+							Overview
+						</a>
+					</li>
+					<li class="nav-item" role="presentation">
+						<a
+							class="nav-link"
+							data-bs-toggle="tab"
+							href="#resource-source"
+							role="tab"
+						>
+							Source
+						</a>
+					</li>
+				</ul>
 			</div>
-		}
+			<div class="card-body">
+				<div class="tab-content">
+					<div
+						id="resource-overview"
+						class="active show tab-pane"
+						role="tabpanel"
+					>
+						@Overview(resource)
+					</div>
+					<div id="resource-source" class="tab-pane" role="tabpanel">
+						@Source(resource)
+					</div>
+				</div>
+			</div>
+		</div>
+		@DropsList(resource.Drops)
 	}
 }
 
 templ Overview(resource *schemas.ResourceSchema) {
-	<div class="flex gap-6 items-center">
+	<div class="align-items-center d-flex gap-4">
 		@artifact.Image(artifact.Props{
-			Class: "size-24",
-			Code:  resource.Code,
-			Type:  artifact.TypeResources,
-			Name:  resource.Name,
+			Size: "6rem",
+			Code: resource.Code,
+			Type: artifact.TypeResources,
+			Name: resource.Name,
 		})
 		<div>
-			<h1 class="font-bold text-2xl">{ resource.Code }</h1>
-			<p>Level: { resource.Level }</p>
-			<p>Skill: { resource.Skill }</p>
+			<h2 class="h1 mb-1">{ resource.Code }</h2>
+			<div class="ms-2">Level { resource.Level }</div>
+			<div class="ms-2">{ resource.Skill }</div>
 		</div>
 	</div>
-	<h2 class="font-semibold mt-8 text-lg">Drops</h2>
-	@datatable.DataTable(datatable.DataTableProps[schemas.DropRateSchema]{
-		Data: resource.Drops,
-		Columns: []datatable.Column[schemas.DropRateSchema]{
-			{Header: "Code", Field: "code", Cell: dropCell},
-			{Header: "Minimum", Field: "min_quantity"},
-			{Header: "Maximum", Field: "max_quantity"},
-			{Header: "Rate", Field: "rate"},
-		},
-		RowHref: func(drop schemas.DropRateSchema) string {
-			return "/catalog/items/" + drop.Code
-		},
-	})
 }
 
 templ Source(resource *schemas.ResourceSchema) {
 	{{ json, _ := json.MarshalIndent(resource, "", "  ") }}
-	<pre>{ string(json) }</pre>
+	<pre class="mb-0">{ string(json) }</pre>
+}
+
+templ DropsList(drops []schemas.DropRateSchema) {
+	<h2 class="h3 mt-5">Drops</h2>
+	<div class="card">
+		@datatable.DataTable(datatable.DataTableProps[schemas.DropRateSchema]{
+			Data: drops,
+			Columns: []datatable.Column[schemas.DropRateSchema]{
+				{Header: "Code", Field: "code", Cell: dropCell},
+				{Header: "Minimum", Field: "min_quantity"},
+				{Header: "Maximum", Field: "max_quantity"},
+				{Header: "Rate", Field: "rate"},
+			},
+			RowHref: func(drop schemas.DropRateSchema) string {
+				return "/catalog/items/" + drop.Code
+			},
+		})
+	</div>
 }
 
 templ dropCell(drop schemas.DropRateSchema) {
 	@artifact.Label(artifact.Props{
-		Class: "font-mono text-xs",
+		Class: "font-monospace small",
 		Code:  drop.Code,
 		Type:  artifact.TypeItems,
 	})

@@ -8,9 +8,6 @@ package themeswitcher
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/br-lemes/golem/ui/shadcn/button"
-import "github.com/br-lemes/golem/ui/shadcn/icon"
-
 type Props struct {
 	Class string
 }
@@ -40,47 +37,25 @@ func ThemeSwitcher(props ...Props) templ.Component {
 		if len(props) > 0 {
 			p = props[0]
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<script nonce=\"")
+		var templ_7745c5c3_Var2 = []any{"dropdown", p.Class}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.GetNonce(ctx))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/themeswitcher/themeswitcher.templ`, Line: 15, Col: 36}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\">\n\t\t(function() {\n\t\t\tfunction getThemePreference() {\n\t\t\t\treturn localStorage.getItem('themePreference') || 'system';\n\t\t\t}\n\n\t\t\tfunction applyTheme() {\n\t\t\t\tconst preference = getThemePreference();\n\t\t\t\tlet isDark = false;\n\t\t\t\tif (preference === 'system') {\n\t\t\t\t\tisDark = window.matchMedia('(prefers-color-scheme: dark)').matches;\n\t\t\t\t} else {\n\t\t\t\t\tisDark = preference === 'dark';\n\t\t\t\t}\n\t\t\t\tdocument.documentElement.classList.toggle('dark', isDark);\n\t\t\t\tdocument.dispatchEvent(new CustomEvent('theme-changed'));\n\t\t\t}\n\n\t\t\tfunction cycleTheme() {\n\t\t\t\tconst current = getThemePreference();\n\t\t\t\tlet next;\n\t\t\t\tif (current === 'system') {\n\t\t\t\t\tconst isDarkNow = window.matchMedia('(prefers-color-scheme: dark)').matches;\n\t\t\t\t\tnext = isDarkNow ? 'light' : 'dark';\n\t\t\t\t} else {\n\t\t\t\t\tnext = current === 'light' ? 'dark' : 'light';\n\t\t\t\t}\n\t\t\t\tlocalStorage.setItem('themePreference', next);\n\t\t\t\tapplyTheme();\n\t\t\t}\n\n\t\t\tapplyTheme();\n\t\t\twindow.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {\n\t\t\t\tif (getThemePreference() === 'system') {\n\t\t\t\t\tapplyTheme();\n\t\t\t\t}\n\t\t\t});\n\t\t\tdocument.addEventListener('click', (e) => {\n\t\t\t\tconst themeSwitcher = e.target.closest('[data-theme-switcher]');\n\t\t\t\tif (themeSwitcher) {\n\t\t\t\t\te.preventDefault();\n\t\t\t\t\tcycleTheme();\n\t\t\t\t}\n\t\t\t});\n\t\t})();\n\t</script>")
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var2).String())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/themeswitcher/themeswitcher.templ`, Line: 1, Col: 0}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var3 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = icon.Eclipse(icon.Props{Class: "size-5"}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = button.Button(button.Props{
-			Attributes: templ.Attributes{"data-theme-switcher": "true"},
-			Class:      p.Class,
-			Size:       button.SizeIcon,
-			Variant:    button.VariantGhost,
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><button aria-expanded=\"false\" aria-label=\"Color mode\" class=\"align-items-center btn btn-ghost-secondary d-flex dropdown-toggle\" data-bs-toggle=\"dropdown\" type=\"button\"><i aria-hidden=\"true\" class=\"d-none ti ti-sun\" data-golem-theme-icon=\"light\"></i> <i aria-hidden=\"true\" class=\"d-none ti ti-moon\" data-golem-theme-icon=\"dark\"></i> <i aria-hidden=\"true\" class=\"ti ti-circle-half-2\" data-golem-theme-icon=\"auto\"></i></button><div class=\"dropdown-menu dropdown-menu-end\"><button class=\"dropdown-item\" data-golem-theme=\"light\" type=\"button\"><i aria-hidden=\"true\" class=\"ti ti-sun me-2\"></i> Light</button> <button class=\"dropdown-item\" data-golem-theme=\"dark\" type=\"button\"><i aria-hidden=\"true\" class=\"ti ti-moon me-2\"></i> Dark</button> <button class=\"dropdown-item\" data-golem-theme=\"auto\" type=\"button\"><i aria-hidden=\"true\" class=\"ti ti-circle-half-2 me-2\"></i> Auto</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,14 +1,7 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
-	"css": { "parser": { "tailwindDirectives": true } },
+	"$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
 	"files": {
-		"includes": [
-			"**",
-			"!assets/css/shadcn-tailwind.css",
-			"!assets/css/tw-animate.css",
-			"!assets/js",
-			"!coverage.html"
-		]
+		"includes": ["**", "!assets/*.css", "!assets/*.js", "!coverage.html"]
 	},
 	"formatter": { "indentStyle": "tab", "indentWidth": 4 }
 }

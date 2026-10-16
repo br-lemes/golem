@@ -8,8 +8,6 @@ package loading
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/br-lemes/golem/ui/shadcn/icon"
-
 func Bar() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -31,7 +29,7 @@ func Bar() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t@keyframes swr-loading-bar {\n\t\t\tfrom {\n\t\t\t\ttransform: translateX(-100%);\n\t\t\t}\n\t\t\tto {\n\t\t\t\ttransform: translateX(400%);\n\t\t\t}\n\t\t}\n\n\t\t.swr-loading-bar-indicator {\n\t\t\tanimation: swr-loading-bar 1.25s ease-in-out infinite;\n\t\t}\n\t</style><div id=\"swr-loading-bar\" aria-hidden=\"true\" class=\"bg-secondary h-1 opacity-0 overflow-hidden transition-opacity\"><div class=\"bg-primary h-full rounded-full swr-loading-bar-indicator w-1/3\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div aria-hidden=\"true\" class=\"bg-transparent position-sticky progress progress-sm shadow-none z-3\" style=\"top: 3.5rem;\"><div id=\"swr-loading-bar\" class=\"d-none progress-bar progress-bar-indeterminate\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -60,17 +58,7 @@ func Overlay() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"swr-loading-overlay\" class=\"absolute backdrop-blur-sm bg-background/60 hidden inset-0 z-10\" aria-hidden=\"true\" role=\"status\"><div class=\"flex flex-col gap-3 h-screen items-center justify-center sticky text-muted-foreground top-0\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = icon.LoaderCircle(icon.Props{
-			Class: "animate-spin size-8 text-primary",
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"sr-only\">Loading...</span></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"swr-loading-overlay\" aria-hidden=\"true\" class=\"bg-body bg-opacity-75 bottom-0 d-none end-0 position-absolute start-0 top-0 z-3\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

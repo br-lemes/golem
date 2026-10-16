@@ -61,7 +61,7 @@ func Index() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex h-full items-center justify-center\"><div class=\"max-w-[400px] w-[80vw]\"><img alt=\"Golem Logo\" class=\"h-auto w-full\" src=\"/assets/images/golem.png\"><h1 class=\"[font-variant-caps:small-caps] font-bold text-4xl text-center\">Golem</h1><p class=\"text-3xl text-center\">ArtifactsMMO Client</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"align-items-center d-flex flex-column flex-fill justify-content-center\"><img alt=\"Golem Logo\" class=\"img-fluid\" src=\"/assets/images/golem.png\" style=\"width: min(80vw, 400px);\"><h1 class=\"display-5 fw-semibold mt-3\" style=\"font-variant-caps: small-caps;\">Golem</h1><p class=\"display-6 fw-normal\">ArtifactsMMO Client</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -16,7 +16,6 @@ import (
 	"github.com/br-lemes/golem/ui/components/datatable"
 	"github.com/br-lemes/golem/ui/layouts"
 	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn/icon"
 )
 
 var route *routes.Node
@@ -25,7 +24,7 @@ func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Events",
 		Path:  "/catalog/events",
-		Icon:  icon.CalendarDays(icon.Props{Class: "shrink-0 size-4"}),
+		Icon:  "ti-calendar",
 		Handler: func(_ *http.Request) (templ.Component, int) {
 			return List(catalog.Events.All()), http.StatusOK
 		},
@@ -65,14 +64,22 @@ func List(events []*schemas.EventSchema) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[*schemas.EventSchema]{
 				Data: events,
 				Columns: []datatable.Column[*schemas.EventSchema]{
-					{Header: "Code", Field: "code", Class: "font-mono"},
+					{Header: "Code", Field: "code", Class: "font-monospace"},
 					{Header: "Name", Field: "name"},
 					{Header: "Duration", Field: "duration"},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

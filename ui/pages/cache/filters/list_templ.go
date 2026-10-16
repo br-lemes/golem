@@ -16,7 +16,6 @@ import (
 	"github.com/br-lemes/golem/ui/components/datatable"
 	"github.com/br-lemes/golem/ui/layouts"
 	"github.com/br-lemes/golem/ui/routes"
-	"github.com/br-lemes/golem/ui/shadcn/icon"
 )
 
 var route *routes.Node
@@ -25,7 +24,7 @@ func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Filters",
 		Path:  "/cache/filters",
-		Icon:  icon.ListFilter(icon.Props{Class: "shrink-0 size-4"}),
+		Icon:  "ti-filter",
 		Handler: func(_ *http.Request) (templ.Component, int) {
 			return List(cache.ListOutputFilters("")), http.StatusOK
 		},
@@ -65,14 +64,22 @@ func List(filters []models.OutputFilter) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[models.OutputFilter]{
 				Data: filters,
 				Columns: []datatable.Column[models.OutputFilter]{
-					{Header: "Command", Field: "command", Class: "font-mono"},
+					{Header: "Command", Field: "command"},
 					{Header: "Kind", Field: "kind"},
-					{Header: "Pattern", Field: "pattern", Class: "font-mono"},
+					{Header: "Pattern", Field: "pattern"},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
