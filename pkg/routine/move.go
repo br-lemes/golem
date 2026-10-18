@@ -90,7 +90,7 @@ func move(d deps, character schemas.CharacterSchema, code string, options MoveOp
 		character = useData.Character
 	}
 	for _, transition := range result.Transitions {
-		character, err := makeMove(d, character, transition)
+		character, err = makeMove(d, character, transition)
 		if err != nil {
 			return character, err
 		}
@@ -99,12 +99,6 @@ func move(d deps, character schemas.CharacterSchema, code string, options MoveOp
 			return character, err
 		}
 		character = transitionData.Character
-	}
-	if len(result.Transitions) > 0 {
-		lastTransition := result.Transitions[len(result.Transitions)-1]
-		if lastTransition.X == result.Target.X && lastTransition.Y == result.Target.Y {
-			return restockTravelPotion(d, character, options)
-		}
 	}
 	character, err = makeMove(d, character, result.Target)
 	if err != nil {

@@ -172,6 +172,68 @@ func TestMoveReturnsErrorWithoutFreePath(t *testing.T) {
 	}
 }
 
+func TestMoveSkipsMoveWhenTransitionLandsOnTarget(t *testing.T) {
+	event, exists := catalog.Events.Get("out_of_the_ground")
+	if !exists || event.Content == nil || len(event.Maps) == 0 {
+		t.Fatal("out of the ground event is not in the catalog")
+	}
+	eventMap := event.Maps[0]
+	destination, exists := catalog.Maps.Get(catalog.Point{
+		X:     eventMap.X,
+		Y:     eventMap.Y,
+		Layer: eventMap.Layer,
+	})
+	if !exists || destination.Interactions.Transition == nil {
+		t.Fatal("duskworm tile has no return transition")
+	}
+	entrance := destination.Interactions.Transition
+	character := schemas.CharacterSchema{
+		Name:  "hero",
+		X:     entrance.X,
+		Y:     entrance.Y,
+		Layer: entrance.Layer,
+	}
+	moves := []struct{ x, y int }{}
+	d := deps{
+		eventsActive: func() ([]schemas.ActiveEventSchema, error) {
+			return []schemas.ActiveEventSchema{{
+				Map: schemas.MapSchema{
+					Layer: eventMap.Layer,
+					MapId: eventMap.MapId,
+					X:     eventMap.X,
+					Y:     eventMap.Y,
+					Interactions: schemas.InteractionSchema{
+						Content: &schemas.MapContentSchema{Code: event.Content.Code},
+					},
+				},
+			}}, nil
+		},
+		myActionMove: func(_ string, x, y int) (schemas.CharacterMovementDataSchema, error) {
+			moves = append(moves, struct{ x, y int }{x, y})
+			character.X = x
+			character.Y = y
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionTransition: func(string) (schemas.CharacterTransitionDataSchema, error) {
+			character.X = eventMap.X
+			character.Y = eventMap.Y
+			character.Layer = eventMap.Layer
+			return schemas.CharacterTransitionDataSchema{Character: character}, nil
+		},
+	}
+
+	got, err := move(d, character, event.Content.Code, MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(moves) != 0 {
+		t.Fatalf("move calls = %v, want none after the transition lands on the target", moves)
+	}
+	if got.X != eventMap.X || got.Y != eventMap.Y || got.Layer != eventMap.Layer {
+		t.Fatalf("position = (%d, %d, %s), want event tile", got.X, got.Y, got.Layer)
+	}
+}
+
 func TestMoveExecutesTransitions(t *testing.T) {
 	character := schemas.CharacterSchema{
 		Name:  "hero",
