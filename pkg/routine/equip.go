@@ -146,7 +146,7 @@ func equipmentHPLoss(character schemas.CharacterSchema, needed []schemas.EquipSc
 	}
 	loss := 0
 	for _, equipment := range needed {
-		if strings.HasPrefix(string(equipment.Slot), "utility") {
+		if strings.HasPrefix(equipment.Slot, "utility") {
 			continue
 		}
 		oldItem, exists := catalog.Items().Get(current[equipment.Slot])
@@ -209,7 +209,7 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 		if !validSlot {
 			return fmt.Errorf("item %s cannot be equipped in slot %s", equipment.Code, equipment.Slot)
 		}
-		if equipment.Quantity != nil && *equipment.Quantity > 1 && !strings.HasPrefix(string(equipment.Slot), "utility") {
+		if equipment.Quantity != nil && *equipment.Quantity > 1 && !strings.HasPrefix(equipment.Slot, "utility") {
 			return fmt.Errorf("cannot specify quantity for non-utility slot: %s", equipment.Slot)
 		}
 		conflictingItem, reserved := slotsReserved[equipment.Slot]

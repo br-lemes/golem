@@ -66,7 +66,7 @@ func StartCraftingBot(name string, code string, qty int, movement routine.MoveOp
 	}
 	name = character.Name
 
-	skillLevel, _ := utils.GetCharacterCraftingSkillLevel(character, string(*item.Craft.Skill))
+	skillLevel, _ := utils.GetCharacterCraftingSkillLevel(character, *item.Craft.Skill)
 	if skillLevel < *item.Craft.Level {
 		return fmt.Errorf("character %s level too low. Required: %d, Current: %d", name, *item.Craft.Level, skillLevel)
 	}
@@ -144,7 +144,7 @@ func StartCraftingBot(name string, code string, qty int, movement routine.MoveOp
 		}
 
 		if batchActionsPossible > 0 {
-			character, err = routine.Move(character, string(*item.Craft.Skill), movement)
+			character, err = routine.Move(character, *item.Craft.Skill, movement)
 			if err != nil {
 				return err
 			}

@@ -166,7 +166,7 @@ func cheapestItems(skill string, maxLevel int, items []*schemas.ItemSchema) []*s
 	minLevel := max(0, maxLevel-10)
 	result := make([]*schemas.ItemSchema, 0)
 	for _, item := range items {
-		if item.Craft == nil || item.Craft.Skill == nil || string(*item.Craft.Skill) != skill || item.Craft.Level == nil {
+		if item.Craft == nil || item.Craft.Skill == nil || *item.Craft.Skill != skill || item.Craft.Level == nil {
 			continue
 		}
 		if dependsOnTasksCoin(item.Code, map[string]bool{}) {

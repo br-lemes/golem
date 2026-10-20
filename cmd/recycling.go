@@ -180,7 +180,7 @@ func StartRecyclingBot(name string, code string, qty int, enhanced bool, movemen
 			netSpaceNeeded := maxMaterialsReturned - batchToRecycle
 
 			if freeSpace >= netSpaceNeeded {
-				character, err = routine.Move(character, string(*item.Craft.Skill), movement)
+				character, err = routine.Move(character, *item.Craft.Skill, movement)
 				if err != nil {
 					return err
 				}
@@ -309,7 +309,7 @@ func isRecyclable(item schemas.ItemSchema) bool {
 	if item.Craft == nil || item.Craft.Skill == nil {
 		return false
 	}
-	switch string(*item.Craft.Skill) {
+	switch *item.Craft.Skill {
 	case "alchemy", "gearcrafting", "jewelrycrafting", "weaponcrafting":
 		return true
 	default:

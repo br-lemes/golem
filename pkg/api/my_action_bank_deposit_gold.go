@@ -29,6 +29,6 @@ func (c *Client) MyActionBankDepositGold(name string, quantity int) (schemas.Ban
 	cache.UpdateBankGold(data.Data.Bank.Quantity)
 	cache.SaveCharacter(data.Data.Character)
 	release()
-	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
+	handleCooldown(data.Data.Cooldown.TotalSeconds, data.Data.Cooldown.Reason)
 	return data.Data, nil
 }

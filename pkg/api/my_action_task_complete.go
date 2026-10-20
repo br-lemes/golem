@@ -28,6 +28,6 @@ func (c *Client) MyActionTaskComplete(name string) (schemas.RewardDataSchema, er
 	}
 	cache.SaveCharacter(data.Data.Character)
 	release()
-	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
+	handleCooldown(data.Data.Cooldown.TotalSeconds, data.Data.Cooldown.Reason)
 	return data.Data, nil
 }

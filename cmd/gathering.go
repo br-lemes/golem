@@ -41,7 +41,7 @@ Arguments:
 		}
 		name = character.Name
 
-		skillLevel, _ := utils.GetCharacterGatheringSkillLevel(character, string(resource.Skill))
+		skillLevel, _ := utils.GetCharacterGatheringSkillLevel(character, resource.Skill)
 		if skillLevel < resource.Level {
 			return fmt.Errorf("character %s level too low. Required: %d, Current %d", name, resource.Level, skillLevel)
 		}

@@ -10,7 +10,7 @@ import (
 )
 
 func GatheringPriorities(c schemas.CharacterSchema, resource *schemas.ResourceSchema) []string {
-	skill := string(resource.Skill)
+	skill := resource.Skill
 	priorities := []string{skill, "prospecting"}
 	level, _ := utils.GetCharacterGatheringSkillLevel(c, skill)
 	if level == 50 {
@@ -41,7 +41,7 @@ func isEventResource(code string) bool {
 }
 
 func CraftingPriorities(c schemas.CharacterSchema, item *schemas.ItemSchema) []string {
-	skillLevel, _ := utils.GetCharacterCraftingSkillLevel(c, string(*item.Craft.Skill))
+	skillLevel, _ := utils.GetCharacterCraftingSkillLevel(c, *item.Craft.Skill)
 	if skillLevel != 50 && skillLevel-item.Level <= 10 && skillLevel > 0 {
 		return []string{"wisdom"}
 	}

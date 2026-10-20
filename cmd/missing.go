@@ -240,7 +240,7 @@ func canCraft(character schemas.CharacterSchema, item schemas.ItemSchema) bool {
 	if item.Craft == nil || item.Craft.Skill == nil || item.Craft.Level == nil {
 		return false
 	}
-	level, exists := utils.GetCharacterCraftingSkillLevel(character, string(*item.Craft.Skill))
+	level, exists := utils.GetCharacterCraftingSkillLevel(character, *item.Craft.Skill)
 	return exists && level >= *item.Craft.Level
 }
 

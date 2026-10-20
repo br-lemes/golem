@@ -45,6 +45,6 @@ func (c *Client) MyActionFight(name string, participants []string) (schemas.Char
 	} else {
 		console.Printf("💀 Fight lost!\n")
 	}
-	handleCooldown(data.Data.Cooldown.TotalSeconds, string(data.Data.Cooldown.Reason))
+	handleCooldown(data.Data.Cooldown.TotalSeconds, data.Data.Cooldown.Reason)
 	return data.Data, nil
 }

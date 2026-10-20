@@ -98,7 +98,7 @@ Arguments:
 			})
 		}
 
-		skill := string(*item.Craft.Skill)
+		skill := *item.Craft.Skill
 		character, compatible := costCraftingCharacter(characters, skill, *item.Craft.Level)
 		skillLevel, _ := utils.GetCharacterCraftingSkillLevel(character, skill)
 		if character.Name == "" {
@@ -161,7 +161,7 @@ Arguments:
 			"item":          item.Code,
 			"max_craft":     maxCraft,
 			"quantity":      quantity,
-			"skill":         string(*item.Craft.Skill),
+			"skill":         *item.Craft.Skill,
 			"xp_per_action": xpPerCraft,
 			"xp_total":      totalXpGained,
 		}

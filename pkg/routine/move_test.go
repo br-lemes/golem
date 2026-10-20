@@ -203,7 +203,9 @@ func TestMoveSkipsMoveWhenTransitionLandsOnTarget(t *testing.T) {
 					X:     eventMap.X,
 					Y:     eventMap.Y,
 					Interactions: schemas.InteractionSchema{
-						Content: &schemas.MapContentSchema{Code: event.Content.Code},
+						Content: &schemas.MapContentSchema{
+							Code: event.Content.Code,
+						},
 					},
 				},
 			}}, nil
