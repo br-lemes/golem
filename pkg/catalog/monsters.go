@@ -12,5 +12,5 @@ var monsters []byte
 var Monsters = newStore(jsonLoader[schemas.MonsterSchema](monsters), func(item *schemas.MonsterSchema) string { return item.Code })
 
 var Bosses = Monsters.View(func(monster *schemas.MonsterSchema) bool {
-	return monster.Type == "boss"
+	return monster.Type == "boss" || monster.Type == "raid_boss"
 })
