@@ -237,7 +237,7 @@ func FighterFromCharacter(character schemas.CharacterSchema) Fighter {
 func MonsterFromSchema(monster schemas.MonsterSchema) Monster {
 	result := Monster{
 		Name:          monster.Name,
-		IsBoss:        monster.Type == "boss" || monster.Type == "raid_boss",
+		Type:          monster.Type,
 		BubbleElement: -1,
 		BaseRes: [4]int{
 			monster.ResFire,

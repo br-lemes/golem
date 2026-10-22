@@ -3,6 +3,7 @@ package group
 import (
 	"math/rand"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -42,6 +43,38 @@ func TestCombatRunMonsterDefeatsParty(t *testing.T) {
 	}
 }
 
+func TestCombatRunRaidSurvivalIsWin(t *testing.T) {
+	fighters := []Fighter{{Name: "one", Stats: Stats{HP: 100, Initiative: 100}}}
+	monster := Monster{
+		Name:  "raid",
+		Type:  "raid_boss",
+		Stats: Stats{Initiative: 90},
+		HP:    1000,
+		MaxHP: 1000,
+	}
+	combat := NewCombat(fighters, monster, func() float64 { return 0.5 })
+	result := combat.Run(2)
+	if !result.Win || result.Turns != 2 || result.FinalHP[0] <= 0 {
+		t.Fatalf("result = %+v, want raid survival win", result)
+	}
+}
+
+func TestCombatRunNormalSurvivalIsLoss(t *testing.T) {
+	fighters := []Fighter{{Name: "one", Stats: Stats{HP: 100, Initiative: 100}}}
+	monster := Monster{
+		Name:  "boss",
+		Type:  "boss",
+		Stats: Stats{Initiative: 90},
+		HP:    1000,
+		MaxHP: 1000,
+	}
+	combat := NewCombat(fighters, monster, func() float64 { return 0.5 })
+	result := combat.Run(2)
+	if result.Win || result.Turns != 2 || result.FinalHP[0] <= 0 {
+		t.Fatalf("result = %+v, want normal survival loss", result)
+	}
+}
+
 func TestNewCombatCopiesUtilities(t *testing.T) {
 	fighters := []Fighter{{
 		Name:      "one",
@@ -56,7 +89,7 @@ func TestNewCombatCopiesUtilities(t *testing.T) {
 	}
 
 	first := NewCombat(fighters, monster, func() float64 { return 0.5 })
-	first.Run(1)
+	first.Run(2)
 	if first.Players[0].Fighter.Utilities[0].Quantity != 0 {
 		t.Fatalf("first combat utility quantity = %d, want 0", first.Players[0].Fighter.Utilities[0].Quantity)
 	}
@@ -114,5 +147,33 @@ func TestMetrics(t *testing.T) {
 	}
 	if metrics.AverageFinalHP != 30 {
 		t.Fatalf("average final HP = %v, want 30", metrics.AverageFinalHP)
+	}
+}
+
+func TestDefeatedCharacterKeepsItsScheduledTurn(t *testing.T) {
+	fighters := []Fighter{
+		{
+			Name:  "survivor",
+			Stats: Stats{HP: 100, AttackEarth: 1, Initiative: 200},
+		},
+		{
+			Name:  "victim",
+			Stats: Stats{HP: 10, Initiative: 150},
+		},
+	}
+	monster := Monster{
+		Name:  "wolf",
+		Stats: Stats{HP: 1000, AttackFire: 100, Initiative: 100},
+		HP:    1000,
+		MaxHP: 1000,
+	}
+	combat := NewCombat(fighters, monster, func() float64 { return 0.99 })
+	result := combat.Run(6)
+	joined := strings.Join(result.Logs, "\n")
+	if !strings.Contains(joined, "Turn 6: wolf used fire attack") {
+		t.Fatalf("monster did not preserve the defeated slot: %s", joined)
+	}
+	if strings.Contains(joined, "Turn 5: wolf used fire attack") {
+		t.Fatalf("monster acted during the defeated character's slot: %s", joined)
 	}
 }

@@ -79,10 +79,10 @@ type Monster struct {
 	Stats          Stats
 	HP             float64
 	MaxHP          float64
+	Type           string
 	Barrier        float64
 	BarrierAmount  float64
 	Turns          int
-	IsBoss         bool
 	Reconstitution int
 	VoidDrain      int
 	BerserkerRage  int
@@ -160,29 +160,29 @@ func (combat *Combat) Run(maxTurns int) Result {
 		return combat.runReplay(maxTurns, logs)
 	}
 	turns := 0
-	actions := 0
-	for turn := 1; turn <= maxTurns && combat.Monster.HP > 0 && combat.partyAlive(); turn++ {
+	for combat.Monster.HP > 0 && combat.partyAlive() && turns < maxTurns {
 		for _, index := range combat.ActorOrder() {
-			if combat.Monster.HP <= 0 {
+			if turns >= maxTurns || combat.Monster.HP <= 0 {
 				break
 			}
 			if index < 0 {
+				for _, player := range combat.Players {
+					if !player.Alive || player.HP <= 0 {
+						turns++
+					}
+				}
+				if turns >= maxTurns {
+					break
+				}
 				bubbleLog := combat.refreshBubble(turns + 1)
 				if bubbleLog != "" {
 					logs = append(logs, bubbleLog)
-				}
-				for _, player := range combat.Players {
-					if !player.Alive || player.HP <= 0 {
-						actions++
-						turns = actions
-					}
 				}
 				target := combat.SelectTarget()
 				if target < 0 {
 					continue
 				}
-				actions++
-				turns = actions
+				turns++
 				logs = append(logs, combat.executeMonsterAttack(target, turns)...)
 				continue
 			}
@@ -193,8 +193,7 @@ func (combat *Combat) Run(maxTurns int) Result {
 			if !combat.Players[index].Alive {
 				continue
 			}
-			actions++
-			turns = actions
+			turns++
 			logs = append(logs, combat.executePlayerAttack(index, turns)...)
 			logs = append(logs, combat.applyHealingAura(index, turns)...)
 		}
@@ -206,13 +205,9 @@ func (combat *Combat) Run(maxTurns int) Result {
 	for i, player := range combat.Players {
 		finalHP[i] = player.HP
 	}
-	logs = append(logs, combat.fightResultLog(combat.Monster.HP <= 0))
-	return Result{
-		Win:     combat.Monster.HP <= 0,
-		Turns:   turns,
-		Logs:    logs,
-		FinalHP: finalHP,
-	}
+	win := combat.won(turns, maxTurns)
+	logs = append(logs, combat.fightResultLog(win))
+	return Result{Win: win, Turns: turns, Logs: logs, FinalHP: finalHP}
 }
 
 func (combat *Combat) runReplay(maxTurns int, logs []string) Result {
@@ -250,21 +245,24 @@ func (combat *Combat) runReplay(maxTurns int, logs []string) Result {
 			break
 		}
 	}
-	return combat.finishResult(turns, logs)
+	return combat.finishResult(turns, maxTurns, logs)
 }
 
-func (combat *Combat) finishResult(turns int, logs []string) Result {
+func (combat *Combat) finishResult(turns, maxTurns int, logs []string) Result {
 	finalHP := make([]float64, len(combat.Players))
 	for i, player := range combat.Players {
 		finalHP[i] = player.HP
 	}
-	logs = append(logs, combat.fightResultLog(combat.Monster.HP <= 0))
-	return Result{
-		Win:     combat.Monster.HP <= 0,
-		Turns:   turns,
-		Logs:    logs,
-		FinalHP: finalHP,
+	win := combat.won(turns, maxTurns)
+	logs = append(logs, combat.fightResultLog(win))
+	return Result{Win: win, Turns: turns, Logs: logs, FinalHP: finalHP}
+}
+
+func (combat *Combat) won(turns, maxTurns int) bool {
+	if combat.Monster.HP <= 0 {
+		return true
 	}
+	return combat.Monster.Type == "raid_boss" && turns >= maxTurns && combat.partyAlive()
 }
 
 func (combat *Combat) executePlayerAttack(index, turn int) []string {
@@ -859,7 +857,7 @@ func (combat *Combat) activateShell(index int) bool {
 	if player.ShellUsed || player.Fighter.Stats.Shell <= 0 {
 		return false
 	}
-	if !combat.Monster.IsBoss || player.HP >= player.MaxHP*0.40 {
+	if (combat.Monster.Type != "boss" && combat.Monster.Type != "raid_boss") || player.HP >= player.MaxHP*0.40 {
 		return false
 	}
 	player.ShellUsed = true
