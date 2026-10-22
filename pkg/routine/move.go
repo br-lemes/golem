@@ -18,6 +18,12 @@ func Move(character schemas.CharacterSchema, code string, options MoveOptions) (
 }
 
 func move(d deps, character schemas.CharacterSchema, code string, options MoveOptions) (schemas.CharacterSchema, error) {
+	switch code {
+	case "pixie":
+		code = "enchanted_fairy"
+	case "sonnengott":
+		code = "god_of_the_sun"
+	}
 	events, alreadyAtTarget := currentTarget(d, character, code)
 	if alreadyAtTarget {
 		return restockTravelPotion(d, character, options)
