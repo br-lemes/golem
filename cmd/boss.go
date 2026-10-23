@@ -64,6 +64,7 @@ Arguments:
 			return err
 		}
 		totalCharacters := len(participants) + 1
+		names := append([]string{name}, participants...)
 		charMap := make(map[string]schemas.CharacterSchema, totalCharacters)
 		for _, character := range characters {
 			charMap[character.Name] = character
@@ -78,12 +79,17 @@ Arguments:
 				return fmt.Errorf("character %s not found", participant)
 			}
 		}
-		err = fightFoodValidate(charMap[name], flags)
-		if err != nil {
-			return err
-		}
-		for _, participant := range participants {
-			err = fightFoodValidate(charMap[participant], flags)
+		options := make([]fightOptions, totalCharacters)
+		for i, characterName := range names {
+			options[i], err = flags.options(i, totalCharacters)
+			if err != nil {
+				return err
+			}
+			err = fightOptionsValidate(options[i])
+			if err != nil {
+				return err
+			}
+			err = fightFoodValidate(charMap[characterName], options[i])
 			if err != nil {
 				return err
 			}
@@ -93,11 +99,11 @@ Arguments:
 		for {
 			var g errgroup.Group
 			g.Go(func() error {
-				return prepare(charMap[name], *boss, flags, movement)
+				return prepare(charMap[name], *boss, options[0], movement)
 			})
-			for _, p := range participants {
+			for i, p := range participants {
 				g.Go(func() error {
-					return prepare(charMap[p], *boss, flags, movement)
+					return prepare(charMap[p], *boss, options[i+1], movement)
 				})
 			}
 			err := g.Wait()

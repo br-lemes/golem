@@ -15,13 +15,13 @@ import (
 )
 
 type fightFlags struct {
-	Food         string `flag:"food" desc:"auto-stock food from bank"`
-	FoodOnly     string `flag:"food-only" desc:"use only this food code"`
-	NoFood       bool   `flag:"no-food" desc:"do not use food"`
-	AllowUnsafe  bool   `flag:"allow-unsafe" desc:"allow fights with simulated winrate below 100%"`
-	UseUtilities bool   `flag:"use-utilities" desc:"use utilities selected by the simulator"`
-	Utility1     string `flag:"utility1" desc:"item code to auto-refill in utility1 slot"`
-	Utility2     string `flag:"utility2" desc:"item code to auto-refill in utility2 slot"`
+	Food         string   `flag:"food" desc:"auto-stock food from bank"`
+	FoodOnly     string   `flag:"food-only" desc:"use only this food code"`
+	NoFood       bool     `flag:"no-food" desc:"do not use food"`
+	AllowUnsafe  bool     `flag:"allow-unsafe" desc:"allow fights with simulated winrate below 100%"`
+	UseUtilities bool     `flag:"use-utilities" desc:"use utilities selected by the simulator"`
+	Utility1     []string `flag:"utility1" desc:"item code(s) to auto-refill in utility1 slot; repeat per character"`
+	Utility2     []string `flag:"utility2" desc:"item code(s) to auto-refill in utility2 slot; repeat per character"`
 }
 
 var fightCmd = &cobra.Command{
@@ -50,13 +50,21 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		options, err := flags.options(0, 1)
+		if err != nil {
+			return err
+		}
+		err = fightOptionsValidate(options)
+		if err != nil {
+			return err
+		}
 		cmd.SilenceUsage = true
 		character, err := api.Characters(name)
 		if err != nil {
 			return err
 		}
 		name = character.Name
-		err = fightFoodValidate(character, flags)
+		err = fightFoodValidate(character, options)
 		if err != nil {
 			return err
 		}
@@ -81,12 +89,12 @@ Arguments:
 		if !utilitiesRequired && flags.UseUtilities {
 			return fmt.Errorf("simulator does not require utilities; remove --use-utilities")
 		}
-		if utilitiesRequired && (flags.Utility1 != "" || flags.Utility2 != "") {
+		if utilitiesRequired && (options.Utility1 != "" || options.Utility2 != "") {
 			return fmt.Errorf("--utility1 and --utility2 cannot override utilities selected by the simulator")
 		}
 		if utilitiesRequired {
-			flags.Utility1 = utility1
-			flags.Utility2 = utility2
+			options.Utility1 = utility1
+			options.Utility2 = utility2
 		}
 		equipments := make([]schemas.EquipSchema, 0, len(fightResult.Equipment))
 		for slot, code := range fightResult.Equipment {
@@ -103,7 +111,7 @@ Arguments:
 			return err
 		}
 		for {
-			err = prepare(character, *monster, flags, movement)
+			err = prepare(character, *monster, options, movement)
 			if err != nil {
 				return err
 			}
@@ -119,6 +127,56 @@ Arguments:
 			}
 		}
 	},
+}
+
+type fightOptions struct {
+	Food         string
+	FoodOnly     string
+	NoFood       bool
+	AllowUnsafe  bool
+	UseUtilities bool
+	Utility1     string
+	Utility2     string
+}
+
+func (flags fightFlags) options(index, characterCount int) (fightOptions, error) {
+	utility1, err := utilityForCharacter(flags.Utility1, index, characterCount)
+	if err != nil {
+		return fightOptions{}, fmt.Errorf("--utility1: %w", err)
+	}
+	utility2, err := utilityForCharacter(flags.Utility2, index, characterCount)
+	if err != nil {
+		return fightOptions{}, fmt.Errorf("--utility2: %w", err)
+	}
+	return fightOptions{
+		Food:         flags.Food,
+		FoodOnly:     flags.FoodOnly,
+		NoFood:       flags.NoFood,
+		AllowUnsafe:  flags.AllowUnsafe,
+		UseUtilities: flags.UseUtilities,
+		Utility1:     utility1,
+		Utility2:     utility2,
+	}, nil
+}
+
+func utilityForCharacter(values []string, index, characterCount int) (string, error) {
+	switch len(values) {
+	case 0:
+		return "", nil
+	case 1:
+		return normalizeUtility(values[0]), nil
+	case characterCount:
+		return normalizeUtility(values[index]), nil
+	default:
+		return "", fmt.Errorf("requires either 1 value or exactly %d values", characterCount)
+	}
+}
+
+func normalizeUtility(value string) string {
+	if value == "none" {
+		return ""
+	}
+	return value
 }
 
 func fightValidate(monster string, flags fightFlags, boss bool) error {
@@ -137,19 +195,13 @@ func fightValidate(monster string, flags fightFlags, boss bool) error {
 	if flags.Food != "" && flags.FoodOnly != "" {
 		return fmt.Errorf("--food and --food-only cannot be combined")
 	}
-	if flags.Utility1 != "" && flags.Utility1 == flags.Utility2 {
-		return fmt.Errorf("--utility1 and --utility2 cannot use the same item")
-	}
-	if flags.Utility1 != "" {
-		_, found := catalog.Items().Potions().Get(flags.Utility1)
-		if !found {
-			return fmt.Errorf("potion %s not found", flags.Utility1)
+	for _, utility := range append(flags.Utility1, flags.Utility2...) {
+		if utility == "" || utility == "none" {
+			continue
 		}
-	}
-	if flags.Utility2 != "" {
-		_, found := catalog.Items().Potions().Get(flags.Utility2)
+		_, found := catalog.Items().Potions().Get(utility)
 		if !found {
-			return fmt.Errorf("potion %s not found", flags.Utility2)
+			return fmt.Errorf("potion %s not found", utility)
 		}
 	}
 	if flags.NoFood {
@@ -170,7 +222,14 @@ func fightValidate(monster string, flags fightFlags, boss bool) error {
 	return nil
 }
 
-func fightFoodValidate(character schemas.CharacterSchema, flags fightFlags) error {
+func fightOptionsValidate(flags fightOptions) error {
+	if flags.Utility1 != "" && flags.Utility1 == flags.Utility2 {
+		return fmt.Errorf("--utility1 and --utility2 cannot use the same item")
+	}
+	return nil
+}
+
+func fightFoodValidate(character schemas.CharacterSchema, flags fightOptions) error {
 	if flags.NoFood {
 		return nil
 	}
@@ -188,7 +247,7 @@ func fightFoodValidate(character schemas.CharacterSchema, flags fightFlags) erro
 	return nil
 }
 
-func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, flags fightFlags, movement routine.MoveOptions) error {
+func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, flags fightOptions, movement routine.MoveOptions) error {
 	routine.Cooldown(character)
 	character, err := routine.Inventory(character, []string{"food"}, movement)
 	if err != nil {
@@ -259,7 +318,7 @@ func registerFightFlags(cmd *cobra.Command) {
 	}
 	cmd.Flags().Lookup("food").NoOptDefVal = "auto"
 
-	completions := []struct {
+	simpleCompletions := []struct {
 		flag   string
 		values func() []string
 	}{
@@ -275,27 +334,39 @@ func registerFightFlags(cmd *cobra.Command) {
 				return catalog.Items().Foods().Keys()
 			},
 		},
+	}
+	for _, flagCompletion := range simpleCompletions {
+		err := cmd.RegisterFlagCompletionFunc(flagCompletion.flag, func(
+			cmd *cobra.Command,
+			args []string,
+			toComplete string,
+		) ([]string, cobra.ShellCompDirective) {
+			return flagCompletion.values(), cobra.ShellCompDirectiveNoFileComp
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	sliceCompletions := []struct {
+		flag   string
+		values func() []string
+	}{
 		{
 			flag: "utility1",
 			values: func() []string {
-				return catalog.Items().Potions().Keys()
+				return append([]string{"none"}, catalog.Items().Potions().Keys()...)
 			},
 		},
 		{
 			flag: "utility2",
 			values: func() []string {
-				return catalog.Items().Potions().Keys()
+				return append([]string{"none"}, catalog.Items().Potions().Keys()...)
 			},
 		},
 	}
-	for _, completion := range completions {
-		err := cmd.RegisterFlagCompletionFunc(completion.flag, func(
-			cmd *cobra.Command,
-			args []string,
-			toComplete string,
-		) ([]string, cobra.ShellCompDirective) {
-			return completion.values(), cobra.ShellCompDirectiveNoFileComp
-		})
+	for _, flagCompletion := range sliceCompletions {
+		err := cmd.RegisterFlagCompletionFunc(flagCompletion.flag, completion.StringSlice(flagCompletion.values))
 		if err != nil {
 			panic(err)
 		}
