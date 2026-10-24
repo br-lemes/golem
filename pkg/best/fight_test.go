@@ -452,7 +452,7 @@ func TestFindFightWithAvailableReportsUnownedItems(t *testing.T) {
 	character := schemas.CharacterSchema{Level: 1}
 	monster, ok := catalog.Monsters.Get("sonnengott")
 	if !ok {
-		t.Fatal("chicken monster is missing from the catalog")
+		t.Fatal("sonnengott monster is missing from the catalog")
 	}
 	available := map[string]int{"iron_sword": 1}
 	result, err := FindFightWithAvailable(character, *monster, available, true, false)
