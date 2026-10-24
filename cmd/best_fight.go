@@ -16,6 +16,7 @@ type bestFightFlags struct {
 	Name                    string `flag:"name" shorthand:"n" desc:"Use a real character as the base"`
 	Level                   int    `flag:"level" default:"1" desc:"Fake character level (1-50)"`
 	All                     bool   `flag:"all" desc:"Include all equippable equipment, even if not owned"`
+	Full                    bool   `flag:"full" desc:"Show the complete final equipment"`
 	AllowDuplicateAdeptRing bool   `flag:"allow-duplicate-adept-ring" desc:"Allow using ring_of_the_adept twice"`
 }
 
@@ -70,7 +71,26 @@ func bestFightRun(monster string, flags bestFightFlags) error {
 	if err != nil {
 		return err
 	}
+	if flags.Full {
+		result = bestFightFullResult(result)
+	}
 	return console.Auto(result)
+}
+
+func bestFightFullResult(result best.Result) best.Result {
+	equipment := make(map[string]string)
+	utilities := make(map[string]string)
+	for slot, code := range result.FinalEquipment {
+		switch slot {
+		case "utility1", "utility2":
+			utilities[slot] = code
+		default:
+			equipment[slot] = code
+		}
+	}
+	result.Equipment = equipment
+	result.Utilities = utilities
+	return result
 }
 
 func init() {
