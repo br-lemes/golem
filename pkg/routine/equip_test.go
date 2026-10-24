@@ -60,6 +60,37 @@ func TestEquipSkipsAlreadyEquippedItem(t *testing.T) {
 	}
 }
 
+func TestEquipPreservesEquivalentArtifactOrder(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Level:         50,
+		Artifact1Slot: "novice_guide",
+		Artifact2Slot: "lost_world_map",
+	}
+	equipCalled := false
+	deps := deps{
+		characters: func(string) (schemas.CharacterSchema, error) {
+			return character, nil
+		},
+		myActionEquip: func(string, []schemas.EquipSchema) (schemas.EquipmentTransactionSchema, error) {
+			equipCalled = true
+			return schemas.EquipmentTransactionSchema{}, nil
+		},
+	}
+	result, err := equip(deps, "hero", []schemas.EquipSchema{
+		{Code: "lost_world_map", Slot: "artifact1"},
+		{Code: "novice_guide", Slot: "artifact2"},
+	}, EquipOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if equipCalled {
+		t.Fatal("equip dependency was called for an equivalent artifact order")
+	}
+	if result.Artifact1Slot != character.Artifact1Slot || result.Artifact2Slot != character.Artifact2Slot {
+		t.Fatalf("artifact slots changed: got %q/%q, want %q/%q", result.Artifact1Slot, result.Artifact2Slot, character.Artifact1Slot, character.Artifact2Slot)
+	}
+}
+
 func TestEquipClearsUtilitiesBeforeReturning(t *testing.T) {
 	inventory := []schemas.InventorySlotSchema{
 		{Code: "small_health_potion", Quantity: 2},
@@ -382,6 +413,22 @@ func TestValidateEquipments(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "duplicate artifact",
+			equipments: []schemas.EquipSchema{
+				{Code: "novice_guide", Slot: "artifact1"},
+				{Code: "novice_guide", Slot: "artifact2"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "duplicate utility",
+			equipments: []schemas.EquipSchema{
+				{Code: "small_health_potion", Slot: "utility1"},
+				{Code: "small_health_potion", Slot: "utility2"},
+			},
+			wantErr: true,
+		},
+		{
 			name: "non utility quantity",
 			equipments: []schemas.EquipSchema{
 				{Code: "iron_sword", Slot: "weapon", Quantity: &quantity},
@@ -407,11 +454,92 @@ func TestValidateEquipments(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := validateEquipments(test.equipments)
+			err := validateEquipments(test.equipments, nil)
 			if (err != nil) != test.wantErr {
 				t.Fatalf("validateEquipments() error = %v, want error: %v", err, test.wantErr)
 			}
 		})
+	}
+}
+
+func TestValidateEquipmentsWithUtilityChanges(t *testing.T) {
+	err := validateEquipments(nil, map[string]string{
+		"utility1": "small_health_potion",
+		"utility2": "small_health_potion",
+	})
+	if err == nil {
+		t.Fatal("expected duplicate utility error")
+	}
+	err = validateEquipments(nil, map[string]string{
+		"utility1": "small_health_potion",
+		"utility2": "big_health_potion",
+	})
+	if err != nil {
+		t.Fatalf("unexpected utility validation error: %v", err)
+	}
+}
+
+func TestNormalizeArtifactSlots(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Artifact1Slot: "novice_guide",
+		Artifact2Slot: "lost_world_map",
+	}
+	artifacts := []schemas.EquipSchema{
+		{Code: "lich_race_medal", Slot: "artifact1"},
+		{Code: "novice_guide", Slot: "artifact2"},
+	}
+	normalizeArtifactSlots(character, artifacts)
+	got := artifacts
+	if got[0].Slot != "artifact2" || got[1].Slot != "artifact1" {
+		t.Fatalf("normalized artifacts = %#v, want artifact2/artifact1", got)
+	}
+}
+
+func TestNormalizeArtifactSlotsPreservesMatchingArtifacts(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Artifact1Slot: "novice_guide",
+		Artifact2Slot: "lost_world_map",
+	}
+	artifacts := []schemas.EquipSchema{
+		{Code: "lost_world_map", Slot: "artifact1"},
+		{Code: "novice_guide", Slot: "artifact2"},
+	}
+	normalizeArtifactSlots(character, artifacts)
+	got := artifacts
+	if got[0].Slot != "artifact2" || got[1].Slot != "artifact1" {
+		t.Fatalf("normalized artifacts = %#v, want artifact2/artifact1", got)
+	}
+}
+
+func TestNormalizeRingPermutation(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Ring1Slot: "iron_ring",
+		Ring2Slot: "copper_ring",
+	}
+	rings := []schemas.EquipSchema{
+		{Code: "copper_ring", Slot: "ring1"},
+		{Code: "iron_ring", Slot: "ring2"},
+	}
+	normalizeRingPermutation(character, rings)
+	got := rings
+	if got[0].Slot != "ring2" || got[1].Slot != "ring1" {
+		t.Fatalf("normalized rings = %#v, want ring2/ring1", got)
+	}
+}
+
+func TestNormalizeRingPermutationLeavesOtherRequests(t *testing.T) {
+	character := schemas.CharacterSchema{
+		Ring1Slot: "iron_ring",
+		Ring2Slot: "copper_ring",
+	}
+	rings := []schemas.EquipSchema{
+		{Code: "silver_ring", Slot: "ring1"},
+		{Code: "iron_ring", Slot: "ring2"},
+	}
+	normalizeRingPermutation(character, rings)
+	got := rings
+	if got[0].Slot != "ring1" || got[1].Slot != "ring2" {
+		t.Fatalf("normalized rings = %#v, want ring1/ring2", got)
 	}
 }
 

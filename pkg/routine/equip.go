@@ -24,7 +24,7 @@ func Equip(name string, equipments []schemas.EquipSchema, options EquipOptions) 
 }
 
 func equip(d deps, name string, equipments []schemas.EquipSchema, options EquipOptions) (schemas.CharacterSchema, error) {
-	err := validateEquipments(equipments)
+	err := validateEquipments(equipments, options.Utilities)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
@@ -32,6 +32,8 @@ func equip(d deps, name string, equipments []schemas.EquipSchema, options EquipO
 	if err != nil {
 		return schemas.CharacterSchema{}, err
 	}
+	normalizeArtifactSlots(character, equipments)
+	normalizeRingPermutation(character, equipments)
 	err = checkLevelRequirements(character, equipments)
 	if err != nil {
 		return schemas.CharacterSchema{}, err
@@ -185,8 +187,20 @@ func equipmentItems(equipments []schemas.EquipSchema) []schemas.SimpleItemSchema
 	return items
 }
 
-func validateEquipments(equipments []schemas.EquipSchema) error {
+func validateEquipments(equipments []schemas.EquipSchema, utilityChanges map[string]string) error {
 	slotsReserved := map[string]string{}
+	artifacts := map[string]bool{}
+	utilities := map[string]bool{}
+	for _, slot := range []string{"utility1", "utility2"} {
+		code := utilityChanges[slot]
+		if code == "" {
+			continue
+		}
+		if utilities[code] {
+			return fmt.Errorf("utility cannot be equipped in multiple slots: %s", code)
+		}
+		utilities[code] = true
+	}
 	for _, equipment := range equipments {
 		if equipment.Code == "" || equipment.Slot == "" {
 			return fmt.Errorf("invalid equipment request: missing code or slot")
@@ -198,6 +212,18 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 		slots, hasSlot := catalog.EquipmentTypeToSlots[item.Type]
 		if !hasSlot {
 			return fmt.Errorf("item type cannot be equipped: %s", item.Type)
+		}
+		if item.Type == "artifact" {
+			if artifacts[equipment.Code] {
+				return fmt.Errorf("artifact cannot be equipped in multiple slots: %s", equipment.Code)
+			}
+			artifacts[equipment.Code] = true
+		}
+		if item.Type == "utility" {
+			if utilities[equipment.Code] {
+				return fmt.Errorf("utility cannot be equipped in multiple slots: %s", equipment.Code)
+			}
+			utilities[equipment.Code] = true
 		}
 		validSlot := false
 		for _, s := range slots {
@@ -219,6 +245,78 @@ func validateEquipments(equipments []schemas.EquipSchema) error {
 		slotsReserved[equipment.Slot] = equipment.Code
 	}
 	return nil
+}
+
+func normalizeArtifactSlots(character schemas.CharacterSchema, equipments []schemas.EquipSchema) {
+	current := map[string]string{
+		"artifact1": character.Artifact1Slot,
+		"artifact2": character.Artifact2Slot,
+		"artifact3": character.Artifact3Slot,
+	}
+	usedSlots := map[string]bool{}
+	assigned := map[int]bool{}
+
+	for index, equipment := range equipments {
+		if !isArtifactSlot(equipment.Slot) {
+			continue
+		}
+		for slot, code := range current {
+			if code == equipment.Code && !usedSlots[slot] {
+				equipments[index].Slot = slot
+				usedSlots[slot] = true
+				assigned[index] = true
+				break
+			}
+		}
+	}
+
+	for index, equipment := range equipments {
+		if !isArtifactSlot(equipment.Slot) || assigned[index] {
+			continue
+		}
+		slot := equipment.Slot
+		if usedSlots[slot] {
+			slot = nextFreeArtifactSlot(usedSlots)
+		}
+		equipments[index].Slot = slot
+		usedSlots[slot] = true
+	}
+}
+
+func isArtifactSlot(slot string) bool {
+	return slot == "artifact1" || slot == "artifact2" || slot == "artifact3"
+}
+
+func nextFreeArtifactSlot(usedSlots map[string]bool) string {
+	for _, slot := range []string{"artifact1", "artifact2", "artifact3"} {
+		if !usedSlots[slot] {
+			return slot
+		}
+	}
+	return ""
+}
+
+func normalizeRingPermutation(character schemas.CharacterSchema, equipments []schemas.EquipSchema) {
+	if character.Ring1Slot == "" || character.Ring2Slot == "" {
+		return
+	}
+	var ring1Index, ring2Index = -1, -1
+	for index, equipment := range equipments {
+		switch equipment.Slot {
+		case "ring1":
+			ring1Index = index
+		case "ring2":
+			ring2Index = index
+		}
+	}
+	if ring1Index < 0 || ring2Index < 0 || character.Ring1Slot == character.Ring2Slot {
+		return
+	}
+	if equipments[ring1Index].Code != character.Ring2Slot || equipments[ring2Index].Code != character.Ring1Slot {
+		return
+	}
+	equipments[ring1Index].Slot = "ring2"
+	equipments[ring2Index].Slot = "ring1"
 }
 
 func checkLevelRequirements(character schemas.CharacterSchema, equipments []schemas.EquipSchema) error {
