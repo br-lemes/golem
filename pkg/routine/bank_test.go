@@ -237,6 +237,123 @@ func TestBankReturnsFoodWithdrawError(t *testing.T) {
 	}
 }
 
+func TestBankRestocksItemsDepositedDuringTheSameVisit(t *testing.T) {
+	inventory := []schemas.InventorySlotSchema{
+		{Code: "cooked_chicken", Quantity: 1},
+		{Code: "small_health_potion", Quantity: 2},
+	}
+	character := schemas.CharacterSchema{
+		Name:                 "hero",
+		Inventory:            &inventory,
+		InventoryMaxItems:    10,
+		Utility1Slot:         "small_health_potion",
+		Utility1SlotQuantity: utilityMaxStack,
+		Layer:                "overworld",
+	}
+	bankCharacter := character
+	bankCharacter.Inventory = nil
+	var withdrawn []string
+	d := deps{
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			return []schemas.SimpleItemSchema{
+				{Code: "cooked_chicken", Quantity: 10},
+			}, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionBankDepositItem: func(_ string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			if len(items) != 2 {
+				t.Fatalf("deposited items = %#v, want food and utility", items)
+			}
+			return schemas.BankItemTransactionSchema{Character: bankCharacter}, nil
+		},
+		myActionBankWithdrawItem: func(_ string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			withdrawn = append(withdrawn, items[0].Code)
+			return schemas.BankItemTransactionSchema{Character: bankCharacter}, nil
+		},
+	}
+	_, err := bank(d, character, BankOptions{
+		Food:            "cooked_chicken",
+		Utility1:        "small_health_potion",
+		Utility1Reserve: 20,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(withdrawn) != 2 || withdrawn[0] != "small_health_potion" || withdrawn[1] != "cooked_chicken" {
+		t.Fatalf("withdrawn items = %#v, want utility followed by food", withdrawn)
+	}
+}
+
+func TestInventoryThenBankUseSeparateDeposits(t *testing.T) {
+	inventoryItems := []schemas.InventorySlotSchema{
+		{Code: "cooked_chicken", Quantity: 1},
+		{Code: "small_health_potion", Quantity: 7},
+	}
+	character := schemas.CharacterSchema{
+		Name:                 "hero",
+		Inventory:            &inventoryItems,
+		InventoryMaxItems:    10,
+		Utility1Slot:         "small_health_potion",
+		Utility1SlotQuantity: utilityMaxStack,
+		Layer:                "overworld",
+	}
+	state := character
+	bankQuantity := map[string]int{"cooked_chicken": 10}
+	deposits := make([][]schemas.SimpleItemSchema, 0, 2)
+	d := deps{
+		myBankItems: func() ([]schemas.SimpleItemSchema, error) {
+			items := make([]schemas.SimpleItemSchema, 0, len(bankQuantity))
+			for code, quantity := range bankQuantity {
+				items = append(items, schemas.SimpleItemSchema{
+					Code:     code,
+					Quantity: quantity,
+				})
+			}
+			return items, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: state}, nil
+		},
+		myActionBankDepositItem: func(_ string, items []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			deposits = append(deposits, items)
+			for _, item := range items {
+				bankQuantity[item.Code] += item.Quantity
+			}
+			if items[0].Code == "small_health_potion" {
+				remaining := []schemas.InventorySlotSchema{
+					{Code: "cooked_chicken", Quantity: 1},
+				}
+				state.Inventory = &remaining
+			} else {
+				empty := []schemas.InventorySlotSchema{}
+				state.Inventory = &empty
+			}
+			return schemas.BankItemTransactionSchema{Character: state}, nil
+		},
+		myActionBankWithdrawItem: func(_ string, _ []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			return schemas.BankItemTransactionSchema{Character: state}, nil
+		},
+	}
+
+	var err error
+	state, err = inventory(d, nil, state, []string{"food"}, MoveOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	state, err = bank(d, state, BankOptions{Food: "cooked_chicken"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(deposits) != 2 {
+		t.Fatalf("deposit count = %d, want 2", len(deposits))
+	}
+	if deposits[0][0].Code != "small_health_potion" || deposits[1][0].Code != "cooked_chicken" {
+		t.Fatalf("deposits = %#v, want utility then food", deposits)
+	}
+}
+
 func TestRestockTravelPotionWithdrawsAtBank(t *testing.T) {
 	inventory := []schemas.InventorySlotSchema{
 		{Code: "copper_ore", Quantity: 2},

@@ -118,8 +118,9 @@ func checkDepleted(utility1, utility2 string, slots []*utilitySlot, qty func(*ut
 	return nil
 }
 
-func utilityRestock(d deps, character schemas.CharacterSchema, utility1, utility2 string, bankQty map[string]int) (schemas.CharacterSchema, error) {
+func utilityRestock(d deps, character schemas.CharacterSchema, utility1, utility2 string, bankQty map[string]int, reserve1, reserve2 int) (schemas.CharacterSchema, error) {
 	slots := utilitySlots(character, utility1, utility2)
+	reserveQuantities := []int{reserve1, reserve2}
 	for _, s := range slots {
 		if s.code == "" || bankQty[s.code] <= 0 {
 			continue
@@ -175,6 +176,46 @@ func utilityRestock(d deps, character schemas.CharacterSchema, utility1, utility
 		if remaining > 0 {
 			console.Printf("  Only %d/%d %s filled for %s\n", filled, utilityMaxStack-s.curQty, s.code, s.slot)
 		}
+	}
+	for index, s := range slots {
+		if s.code == "" || reserveQuantities[index] <= 0 || bankQty[s.code] <= 0 {
+			continue
+		}
+		freeSpace := character.InventoryMaxItems - totalItems(character)
+		quantity := min(reserveQuantities[index], min(bankQty[s.code], freeSpace))
+		if quantity <= 0 {
+			continue
+		}
+		withdrawData, err := d.myActionBankWithdrawItem(character.Name, []schemas.SimpleItemSchema{
+			{Code: s.code, Quantity: quantity},
+		})
+		if err != nil {
+			return character, err
+		}
+		character = withdrawData.Character
+		bankQty[s.code] -= quantity
+	}
+	return character, nil
+}
+
+func utilityInventoryRestock(d deps, character schemas.CharacterSchema, utility1, utility2 string) (schemas.CharacterSchema, error) {
+	for _, s := range utilitySlots(character, utility1, utility2) {
+		if s.code == "" || (s.curCode != "" && s.curCode != s.code) {
+			continue
+		}
+		quantity := min(utilityMaxStack-s.curQty, inventoryItemQuantity(character, s.code))
+		if quantity <= 0 {
+			continue
+		}
+		result, err := d.myActionEquip(character.Name, []schemas.EquipSchema{{
+			Code:     s.code,
+			Quantity: &quantity,
+			Slot:     s.slot,
+		}})
+		if err != nil {
+			return character, err
+		}
+		character = result.Character
 	}
 	return character, nil
 }

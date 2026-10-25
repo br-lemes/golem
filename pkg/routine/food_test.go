@@ -22,7 +22,7 @@ func TestFoodCurrentQtyCountsOnlyPositiveFood(t *testing.T) {
 
 func TestFoodRestockReturnsEarlyForEmptyFood(t *testing.T) {
 	character := schemas.CharacterSchema{InventoryMaxItems: 10}
-	got, err := foodRestock(deps{}, character, "", nil, false)
+	got, err := foodRestock(deps{}, character, "", nil, false, 7)
 	if err != nil || got != character {
 		t.Fatalf("foodRestock() = %#v, %v, want unchanged character", got, err)
 	}
@@ -32,7 +32,7 @@ func TestFoodRestockFoodOnlyRejectsOtherFood(t *testing.T) {
 	character := schemas.CharacterSchema{Level: 10, InventoryMaxItems: 10}
 	got, err := foodRestock(deps{}, character, "apple", map[string]int{
 		"cooked_chicken": 5,
-	}, true)
+	}, true, 7)
 	if err != nil || got != character {
 		t.Fatalf("foodRestock() = %#v, %v, want unchanged character", got, err)
 	}
@@ -55,7 +55,7 @@ func TestFoodRestockWithdrawsFood(t *testing.T) {
 		},
 	}
 
-	_, err := foodRestock(d, character, "apple", map[string]int{"apple": 10}, false)
+	_, err := foodRestock(d, character, "apple", map[string]int{"apple": 10}, false, 7)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func TestFoodRestockReturnsWithdrawError(t *testing.T) {
 	}
 	character := schemas.CharacterSchema{InventoryMaxItems: 10, Level: 10}
 
-	_, err := foodRestock(d, character, "apple", map[string]int{"apple": 10}, false)
+	_, err := foodRestock(d, character, "apple", map[string]int{"apple": 10}, false, 7)
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("foodRestock() error = %v, want %v", err, wantErr)
 	}
@@ -92,7 +92,7 @@ func TestFoodRestockAcceptsFoodOnly(t *testing.T) {
 		},
 	}
 
-	_, err := foodRestock(d, character, "apple", map[string]int{"apple": 10}, true)
+	_, err := foodRestock(d, character, "apple", map[string]int{"apple": 10}, true, 7)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,7 +107,7 @@ func TestFoodRestockHandlesLimitedFood(t *testing.T) {
 		myActionBankWithdrawItem: func(string, []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
 			return schemas.BankItemTransactionSchema{Character: character}, nil
 		},
-	}, character, "apple", map[string]int{"apple": 1}, false)
+	}, character, "apple", map[string]int{"apple": 1}, false, 7)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +122,7 @@ func TestFoodRestockHandlesNoInventorySpace(t *testing.T) {
 		InventoryMaxItems: 1,
 		Level:             10,
 	}
-	_, err := foodRestock(deps{}, character, "apple", map[string]int{"apple": 1}, false)
+	_, err := foodRestock(deps{}, character, "apple", map[string]int{"apple": 1}, false, 7)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,7 +142,7 @@ func TestFoodRestockStopsWhenInventoryFills(t *testing.T) {
 	_, err := foodRestock(d, character, "apple", map[string]int{
 		"apple":          2,
 		"cooked_chicken": 10,
-	}, false)
+	}, false, 7)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +163,7 @@ func TestFoodRestockLimitsChunkToInventorySpace(t *testing.T) {
 	_, err := foodRestock(d, character, "apple", map[string]int{
 		"apple":          2,
 		"cooked_chicken": 10,
-	}, false)
+	}, false, 7)
 	if err != nil {
 		t.Fatal(err)
 	}

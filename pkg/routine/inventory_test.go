@@ -15,6 +15,28 @@ func TestInventoryDoesNothingWithEnoughSpace(t *testing.T) {
 	}
 }
 
+func TestInventoryDoesNothingWithNoDropsAndReserveHeadroom(t *testing.T) {
+	inventoryItems := []schemas.InventorySlotSchema{
+		{Code: "small_health_potion", Quantity: 90},
+	}
+	character := schemas.CharacterSchema{
+		Inventory:         &inventoryItems,
+		InventoryMaxItems: 100,
+	}
+	called := false
+	d := deps{
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			called = true
+			return schemas.CharacterMovementDataSchema{}, nil
+		},
+	}
+
+	got, err := inventory(d, nil, character, nil, MoveOptions{})
+	if err != nil || got != character || called {
+		t.Fatalf("inventory() = %#v, %v, move called = %t", got, err, called)
+	}
+}
+
 func TestInventoryUsesInjectedDeposit(t *testing.T) {
 	inventoryItems := []schemas.InventorySlotSchema{
 		{Code: "copper_ore", Quantity: 2},

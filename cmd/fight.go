@@ -15,13 +15,17 @@ import (
 )
 
 type fightFlags struct {
-	Food         string   `flag:"food" desc:"auto-stock food from bank"`
-	FoodOnly     string   `flag:"food-only" desc:"use only this food code"`
-	NoFood       bool     `flag:"no-food" desc:"do not use food"`
-	AllowUnsafe  bool     `flag:"allow-unsafe" desc:"allow fights with simulated winrate below 100%"`
-	UseUtilities bool     `flag:"use-utilities" desc:"use utilities selected by the simulator"`
-	Utility1     []string `flag:"utility1" desc:"item code(s) to auto-refill in utility1 slot; repeat per character"`
-	Utility2     []string `flag:"utility2" desc:"item code(s) to auto-refill in utility2 slot; repeat per character"`
+	Food            string   `flag:"food" desc:"auto-stock food from bank"`
+	FoodOnly        string   `flag:"food-only" desc:"use only this food code"`
+	FoodReserve     int      `flag:"food-reserve" default:"70" desc:"percentage of the planned inventory space for food"`
+	NoFood          bool     `flag:"no-food" desc:"do not use food"`
+	AllowUnsafe     bool     `flag:"allow-unsafe" desc:"allow fights with simulated winrate below 100%"`
+	UseUtilities    bool     `flag:"use-utilities" desc:"use utilities selected by the simulator"`
+	Preview         bool     `flag:"preview" desc:"show the planned inventory without taking actions"`
+	Utility1        []string `flag:"utility1" desc:"item code(s) to auto-refill in utility1 slot; repeat per character"`
+	Utility1Reserve int      `flag:"utility1-reserve" desc:"percentage of planned inventory space reserved for utility1"`
+	Utility2        []string `flag:"utility2" desc:"item code(s) to auto-refill in utility2 slot; repeat per character"`
+	Utility2Reserve int      `flag:"utility2-reserve" desc:"percentage of planned inventory space reserved for utility2"`
 }
 
 var fightCmd = &cobra.Command{
@@ -68,7 +72,7 @@ Arguments:
 		if err != nil {
 			return err
 		}
-		if taskCompleted(character, code) {
+		if !flags.Preview && taskCompleted(character, code) {
 			return nil
 		}
 
@@ -95,6 +99,23 @@ Arguments:
 		if utilitiesRequired {
 			options.Utility1 = utility1
 			options.Utility2 = utility2
+		}
+		if flags.Preview {
+			plan, err := routine.PlanInventory(character, movement.NoTeleport, options.foodReserve(), options.Utility1Reserve, options.Utility2Reserve)
+			if err != nil {
+				return err
+			}
+			return console.Auto(fightPreview{
+				Monster: monster.Code,
+				Winrate: float64(fightResult.Winrate),
+				Characters: []fightCharacterPreview{{
+					Character: name,
+					Food:      options.Food,
+					Utility1:  options.Utility1,
+					Utility2:  options.Utility2,
+					Inventory: plan,
+				}},
+			})
 		}
 		equipments := make([]schemas.EquipSchema, 0, len(fightResult.Equipment))
 		for slot, code := range fightResult.Equipment {
@@ -129,14 +150,31 @@ Arguments:
 	},
 }
 
+type fightPreview struct {
+	Monster    string                  `json:"monster"`
+	Winrate    float64                 `json:"winrate,omitempty"`
+	Characters []fightCharacterPreview `json:"characters"`
+}
+
+type fightCharacterPreview struct {
+	Character string                `json:"character"`
+	Food      string                `json:"food"`
+	Utility1  string                `json:"utility1,omitempty"`
+	Utility2  string                `json:"utility2,omitempty"`
+	Inventory routine.InventoryPlan `json:"inventory"`
+}
+
 type fightOptions struct {
-	Food         string
-	FoodOnly     string
-	NoFood       bool
-	AllowUnsafe  bool
-	UseUtilities bool
-	Utility1     string
-	Utility2     string
+	Food            string
+	FoodOnly        string
+	NoFood          bool
+	AllowUnsafe     bool
+	UseUtilities    bool
+	Utility1        string
+	Utility2        string
+	FoodReserve     int
+	Utility1Reserve int
+	Utility2Reserve int
 }
 
 func (flags fightFlags) options(index, characterCount int) (fightOptions, error) {
@@ -149,14 +187,24 @@ func (flags fightFlags) options(index, characterCount int) (fightOptions, error)
 		return fightOptions{}, fmt.Errorf("--utility2: %w", err)
 	}
 	return fightOptions{
-		Food:         flags.Food,
-		FoodOnly:     flags.FoodOnly,
-		NoFood:       flags.NoFood,
-		AllowUnsafe:  flags.AllowUnsafe,
-		UseUtilities: flags.UseUtilities,
-		Utility1:     utility1,
-		Utility2:     utility2,
+		Food:            flags.Food,
+		FoodOnly:        flags.FoodOnly,
+		NoFood:          flags.NoFood,
+		AllowUnsafe:     flags.AllowUnsafe,
+		UseUtilities:    flags.UseUtilities,
+		Utility1:        utility1,
+		Utility2:        utility2,
+		FoodReserve:     flags.FoodReserve,
+		Utility1Reserve: flags.Utility1Reserve,
+		Utility2Reserve: flags.Utility2Reserve,
 	}, nil
+}
+
+func (flags fightOptions) foodReserve() int {
+	if flags.NoFood || flags.Food == "" {
+		return 0
+	}
+	return flags.FoodReserve
 }
 
 func utilityForCharacter(values []string, index, characterCount int) (string, error) {
@@ -226,6 +274,10 @@ func fightOptionsValidate(flags fightOptions) error {
 	if flags.Utility1 != "" && flags.Utility1 == flags.Utility2 {
 		return fmt.Errorf("--utility1 and --utility2 cannot use the same item")
 	}
+	err := routine.ValidateInventoryReserve(flags.foodReserve(), flags.Utility1Reserve, flags.Utility2Reserve)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -258,12 +310,15 @@ func prepare(character schemas.CharacterSchema, monster schemas.MonsterSchema, f
 		food = flags.FoodOnly
 	}
 	character, err = routine.Bank(character, routine.BankOptions{
-		Movement: movement,
-		Food:     food,
-		FoodOnly: flags.FoodOnly != "",
-		NoFood:   flags.NoFood,
-		Utility1: flags.Utility1,
-		Utility2: flags.Utility2,
+		Movement:        movement,
+		Food:            food,
+		FoodOnly:        flags.FoodOnly != "",
+		NoFood:          flags.NoFood,
+		Utility1:        flags.Utility1,
+		Utility2:        flags.Utility2,
+		FoodReserve:     flags.FoodReserve,
+		Utility1Reserve: flags.Utility1Reserve,
+		Utility2Reserve: flags.Utility2Reserve,
 	})
 	if err != nil {
 		return err

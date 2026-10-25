@@ -10,7 +10,7 @@ import (
 )
 
 const foodMinThreshold = 5
-const foodFillPercent = 70
+const DefaultFoodReserve = 70
 
 func foodCurrentQty(character schemas.CharacterSchema) int {
 	if character.Inventory == nil {
@@ -91,7 +91,7 @@ func SelectFood(character schemas.CharacterSchema, bankQty map[string]int) strin
 	return candidates[0]
 }
 
-func foodRestock(d deps, character schemas.CharacterSchema, food string, bankQty map[string]int, foodOnly bool) (schemas.CharacterSchema, error) {
+func foodRestock(d deps, character schemas.CharacterSchema, food string, bankQty map[string]int, foodOnly bool, target int) (schemas.CharacterSchema, error) {
 	if food == "" {
 		return character, nil
 	}
@@ -107,7 +107,6 @@ func foodRestock(d deps, character schemas.CharacterSchema, food string, bankQty
 		console.Printf("  No suitable food available in bank\n")
 		return character, nil
 	}
-	target := (character.InventoryMaxItems - totalItems(character)) * foodFillPercent / 100
 	if target <= 0 {
 		return character, nil
 	}

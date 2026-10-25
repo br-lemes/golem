@@ -6,6 +6,8 @@ import (
 	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
+	"github.com/br-lemes/golem/pkg/console"
+	"github.com/br-lemes/golem/pkg/routine"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
@@ -93,6 +95,27 @@ Arguments:
 			if err != nil {
 				return err
 			}
+		}
+		if flags.Preview {
+			preview := fightPreview{
+				Monster:    code,
+				Characters: make([]fightCharacterPreview, 0, totalCharacters),
+			}
+			for i, characterName := range names {
+				option := options[i]
+				plan, err := routine.PlanInventory(charMap[characterName], movement.NoTeleport, option.foodReserve(), option.Utility1Reserve, option.Utility2Reserve)
+				if err != nil {
+					return err
+				}
+				preview.Characters = append(preview.Characters, fightCharacterPreview{
+					Character: characterName,
+					Food:      option.Food,
+					Utility1:  option.Utility1,
+					Utility2:  option.Utility2,
+					Inventory: plan,
+				})
+			}
+			return console.Auto(preview)
 		}
 
 		boss, _ := catalog.Bosses.Get(code)

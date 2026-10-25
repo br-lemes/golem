@@ -147,7 +147,7 @@ func TestUtilityRestockUnequipsWithdrawsAndEquips(t *testing.T) {
 
 	_, err := utilityRestock(d, character, "small_health_potion", "", map[string]int{
 		"small_health_potion": 2,
-	})
+	}, 0, 0)
 	if err != nil || !unequipped || !withdrawn || !equipped {
 		t.Fatalf("utilityRestock() error = %v, calls = %t/%t/%t", err, unequipped, withdrawn, equipped)
 	}
@@ -164,7 +164,7 @@ func TestUtilityRestockStopsWithoutInventorySpace(t *testing.T) {
 
 	got, err := utilityRestock(deps{}, character, "small_health_potion", "", map[string]int{
 		"small_health_potion": 1,
-	})
+	}, 0, 0)
 	if err != nil || got != character {
 		t.Fatalf("utilityRestock() = %#v, %v, want unchanged character", got, err)
 	}
@@ -192,7 +192,7 @@ func TestUtilityRestockSkipsFullUtility(t *testing.T) {
 
 	got, err := utilityRestock(d, character, "small_health_potion", "", map[string]int{
 		"small_health_potion": 1,
-	})
+	}, 0, 0)
 	if err != nil || got != character {
 		t.Fatalf("utilityRestock() = %#v, %v, want unchanged character", got, err)
 	}
@@ -222,7 +222,7 @@ func TestUtilityRestockLimitsChunkToInventorySpace(t *testing.T) {
 
 	_, err := utilityRestock(d, character, "small_health_potion", "", map[string]int{
 		"small_health_potion": 100,
-	})
+	}, 0, 0)
 	if err != nil || !called {
 		t.Fatalf("utilityRestock() error = %v, called = %t", err, called)
 	}
@@ -274,7 +274,7 @@ func TestUtilityRestockReturnsErrors(t *testing.T) {
 			}
 			_, err := utilityRestock(test.deps, character, "small_health_potion", "", map[string]int{
 				"small_health_potion": 1,
-			})
+			}, 0, 0)
 			if err == nil || err.Error() != test.want.Error() {
 				t.Fatalf("utilityRestock() error = %v, want %v", err, test.want)
 			}
