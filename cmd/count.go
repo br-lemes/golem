@@ -218,7 +218,7 @@ func countItemMatches(item schemas.ItemSchema, flags countFlags) bool {
 	if len(flags.Subtype) > 0 && !slices.Contains(flags.Subtype, item.Subtype) {
 		return false
 	}
-	if item.Level < flags.MinLevel || item.Level > flags.MaxLevel {
+	if item.Level < flags.MinLevel || (flags.MaxLevel < maxGameLevel && item.Level > flags.MaxLevel) {
 		return false
 	}
 	if flags.Tradeable && !item.Tradeable {

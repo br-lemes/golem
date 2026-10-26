@@ -82,4 +82,9 @@ func TestCountItemMatches(t *testing.T) {
 	if countItemMatches(item, flags) {
 		t.Fatal("countItemMatches() = true above maximum level")
 	}
+	flags.MaxLevel = maxGameLevel
+	item.Level = maxGameLevel + 5
+	if !countItemMatches(item, flags) {
+		t.Fatal("countItemMatches() = false with the default maximum level")
+	}
 }
