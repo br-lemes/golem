@@ -27,7 +27,7 @@ func Initialize(storage config.Storage) error {
 		return err
 	}
 
-	err = cache.AutoMigrate(&models.Cache{}, &models.Character{}, &models.OutputFilter{}, &models.Stock{})
+	err = cache.AutoMigrate(&models.Cache{}, &models.Character{}, &models.Reaction{}, &models.OutputFilter{}, &models.Stock{})
 	if err != nil {
 		//+gocover:ignore:block schema migration failure is environmental
 		return err
