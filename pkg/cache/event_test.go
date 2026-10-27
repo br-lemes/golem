@@ -21,12 +21,12 @@ func TestEventCache(t *testing.T) {
 		},
 	}})
 
-	found, refresh := HasEvent("strange_rocks")
-	if !found || refresh {
+	event, refresh := GetEvent("strange_rocks")
+	if event == nil || refresh {
 		t.Fatal("active event was not saved")
 	}
-	found, refresh = HasEvent("missing")
-	if found || refresh {
+	event, refresh = GetEvent("missing")
+	if event != nil || refresh {
 		t.Fatal("missing event did not use the valid cache")
 	}
 }
@@ -35,8 +35,8 @@ func TestEventCacheMissRequiresRefresh(t *testing.T) {
 	initializeTestCache(t)
 
 	SaveActiveEvents(nil)
-	found, refresh := HasEvent("missing")
-	if found || refresh {
+	event, refresh := GetEvent("missing")
+	if event != nil || refresh {
 		t.Fatal("empty cache did not require refresh")
 	}
 }

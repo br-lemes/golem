@@ -9,7 +9,7 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func TestHasEventUsesCache(t *testing.T) {
+func TestGetEventUsesCache(t *testing.T) {
 	cache.CleanActiveEvents()
 	expiration := time.Now().UTC().Add(time.Minute).Format(time.RFC3339)
 	requests := 0
@@ -18,18 +18,18 @@ func TestHasEventUsesCache(t *testing.T) {
 		return []byte(`{"data":[{"code":"strange_apparition","expiration":"` + expiration + `","map":{"interactions":{"content":{"code":"strange_rocks"}}}}],"pages":1}`), nil
 	}))
 
-	active, err := client.HasEvent("strange_rocks")
+	event, err := client.GetEvent("strange_rocks")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !active {
+	if event == nil {
 		t.Fatal("expected event to be active")
 	}
-	active, err = client.HasEvent("strange_rocks")
+	event, err = client.GetEvent("strange_rocks")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !active {
+	if event == nil {
 		t.Fatal("expected cached event to be active")
 	}
 	if requests != 1 {
@@ -37,7 +37,7 @@ func TestHasEventUsesCache(t *testing.T) {
 	}
 }
 
-func TestHasEventRefreshesExpiredCache(t *testing.T) {
+func TestGetEventRefreshesExpiredCache(t *testing.T) {
 	cache.CleanActiveEvents()
 	expired := time.Now().UTC().Add(-time.Minute)
 	cache.SaveActiveEvents([]schemas.ActiveEventSchema{{
@@ -54,11 +54,11 @@ func TestHasEventRefreshesExpiredCache(t *testing.T) {
 		return []byte(`{"data":[],"pages":1}`), nil
 	}))
 
-	active, err := client.HasEvent("strange_rocks")
+	event, err := client.GetEvent("strange_rocks")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if active {
+	if event != nil {
 		t.Fatal("expected expired event to be inactive")
 	}
 	if requests != 1 {

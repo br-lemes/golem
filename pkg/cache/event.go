@@ -15,16 +15,16 @@ type activeEventsCache struct {
 	Events    []schemas.ActiveEventSchema `json:"events"`
 }
 
-func HasEvent(contentCode string) (found, refresh bool) {
+func GetEvent(contentCode string) (*schemas.ActiveEventSchema, bool) {
 	now := time.Now().UTC()
 	var eventCache models.Cache
 	if !findByName(&eventCache, "eventsActive") {
-		return false, true
+		return nil, true
 	}
 
 	var data activeEventsCache
 	if json.Unmarshal([]byte(eventCache.Data), &data) != nil {
-		return false, true
+		return nil, true
 	}
 	for index := range data.Events {
 		event := &data.Events[index]
@@ -32,11 +32,11 @@ func HasEvent(contentCode string) (found, refresh bool) {
 			continue
 		}
 		if !event.Expiration.After(now) {
-			return false, true
+			return nil, true
 		}
-		return true, false
+		return event, false
 	}
-	return false, now.Sub(data.FetchedAt) >= activeEventsCacheDuration
+	return nil, now.Sub(data.FetchedAt) >= activeEventsCacheDuration
 }
 
 func SaveActiveEvents(events []schemas.ActiveEventSchema) {
