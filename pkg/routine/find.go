@@ -259,24 +259,19 @@ func eventPoints(d deps, code string) eventPointSet {
 	if !slices.Contains(catalog.EventContentCodes(), code) {
 		return eventPointSet{}
 	}
-	if d.eventsActive == nil {
-		return eventPointSet{}
-	}
-	events, err := d.eventsActive()
-	if err != nil {
-		return eventPointSet{}
-	}
-	result := eventPointSet{}
-	for _, event := range events {
-		if event.Map.Interactions.Content != nil && event.Map.Interactions.Content.Code == code {
-			result[catalog.Point{
-				X:     event.Map.X,
-				Y:     event.Map.Y,
-				Layer: event.Map.Layer,
-			}] = true
+	if d.getEvent != nil {
+		event, err := d.getEvent(code)
+		if err != nil || event == nil {
+			return eventPointSet{}
 		}
+		point := catalog.Point{
+			X:     event.Map.X,
+			Y:     event.Map.Y,
+			Layer: event.Map.Layer,
+		}
+		return eventPointSet{point: true}
 	}
-	return result
+	return eventPointSet{}
 }
 
 func hasItem(character schemas.CharacterSchema, code string, quantity int, loadBank func() bool, bankItems *[]schemas.SimpleItemSchema) bool {

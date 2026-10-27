@@ -63,10 +63,7 @@ func TestFindBankFromStartingPointWithIslandAchievement(t *testing.T) {
 }
 
 func TestFindStrangeRocksWithoutActiveEvent(t *testing.T) {
-	loadEvents := func() ([]schemas.ActiveEventSchema, error) {
-		return nil, nil
-	}
-	d := deps{eventsActive: loadEvents}
+	d := deps{getEvent: testGetEvent()}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
 	results := find(d, character, "strange_rocks", nil, eventPointSet{})
@@ -141,19 +138,23 @@ func TestFindStrangeRocksWithActiveEvent(t *testing.T) {
 	if !exists || event.Content == nil || len(event.Maps) == 0 {
 		t.Fatal("strange apparition event is not in the catalog")
 	}
-	loadEvents := func() ([]schemas.ActiveEventSchema, error) {
-		eventMap := schemas.MapSchema{
-			Layer: event.Maps[0].Layer,
-			MapId: event.Maps[0].MapId,
-			X:     event.Maps[0].X,
-			Y:     event.Maps[0].Y,
-			Interactions: schemas.InteractionSchema{
-				Content: &schemas.MapContentSchema{Code: event.Content.Code},
-			},
+	getEvent := func(code string) (*schemas.ActiveEventSchema, error) {
+		if code != event.Content.Code {
+			return nil, nil
 		}
-		return []schemas.ActiveEventSchema{{Map: eventMap}}, nil
+		return &schemas.ActiveEventSchema{
+			Map: schemas.MapSchema{
+				Layer: event.Maps[0].Layer,
+				MapId: event.Maps[0].MapId,
+				X:     event.Maps[0].X,
+				Y:     event.Maps[0].Y,
+				Interactions: schemas.InteractionSchema{
+					Content: &schemas.MapContentSchema{Code: event.Content.Code},
+				},
+			},
+		}, nil
 	}
-	d := deps{eventsActive: loadEvents}
+	d := deps{getEvent: getEvent}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
 	results := find(d, character, "strange_rocks", nil, eventPoints(d, "strange_rocks"))
@@ -182,9 +183,9 @@ func TestFindReusesActiveEventsAcrossTeleportStarts(t *testing.T) {
 	}
 	eventLoads := 0
 	d := deps{
-		eventsActive: func() ([]schemas.ActiveEventSchema, error) {
+		getEvent: func(string) (*schemas.ActiveEventSchema, error) {
 			eventLoads++
-			return []schemas.ActiveEventSchema{{Map: eventMap}}, nil
+			return &schemas.ActiveEventSchema{Map: eventMap}, nil
 		},
 	}
 	character := schemas.CharacterSchema{Layer: "overworld"}
@@ -211,10 +212,11 @@ func TestFindStrangeRocksWithoutEventDependency(t *testing.T) {
 }
 
 func TestFindStrangeRocksWithEventLoadError(t *testing.T) {
-	loadEvents := func() ([]schemas.ActiveEventSchema, error) {
-		return nil, errors.New("events unavailable")
+	d := deps{
+		getEvent: func(string) (*schemas.ActiveEventSchema, error) {
+			return nil, errors.New("events unavailable")
+		},
 	}
-	d := deps{eventsActive: loadEvents}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
 	results := find(d, character, "strange_rocks", nil, eventPointSet{})
@@ -229,25 +231,34 @@ func TestFindStrangeRocksIgnoresDifferentActiveEventContent(t *testing.T) {
 	if !exists || event.Content == nil || len(event.Maps) == 0 {
 		t.Fatal("attacking the island event is not in the catalog")
 	}
-	loadEvents := func() ([]schemas.ActiveEventSchema, error) {
-		eventMap := schemas.MapSchema{
-			Layer: event.Maps[0].Layer,
-			MapId: event.Maps[0].MapId,
-			X:     event.Maps[0].X,
-			Y:     event.Maps[0].Y,
-			Interactions: schemas.InteractionSchema{
-				Content: &schemas.MapContentSchema{Code: event.Content.Code},
-			},
-		}
-		return []schemas.ActiveEventSchema{{Map: eventMap}}, nil
+	eventMap := schemas.MapSchema{
+		Layer: event.Maps[0].Layer,
+		MapId: event.Maps[0].MapId,
+		X:     event.Maps[0].X,
+		Y:     event.Maps[0].Y,
+		Interactions: schemas.InteractionSchema{
+			Content: &schemas.MapContentSchema{Code: event.Content.Code},
+		},
 	}
-	d := deps{eventsActive: loadEvents}
+	d := deps{getEvent: testGetEvent(schemas.ActiveEventSchema{Map: eventMap})}
 	character := schemas.CharacterSchema{Layer: "overworld"}
 
 	results := find(d, character, "strange_rocks", nil, eventPointSet{})
 
 	if len(results) != 0 {
 		t.Fatalf("find() returned %d results, want 0", len(results))
+	}
+}
+
+func testGetEvent(events ...schemas.ActiveEventSchema) func(string) (*schemas.ActiveEventSchema, error) {
+	return func(code string) (*schemas.ActiveEventSchema, error) {
+		for index := range events {
+			event := &events[index]
+			if event.Map.Interactions.Content != nil && event.Map.Interactions.Content.Code == code {
+				return event, nil
+			}
+		}
+		return nil, nil
 	}
 }
 

@@ -40,7 +40,7 @@ func TestMoveToCurrentStaticDestinationDoesNothing(t *testing.T) {
 		Layer: "overworld",
 	}
 	d := deps{
-		eventsActive: func() ([]schemas.ActiveEventSchema, error) {
+		getEvent: func(string) (*schemas.ActiveEventSchema, error) {
 			t.Fatal("events loaded for a static destination")
 			return nil, nil
 		},
@@ -84,9 +84,9 @@ func TestMoveToCurrentEventDestinationChecksActiveEvents(t *testing.T) {
 	}
 	eventLoads := 0
 	d := deps{
-		eventsActive: func() ([]schemas.ActiveEventSchema, error) {
+		getEvent: func(string) (*schemas.ActiveEventSchema, error) {
 			eventLoads++
-			return []schemas.ActiveEventSchema{{Map: eventMap}}, nil
+			return &schemas.ActiveEventSchema{Map: eventMap}, nil
 		},
 		hasAchievement: func(string) (bool, error) {
 			t.Fatal("achievements loaded while already at event target")
@@ -195,8 +195,8 @@ func TestMoveSkipsMoveWhenTransitionLandsOnTarget(t *testing.T) {
 	}
 	moves := []struct{ x, y int }{}
 	d := deps{
-		eventsActive: func() ([]schemas.ActiveEventSchema, error) {
-			return []schemas.ActiveEventSchema{{
+		getEvent: func(string) (*schemas.ActiveEventSchema, error) {
+			return &schemas.ActiveEventSchema{
 				Map: schemas.MapSchema{
 					Layer: eventMap.Layer,
 					MapId: eventMap.MapId,
@@ -208,7 +208,7 @@ func TestMoveSkipsMoveWhenTransitionLandsOnTarget(t *testing.T) {
 						},
 					},
 				},
-			}}, nil
+			}, nil
 		},
 		myActionMove: func(_ string, x, y int) (schemas.CharacterMovementDataSchema, error) {
 			moves = append(moves, struct{ x, y int }{x, y})
