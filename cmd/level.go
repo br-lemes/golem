@@ -157,13 +157,13 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = levelCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
+	err = levelCmd.RegisterFlagCompletionFunc("skill", completion.UniqueList(func() []string {
 		return catalog.Enums()["CharacterLeaderboardType"]
 	}))
 	if err != nil {
 		panic(err)
 	}
-	err = levelCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
+	err = levelCmd.RegisterFlagCompletionFunc("name", completion.UniqueList(cache.GetCharacters))
 	if err != nil {
 		panic(err)
 	}

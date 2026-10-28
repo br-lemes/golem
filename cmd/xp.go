@@ -236,13 +236,13 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = xpCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
+	err = xpCmd.RegisterFlagCompletionFunc("skill", completion.UniqueList(func() []string {
 		return catalog.Enums()["CharacterLeaderboardType"]
 	}))
 	if err != nil {
 		panic(err)
 	}
-	err = xpCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
+	err = xpCmd.RegisterFlagCompletionFunc("name", completion.UniqueList(cache.GetCharacters))
 	if err != nil {
 		panic(err)
 	}

@@ -278,17 +278,17 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = missingCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
+	err = missingCmd.RegisterFlagCompletionFunc("name", completion.UniqueList(cache.GetCharacters))
 	if err != nil {
 		panic(err)
 	}
-	err = missingCmd.RegisterFlagCompletionFunc("type", completion.StringSlice(func() []string {
+	err = missingCmd.RegisterFlagCompletionFunc("type", completion.UniqueList(func() []string {
 		return catalog.EquipmentTypes
 	}))
 	if err != nil {
 		panic(err)
 	}
-	err = missingCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
+	err = missingCmd.RegisterFlagCompletionFunc("skill", completion.UniqueList(func() []string {
 		return catalog.Enums()["CraftSkill"]
 	}))
 	if err != nil {

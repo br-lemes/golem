@@ -34,11 +34,11 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = reactionListCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
+	err = reactionListCmd.RegisterFlagCompletionFunc("name", completion.UniqueList(cache.GetCharacters))
 	if err != nil {
 		panic(err)
 	}
-	err = reactionListCmd.RegisterFlagCompletionFunc("code", completion.StringSlice(catalog.EventContentCodes))
+	err = reactionListCmd.RegisterFlagCompletionFunc("code", completion.UniqueList(catalog.EventContentCodes))
 	if err != nil {
 		panic(err)
 	}

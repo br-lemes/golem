@@ -73,7 +73,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = potentialCmd.RegisterFlagCompletionFunc("without", completion.StringSlice(catalog.Items().Equipments().Keys))
+	err = potentialCmd.RegisterFlagCompletionFunc("without", completion.UniqueList(catalog.Items().Equipments().Keys))
 	if err != nil {
 		panic(err)
 	}

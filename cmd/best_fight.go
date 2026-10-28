@@ -99,7 +99,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = bestFightCmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
+	err = bestFightCmd.RegisterFlagCompletionFunc("name", completion.SingleValue(cache.GetCharacters))
 	if err != nil {
 		panic(err)
 	}

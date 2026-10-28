@@ -174,7 +174,7 @@ func registerSimulationFlags(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	err = cmd.RegisterFlagCompletionFunc("name", completion.StringSlice(cache.GetCharacters))
+	err = cmd.RegisterFlagCompletionFunc("name", completion.SingleValue(cache.GetCharacters))
 	if err != nil {
 		return err
 	}

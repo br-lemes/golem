@@ -421,7 +421,7 @@ func registerFightFlags(cmd *cobra.Command) {
 		},
 	}
 	for _, flagCompletion := range sliceCompletions {
-		err := cmd.RegisterFlagCompletionFunc(flagCompletion.flag, completion.StringSlice(flagCompletion.values))
+		err := cmd.RegisterFlagCompletionFunc(flagCompletion.flag, completion.RepeatableList(flagCompletion.values))
 		if err != nil {
 			panic(err)
 		}

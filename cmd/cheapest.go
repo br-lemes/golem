@@ -28,7 +28,7 @@ var cheapestCmd = &cobra.Command{
 
 Arguments:
   skill   The crafting skill to level.`,
-	ValidArgsFunction: completion.StringSlice(func() []string { return cheapestSkills }),
+	ValidArgsFunction: completion.Custom(1, func() []string { return cheapestSkills }).Build(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		skill := args[0]
 		err := cheapestValidate(skill)

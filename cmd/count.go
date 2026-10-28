@@ -297,7 +297,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = countCmd.RegisterFlagCompletionFunc("skill", completion.StringSlice(func() []string {
+	err = countCmd.RegisterFlagCompletionFunc("skill", completion.UniqueList(func() []string {
 		return catalog.Enums()["CraftSkill"]
 	}))
 	if err != nil {
