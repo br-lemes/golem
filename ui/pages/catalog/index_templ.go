@@ -27,7 +27,7 @@ func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Catalog",
 		Path:  "/catalog",
-		Icon:  "ti-box",
+		Icon:  "ti-books",
 		Handler: func(_ *http.Request) (templ.Component, int) {
 			return Catalog(), http.StatusOK
 		},

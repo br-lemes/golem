@@ -30,7 +30,7 @@ document.addEventListener("click", (event: MouseEvent) => {
 	event.preventDefault();
 	closeSidebarMenu(source);
 	console.log("[swr] click", { url: href });
-	navigate(href);
+	void navigate(href);
 });
 
 window.addEventListener("popstate", () => {

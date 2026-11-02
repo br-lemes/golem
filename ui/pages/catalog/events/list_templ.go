@@ -24,7 +24,7 @@ func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Events",
 		Path:  "/catalog/events",
-		Icon:  "ti-calendar",
+		Icon:  "ti-calendar-event",
 		Handler: func(_ *http.Request) (templ.Component, int) {
 			return List(catalog.Events.All()), http.StatusOK
 		},

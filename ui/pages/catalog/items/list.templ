@@ -2,6 +2,7 @@ package items
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -13,18 +14,36 @@ import (
 
 var route *routes.Node
 
+const itemsPageSize = 25
+
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Items",
 		Path:  "/catalog/items",
-		Icon:  "ti-box",
-		Handler: func(_ *http.Request) (templ.Component, int) {
-			return List(catalog.Items().All()), http.StatusOK
+		Icon:  "ti-package",
+		Handler: func(request *http.Request) (templ.Component, int) {
+			page, err := strconv.Atoi(request.URL.Query().Get("page"))
+			if err != nil {
+				page = 1
+			}
+			items, page, totalPages := paginateItems(catalog.Items().All(), page)
+			return List(items, page, totalPages), http.StatusOK
 		},
 	})
 }
 
-templ List(items []*schemas.ItemSchema) {
+func paginateItems(items []*schemas.ItemSchema, page int) ([]*schemas.ItemSchema, int, int) {
+	if page < 1 {
+		page = 1
+	}
+	totalPages := max(1, (len(items)+itemsPageSize-1)/itemsPageSize)
+	page = min(page, totalPages)
+	start := (page - 1) * itemsPageSize
+	end := min(start+itemsPageSize, len(items))
+	return items[start:end], page, totalPages
+}
+
+templ List(items []*schemas.ItemSchema, page, totalPages int) {
 	@layouts.Base(layouts.Props{Route: route}) {
 		<div class="card">
 			@datatable.DataTable(datatable.DataTableProps[*schemas.ItemSchema]{
@@ -38,6 +57,13 @@ templ List(items []*schemas.ItemSchema) {
 				},
 				RowHref: func(item *schemas.ItemSchema) string {
 					return route.Path + "/" + item.Code
+				},
+				Pagination: datatable.Pagination{
+					Page:       page,
+					TotalPages: totalPages,
+					Href: func(page int) string {
+						return route.Path + "?page=" + strconv.Itoa(page)
+					},
 				},
 			})
 		</div>

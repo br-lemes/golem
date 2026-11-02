@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -176,6 +177,61 @@ func TestDataTableRendersDefaultEmptyMessage(t *testing.T) {
 	text := document.Find("tbody tr td").Text()
 	if text != "No data available" {
 		t.Fatalf("expected default empty message, got %q", text)
+	}
+}
+
+func TestDataTableRendersPagination(t *testing.T) {
+	document := renderDataTable(t, DataTable(DataTableProps[dataTableTestItem]{
+		Data:    []dataTableTestItem{{Name: "item"}},
+		Columns: []Column[dataTableTestItem]{{Header: "Name", Field: "name"}},
+		Pagination: Pagination{
+			Page:       10,
+			TotalPages: 21,
+			Href: func(page int) string {
+				return "/items?page=" + strconv.Itoa(page)
+			},
+		},
+	}))
+
+	pagination := document.Find("nav[aria-label='Pagination']")
+	if pagination.Length() != 1 {
+		t.Fatalf("expected pagination, found %d", pagination.Length())
+	}
+	links := pagination.Find("a")
+	if links.Length() != 9 {
+		t.Fatalf("expected nine pagination links, found %d", links.Length())
+	}
+	if pagination.Find(".page-link").Text() == "" {
+		t.Fatal("expected pagination links to render")
+	}
+	if pagination.Find("a[href='/items?page=1']").Length() != 1 {
+		t.Error("expected first page link")
+	}
+	if pagination.Find("a[href='/items?page=21']").Length() != 1 {
+		t.Error("expected last page link")
+	}
+	if pagination.Find("a[href='/items?page=8']").Length() != 1 {
+		t.Error("expected previous window page link")
+	}
+	if pagination.Find("a[href='/items?page=12']").Length() != 1 {
+		t.Error("expected next window page link")
+	}
+}
+
+func TestDataTableOmitsPaginationWithoutMultiplePages(t *testing.T) {
+	document := renderDataTable(t, DataTable(DataTableProps[dataTableTestItem]{
+		Data:    []dataTableTestItem{{Name: "item"}},
+		Columns: []Column[dataTableTestItem]{{Header: "Name", Field: "name"}},
+		Pagination: Pagination{
+			Page:       1,
+			TotalPages: 1,
+			Href:       func(page int) string { return strconv.Itoa(page) },
+		},
+	}))
+
+	pagination := document.Find("nav[aria-label='Pagination']")
+	if pagination.Length() != 0 {
+		t.Fatalf("expected no pagination, found %d", pagination.Length())
 	}
 }
 

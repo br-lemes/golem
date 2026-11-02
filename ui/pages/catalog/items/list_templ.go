@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -21,18 +22,36 @@ import (
 
 var route *routes.Node
 
+const itemsPageSize = 25
+
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Items",
 		Path:  "/catalog/items",
-		Icon:  "ti-box",
-		Handler: func(_ *http.Request) (templ.Component, int) {
-			return List(catalog.Items().All()), http.StatusOK
+		Icon:  "ti-package",
+		Handler: func(request *http.Request) (templ.Component, int) {
+			page, err := strconv.Atoi(request.URL.Query().Get("page"))
+			if err != nil {
+				page = 1
+			}
+			items, page, totalPages := paginateItems(catalog.Items().All(), page)
+			return List(items, page, totalPages), http.StatusOK
 		},
 	})
 }
 
-func List(items []*schemas.ItemSchema) templ.Component {
+func paginateItems(items []*schemas.ItemSchema, page int) ([]*schemas.ItemSchema, int, int) {
+	if page < 1 {
+		page = 1
+	}
+	totalPages := max(1, (len(items)+itemsPageSize-1)/itemsPageSize)
+	page = min(page, totalPages)
+	start := (page - 1) * itemsPageSize
+	end := min(start+itemsPageSize, len(items))
+	return items[start:end], page, totalPages
+}
+
+func List(items []*schemas.ItemSchema, page, totalPages int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -80,6 +99,13 @@ func List(items []*schemas.ItemSchema) templ.Component {
 				},
 				RowHref: func(item *schemas.ItemSchema) string {
 					return route.Path + "/" + item.Code
+				},
+				Pagination: datatable.Pagination{
+					Page:       page,
+					TotalPages: totalPages,
+					Href: func(page int) string {
+						return route.Path + "?page=" + strconv.Itoa(page)
+					},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

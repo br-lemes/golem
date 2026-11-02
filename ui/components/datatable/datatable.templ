@@ -3,6 +3,7 @@ package datatable
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -17,7 +18,14 @@ type DataTableProps[T any] struct {
 	Columns      []Column[T]
 	Data         []T
 	EmptyMessage string
+	Pagination   Pagination
 	RowHref      func(T) string
+}
+
+type Pagination struct {
+	Page       int
+	TotalPages int
+	Href       func(int) string
 }
 
 type dataTableColumn struct {
@@ -60,7 +68,7 @@ func DataTable[T any](props DataTableProps[T]) templ.Component {
 			Class:  column.Class,
 		}
 	}
-	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage)
+	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage, props.Pagination)
 }
 
 templ Styles() {
@@ -114,7 +122,7 @@ func tableFieldText(item reflect.Value, fieldName string) string {
 	panic(fmt.Sprintf("data table field %q not found in %s", fieldName, typeOfItem))
 }
 
-templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []string, emptyMessage string) {
+templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []string, emptyMessage string, pagination Pagination) {
 	<div class="table-responsive">
 		<table class="data-table table table-hover table-striped table-vcenter">
 			<thead>
@@ -150,6 +158,83 @@ templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []st
 			</tbody>
 		</table>
 	</div>
+	@paginationNav(pagination)
+}
+
+templ paginationNav(pagination Pagination) {
+	if pagination.TotalPages > 1 && pagination.Href != nil {
+		<div class="card-footer">
+			<nav aria-label="Pagination">
+				<ul class="justify-content-center mb-0 pagination">
+					@paginationControl(pagination, 1, "ti-chevrons-left", "First page", pagination.Page > 1)
+					@paginationControl(pagination, pagination.Page-1, "ti-chevron-left", "Previous page", pagination.Page > 1)
+					for _, pageNumber := range paginationPages(pagination.Page, pagination.TotalPages) {
+						@paginationPage(pagination, pageNumber)
+					}
+					@paginationControl(pagination, pagination.Page+1, "ti-chevron-right", "Next page", pagination.Page < pagination.TotalPages)
+					@paginationControl(pagination, pagination.TotalPages, "ti-chevrons-right", "Last page", pagination.Page < pagination.TotalPages)
+				</ul>
+			</nav>
+		</div>
+	}
+}
+
+func paginationPages(page, totalPages int) []int {
+	if totalPages <= 5 {
+		pages := make([]int, totalPages)
+		for index := range pages {
+			pages[index] = index + 1
+		}
+		return pages
+	}
+	start := max(1, min(page-2, totalPages-4))
+	pages := make([]int, 5)
+	for index := range pages {
+		pages[index] = start + index
+	}
+	return pages
+}
+
+templ paginationControl(pagination Pagination, page int, icon, label string, enabled bool) {
+	if enabled {
+		<li class="page-item">
+			<a
+				aria-label={ label }
+				class="page-link"
+				data-swr="true"
+				href={ pagination.Href(page) }
+			>
+				<i aria-hidden="true" class={ "ti", icon }></i>
+			</a>
+		</li>
+	} else {
+		<li class="page-item disabled">
+			<span aria-disabled="true" class="page-link">
+				<i aria-hidden="true" class={ "ti", icon }></i>
+			</span>
+		</li>
+	}
+}
+
+templ paginationPage(pagination Pagination, page int) {
+	if page == pagination.Page {
+		<li class="active page-item">
+			<a aria-current="page" class="page-link" href={ pagination.Href(page) }>
+				{ strconv.Itoa(page) }
+			</a>
+		</li>
+	} else {
+		<li class="page-item">
+			<a
+				aria-label={ "Page " + strconv.Itoa(page) }
+				class="page-link"
+				data-swr="true"
+				href={ pagination.Href(page) }
+			>
+				{ strconv.Itoa(page) }
+			</a>
+		</li>
+	}
 }
 
 templ cells(row []dataTableCell, columns []dataTableColumn) {
