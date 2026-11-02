@@ -9191,11 +9191,13 @@
 	},
 	{
 		"access": { "conditions": [], "type": "standard" },
-		"interactions": {},
+		"interactions": {
+			"content": { "code": "seasonal_altar", "type": "seasonal_altar" }
+		},
 		"layer": "overworld",
 		"map_id": 889,
 		"name": "Forest",
-		"skin": "forest_road3",
+		"skin": "forest_seasonalaltar",
 		"x": 2,
 		"y": 12
 	},

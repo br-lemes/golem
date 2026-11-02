@@ -6,6 +6,27 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
+func TestCalculateArtifactsXPUsesTotalIngredientQuantity(t *testing.T) {
+	ingredients := []schemas.SimpleItemSchema{
+		{Code: "ore", Quantity: 10},
+		{Code: "wood", Quantity: 5},
+	}
+
+	got := CalculateArtifactsXP(20, 20, "gearcrafting", 0, ingredients)
+	if got != 556 {
+		t.Fatalf("CalculateArtifactsXP() = %d, want 556", got)
+	}
+}
+
+func TestCalculateArtifactsXPKeepsRefiningMultiplier(t *testing.T) {
+	ingredients := []schemas.SimpleItemSchema{{Code: "ore", Quantity: 100}}
+
+	got := CalculateArtifactsXP(20, 20, "mining", 0, ingredients)
+	if got != 50 {
+		t.Fatalf("CalculateArtifactsXP() = %d, want 50", got)
+	}
+}
+
 func TestCostCraftingCharacter(t *testing.T) {
 	characters := []schemas.CharacterSchema{
 		{Name: "higher", GearcraftingLevel: 30, GearcraftingXp: 10},

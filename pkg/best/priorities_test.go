@@ -18,19 +18,19 @@ func TestGatheringPriorities(t *testing.T) {
 			name:       "near resource level",
 			level:      5,
 			resource:   schemas.ResourceSchema{Level: 10, Skill: "mining"},
-			priorities: []string{"mining", "wisdom", "prospecting"},
+			priorities: []string{"mining_gathering", "wisdom", "prospecting"},
 		},
 		{
 			name:       "far above resource level",
 			level:      25,
 			resource:   schemas.ResourceSchema{Level: 10, Skill: "mining"},
-			priorities: []string{"mining", "prospecting"},
+			priorities: []string{"mining_gathering", "prospecting"},
 		},
 		{
 			name:       "maximum level near resource level",
 			level:      50,
 			resource:   schemas.ResourceSchema{Level: 45, Skill: "mining"},
-			priorities: []string{"mining", "prospecting"},
+			priorities: []string{"mining_gathering", "prospecting"},
 		},
 		{
 			name: "single drop resource with XP",
@@ -39,7 +39,7 @@ func TestGatheringPriorities(t *testing.T) {
 				Skill: "mining",
 				Drops: []schemas.DropRateSchema{{Code: "iron_ore"}},
 			},
-			priorities: []string{"wisdom"},
+			priorities: []string{"mining_gathering", "wisdom"},
 		},
 		{
 			name:  "single drop resource without XP",
@@ -49,6 +49,7 @@ func TestGatheringPriorities(t *testing.T) {
 				Skill: "mining",
 				Drops: []schemas.DropRateSchema{{Code: "iron_ore"}},
 			},
+			priorities: []string{"mining_gathering"},
 		},
 		{
 			name:  "event near resource level",
@@ -58,7 +59,7 @@ func TestGatheringPriorities(t *testing.T) {
 				Level: 10,
 				Skill: "mining",
 			},
-			priorities: []string{"mining", "prospecting", "wisdom"},
+			priorities: []string{"mining_gathering", "prospecting", "wisdom"},
 		},
 		{
 			name:  "event far above resource level",
@@ -68,7 +69,7 @@ func TestGatheringPriorities(t *testing.T) {
 				Level: 10,
 				Skill: "mining",
 			},
-			priorities: []string{"mining", "prospecting"},
+			priorities: []string{"mining_gathering", "prospecting"},
 		},
 	}
 	for _, test := range tests {
@@ -94,22 +95,25 @@ func TestCraftingPriorities(t *testing.T) {
 			name:       "near item level",
 			level:      5,
 			itemLevel:  10,
-			priorities: []string{"wisdom"},
+			priorities: []string{"mining_crafting", "wisdom"},
 		},
 		{
-			name:      "far above item level",
-			level:     25,
-			itemLevel: 10,
+			name:       "far above item level",
+			level:      25,
+			itemLevel:  10,
+			priorities: []string{"mining_crafting"},
 		},
 		{
-			name:      "maximum level near item level",
-			level:     50,
-			itemLevel: 45,
+			name:       "maximum level near item level",
+			level:      50,
+			itemLevel:  45,
+			priorities: []string{"mining_crafting"},
 		},
 		{
-			name:      "missing skill level",
-			level:     0,
-			itemLevel: 1,
+			name:       "missing skill level",
+			level:      0,
+			itemLevel:  1,
+			priorities: []string{"mining_crafting"},
 		},
 	}
 	for _, test := range tests {
@@ -128,11 +132,20 @@ func TestCraftingPriorities(t *testing.T) {
 }
 
 func TestNormalizePriorities(t *testing.T) {
-	got, err := NormalizePriorities([]string{"wisdom", "mining", "prospecting"})
+	got, err := NormalizePriorities([]string{
+		"wisdom",
+		"mining_gathering",
+		"prospecting",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"mining", "wisdom", "prospecting", "inventory_space"}
+	want := []string{
+		"mining_gathering",
+		"wisdom",
+		"prospecting",
+		"inventory_space",
+	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("priorities = %#v, want %#v", got, want)
 	}
@@ -176,8 +189,31 @@ func TestNormalizePrioritiesRejectsDuplicateEffect(t *testing.T) {
 }
 
 func TestNormalizePrioritiesRejectsMultipleGatheringSkills(t *testing.T) {
-	_, err := NormalizePriorities([]string{"mining", "woodcutting"})
+	_, err := NormalizePriorities([]string{
+		"mining_gathering",
+		"woodcutting_gathering",
+	})
 	if err == nil {
 		t.Fatal("expected multiple gathering skills error")
+	}
+}
+
+func TestNormalizePrioritiesRejectsMultipleCraftingSkills(t *testing.T) {
+	_, err := NormalizePriorities([]string{
+		"mining_crafting",
+		"woodcutting_crafting",
+	})
+	if err == nil {
+		t.Fatal("expected multiple crafting skills error")
+	}
+}
+
+func TestNormalizePrioritiesRejectsGatheringAndCrafting(t *testing.T) {
+	_, err := NormalizePriorities([]string{
+		"mining_gathering",
+		"mining_crafting",
+	})
+	if err == nil {
+		t.Fatal("expected gathering and crafting conflict error")
 	}
 }

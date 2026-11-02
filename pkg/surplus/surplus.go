@@ -25,9 +25,10 @@ func toolSkill(item schemas.ItemSchema) string {
 		return ""
 	}
 	for _, effect := range *item.Effects {
-		switch effect.Code {
-		case "woodcutting", "mining", "fishing", "alchemy":
-			return effect.Code
+		for _, operation := range []string{"_gathering", "_crafting"} {
+			if strings.HasSuffix(effect.Code, operation) {
+				return strings.TrimSuffix(effect.Code, operation)
+			}
 		}
 	}
 	//+gocover:ignore:block cannot occur in real catalog

@@ -14,12 +14,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 20
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 1,
@@ -46,12 +40,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 1,
@@ -92,10 +80,10 @@
 				"rate": 200
 			},
 			{
-				"code": "event_ticket",
+				"code": "diamond_stone",
 				"max_quantity": 1,
 				"min_quantity": 1,
-				"rate": 200
+				"rate": 1500
 			}
 		],
 		"level": 1,
@@ -110,12 +98,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 1,
@@ -156,10 +138,10 @@
 				"rate": 200
 			},
 			{
-				"code": "event_ticket",
+				"code": "diamond_stone",
 				"max_quantity": 1,
 				"min_quantity": 1,
-				"rate": 200
+				"rate": 1500
 			}
 		],
 		"level": 10,
@@ -175,13 +157,7 @@
 				"min_quantity": 1,
 				"rate": 1
 			},
-			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
-			}
+			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
 		],
 		"level": 10,
 		"name": "Spruce Tree",
@@ -213,12 +189,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 10,
@@ -254,10 +224,10 @@
 				"rate": 200
 			},
 			{
-				"code": "event_ticket",
+				"code": "diamond_stone",
 				"max_quantity": 1,
 				"min_quantity": 1,
-				"rate": 200
+				"rate": 1500
 			}
 		],
 		"level": 20,
@@ -284,12 +254,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 300
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 20,
@@ -305,13 +269,7 @@
 				"min_quantity": 1,
 				"rate": 1
 			},
-			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
-			}
+			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
 		],
 		"level": 20,
 		"name": "Birch Tree",
@@ -325,12 +283,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 20,
@@ -352,12 +304,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 300
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 30,
@@ -398,10 +344,10 @@
 				"rate": 100
 			},
 			{
-				"code": "event_ticket",
+				"code": "diamond_stone",
 				"max_quantity": 1,
 				"min_quantity": 1,
-				"rate": 200
+				"rate": 1250
 			}
 		],
 		"level": 30,
@@ -417,13 +363,7 @@
 				"min_quantity": 1,
 				"rate": 1
 			},
-			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 },
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
-			}
+			{ "code": "sap", "max_quantity": 1, "min_quantity": 1, "rate": 10 }
 		],
 		"level": 30,
 		"name": "Dead Tree",
@@ -443,12 +383,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 10
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 35,
@@ -469,12 +403,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 35,
@@ -501,12 +429,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 40,
@@ -521,12 +443,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 40,
@@ -567,10 +483,10 @@
 				"rate": 100
 			},
 			{
-				"code": "event_ticket",
+				"code": "diamond_stone",
 				"max_quantity": 1,
 				"min_quantity": 1,
-				"rate": 200
+				"rate": 1250
 			}
 		],
 		"level": 40,
@@ -591,12 +507,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 10
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 40,
@@ -611,12 +521,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 40,
@@ -639,10 +543,10 @@
 				"rate": 200
 			},
 			{
-				"code": "event_ticket",
+				"code": "diamond_stone",
 				"max_quantity": 1,
 				"min_quantity": 1,
-				"rate": 200
+				"rate": 1000
 			}
 		],
 		"level": 50,
@@ -663,12 +567,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 20
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 50,
@@ -683,12 +581,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 50,
@@ -709,12 +601,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
 			}
 		],
 		"level": 50,
@@ -728,13 +614,7 @@
 				"code": "lava_fish",
 				"max_quantity": 1,
 				"min_quantity": 1,
-				"rate": 100
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 200
+				"rate": 1
 			}
 		],
 		"level": 50,

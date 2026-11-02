@@ -246,7 +246,7 @@ func TestExplainComparisonMarksBetterNegativeCooldown(t *testing.T) {
 	if len(result.ComparedTo) == 0 {
 		t.Fatal("Explain() returned no comparisons")
 	}
-	got := result.ComparedTo[0].Effects["woodcutting"]
+	got := result.ComparedTo[0].Effects["woodcutting_gathering"]
 	if got != "-20 < -10 (better)" {
 		t.Fatalf("woodcutting comparison = %q, want -20 < -10 (better)", got)
 	}

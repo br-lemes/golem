@@ -56,7 +56,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -116,7 +115,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -128,7 +126,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -140,7 +137,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -152,7 +148,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -164,7 +159,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -176,7 +170,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -236,7 +229,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -272,7 +264,6 @@
 			"gold": 200,
 			"items": [{ "code": "tasks_coin", "quantity": 3 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -284,7 +275,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -296,7 +286,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -308,7 +297,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -320,7 +308,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -368,7 +355,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -416,7 +402,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -440,7 +425,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -452,7 +436,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -464,7 +447,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -476,7 +458,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -488,7 +469,6 @@
 			"gold": 300,
 			"items": [{ "code": "tasks_coin", "quantity": 4 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -560,7 +540,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -584,7 +563,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -596,7 +574,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -608,7 +585,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -644,7 +620,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -680,7 +655,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -692,7 +666,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -740,7 +713,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -776,7 +748,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -824,7 +795,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -836,7 +806,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -848,7 +817,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -860,7 +828,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -908,7 +875,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -920,7 +886,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -980,7 +945,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -992,7 +956,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{
@@ -1004,7 +967,6 @@
 			"gold": 500,
 			"items": [{ "code": "tasks_coin", "quantity": 5 }]
 		},
-		"skill": null,
 		"type": "monsters"
 	},
 	{

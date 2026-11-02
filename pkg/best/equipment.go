@@ -46,7 +46,7 @@ func findEquipment(d deps, character schemas.CharacterSchema, options EquipmentO
 		return nil, err
 	}
 	skill := ""
-	if len(priorities) > 0 && slices.Contains(catalog.Enums()["GatheringSkill"], priorities[0]) {
+	if len(priorities) > 0 && isSkillEffect(priorities[0]) {
 		skill = priorities[0]
 	}
 	weights := make(map[string]int, len(priorities))

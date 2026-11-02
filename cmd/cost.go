@@ -151,7 +151,7 @@ Arguments:
 			}
 		}
 
-		xpPerCraft := CalculateArtifactsXP(*item.Craft.Level, skillLevel, skill, character.Wisdom)
+		xpPerCraft := CalculateArtifactsXP(*item.Craft.Level, skillLevel, skill, character.Wisdom, *item.Craft.Items)
 		totalXpGained := actions * xpPerCraft
 
 		output := map[string]interface{}{
@@ -210,7 +210,7 @@ func costIneligibleReason(character schemas.CharacterSchema, skill string, requi
 	return fmt.Sprintf("character %s has %s level %d; requires %d", character.Name, skill, level, requiredLevel)
 }
 
-func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom int) int {
+func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom int, ingredients []schemas.SimpleItemSchema) int {
 	var baseXP float64
 	var coefficient float64
 
@@ -247,13 +247,15 @@ func CalculateArtifactsXP(itemLevel int, playerLevel int, skill string, wisdom i
 	}
 
 	var skillMultiplier float64
-	skillMultiplier = 1.0
-
 	switch skill {
-	case "fishing", "mining", "woodcutting":
+	case "mining", "woodcutting":
 		skillMultiplier = 0.1
-	case "cooking":
-		skillMultiplier = 0.5
+	default:
+		ingredientCount := 0
+		for _, ingredient := range ingredients {
+			ingredientCount += ingredient.Quantity
+		}
+		skillMultiplier = min(1.55, max(0.50, 0.2832+0.2171*math.Sqrt(float64(max(1, ingredientCount)))))
 	}
 
 	var levelPenalty float64

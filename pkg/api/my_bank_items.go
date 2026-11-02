@@ -8,7 +8,7 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-const MyBankItemsSize = 100
+const MyBankItemsSize = 1000
 
 func MyBankItems() ([]schemas.SimpleItemSchema, error) {
 	//+gocover:ignore:block public compatibility wrapper
@@ -27,7 +27,7 @@ func (c *Client) MyBankItems() ([]schemas.SimpleItemSchema, error) {
 		if err != nil {
 			return nil, err
 		}
-		var data schemas.DataPageSimpleItemSchema
+		var data schemas.BankDataPageSimpleItemSchema
 		err = json.Unmarshal(resp, &data)
 		if err != nil {
 			return nil, err

@@ -92,8 +92,8 @@ func TestDominatesEquipmentUsesEffectDominance(t *testing.T) {
 }
 
 func TestDominatesEquipmentUsesToolValue(t *testing.T) {
-	superior := itemWithEffects("superior", "mining", 5)
-	inferior := itemWithEffects("inferior", "mining", 10)
+	superior := itemWithEffects("superior", "mining_gathering", 5)
+	inferior := itemWithEffects("inferior", "mining_gathering", 10)
 	superior.Subtype = "tool"
 	inferior.Subtype = "tool"
 	superior.Type = "tool"
@@ -103,9 +103,45 @@ func TestDominatesEquipmentUsesToolValue(t *testing.T) {
 	}
 }
 
+func TestDominatesEquipmentUsesCraftingToolValue(t *testing.T) {
+	superior := itemWithEffects("superior", "cooking_crafting", -20)
+	inferior := itemWithEffects("inferior", "cooking_crafting", -10)
+	superior.Subtype = "tool"
+	inferior.Subtype = "tool"
+	superior.Type = "tool"
+	inferior.Type = "tool"
+	if !DominatesEquipment(superior, inferior) {
+		t.Fatal("DominatesEquipment() = false for superior crafting tool, want true")
+	}
+}
+
+func TestDominatesEquipmentComparesBothToolSkillEffects(t *testing.T) {
+	superior := itemWithEffects("superior", "attack_air", 5, "alchemy_gathering", -20, "alchemy_crafting", -20)
+	inferior := itemWithEffects("inferior", "attack_air", 100, "alchemy_gathering", -10, "alchemy_crafting", -10)
+	superior.Subtype = "tool"
+	inferior.Subtype = "tool"
+	superior.Type = "tool"
+	inferior.Type = "tool"
+	if !DominatesEquipment(superior, inferior) {
+		t.Fatal("DominatesEquipment() = false for superior dual-skill tool, want true")
+	}
+}
+
+func TestDominatesEquipmentRejectsToolSkillTradeoff(t *testing.T) {
+	superior := itemWithEffects("superior", "alchemy_gathering", -20, "alchemy_crafting", -10)
+	inferior := itemWithEffects("inferior", "alchemy_gathering", -10, "alchemy_crafting", -20)
+	superior.Subtype = "tool"
+	inferior.Subtype = "tool"
+	superior.Type = "tool"
+	inferior.Type = "tool"
+	if DominatesEquipment(superior, inferior) || DominatesEquipment(inferior, superior) {
+		t.Fatal("DominatesEquipment() = true for tool skill tradeoff, want false")
+	}
+}
+
 func TestDominatesHandlesCooldownReduction(t *testing.T) {
-	superior := itemWithEffects("superior", "woodcutting", -20)
-	inferior := itemWithEffects("inferior", "woodcutting", -10)
+	superior := itemWithEffects("superior", "woodcutting_gathering", -20)
+	inferior := itemWithEffects("inferior", "woodcutting_gathering", -10)
 
 	if !Dominates(superior, inferior) {
 		t.Fatal("Dominates() = false, want true")
@@ -116,7 +152,7 @@ func TestDominatesHandlesCooldownReduction(t *testing.T) {
 }
 
 func TestDominatesRejectsWorseEffectOnlyOnSuperior(t *testing.T) {
-	superior := itemWithEffects("superior", "alchemy", 1)
+	superior := itemWithEffects("superior", "alchemy_gathering", 1)
 	inferior := itemWithEffects("inferior")
 
 	if Dominates(superior, inferior) {

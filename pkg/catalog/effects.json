@@ -1,145 +1,5 @@
 [
 	{
-		"code": "poison",
-		"description": "At the start of its first turn, applies a {value} poison to its opponent. Loses {value} HP per turn.",
-		"name": "Poison",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
-		"code": "boost_hp",
-		"description": "Add {value} HP at the start of the fight and for the rest of the fight.",
-		"name": "Boost HP",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "boost_dmg_fire",
-		"description": "Add {value}% fire damage at the start of the fight and for the rest of the fight.",
-		"name": "Boost Damage Fire",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "boost_dmg_water",
-		"description": "Add {value}% water damage at the start of the fight and for the rest of the fight.",
-		"name": "Boost Damage Water",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "boost_dmg_air",
-		"description": "Add {value}% air damage at the start of the fight and for the rest of the fight.",
-		"name": "Boost Damage Air",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "boost_dmg_earth",
-		"description": "Add {value}% earth damage at the start of the fight and for the rest of the fight.",
-		"name": "Boost Damage Earth",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "restore",
-		"description": "Restores {value} HP at the start of the turn if the player has lost more than 50% of their health points.",
-		"name": "Restore",
-		"subtype": "heal",
-		"type": "combat"
-	},
-	{
-		"code": "healing",
-		"description": "Every 3 played turns, restores {value}% of HP at the start of the turn.\n",
-		"name": "healing",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
-		"code": "antipoison",
-		"description": "At the beginning of the turn, if the character has at least one poison on him, removes {value} poison damage.",
-		"name": "Antipoison",
-		"subtype": "other",
-		"type": "combat"
-	},
-	{
-		"code": "boost_res_air",
-		"description": "Gives {value}% air resistance at the start of fight.",
-		"name": "Boost Resistance Air",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "lifesteal",
-		"description": "Restores {value}% of the total attack of all elements in HP after a critical strike.",
-		"name": "Lifesteal",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
-		"code": "reconstitution",
-		"description": "Every {value} played turns, regains all HP.",
-		"name": "Reconstitution",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
-		"code": "burn",
-		"description": "On his first turn, apply a burn effect of {value}% of your attack of all elements. The damage is applied each turn and decreases by 10% each time.",
-		"name": "Burn",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
-		"code": "boost_res_water",
-		"description": "Gives {value}% water resistance at the start of fight.",
-		"name": "Boost Resistance Water",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "boost_res_earth",
-		"description": "Gives {value}% earth resistance at the start of fight.",
-		"name": "Boost Resistance Earth",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "corrupted",
-		"description": "After every time the bearer of this effect is attacked, their resistance to the attack's element is reduced by {value}%, and can go negative.",
-		"name": "Corrupted",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
-		"code": "boost_res_fire",
-		"description": "Gives {value}% fire resistance at the start of fight.",
-		"name": "Boost Resistance Fire",
-		"subtype": "buff",
-		"type": "combat"
-	},
-	{
-		"code": "guard",
-		"description": "If one or more allies have less than 50% of their HP, protects the ally with the lowest HP percentage, redirecting {value} % of their damage to this character until the start of my next turn. Activates a maximum of 3 times per combat.",
-		"name": "Guard",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
-		"code": "shell",
-		"description": "When they drop below 40% of their HP, they gain {value} % resistance to all elements for 3 turns. Activates once per combat. This effect is only active during boss or raid boss fights.",
-		"name": "Shell",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
-		"code": "frenzy",
-		"description": "Each time they land a critical hit, they give {value}% damage to themselves and their allies until the end of their next turn.",
-		"name": "Frenzy",
-		"subtype": "special",
-		"type": "combat"
-	},
-	{
 		"code": "void_drain",
 		"description": "Every 4 turns, Drains {value}% HP from each enemy to heal themselves.",
 		"name": "Void Drain",
@@ -165,6 +25,90 @@
 		"description": "Every 2 played turns, they heal all allies for {value}% of their maximum HP. This effect does not heal the caster.",
 		"name": "Healing Aura",
 		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "burn",
+		"description": "On his first turn, apply a burn effect of {value}% of your attack of all elements. The damage is applied each turn and decreases by 10% each time.",
+		"name": "Burn",
+		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "reconstitution",
+		"description": "Every {value} played turns, regains all HP.",
+		"name": "Reconstitution",
+		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "lifesteal",
+		"description": "Restores {value}% of the total attack of all elements in HP after a critical strike.",
+		"name": "Lifesteal",
+		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "poison",
+		"description": "At the start of its first turn, applies a {value} poison to its opponent. Loses {value} HP per turn.",
+		"name": "Poison",
+		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "antipoison",
+		"description": "At the beginning of the turn, if the character has at least one poison on him, removes {value} poison damage.",
+		"name": "Antipoison",
+		"subtype": "other",
+		"type": "combat"
+	},
+	{
+		"code": "healing",
+		"description": "Every 3 played turns, restores {value}% of HP at the start of the turn.\n",
+		"name": "healing",
+		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "restore",
+		"description": "Restores {value} HP at the start of the turn if the player has lost more than 50% of their health points.",
+		"name": "Restore",
+		"subtype": "heal",
+		"type": "combat"
+	},
+	{
+		"code": "boost_dmg_earth",
+		"description": "Add {value}% earth damage at the start of the fight and for the rest of the fight.",
+		"name": "Boost Damage Earth",
+		"subtype": "buff",
+		"type": "combat"
+	},
+	{
+		"code": "boost_dmg_air",
+		"description": "Add {value}% air damage at the start of the fight and for the rest of the fight.",
+		"name": "Boost Damage Air",
+		"subtype": "buff",
+		"type": "combat"
+	},
+	{
+		"code": "boost_dmg_water",
+		"description": "Add {value}% water damage at the start of the fight and for the rest of the fight.",
+		"name": "Boost Damage Water",
+		"subtype": "buff",
+		"type": "combat"
+	},
+	{
+		"code": "boost_dmg_fire",
+		"description": "Add {value}% fire damage at the start of the fight and for the rest of the fight.",
+		"name": "Boost Damage Fire",
+		"subtype": "buff",
+		"type": "combat"
+	},
+	{
+		"code": "boost_hp",
+		"description": "Add {value} HP at the start of the fight and for the rest of the fight.",
+		"name": "Boost HP",
+		"subtype": "buff",
 		"type": "combat"
 	},
 	{
@@ -217,11 +161,60 @@
 		"type": "combat"
 	},
 	{
-		"code": "teleport",
-		"description": "Teleports to map ID {value} when the item is used.",
-		"name": "Teleport",
-		"subtype": "teleport",
-		"type": "consumable"
+		"code": "frenzy",
+		"description": "Each time they land a critical hit, they give {value}% damage to themselves and their allies until the end of their next turn.",
+		"name": "Frenzy",
+		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "shell",
+		"description": "When they drop below 40% of their HP, they gain {value} % resistance to all elements for 3 turns. Activates once per combat. This effect is only active during boss or raid boss fights.",
+		"name": "Shell",
+		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "boost_res_air",
+		"description": "Gives {value}% air resistance at the start of fight.",
+		"name": "Boost Resistance Air",
+		"subtype": "buff",
+		"type": "combat"
+	},
+	{
+		"code": "boost_res_water",
+		"description": "Gives {value}% water resistance at the start of fight.",
+		"name": "Boost Resistance Water",
+		"subtype": "buff",
+		"type": "combat"
+	},
+	{
+		"code": "boost_res_earth",
+		"description": "Gives {value}% earth resistance at the start of fight.",
+		"name": "Boost Resistance Earth",
+		"subtype": "buff",
+		"type": "combat"
+	},
+	{
+		"code": "boost_res_fire",
+		"description": "Gives {value}% fire resistance at the start of fight.",
+		"name": "Boost Resistance Fire",
+		"subtype": "buff",
+		"type": "combat"
+	},
+	{
+		"code": "corrupted",
+		"description": "After every time the bearer of this effect is attacked, their resistance to the attack's element is reduced by {value}%, and can go negative.",
+		"name": "Corrupted",
+		"subtype": "special",
+		"type": "combat"
+	},
+	{
+		"code": "guard",
+		"description": "If one or more allies have less than 50% of their HP, protects the ally with the lowest HP percentage, redirecting {value} % of their damage to this character until the start of my next turn. Activates a maximum of 3 times per combat.",
+		"name": "Guard",
+		"subtype": "special",
+		"type": "combat"
 	},
 	{
 		"code": "gold",
@@ -245,9 +238,16 @@
 		"type": "consumable"
 	},
 	{
-		"code": "initiative",
-		"description": "Adds {value} Initiative to its stats when equipped.",
-		"name": "Initiative",
+		"code": "teleport",
+		"description": "Teleports to map ID {value} when the item is used.",
+		"name": "Teleport",
+		"subtype": "teleport",
+		"type": "consumable"
+	},
+	{
+		"code": "hp",
+		"description": "Adds {value} HP to its stats when equipped.",
+		"name": "Hit points",
 		"subtype": "stat",
 		"type": "equipment"
 	},
@@ -259,16 +259,58 @@
 		"type": "equipment"
 	},
 	{
-		"code": "fishing",
-		"description": "Reduces cooldown by {value}% when a character is fishing.",
-		"name": "Fishing",
-		"subtype": "gathering",
+		"code": "cooking_crafting",
+		"description": "Reduces total cooking crafting time by {value}%.",
+		"name": "Cooking Crafting",
+		"subtype": "other",
 		"type": "equipment"
 	},
 	{
-		"code": "res_air",
-		"description": "Adds {value}% Air Res to its stats when equipped.",
-		"name": "Air Resistance",
+		"code": "alchemy_crafting",
+		"description": "Reduces total alchemy crafting time by {value}%.",
+		"name": "Alchemy Crafting",
+		"subtype": "other",
+		"type": "equipment"
+	},
+	{
+		"code": "weaponcrafting_crafting",
+		"description": "Reduces total weaponcrafting crafting time by {value}%.",
+		"name": "Weaponcrafting Crafting",
+		"subtype": "other",
+		"type": "equipment"
+	},
+	{
+		"code": "gearcrafting_crafting",
+		"description": "Reduces total gearcrafting crafting time by {value}%.",
+		"name": "Gearcrafting Crafting",
+		"subtype": "other",
+		"type": "equipment"
+	},
+	{
+		"code": "jewelrycrafting_crafting",
+		"description": "Reduces total jewelrycrafting crafting time by {value}%.",
+		"name": "Jewelrycrafting Crafting",
+		"subtype": "other",
+		"type": "equipment"
+	},
+	{
+		"code": "woodcutting_crafting",
+		"description": "Reduces total woodcutting crafting time by {value}%.",
+		"name": "Woodcutting Crafting",
+		"subtype": "other",
+		"type": "equipment"
+	},
+	{
+		"code": "mining_crafting",
+		"description": "Reduces total mining crafting time by {value}%.",
+		"name": "Mining Crafting",
+		"subtype": "other",
+		"type": "equipment"
+	},
+	{
+		"code": "res_earth",
+		"description": "Adds {value}% Earth Res to its stats when equipped.",
+		"name": "Earth Resistance",
 		"subtype": "stat",
 		"type": "equipment"
 	},
@@ -343,16 +385,16 @@
 		"type": "equipment"
 	},
 	{
-		"code": "haste",
-		"description": "Adds {value} Haste to its stats when equipped. The haste reduces the cooldown of a fight. ",
-		"name": "Haste",
+		"code": "res_air",
+		"description": "Adds {value}% Air Res to its stats when equipped.",
+		"name": "Air Resistance",
 		"subtype": "stat",
 		"type": "equipment"
 	},
 	{
-		"code": "res_earth",
-		"description": "Adds {value}% Earth Res to its stats when equipped.",
-		"name": "Earth Resistance",
+		"code": "initiative",
+		"description": "Adds {value} Initiative to its stats when equipped.",
+		"name": "Initiative",
 		"subtype": "stat",
 		"type": "equipment"
 	},
@@ -378,9 +420,30 @@
 		"type": "equipment"
 	},
 	{
-		"code": "woodcutting",
+		"code": "woodcutting_gathering",
 		"description": "Reduces cooldown by {value}% when a character logs a tree.",
-		"name": "Woodcutting",
+		"name": "Woodcutting Gathering",
+		"subtype": "gathering",
+		"type": "equipment"
+	},
+	{
+		"code": "fishing_gathering",
+		"description": "Reduces cooldown by {value}% when a character is fishing.",
+		"name": "Fishing Gathering",
+		"subtype": "gathering",
+		"type": "equipment"
+	},
+	{
+		"code": "mining_gathering",
+		"description": "Reduces cooldown by {value}% when a character mines a resource.",
+		"name": "Mining Gathering",
+		"subtype": "gathering",
+		"type": "equipment"
+	},
+	{
+		"code": "alchemy_gathering",
+		"description": "Reduces cooldown by {value}% when a character harvest a plant.",
+		"name": "Alchemy Gathering",
 		"subtype": "gathering",
 		"type": "equipment"
 	},
@@ -392,30 +455,16 @@
 		"type": "equipment"
 	},
 	{
-		"code": "mining",
-		"description": "Reduces cooldown by {value}% when a character mines a resource.",
-		"name": "Mining",
-		"subtype": "gathering",
-		"type": "equipment"
-	},
-	{
-		"code": "alchemy",
-		"description": "Reduces cooldown by {value}% when a character harvest a plant.",
-		"name": "Alchemy",
-		"subtype": "gathering",
-		"type": "equipment"
-	},
-	{
-		"code": "hp",
-		"description": "Adds {value} HP to its stats when equipped.",
-		"name": "Hit points",
+		"code": "inventory_space",
+		"description": "Adds {value} to the maximum number of items in the inventory when equipped.",
+		"name": "Inventory Space",
 		"subtype": "stat",
 		"type": "equipment"
 	},
 	{
-		"code": "inventory_space",
-		"description": "Adds {value} to the maximum number of items in the inventory when equipped.",
-		"name": "Inventory Space",
+		"code": "haste",
+		"description": "Adds {value} Haste to its stats when equipped. The haste reduces the cooldown of a fight. ",
+		"name": "Haste",
 		"subtype": "stat",
 		"type": "equipment"
 	}

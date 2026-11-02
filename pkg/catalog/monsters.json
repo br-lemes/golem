@@ -25,12 +25,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 1000
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -65,12 +59,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -105,12 +93,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -134,18 +116,7 @@
 		"code": "sheep",
 		"critical_strike": 0,
 		"drops": [
-			{
-				"code": "wool",
-				"max_quantity": 2,
-				"min_quantity": 1,
-				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
-			}
+			{ "code": "wool", "max_quantity": 2, "min_quantity": 1, "rate": 12 }
 		],
 		"effects": [],
 		"hp": 120,
@@ -179,12 +150,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -219,12 +184,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -265,12 +224,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 8
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -305,12 +258,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 200
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -351,12 +298,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 200
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -391,12 +332,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -425,12 +360,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -483,12 +412,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -529,12 +452,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 50
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -569,12 +486,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 2
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -615,12 +526,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 200
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -661,12 +566,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 75
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -707,12 +606,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -759,12 +652,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 40
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -811,12 +698,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 20
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -863,12 +744,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 10
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -909,12 +784,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 2
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -943,12 +812,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 6
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -989,12 +852,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 50
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1041,12 +898,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 20
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -1087,12 +938,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 50
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1133,12 +978,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -1173,12 +1012,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1219,12 +1052,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 600
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1271,12 +1098,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 40
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -1311,12 +1132,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 20
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -1345,12 +1160,6 @@
 				"max_quantity": 3,
 				"min_quantity": 1,
 				"rate": 10
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1385,12 +1194,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 20
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1437,12 +1240,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 30
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1483,12 +1280,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 50
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1529,12 +1320,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -1569,12 +1354,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1615,12 +1394,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1658,12 +1431,6 @@
 			},
 			{
 				"code": "enchanted_potion",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
-			},
-			{
-				"code": "event_ticket",
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 100
@@ -1713,12 +1480,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 30
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -1754,7 +1515,7 @@
 				"value": 50
 			}
 		],
-		"hp": 600000,
+		"hp": 1200000,
 		"initiative": 800,
 		"level": 40,
 		"max_gold": 0,
@@ -1785,12 +1546,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1837,12 +1592,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 50
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1894,12 +1643,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 6
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1946,12 +1689,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 50
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -1992,12 +1729,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2044,12 +1775,6 @@
 				"max_quantity": 3,
 				"min_quantity": 1,
 				"rate": 5
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2090,12 +1815,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 30
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2130,12 +1849,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 12
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2176,12 +1889,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 10
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2239,12 +1946,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 20
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [],
@@ -2279,12 +1980,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 10
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2325,12 +2020,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 10
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2377,12 +2066,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 40
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2429,12 +2112,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 40
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2475,12 +2152,6 @@
 				"max_quantity": 1,
 				"min_quantity": 1,
 				"rate": 200
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2521,12 +2192,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 16
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [
@@ -2573,7 +2238,7 @@
 				"value": 350
 			}
 		],
-		"hp": 1500000,
+		"hp": 2000000,
 		"initiative": 700,
 		"level": 55,
 		"max_gold": 0,
@@ -2604,12 +2269,6 @@
 				"max_quantity": 2,
 				"min_quantity": 1,
 				"rate": 5
-			},
-			{
-				"code": "event_ticket",
-				"max_quantity": 1,
-				"min_quantity": 1,
-				"rate": 100
 			}
 		],
 		"effects": [

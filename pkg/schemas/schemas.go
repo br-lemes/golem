@@ -6,6 +6,21 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+type AcceptOfferingDataSchema struct {
+	Character      CharacterSchema        `json:"character"`
+	Cooldown       CooldownSchema         `json:"cooldown"`
+	FavorExpiresAt time.Time              `json:"favor_expires_at"`
+	Offering       SeasonalOfferingSchema `json:"offering"`
+}
+
+type AcceptOfferingRequestSchema struct {
+	OfferingId string `json:"offering_id"`
+}
+
+type AcceptOfferingResponseSchema struct {
+	Data AcceptOfferingDataSchema `json:"data"`
+}
+
 type AccessSchema struct {
 	Conditions *[]ConditionSchema `json:"conditions,omitempty"`
 	Type       string             `json:"type"`
@@ -134,6 +149,14 @@ type BadgeSchema struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 	Season      *int   `json:"season,omitempty"`
+}
+
+type BankDataPageSimpleItemSchema struct {
+	Data  []SimpleItemSchema `json:"data"`
+	Page  int                `json:"page"`
+	Pages int                `json:"pages"`
+	Size  int                `json:"size"`
+	Total int                `json:"total"`
 }
 
 type BankExtensionSchema struct {
@@ -389,6 +412,21 @@ type CharacterSchema struct {
 	Y                    int                    `json:"y"`
 }
 
+type CharacterSeasonalOfferingsResponseSchema struct {
+	Data CharacterSeasonalOfferingsSchema `json:"data"`
+}
+
+type CharacterSeasonalOfferingsSchema struct {
+	ActiveFavors        []OfferingFavorSchema    `json:"active_favors"`
+	CompletedCategories []string                 `json:"completed_categories"`
+	Date                openapi_types.Date       `json:"date"`
+	ExpiresAt           time.Time                `json:"expires_at"`
+	Offerings           []SeasonalOfferingSchema `json:"offerings"`
+	SelectedOfferings   []SelectedOfferingSchema `json:"selected_offerings"`
+	Skills              []string                 `json:"skills"`
+	XpRewardPercent     *int                     `json:"xp_reward_percent,omitempty"`
+}
+
 type CharacterStatsResponseSchema struct {
 	Data CharacterStatsSchema `json:"data"`
 }
@@ -459,6 +497,22 @@ type CombatSimulationResponseSchema struct {
 	Data CombatSimulationDataSchema `json:"data"`
 }
 
+type CompleteOfferingDataSchema struct {
+	Character      CharacterSchema        `json:"character"`
+	Cooldown       CooldownSchema         `json:"cooldown"`
+	FavorExpiresAt time.Time              `json:"favor_expires_at"`
+	Offering       SeasonalOfferingSchema `json:"offering"`
+	Reward         OfferingRewardSchema   `json:"reward"`
+}
+
+type CompleteOfferingRequestSchema struct {
+	OfferingId string `json:"offering_id"`
+}
+
+type CompleteOfferingResponseSchema struct {
+	Data CompleteOfferingDataSchema `json:"data"`
+}
+
 type ConditionSchema struct {
 	Code     string `json:"code"`
 	Operator string `json:"operator"`
@@ -483,6 +537,18 @@ type CraftSchema struct {
 type CraftingSchema struct {
 	Code     string `json:"code"`
 	Quantity *int   `json:"quantity,omitempty"`
+}
+
+type DailySeasonalOfferingsResponseSchema struct {
+	Data DailySeasonalOfferingsSchema `json:"data"`
+}
+
+type DailySeasonalOfferingsSchema struct {
+	Date            openapi_types.Date       `json:"date"`
+	ExpiresAt       time.Time                `json:"expires_at"`
+	Offerings       []SeasonalOfferingSchema `json:"offerings"`
+	Skills          []string                 `json:"skills"`
+	XpRewardPercent *int                     `json:"xp_reward_percent,omitempty"`
 }
 
 type DataPageAccountAchievementSchema struct {
@@ -555,14 +621,6 @@ type DataPageRaidLeaderboardEntrySchema struct {
 	Pages int                          `json:"pages"`
 	Size  int                          `json:"size"`
 	Total int                          `json:"total"`
-}
-
-type DataPageSimpleItemSchema struct {
-	Data  []SimpleItemSchema `json:"data"`
-	Page  int                `json:"page"`
-	Pages int                `json:"pages"`
-	Size  int                `json:"size"`
-	Total int                `json:"total"`
 }
 
 type DeleteCharacterSchema struct {
@@ -1057,6 +1115,23 @@ type NpcMerchantTransactionSchema struct {
 	Transaction NpcItemTransactionSchema `json:"transaction"`
 }
 
+type OfferingFavorSchema struct {
+	DropMultiplier *float32 `json:"drop_multiplier,omitempty"`
+	TargetCode     string   `json:"target_code"`
+	TargetType     string   `json:"target_type"`
+	XpMultiplier   *float32 `json:"xp_multiplier,omitempty"`
+}
+
+type OfferingRequirementSchema struct {
+	Code     string `json:"code"`
+	Quantity int    `json:"quantity"`
+}
+
+type OfferingRewardSchema struct {
+	Category string `json:"category"`
+	Xp       int    `json:"xp"`
+}
+
 type PasswordResetConfirmSchema struct {
 	NewPassword string `json:"new_password"`
 	Token       string `json:"token"`
@@ -1349,6 +1424,28 @@ type SeasonSchema struct {
 	Number    *int                       `json:"number,omitempty"`
 	Rewards   []StatusSeasonRewardSchema `json:"rewards"`
 	StartDate *time.Time                 `json:"start_date,omitempty"`
+}
+
+type SeasonalOfferingSchema struct {
+	Category    string                    `json:"category"`
+	Favor       OfferingFavorSchema       `json:"favor"`
+	Id          string                    `json:"id"`
+	LevelMax    int                       `json:"level_max"`
+	LevelMin    int                       `json:"level_min"`
+	Requirement OfferingRequirementSchema `json:"requirement"`
+	Type        string                    `json:"type"`
+}
+
+type SelectedOfferingSchema struct {
+	AcceptedAt  time.Time                 `json:"accepted_at"`
+	Category    string                    `json:"category"`
+	CompletedAt *time.Time                `json:"completed_at,omitempty"`
+	ExpiresAt   time.Time                 `json:"expires_at"`
+	Favor       OfferingFavorSchema       `json:"favor"`
+	OfferingId  string                    `json:"offering_id"`
+	Requirement OfferingRequirementSchema `json:"requirement"`
+	RewardXp    *int                      `json:"reward_xp,omitempty"`
+	Status      string                    `json:"status"`
 }
 
 type SimpleEffectSchema struct {

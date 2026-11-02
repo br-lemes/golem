@@ -36,7 +36,7 @@ func TestFindEquipmentUsesGatheringSkillForTools(t *testing.T) {
 	character := schemas.CharacterSchema{Level: 50, MiningLevel: 9}
 	got, err := FindEquipment(character, EquipmentOptions{
 		Owned:      map[string]int{"iron_pickaxe": 1},
-		Priorities: []string{"mining"},
+		Priorities: []string{"mining_gathering"},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -145,13 +145,13 @@ func TestFetchItemsAddsInventoryToBank(t *testing.T) {
 
 func TestEvaluateItem(t *testing.T) {
 	ctx := bestCtx{
-		Skill:   "mining",
-		Weights: map[string]int{"wisdom": 100, "mining": 1},
+		Skill:   "mining_gathering",
+		Weights: map[string]int{"wisdom": 100, "mining_gathering": 1},
 	}
 	item := schemas.ItemSchema{
 		Effects: &[]schemas.SimpleEffectSchema{
 			{Code: "wisdom", Value: 2},
-			{Code: "mining", Value: 3},
+			{Code: "mining_gathering", Value: 3},
 			{Code: "unknown", Value: 100},
 		},
 	}
@@ -162,6 +162,22 @@ func TestEvaluateItem(t *testing.T) {
 	got = ctx.evaluateItem(schemas.ItemSchema{})
 	if got != 0 {
 		t.Fatalf("evaluateItem() without effects = %d, want 0", got)
+	}
+}
+
+func TestEvaluateItemInvertsCraftingSkillEffect(t *testing.T) {
+	ctx := bestCtx{
+		Skill:   "cooking_crafting",
+		Weights: map[string]int{"cooking_crafting": 1},
+	}
+	item := schemas.ItemSchema{
+		Effects: &[]schemas.SimpleEffectSchema{
+			{Code: "cooking_crafting", Value: -20},
+		},
+	}
+	got := ctx.evaluateItem(item)
+	if got != 20 {
+		t.Fatalf("evaluateItem() = %d, want 20", got)
 	}
 }
 

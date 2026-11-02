@@ -6,10 +6,14 @@ import (
 )
 
 var lowerIsBetter = map[string]bool{
-	"alchemy":     true,
-	"fishing":     true,
-	"mining":      true,
-	"woodcutting": true,
+	"alchemy_crafting":      true,
+	"alchemy_gathering":     true,
+	"cooking_crafting":      true,
+	"fishing_gathering":     true,
+	"mining_crafting":       true,
+	"mining_gathering":      true,
+	"woodcutting_crafting":  true,
+	"woodcutting_gathering": true,
 }
 
 var elementalDamageEffects = []string{
@@ -20,9 +24,10 @@ var elementalDamageEffects = []string{
 }
 
 func Dominates(superior, inferior schemas.ItemSchema) bool {
-	superiorEffects := effectValues(superior)
-	inferiorEffects := effectValues(inferior)
+	return dominatesEffects(effectValues(superior), effectValues(inferior))
+}
 
+func dominatesEffects(superiorEffects, inferiorEffects map[string]int) bool {
 	strictlyBetter := false
 	for code, inferiorValue := range inferiorEffects {
 		superiorValue := superiorEffects[code]
@@ -53,7 +58,7 @@ func CanReplace(superior, inferior schemas.ItemSchema, character schemas.Charact
 		return false
 	}
 	if superior.Subtype == "tool" {
-		return toolEffectValue(superior) < toolEffectValue(inferior)
+		return dominatesEffects(toolEffectValues(superior), toolEffectValues(inferior))
 	}
 	return Dominates(superior, inferior)
 }
@@ -63,7 +68,7 @@ func DominatesEquipment(superior, inferior schemas.ItemSchema) bool {
 		return false
 	}
 	if superior.Subtype == "tool" {
-		return toolEffectValue(superior) < toolEffectValue(inferior)
+		return dominatesEffects(toolEffectValues(superior), toolEffectValues(inferior))
 	}
 	return Dominates(superior, inferior)
 }
@@ -95,9 +100,18 @@ func compatibleItems(first, second schemas.ItemSchema) bool {
 	return first.Type == second.Type && first.Subtype == second.Subtype
 }
 
-func toolEffectValue(item schemas.ItemSchema) int {
-	skill := toolSkill(item)
-	return effectValues(item)[skill]
+func toolEffectValues(item schemas.ItemSchema) map[string]int {
+	values := map[string]int{}
+	if item.Effects == nil {
+		//+gocover:ignore:block cannot occur in real catalog
+		return values
+	}
+	for _, effect := range *item.Effects {
+		if lowerIsBetter[effect.Code] {
+			values[effect.Code] += effect.Value
+		}
+	}
+	return values
 }
 
 func CanUse(item schemas.ItemSchema, character schemas.CharacterSchema) bool {
