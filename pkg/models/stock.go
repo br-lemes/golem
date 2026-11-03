@@ -8,9 +8,10 @@ const (
 )
 
 type Stock struct {
-	Code     string    `gorm:"primaryKey" json:"code"`
-	Quantity int       `json:"quantity"`
-	Mode     StockMode `json:"mode"`
-	Enabled  bool      `json:"enabled"`
-	Discard  bool      `json:"discard"`
+	Code         string    `gorm:"primaryKey" json:"code"`
+	Quantity     int       `json:"quantity"`
+	Mode         StockMode `json:"mode"`
+	Enabled      bool      `json:"enabled"`
+	Discard      bool      `json:"discard"`
+	Replenishing bool      `json:"replenishing"`
 }

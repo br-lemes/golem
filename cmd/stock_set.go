@@ -39,9 +39,6 @@ Arguments:
 		if err != nil || quantity < 0 {
 			return fmt.Errorf("quantity must be a non-negative integer")
 		}
-		if flags.Safety && quantity == 0 {
-			return fmt.Errorf("safety quantity must be positive")
-		}
 		mode := models.StockModeExact
 		if flags.Safety {
 			mode = models.StockModeSafety

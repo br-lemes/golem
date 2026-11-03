@@ -48,6 +48,10 @@ func SetStockDiscard(code string, discard bool) error {
 	return cache.Model(&models.Stock{}).Where("code = ?", code).Update("discard", discard).Error
 }
 
+func SetStockReplenishing(code string, replenishing bool) error {
+	return cache.Model(&models.Stock{}).Where("code = ?", code).Update("replenishing", replenishing).Error
+}
+
 func DiscardStockCodes() []string {
 	var codes []string
 	result := cache.Model(&models.Stock{}).Where("discard = ? AND enabled = ? AND mode = ? AND quantity = ?", true, true, models.StockModeExact, 0).Order("code").Pluck("code", &codes)

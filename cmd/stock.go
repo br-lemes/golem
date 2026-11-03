@@ -68,7 +68,36 @@ func stockRun(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	err = stockUpdateReplenishing(stocks, quantities)
+	if err != nil {
+		return err
+	}
 	return console.Auto(stockRequirements(stocks, quantities, characters, stockTaskCodes(), reachable, args, flags.Target))
+}
+
+func stockUpdateReplenishing(stocks map[string]models.Stock, quantities map[string]int) error {
+	for code, stock := range stocks {
+		if !stock.Enabled || stock.Mode != models.StockModeSafety {
+			continue
+		}
+		target := stock.Quantity + stock.Quantity/3
+		replenishing := stock.Replenishing
+		if replenishing && quantities[code] >= target {
+			replenishing = false
+		} else if !replenishing && quantities[code] < stock.Quantity {
+			replenishing = true
+		}
+		if replenishing == stock.Replenishing {
+			continue
+		}
+		err := cache.SetStockReplenishing(code, replenishing)
+		if err != nil {
+			return err
+		}
+		stock.Replenishing = replenishing
+		stocks[code] = stock
+	}
+	return nil
 }
 
 func stockItemQuantities(bankItems []schemas.SimpleItemSchema, characters []schemas.CharacterSchema) map[string]int {
@@ -273,11 +302,15 @@ func stockDirectRequirements(stocks map[string]models.Stock, quantities map[stri
 			continue
 		}
 		threshold := stock.Quantity
-		desired := threshold + threshold/3
-		if target {
-			threshold = desired
+		desired := threshold
+		if stock.Replenishing {
+			desired += threshold / 3
 		}
-		direct[code] = stockGoal{Quantity: desired, Expand: current < threshold}
+		if target {
+			threshold = stock.Quantity + stock.Quantity/3
+			desired = threshold
+		}
+		direct[code] = stockGoal{Quantity: desired, Expand: current < desired}
 	}
 	return direct
 }

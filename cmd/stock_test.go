@@ -31,6 +31,19 @@ func TestStockGoldQuantityIncludesCharacters(t *testing.T) {
 	}
 }
 
+func TestStockRequirementsSafetyZeroHasNoDirectRequirement(t *testing.T) {
+	result := stockRequirements(map[string]models.Stock{
+		"test_wood": {
+			Code:    "test_wood",
+			Mode:    models.StockModeSafety,
+			Enabled: true,
+		},
+	}, map[string]int{"test_wood": 10}, nil, nil, nil, nil, false)
+	if len(result) != 0 {
+		t.Fatalf("stockRequirements() = %#v, want no direct requirement", result)
+	}
+}
+
 func TestStockRequirements(t *testing.T) {
 	stocks := map[string]models.Stock{
 		"test_sword": {
@@ -40,10 +53,11 @@ func TestStockRequirements(t *testing.T) {
 			Enabled:  true,
 		},
 		"test_wood": {
-			Code:     "test_wood",
-			Quantity: 100,
-			Mode:     models.StockModeSafety,
-			Enabled:  true,
+			Code:         "test_wood",
+			Quantity:     100,
+			Mode:         models.StockModeSafety,
+			Enabled:      true,
+			Replenishing: true,
 		},
 		"future_item": {
 			Code:     "future_item",
@@ -109,7 +123,14 @@ func TestStockRequirementsTarget(t *testing.T) {
 	if len(result) != 0 {
 		t.Fatalf("default stockRequirements() = %#v", result)
 	}
-	result = stockRequirements(stocks, quantities, nil, taskCodes, reachable, nil, true)
+	stocks["ash_wood"] = models.Stock{
+		Code:         "ash_wood",
+		Quantity:     100,
+		Mode:         models.StockModeSafety,
+		Enabled:      true,
+		Replenishing: true,
+	}
+	result = stockRequirements(stocks, quantities, nil, taskCodes, reachable, nil, false)
 	if result["ash_wood"].Needed != 23 {
 		t.Fatalf("target stock = %#v", result)
 	}
