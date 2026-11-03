@@ -8,8 +8,8 @@ import (
 
 func TestCalculateArtifactsXPUsesTotalIngredientQuantity(t *testing.T) {
 	ingredients := []schemas.SimpleItemSchema{
-		{Code: "ore", Quantity: 10},
-		{Code: "wood", Quantity: 5},
+		{Code: "copper_ore", Quantity: 10},
+		{Code: "ash_wood", Quantity: 5},
 	}
 
 	got := CalculateArtifactsXP(20, 20, "gearcrafting", 0, ingredients)
@@ -19,11 +19,26 @@ func TestCalculateArtifactsXPUsesTotalIngredientQuantity(t *testing.T) {
 }
 
 func TestCalculateArtifactsXPKeepsRefiningMultiplier(t *testing.T) {
-	ingredients := []schemas.SimpleItemSchema{{Code: "ore", Quantity: 100}}
+	ingredients := []schemas.SimpleItemSchema{
+		{Code: "copper_ore", Quantity: 100},
+	}
 
 	got := CalculateArtifactsXP(20, 20, "mining", 0, ingredients)
 	if got != 50 {
 		t.Fatalf("CalculateArtifactsXP() = %d, want 50", got)
+	}
+}
+
+func TestCalculateArtifactsXPStopsWhenRecipeIsMoreThanTenLevelsBehind(t *testing.T) {
+	ingredients := []schemas.SimpleItemSchema{{Code: "copper_ore", Quantity: 1}}
+
+	got := CalculateArtifactsXP(1, 11, "gearcrafting", 0, ingredients)
+	if got == 0 {
+		t.Fatalf("CalculateArtifactsXP() at ten levels behind = %d, want positive XP", got)
+	}
+	got = CalculateArtifactsXP(1, 12, "gearcrafting", 0, ingredients)
+	if got != 0 {
+		t.Fatalf("CalculateArtifactsXP() at eleven levels behind = %d, want 0", got)
 	}
 }
 
