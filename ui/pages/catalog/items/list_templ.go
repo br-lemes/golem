@@ -59,7 +59,7 @@ func init() {
 			if parsedSize, parseErr := strconv.Atoi(request.URL.Query().Get("size")); parseErr == nil {
 				size = datatable.ValidSize(parsedSize)
 			}
-			items, page := paginateItems(allItems, page, size)
+			items, page := datatable.Paginate(allItems, page, size)
 			return List(items, page, len(allItems), search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction, size, types, subtypes, craftSkills, effects), http.StatusOK
 		},
 	})
@@ -231,21 +231,6 @@ func parseLevel(value string) int {
 	return level
 }
 
-func paginateItems(items []*schemas.ItemSchema, page, size int) ([]*schemas.ItemSchema, int) {
-	if page < 1 {
-		page = 1
-	}
-	totalPages := totalPagesForItems(len(items), size)
-	page = min(page, totalPages)
-	start := (page - 1) * size
-	end := min(start+size, len(items))
-	return items[start:end], page
-}
-
-func totalPagesForItems(totalItems, size int) int {
-	return max(1, (totalItems+size-1)/size)
-}
-
 func itemQuery(page, size int, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction string) datatable.Query {
 	query := datatable.Query{Page: page, Size: size, Search: search, Sort: sortField, Direction: direction}
 	query.Filters = map[string]string{}
@@ -391,7 +376,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 		var templ_7745c5c3_Var5 templ.SafeURL
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(route.Path)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 288, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 273, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -429,7 +414,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 322, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 307, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -442,7 +427,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 323, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 308, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -485,7 +470,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 343, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 328, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -498,7 +483,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 344, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 329, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -541,7 +526,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 364, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 349, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -554,7 +539,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 365, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 350, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -597,7 +582,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 387, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 372, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
@@ -610,7 +595,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 388, Col: 15}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 373, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -688,7 +673,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(effectValueOrZero(effectValue))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 438, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 423, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
@@ -826,7 +811,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(level))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 539, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 524, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
@@ -839,7 +824,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(level))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 540, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 525, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -892,7 +877,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(level))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 563, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 548, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
@@ -905,7 +890,7 @@ func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, rec
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(level))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 564, Col: 29}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 549, Col: 29}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {

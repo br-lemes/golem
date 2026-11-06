@@ -51,7 +51,7 @@ func init() {
 			if parsedSize, parseErr := strconv.Atoi(request.URL.Query().Get("size")); parseErr == nil {
 				size = datatable.ValidSize(parsedSize)
 			}
-			items, page := paginateItems(allItems, page, size)
+			items, page := datatable.Paginate(allItems, page, size)
 			return List(items, page, len(allItems), search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction, size, types, subtypes, craftSkills, effects), http.StatusOK
 		},
 	})
@@ -221,21 +221,6 @@ func parseLevel(value string) int {
 		return 0
 	}
 	return level
-}
-
-func paginateItems(items []*schemas.ItemSchema, page, size int) ([]*schemas.ItemSchema, int) {
-	if page < 1 {
-		page = 1
-	}
-	totalPages := totalPagesForItems(len(items), size)
-	page = min(page, totalPages)
-	start := (page - 1) * size
-	end := min(start+size, len(items))
-	return items[start:end], page
-}
-
-func totalPagesForItems(totalItems, size int) int {
-	return max(1, (totalItems+size-1)/size)
 }
 
 func itemQuery(page, size int, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction string) datatable.Query {

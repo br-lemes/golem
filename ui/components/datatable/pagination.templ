@@ -1,0 +1,126 @@
+package datatable
+
+import "strconv"
+
+// Keep this value in sync with assets/src/datatable.ts.
+const DefaultSize = 10
+
+var Sizes = []int{5, 10, 25, 50, 100, 250, 500, 1000}
+
+func ValidSize(size int) int {
+	for _, allowed := range Sizes {
+		if size == allowed {
+			return size
+		}
+	}
+	return DefaultSize
+}
+
+func Paginate[T any](items []T, page, size int) ([]T, int) {
+	if page < 1 {
+		page = 1
+	}
+	if size < 1 {
+		size = DefaultSize
+	}
+	totalPages := max(1, (len(items)+size-1)/size)
+	page = min(page, totalPages)
+	start := (page - 1) * size
+	end := min(start+size, len(items))
+	return items[start:end], page
+}
+
+templ paginationNav(path string, query Query, totalItems *int) {
+	{{
+		if path == "" || totalItems == nil {
+			return
+		}
+	}}
+	{{ totalPages := max(1, (*totalItems+query.Size-1)/query.Size) }}
+	<div class="align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center">
+		if totalPages > 1 {
+			<nav aria-label="Pagination">
+				<ul class="justify-content-center mb-0 pagination">
+					@paginationControl(path, query, 1, "ti-chevrons-left", "First page", query.Page > 1)
+					@paginationControl(path, query, query.Page-1, "ti-chevron-left", "Previous page", query.Page > 1)
+					for _, pageNumber := range paginationPages(query.Page, totalPages) {
+						@paginationPage(path, query, pageNumber)
+					}
+					@paginationControl(path, query, query.Page+1, "ti-chevron-right", "Next page", query.Page < totalPages)
+					@paginationControl(path, query, totalPages, "ti-chevrons-right", "Last page", query.Page < totalPages)
+				</ul>
+			</nav>
+		}
+		<select
+			aria-label="Page size"
+			class="form-select ms-md-3 w-auto"
+			data-swr-navigate
+			name="size"
+		>
+			for _, size := range Sizes {
+				<option
+					selected?={ query.Size == size }
+					value={ strconv.Itoa(size) }
+				>{ strconv.Itoa(size) }</option>
+			}
+		</select>
+	</div>
+}
+
+func paginationPages(page, totalPages int) []int {
+	if totalPages <= 5 {
+		pages := make([]int, totalPages)
+		for index := range pages {
+			pages[index] = index + 1
+		}
+		return pages
+	}
+	start := max(1, min(page-2, totalPages-4))
+	pages := make([]int, 5)
+	for index := range pages {
+		pages[index] = start + index
+	}
+	return pages
+}
+
+templ paginationControl(path string, query Query, page int, icon, label string, enabled bool) {
+	if enabled {
+		<li class="page-item">
+			<a
+				aria-label={ label }
+				class="page-link"
+				data-swr="true"
+				href={ queryHref(path, query, page) }
+			>
+				<i aria-hidden="true" class={ "ti", icon }></i>
+			</a>
+		</li>
+	} else {
+		<li class="disabled page-item">
+			<span aria-disabled="true" class="page-link">
+				<i aria-hidden="true" class={ "ti", icon }></i>
+			</span>
+		</li>
+	}
+}
+
+templ paginationPage(path string, query Query, page int) {
+	if page == query.Page {
+		<li class="active page-item">
+			<a
+				aria-current="page"
+				class="page-link"
+				href={ queryHref(path, query, page) }
+			>{ strconv.Itoa(page) }</a>
+		</li>
+	} else {
+		<li class="page-item">
+			<a
+				aria-label={ "Page " + strconv.Itoa(page) }
+				class="page-link"
+				data-swr="true"
+				href={ queryHref(path, query, page) }
+			>{ strconv.Itoa(page) }</a>
+		</li>
+	}
+}

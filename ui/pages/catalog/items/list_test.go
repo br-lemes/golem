@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/ui/components/datatable"
 )
 
 func TestPaginateItems(t *testing.T) {
@@ -49,8 +50,8 @@ func TestPaginateItems(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			pageItems, page := paginateItems(items, test.page, size)
-			totalPages := totalPagesForItems(len(items), size)
+			pageItems, page := datatable.Paginate(items, test.page, size)
+			totalPages := max(1, (len(items)+size-1)/size)
 			if page != test.wantPage {
 				t.Errorf("page = %d, want %d", page, test.wantPage)
 			}
@@ -65,8 +66,8 @@ func TestPaginateItems(t *testing.T) {
 }
 
 func TestPaginateItemsEmpty(t *testing.T) {
-	pageItems, page := paginateItems(nil, 1, 10)
-	totalPages := totalPagesForItems(0, 10)
+	pageItems, page := datatable.Paginate([]*schemas.ItemSchema(nil), 1, 10)
+	totalPages := 1
 	if page != 1 {
 		t.Errorf("page = %d, want 1", page)
 	}
