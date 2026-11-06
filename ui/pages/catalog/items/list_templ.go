@@ -10,7 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"net/http"
+	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -22,8 +24,6 @@ import (
 
 var route *routes.Node
 
-const itemsPageSize = 25
-
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Items",
@@ -34,24 +34,230 @@ func init() {
 			if err != nil {
 				page = 1
 			}
-			items, page, totalPages := paginateItems(catalog.Items().All(), page)
-			return List(items, page, totalPages), http.StatusOK
+			allItems := catalog.Items().All()
+			search := request.URL.Query().Get("search")
+			itemType := request.URL.Query().Get("filter[type]")
+			subtype := request.URL.Query().Get("filter[subtype]")
+			minLevel := request.URL.Query().Get("filter[level_min]")
+			maxLevel := request.URL.Query().Get("filter[level_max]")
+			tradeable := request.URL.Query().Get("filter[tradeable]")
+			craftable := request.URL.Query().Get("filter[craftable]")
+			recyclable := request.URL.Query().Get("filter[recyclable]")
+			craftSkill := request.URL.Query().Get("filter[craft_skill]")
+			effect := request.URL.Query().Get("filter[effect]")
+			effectOperator := request.URL.Query().Get("filter[effect_operator]")
+			effectValue := request.URL.Query().Get("filter[effect_value]")
+			if effect == "" && effectOperator == "" && effectValue == "0" {
+				effectValue = ""
+			}
+			sortField := request.URL.Query().Get("sort")
+			direction := request.URL.Query().Get("direction")
+			types, subtypes, craftSkills, effects := itemFilterOptions(allItems)
+			allItems = filterItems(allItems, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue)
+			sortItems(allItems, sortField, direction)
+			size := datatable.DefaultSize
+			if parsedSize, parseErr := strconv.Atoi(request.URL.Query().Get("size")); parseErr == nil {
+				size = datatable.ValidSize(parsedSize)
+			}
+			items, page := paginateItems(allItems, page, size)
+			return List(items, page, len(allItems), search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction, size, types, subtypes, craftSkills, effects), http.StatusOK
 		},
 	})
 }
 
-func paginateItems(items []*schemas.ItemSchema, page int) ([]*schemas.ItemSchema, int, int) {
+func sortItems(items []*schemas.ItemSchema, field, direction string) {
+	if direction != "asc" && direction != "desc" {
+		return
+	}
+	sort.SliceStable(items, func(left, right int) bool {
+		compare := func(a, b string) bool {
+			if direction == "asc" {
+				return a < b
+			}
+			return a > b
+		}
+		switch field {
+		case "code":
+			return compare(items[left].Code, items[right].Code)
+		case "name":
+			return compare(items[left].Name, items[right].Name)
+		case "type":
+			return compare(items[left].Type, items[right].Type)
+		case "subtype":
+			return compare(items[left].Subtype, items[right].Subtype)
+		case "level":
+			if direction == "asc" {
+				return items[left].Level < items[right].Level
+			}
+			return items[left].Level > items[right].Level
+		default:
+			return false
+		}
+	})
+}
+
+func itemFilterOptions(items []*schemas.ItemSchema) ([]string, []string, []string, []string) {
+	types := map[string]struct{}{}
+	subtypes := map[string]struct{}{}
+	craftSkills := map[string]struct{}{}
+	effects := map[string]struct{}{}
+	for _, item := range items {
+		types[item.Type] = struct{}{}
+		if item.Subtype != "" {
+			subtypes[item.Subtype] = struct{}{}
+		}
+		if item.Craft != nil && item.Craft.Skill != nil && *item.Craft.Skill != "" {
+			craftSkills[*item.Craft.Skill] = struct{}{}
+		}
+		if item.Effects != nil {
+			for _, itemEffect := range *item.Effects {
+				effects[itemEffect.Code] = struct{}{}
+			}
+		}
+	}
+	typeValues := make([]string, 0, len(types))
+	for value := range types {
+		typeValues = append(typeValues, value)
+	}
+	subtypeValues := make([]string, 0, len(subtypes))
+	for value := range subtypes {
+		subtypeValues = append(subtypeValues, value)
+	}
+	craftSkillValues := make([]string, 0, len(craftSkills))
+	for value := range craftSkills {
+		craftSkillValues = append(craftSkillValues, value)
+	}
+	sort.Strings(typeValues)
+	sort.Strings(subtypeValues)
+	sort.Strings(craftSkillValues)
+	effectValues := make([]string, 0, len(effects))
+	for value := range effects {
+		effectValues = append(effectValues, value)
+	}
+	sort.Strings(effectValues)
+	return typeValues, subtypeValues, craftSkillValues, effectValues
+}
+
+func filterItems(items []*schemas.ItemSchema, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue string) []*schemas.ItemSchema {
+	search = strings.ToLower(strings.TrimSpace(search))
+	itemType = strings.ToLower(strings.TrimSpace(itemType))
+	subtype = strings.ToLower(strings.TrimSpace(subtype))
+	min := parseLevel(minLevel)
+	maxLevelValue := parseLevel(maxLevel)
+	if search == "" && itemType == "" && subtype == "" && min == 0 && maxLevelValue == 0 && tradeable == "" && craftable == "" && recyclable == "" && craftSkill == "" && effect == "" {
+		return items
+	}
+	filtered := make([]*schemas.ItemSchema, 0, len(items))
+	for _, item := range items {
+		matchesSearch := search == "" || strings.Contains(strings.ToLower(item.Code), search) || strings.Contains(strings.ToLower(item.Name), search) || strings.Contains(strings.ToLower(item.Type), search) || strings.Contains(strings.ToLower(item.Subtype), search)
+		if matchesSearch &&
+			(itemType == "" || strings.EqualFold(item.Type, itemType)) &&
+			(subtype == "" || strings.EqualFold(item.Subtype, subtype)) &&
+			(min == 0 || item.Level >= min) &&
+			(maxLevelValue == 0 || item.Level <= maxLevelValue) &&
+			(matchesBool(item.Tradeable, tradeable)) &&
+			(matchesBool(item.Craft != nil, craftable)) &&
+			(matchesBool(item.Recyclable != nil && *item.Recyclable, recyclable)) &&
+			(matchesCraftSkill(item, craftSkill)) &&
+			(matchesEffect(item, effect, effectOperator, effectValue)) {
+			filtered = append(filtered, item)
+		}
+	}
+	return filtered
+}
+
+func matchesEffect(item *schemas.ItemSchema, code, operator, rawValue string) bool {
+	if code == "" || rawValue == "" || (operator != "eq" && operator != "gt" && operator != "gte" && operator != "lt" && operator != "lte") {
+		return true
+	}
+	value, err := strconv.Atoi(rawValue)
+	if err != nil {
+		return true
+	}
+	if item.Effects == nil {
+		return false
+	}
+	for _, effect := range *item.Effects {
+		if effect.Code != code {
+			continue
+		}
+		matches := effect.Value == value
+		switch operator {
+		case "gt":
+			matches = effect.Value > value
+		case "gte":
+			matches = effect.Value >= value
+		case "lt":
+			matches = effect.Value < value
+		case "lte":
+			matches = effect.Value <= value
+		}
+		if matches {
+			return true
+		}
+	}
+	return false
+}
+
+func effectValueOrZero(value string) string {
+	if value == "" {
+		return "0"
+	}
+	return value
+}
+
+func matchesCraftSkill(item *schemas.ItemSchema, skill string) bool {
+	if skill == "" {
+		return true
+	}
+	return item.Craft != nil && item.Craft.Skill != nil && strings.EqualFold(*item.Craft.Skill, skill)
+}
+
+func matchesBool(value bool, filter string) bool {
+	if filter == "true" {
+		return value
+	}
+	if filter == "false" {
+		return !value
+	}
+	return true
+}
+
+func parseLevel(value string) int {
+	level, err := strconv.Atoi(value)
+	if err != nil || level < 1 || level > 50 {
+		return 0
+	}
+	return level
+}
+
+func paginateItems(items []*schemas.ItemSchema, page, size int) ([]*schemas.ItemSchema, int) {
 	if page < 1 {
 		page = 1
 	}
-	totalPages := max(1, (len(items)+itemsPageSize-1)/itemsPageSize)
+	totalPages := totalPagesForItems(len(items), size)
 	page = min(page, totalPages)
-	start := (page - 1) * itemsPageSize
-	end := min(start+itemsPageSize, len(items))
-	return items[start:end], page, totalPages
+	start := (page - 1) * size
+	end := min(start+size, len(items))
+	return items[start:end], page
 }
 
-func List(items []*schemas.ItemSchema, page, totalPages int) templ.Component {
+func totalPagesForItems(totalItems, size int) int {
+	return max(1, (totalItems+size-1)/size)
+}
+
+func itemQuery(page, size int, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction string) datatable.Query {
+	query := datatable.Query{Page: page, Size: size, Search: search, Sort: sortField, Direction: direction}
+	query.Filters = map[string]string{}
+	for key, value := range map[string]string{"type": itemType, "subtype": subtype, "level_min": minLevel, "level_max": maxLevel, "tradeable": tradeable, "craftable": craftable, "recyclable": recyclable, "craft_skill": craftSkill, "effect": effect, "effect_operator": effectOperator, "effect_value": effectValue} {
+		if value != "" {
+			query.Filters[key] = value
+		}
+	}
+	return query
+}
+
+func List(items []*schemas.ItemSchema, page, totalItems int, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction string, size int, types, subtypes, craftSkills, effects []string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -89,23 +295,21 @@ func List(items []*schemas.ItemSchema, page, totalPages int) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[*schemas.ItemSchema]{
-				Data: items,
+				Data:          items,
+				Filter:        itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, types, subtypes, craftSkills, effects),
+				FilterModalID: "items-filter-modal",
+				Path:          route.Path,
+				Query:         itemQuery(page, size, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction),
+				TotalItems:    &totalItems,
 				Columns: []datatable.Column[*schemas.ItemSchema]{
-					{Header: "Code", Field: "code", Cell: cell},
-					{Header: "Name", Field: "name"},
-					{Header: "Type", Field: "type"},
-					{Header: "Subtype", Field: "subtype"},
-					{Header: "Level", Field: "level"},
+					{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+					{Header: "Name", Field: "name", Sortable: true},
+					{Header: "Type", Field: "type", Sortable: true},
+					{Header: "Subtype", Field: "subtype", Sortable: true},
+					{Header: "Level", Field: "level", Sortable: true},
 				},
 				RowHref: func(item *schemas.ItemSchema) string {
 					return route.Path + "/" + item.Code
-				},
-				Pagination: datatable.Pagination{
-					Page:       page,
-					TotalPages: totalPages,
-					Href: func(page int) string {
-						return route.Path + "?page=" + strconv.Itoa(page)
-					},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -152,6 +356,567 @@ func cell(item *schemas.ItemSchema) templ.Component {
 			Name:  item.Name,
 			Type:  artifact.TypeItems,
 		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue string, types, subtypes, craftSkills, effects []string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<form action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 templ.SafeURL
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(route.Path)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 288, Col: 21}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" data-effect-filter data-swr-navigate method=\"get\"><div class=\"modal-header\"><h5 id=\"items-filter-modal-title\" class=\"modal-title\">Filter items</h5><button aria-label=\"Close\" class=\"btn-close\" data-bs-dismiss=\"modal\" type=\"button\"></button></div><div class=\"modal-body\"><div class=\"mb-3 row\"><div class=\"col\"><label class=\"form-label\" for=\"item-filter-type\">Type</label> <select id=\"item-filter-type\" class=\"form-select\" name=\"filter[type]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if itemType == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " value=\"\">Any</option> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, value := range types {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<option")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if itemType == value {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(value)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 322, Col: 21}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(value)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 323, Col: 15}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</select></div><div class=\"col\"><label class=\"form-label\" for=\"item-filter-subtype\">Subtype</label> <select id=\"item-filter-subtype\" class=\"form-select\" name=\"filter[subtype]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if subtype == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " value=\"\">Any</option> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, value := range subtypes {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<option")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if subtype == value {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(value)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 343, Col: 21}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(value)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 344, Col: 15}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</select></div><div class=\"col\"><label class=\"form-label\" for=\"item-filter-craft-skill\">Craft skill</label> <select id=\"item-filter-craft-skill\" class=\"form-select\" name=\"filter[craft_skill]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if craftSkill == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " value=\"\">Any</option> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, value := range craftSkills {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<option")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if craftSkill == value {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(value)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 364, Col: 21}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(value)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 365, Col: 15}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</select></div></div><div class=\"mb-3 row\"><div class=\"col-6\"><label class=\"form-label\" for=\"item-filter-effect\">Effect</label> <select id=\"item-filter-effect\" class=\"form-select\" name=\"filter[effect]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if effect == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, " value=\"\">Any</option> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, value := range effects {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<option")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if effect == value {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(value)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 387, Col: 21}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(value)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 388, Col: 15}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</select></div><div class=\"col-3\"><label class=\"form-label\" for=\"item-filter-effect-operator\">Operator</label> <select id=\"item-filter-effect-operator\" class=\"form-select\" name=\"filter[effect_operator]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if effectOperator == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " value=\"\">Any</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if effectOperator == "eq" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, " value=\"eq\">=</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if effectOperator == "gt" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, " value=\"gt\">&gt;</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if effectOperator == "gte" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, " value=\"gte\">&gt;=</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if effectOperator == "lt" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " value=\"lt\">&lt;</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if effectOperator == "lte" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, " value=\"lte\">&lt;=</option></select></div><div class=\"col-3\"><label class=\"form-label\" for=\"item-filter-effect-value\">Value</label> <input id=\"item-filter-effect-value\" class=\"form-control\" name=\"filter[effect_value]\" type=\"number\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(effectValueOrZero(effectValue))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 438, Col: 44}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\"></div></div><div class=\"d-none invalid-feedback mb-3 text-center\" data-effect-filter-feedback>Complete Effect, Operator, and Value to use this filter.</div><div class=\"mb-3 row\"><div class=\"col\"><label class=\"form-label\" for=\"item-filter-craftable\">Craftable</label> <select id=\"item-filter-craftable\" class=\"form-select\" name=\"filter[craftable]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if craftable == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, " value=\"\">Any</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if craftable == "true" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, " value=\"true\">Craftable</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if craftable == "false" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, " value=\"false\">Not craftable</option></select></div><div class=\"col\"><label class=\"form-label\" for=\"item-filter-recyclable\">Recyclable</label> <select id=\"item-filter-recyclable\" class=\"form-select\" name=\"filter[recyclable]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if recyclable == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, " value=\"\">Any</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if recyclable == "true" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, " value=\"true\">Recyclable</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if recyclable == "false" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, " value=\"false\">Not recyclable</option></select></div><div class=\"col\"><label class=\"form-label\" for=\"item-filter-tradeable\">Tradeable</label> <select id=\"item-filter-tradeable\" class=\"form-select\" name=\"filter[tradeable]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if tradeable == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, " value=\"\">Any</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if tradeable == "true" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, " value=\"true\">Tradeable</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if tradeable == "false" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, " value=\"false\">Not tradeable</option></select></div></div><div class=\"mb-3 row\"><div class=\"col\"><label class=\"form-label\" for=\"item-filter-min-level\">Minimum level</label> <select id=\"item-filter-min-level\" class=\"form-select\" name=\"filter[level_min]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if minLevel == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, " value=\"\">Any</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if minLevel == "1" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, " value=\"1\">1</option> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for level := 5; level <= 50; level += 5 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<option")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if minLevel == strconv.Itoa(level) {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, " value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(level))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 539, Col: 35}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(level))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 540, Col: 29}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</select></div><div class=\"col\"><label class=\"form-label\" for=\"item-filter-max-level\">Maximum level</label> <select id=\"item-filter-max-level\" class=\"form-select\" name=\"filter[level_max]\"><option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if maxLevel == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, " value=\"\">Any</option> <option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if maxLevel == "1" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, " selected")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, " value=\"1\">1</option> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for level := 5; level <= 50; level += 5 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<option")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if maxLevel == strconv.Itoa(level) {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, " value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(level))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 563, Col: 35}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(level))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/items/list.templ`, Line: 564, Col: 29}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</select></div></div></div><div class=\"btn-list modal-footer\"><button class=\"btn btn-outline-danger me-auto\" data-filter-reset type=\"button\"><i aria-hidden=\"true\" class=\"me-2 ti ti-restore\"></i> Reset</button> <button class=\"btn btn-outline-secondary\" data-bs-dismiss=\"modal\" type=\"button\"><i aria-hidden=\"true\" class=\"me-2 ti ti-x\"></i> Cancel</button> <button class=\"btn btn-primary\" data-effect-filter-submit type=\"submit\"><i aria-hidden=\"true\" class=\"me-2 ti ti-filter\"></i> Filter</button></div></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,8 +1,8 @@
 {
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.15",
-		"@tabler/core": "^1.6.1",
-		"@tabler/icons-webfont": "^3.49.0"
+		"@biomejs/biome": "^2.6.5",
+		"@tabler/core": "^1.7.3",
+		"@tabler/icons-webfont": "^3.50.0"
 	},
 	"scripts": {
 		"build": "bun build assets/src/golem.ts assets/src/theme.ts assets/src/golem.css --outdir=assets --format=iife --minify",

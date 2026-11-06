@@ -1,6 +1,6 @@
 PLATFORMS := linux-amd64 linux-arm64 windows-amd64
 
-.PHONY: all assets clean coverage dev lint release serve test version \
+.PHONY: all assets clean coverage dev format lint release serve test version \
 	$(PLATFORMS)
 
 TARGET := $(notdir $(shell go list -m 2>/dev/null))
@@ -46,7 +46,7 @@ bun.lock: package.json
 clean:
 	$(RM) $(ARTIFACTS) $(OPENAPI_FILES)
 
-coverage: lint
+coverage: assets $(API_GENERATED_FILES)
 	@go test ./... -coverprofile=coverage.out && \
 		sed -i '/cmd\/api/d' coverage.out && \
 		go run $(GOCOVER) full --cover-profile=coverage.out
@@ -60,17 +60,19 @@ dev:
 		--watch-pattern='(.+\.(go|templ)|.*/assets/src/.*\.(ts|css))$$' \
 		--ignore-pattern='(.+_templ\.go$$)'
 
-$(API_GENERATED_FILES) $(OPENAPI_FILES): node_modules/.bun-install
+format: node_modules/.bun-install $(API_GENERATED_FILES)
+	@go tool templ fmt .
+	@bun run biome format --write .
+	@gofmt -w $$(go list -f '{{.Dir}}/*.go' ./...)
 
-lint: assets $(API_GENERATED_FILES) bin/golangci-lint
+lint: format bin/golangci-lint
 	@if ! git merge-base --is-ancestor master HEAD; then \
 		echo "Branch is behind or has diverged from master."; \
 		exit 1; \
 	fi
-	@go tool templ fmt .
-	@bun run biome format --write .
-	@gofmt -w $$(go list -f '{{.Dir}}/*.go' ./...)
 	@./bin/golangci-lint run
+	@bun check
+	@bun run biome lint .
 
 node_modules/.bun-install: bun.lock
 	@bun install --frozen-lockfile
@@ -78,20 +80,16 @@ node_modules/.bun-install: bun.lock
 
 pkg/catalog/enums.json: pkg/catalog/openapi.json enums.jq
 	@jq -f enums.jq pkg/catalog/openapi.json > $@
-	@bun run biome format --write $@
 
 pkg/catalog/openapi.json: $(OPENAPI_FILES) check.jq merge.jq
 	@jq -e -s -f check.jq $(OPENAPI_FILES) > /dev/null
 	@jq -s -f merge.jq $(OPENAPI_FILES) > $@
-	@bun run biome format --write $@
 
 pkg/schemas/params.json: pkg/catalog/openapi.json params.jq
 	@jq -f params.jq pkg/catalog/openapi.json > $@
-	@bun run biome format --write $@
 
 pkg/schemas/schemas.json: pkg/catalog/openapi.json schemas.jq
 	@jq -f schemas.jq pkg/catalog/openapi.json > $@
-	@bun run biome format --write $@
 
 $(OPENAPI_FILES):
 	@curl $(URL) -o $@
@@ -99,7 +97,6 @@ $(OPENAPI_FILES):
 		'"type":"boolean","nullable":true' $@
 	@sd -F '"exclusiveMinimum":0.0' \
 		'"minimum":0.0,"exclusiveMinimum":true' $@
-	@bun run biome format --write $@
 
 $(PLATFORMS): lint test
 	@GOOS=$(word 1,$(subst -, ,$@)) \

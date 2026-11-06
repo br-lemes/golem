@@ -7,7 +7,8 @@ import (
 )
 
 func TestPaginateItems(t *testing.T) {
-	items := make([]*schemas.ItemSchema, itemsPageSize*2+1)
+	size := 10
+	items := make([]*schemas.ItemSchema, size*2+1)
 
 	tests := []struct {
 		name      string
@@ -21,7 +22,7 @@ func TestPaginateItems(t *testing.T) {
 			page:      1,
 			wantPage:  1,
 			wantPages: 3,
-			wantItems: itemsPageSize,
+			wantItems: size,
 		},
 		{
 			name:      "last page",
@@ -35,7 +36,7 @@ func TestPaginateItems(t *testing.T) {
 			page:      0,
 			wantPage:  1,
 			wantPages: 3,
-			wantItems: itemsPageSize,
+			wantItems: size,
 		},
 		{
 			name:      "page above total",
@@ -48,7 +49,8 @@ func TestPaginateItems(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			pageItems, page, totalPages := paginateItems(items, test.page)
+			pageItems, page := paginateItems(items, test.page, size)
+			totalPages := totalPagesForItems(len(items), size)
 			if page != test.wantPage {
 				t.Errorf("page = %d, want %d", page, test.wantPage)
 			}
@@ -63,7 +65,8 @@ func TestPaginateItems(t *testing.T) {
 }
 
 func TestPaginateItemsEmpty(t *testing.T) {
-	pageItems, page, totalPages := paginateItems(nil, 1)
+	pageItems, page := paginateItems(nil, 1, 10)
+	totalPages := totalPagesForItems(0, 10)
 	if page != 1 {
 		t.Errorf("page = %d, want 1", page)
 	}

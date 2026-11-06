@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"slices"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -71,7 +70,7 @@ func TestDataTableRendersFields(t *testing.T) {
 		},
 	}))
 
-	headers := document.Find("thead th")
+	headers := document.Find("thead tr:last-child th")
 	if headers.Length() != 2 {
 		t.Fatalf("expected two table headers, found %d", headers.Length())
 	}
@@ -181,16 +180,13 @@ func TestDataTableRendersDefaultEmptyMessage(t *testing.T) {
 }
 
 func TestDataTableRendersPagination(t *testing.T) {
+	totalItems := 210
 	document := renderDataTable(t, DataTable(DataTableProps[dataTableTestItem]{
-		Data:    []dataTableTestItem{{Name: "item"}},
-		Columns: []Column[dataTableTestItem]{{Header: "Name", Field: "name"}},
-		Pagination: Pagination{
-			Page:       10,
-			TotalPages: 21,
-			Href: func(page int) string {
-				return "/items?page=" + strconv.Itoa(page)
-			},
-		},
+		Data:       []dataTableTestItem{{Name: "item"}},
+		Columns:    []Column[dataTableTestItem]{{Header: "Name", Field: "name"}},
+		Path:       "/items",
+		Query:      Query{Page: 10, Size: 10},
+		TotalItems: &totalItems,
 	}))
 
 	pagination := document.Find("nav[aria-label='Pagination']")
@@ -204,7 +200,7 @@ func TestDataTableRendersPagination(t *testing.T) {
 	if pagination.Find(".page-link").Text() == "" {
 		t.Fatal("expected pagination links to render")
 	}
-	if pagination.Find("a[href='/items?page=1']").Length() != 1 {
+	if pagination.Find("a[href='/items']").Length() != 1 {
 		t.Error("expected first page link")
 	}
 	if pagination.Find("a[href='/items?page=21']").Length() != 1 {
@@ -220,13 +216,11 @@ func TestDataTableRendersPagination(t *testing.T) {
 
 func TestDataTableOmitsPaginationWithoutMultiplePages(t *testing.T) {
 	document := renderDataTable(t, DataTable(DataTableProps[dataTableTestItem]{
-		Data:    []dataTableTestItem{{Name: "item"}},
-		Columns: []Column[dataTableTestItem]{{Header: "Name", Field: "name"}},
-		Pagination: Pagination{
-			Page:       1,
-			TotalPages: 1,
-			Href:       func(page int) string { return strconv.Itoa(page) },
-		},
+		Data:       []dataTableTestItem{{Name: "item"}},
+		Columns:    []Column[dataTableTestItem]{{Header: "Name", Field: "name"}},
+		Path:       "/items",
+		Query:      Query{Page: 1, Size: 10},
+		TotalItems: func() *int { value := 1; return &value }(),
 	}))
 
 	pagination := document.Find("nav[aria-label='Pagination']")

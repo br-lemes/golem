@@ -1,36 +1,53 @@
 package datatable
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
+// Keep this value in sync with assets/src/datatable.ts.
+const DefaultSize = 10
+
+var Sizes = []int{5, 10, 25, 50, 100, 250, 500, 1000}
+
 type Column[T any] struct {
-	Cell   func(T) templ.Component
-	Class  string
-	Field  string
-	Header string
+	Cell     func(T) templ.Component
+	Class    string
+	Field    string
+	Header   string
+	Sortable bool
 }
 
 type DataTableProps[T any] struct {
-	Columns      []Column[T]
-	Data         []T
-	EmptyMessage string
-	Pagination   Pagination
-	RowHref      func(T) string
+	Columns       []Column[T]
+	Data          []T
+	EmptyMessage  string
+	Filter        templ.Component
+	FilterModalID string
+	Path          string
+	Query         Query
+	TotalItems    *int
+	RowHref       func(T) string
 }
 
-type Pagination struct {
-	Page       int
-	TotalPages int
-	Href       func(int) string
+type Query struct {
+	Page      int
+	Size      int
+	Search    string
+	Sort      string
+	Direction string
+	Filters   map[string]string
 }
 
 type dataTableColumn struct {
-	Class  string
-	Header string
+	Class    string
+	Field    string
+	Header   string
+	Sortable bool
 }
 
 type dataTableCell struct {
@@ -40,6 +57,9 @@ type dataTableCell struct {
 }
 
 func DataTable[T any](props DataTableProps[T]) templ.Component {
+	if props.Query.Size == 0 {
+		props.Query.Size = DefaultSize
+	}
 	value := reflect.ValueOf(props.Data)
 
 	rows := make([][]dataTableCell, value.Len())
@@ -64,11 +84,22 @@ func DataTable[T any](props DataTableProps[T]) templ.Component {
 	definitions := make([]dataTableColumn, len(props.Columns))
 	for index, column := range props.Columns {
 		definitions[index] = dataTableColumn{
-			Header: column.Header,
-			Class:  column.Class,
+			Header:   column.Header,
+			Class:    column.Class,
+			Field:    column.Field,
+			Sortable: column.Sortable,
 		}
 	}
-	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage, props.Pagination)
+	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage, props.Path, props.Query, props.TotalItems, props.Filter, props.FilterModalID)
+}
+
+func ValidSize(size int) int {
+	for _, allowed := range Sizes {
+		if size == allowed {
+			return size
+		}
+	}
+	return DefaultSize
 }
 
 templ Styles() {
@@ -122,15 +153,73 @@ func tableFieldText(item reflect.Value, fieldName string) string {
 	panic(fmt.Sprintf("data table field %q not found in %s", fieldName, typeOfItem))
 }
 
-templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []string, emptyMessage string, pagination Pagination) {
+func queryHref(path string, query Query, page int) string {
+	values := url.Values{}
+	if page > 1 {
+		values.Set("page", strconv.Itoa(page))
+	}
+	if query.Size != 0 && query.Size != DefaultSize {
+		values.Set("size", strconv.Itoa(query.Size))
+	}
+	if query.Search != "" {
+		values.Set("search", query.Search)
+	}
+	if query.Sort != "" && (query.Direction == "asc" || query.Direction == "desc") {
+		values.Set("sort", query.Sort)
+		values.Set("direction", query.Direction)
+	}
+	for key, value := range query.Filters {
+		if value != "" {
+			values.Set("filter["+key+"]", value)
+		}
+	}
+	encoded := values.Encode()
+	if encoded != "" {
+		return path + "?" + encoded
+	}
+	return path
+}
+
+func sortQuery(query Query, field string) Query {
+	query.Page = 1
+	if query.Sort != field {
+		query.Sort = field
+		query.Direction = "asc"
+	} else if query.Direction == "asc" {
+		query.Direction = "desc"
+	} else {
+		query.Sort = ""
+		query.Direction = ""
+	}
+	return query
+}
+
+func filterSummary(filters map[string]string) string {
+	if len(filters) == 0 {
+		return ""
+	}
+	value, err := json.Marshal(filters)
+	if err != nil {
+		return ""
+	}
+	return string(value)
+}
+
+func recordsLabel(rowCount int, totalItems *int) string {
+	if totalItems == nil {
+		return fmt.Sprintf("%d records", rowCount)
+	}
+	return fmt.Sprintf("%d of %d records", rowCount, *totalItems)
+}
+
+templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []string, emptyMessage, path string, query Query, totalItems *int, filter templ.Component, filterModalID string) {
 	<div class="table-responsive">
 		<table class="data-table table table-hover table-striped table-vcenter">
 			<thead>
-				<tr>
-					for _, column := range columns {
-						<th>{ column.Header }</th>
-					}
-				</tr>
+				if path != "" {
+					@dataTableHeader(len(rows), len(columns), path, query, totalItems, filter != nil, filterModalID)
+				}
+				@dataTableColumns(columns, path, query)
 			</thead>
 			<tbody>
 				for rowIndex, row := range rows {
@@ -146,7 +235,10 @@ templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []st
 				}
 				if len(rows) == 0 {
 					<tr>
-						<td class="text-center text-secondary" colspan={ fmt.Sprint(len(columns)) }>
+						<td
+							class="text-center text-secondary"
+							colspan={ fmt.Sprint(len(columns)) }
+						>
 							if emptyMessage == "" {
 								No data available
 							} else {
@@ -158,25 +250,159 @@ templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []st
 			</tbody>
 		</table>
 	</div>
-	@paginationNav(pagination)
-}
-
-templ paginationNav(pagination Pagination) {
-	if pagination.TotalPages > 1 && pagination.Href != nil {
-		<div class="card-footer">
-			<nav aria-label="Pagination">
-				<ul class="justify-content-center mb-0 pagination">
-					@paginationControl(pagination, 1, "ti-chevrons-left", "First page", pagination.Page > 1)
-					@paginationControl(pagination, pagination.Page-1, "ti-chevron-left", "Previous page", pagination.Page > 1)
-					for _, pageNumber := range paginationPages(pagination.Page, pagination.TotalPages) {
-						@paginationPage(pagination, pageNumber)
-					}
-					@paginationControl(pagination, pagination.Page+1, "ti-chevron-right", "Next page", pagination.Page < pagination.TotalPages)
-					@paginationControl(pagination, pagination.TotalPages, "ti-chevrons-right", "Last page", pagination.Page < pagination.TotalPages)
-				</ul>
-			</nav>
+	if filter != nil {
+		<div
+			id={ filterModalID }
+			aria-hidden="true"
+			aria-labelledby={ filterModalID + "-title" }
+			class="fade modal modal-blur"
+			tabindex="-1"
+		>
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					@filter
+				</div>
+			</div>
 		</div>
 	}
+	@paginationNav(path, query, totalItems)
+}
+
+templ dataTableColumns(columns []dataTableColumn, path string, query Query) {
+	<tr>
+		for _, column := range columns {
+			<th>
+				if column.Sortable && path != "" {
+					<a
+						class="text-decoration-none text-reset"
+						data-swr="true"
+						href={ queryHref(path, sortQuery(query, column.Field), 1) }
+					>
+						{ column.Header }
+						if query.Sort == column.Field && query.Direction == "asc" {
+							<i
+								aria-label="Sorted ascending"
+								class="text-primary ti ti-arrow-up"
+							></i>
+						} else if query.Sort == column.Field && query.Direction == "desc" {
+							<i
+								aria-label="Sorted descending"
+								class="text-primary ti ti-arrow-down"
+							></i>
+						} else {
+							<i
+								aria-label="Not sorted"
+								class="text-secondary ti ti-arrows-sort"
+							></i>
+						}
+					</a>
+				} else {
+					{ column.Header }
+				}
+			</th>
+		}
+	</tr>
+}
+
+templ dataTableHeader(rowCount, columnCount int, path string, query Query, totalItems *int, hasFilter bool, filterModalID string) {
+	{{ filterSummary := filterSummary(query.Filters) }}
+	<tr>
+		<th colspan={ fmt.Sprint(columnCount) }>
+			<div class="align-items-center g-2 row">
+				<div class="col-md-4">
+					if hasFilter {
+						<button
+							aria-label="Filter"
+							class="btn btn-icon btn-primary rounded-circle"
+							data-filter-modal
+							data-bs-target={ "#" + filterModalID }
+							data-bs-toggle="modal"
+							type="button"
+						>
+							<i aria-hidden="true" class="ti ti-filter"></i>
+						</button>
+					}
+				</div>
+				<div class="col-md-4 text-center">
+					<div
+						aria-label={ recordsLabel(rowCount, totalItems) }
+						class="small"
+					>
+						Records: { fmt.Sprint(rowCount) }
+						if totalItems != nil {
+							{ " / " }
+							{ fmt.Sprint(*totalItems) }
+						}
+					</div>
+					if filterSummary != "" {
+						<div class="small text-secondary">
+							<small class="font-monospace">
+								{ filterSummary }
+							</small>
+						</div>
+					}
+				</div>
+				<div class="col-md-4 d-flex justify-content-md-end">
+					<form
+						action={ queryHref(path, query, query.Page) }
+						data-swr-navigate
+						method="get"
+					>
+						<div class="input-icon">
+							<span class="input-icon-addon">
+								<i aria-hidden="true" class="ti ti-search"></i>
+							</span>
+							<input
+								aria-label="Search"
+								class="form-control w-auto"
+								name="search"
+								placeholder="Search"
+								type="search"
+								value={ query.Search }
+							/>
+						</div>
+					</form>
+				</div>
+			</div>
+		</th>
+	</tr>
+}
+
+templ paginationNav(path string, query Query, totalItems *int) {
+	{{
+		if path == "" || totalItems == nil {
+			return
+		}
+	}}
+	{{ totalPages := max(1, (*totalItems+query.Size-1)/query.Size) }}
+	<div class="align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center">
+		if totalPages > 1 {
+			<nav aria-label="Pagination">
+				<ul class="justify-content-center mb-0 pagination">
+					@paginationControl(path, query, 1, "ti-chevrons-left", "First page", query.Page > 1)
+					@paginationControl(path, query, query.Page-1, "ti-chevron-left", "Previous page", query.Page > 1)
+					for _, pageNumber := range paginationPages(query.Page, totalPages) {
+						@paginationPage(path, query, pageNumber)
+					}
+					@paginationControl(path, query, query.Page+1, "ti-chevron-right", "Next page", query.Page < totalPages)
+					@paginationControl(path, query, totalPages, "ti-chevrons-right", "Last page", query.Page < totalPages)
+				</ul>
+			</nav>
+		}
+		<select
+			aria-label="Page size"
+			class="form-select ms-md-3 w-auto"
+			data-swr-navigate
+			name="size"
+		>
+			for _, size := range Sizes {
+				<option
+					selected?={ query.Size == size }
+					value={ strconv.Itoa(size) }
+				>{ strconv.Itoa(size) }</option>
+			}
+		</select>
+	</div>
 }
 
 func paginationPages(page, totalPages int) []int {
@@ -195,20 +421,20 @@ func paginationPages(page, totalPages int) []int {
 	return pages
 }
 
-templ paginationControl(pagination Pagination, page int, icon, label string, enabled bool) {
+templ paginationControl(path string, query Query, page int, icon, label string, enabled bool) {
 	if enabled {
 		<li class="page-item">
 			<a
 				aria-label={ label }
 				class="page-link"
 				data-swr="true"
-				href={ pagination.Href(page) }
+				href={ queryHref(path, query, page) }
 			>
 				<i aria-hidden="true" class={ "ti", icon }></i>
 			</a>
 		</li>
 	} else {
-		<li class="page-item disabled">
+		<li class="disabled page-item">
 			<span aria-disabled="true" class="page-link">
 				<i aria-hidden="true" class={ "ti", icon }></i>
 			</span>
@@ -216,10 +442,14 @@ templ paginationControl(pagination Pagination, page int, icon, label string, ena
 	}
 }
 
-templ paginationPage(pagination Pagination, page int) {
-	if page == pagination.Page {
+templ paginationPage(path string, query Query, page int) {
+	if page == query.Page {
 		<li class="active page-item">
-			<a aria-current="page" class="page-link" href={ pagination.Href(page) }>
+			<a
+				aria-current="page"
+				class="page-link"
+				href={ queryHref(path, query, page) }
+			>
 				{ strconv.Itoa(page) }
 			</a>
 		</li>
@@ -229,7 +459,7 @@ templ paginationPage(pagination Pagination, page int) {
 				aria-label={ "Page " + strconv.Itoa(page) }
 				class="page-link"
 				data-swr="true"
-				href={ pagination.Href(page) }
+				href={ queryHref(path, query, page) }
 			>
 				{ strconv.Itoa(page) }
 			</a>

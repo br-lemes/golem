@@ -38,7 +38,10 @@ window.addEventListener("popstate", () => {
 	void navigate(window.location.href, false);
 });
 
-const navigate = async (href: string, pushHistory = true): Promise<void> => {
+export const navigate = async (
+	href: string,
+	pushHistory = true,
+): Promise<void> => {
 	cancel(currentOperation);
 	const previousURL = window.location.href;
 	const operation = {

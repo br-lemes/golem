@@ -2,7 +2,9 @@ package items
 
 import (
 	"net/http"
+	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/schemas"
@@ -14,8 +16,6 @@ import (
 
 var route *routes.Node
 
-const itemsPageSize = 25
-
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Items",
@@ -26,44 +26,248 @@ func init() {
 			if err != nil {
 				page = 1
 			}
-			items, page, totalPages := paginateItems(catalog.Items().All(), page)
-			return List(items, page, totalPages), http.StatusOK
+			allItems := catalog.Items().All()
+			search := request.URL.Query().Get("search")
+			itemType := request.URL.Query().Get("filter[type]")
+			subtype := request.URL.Query().Get("filter[subtype]")
+			minLevel := request.URL.Query().Get("filter[level_min]")
+			maxLevel := request.URL.Query().Get("filter[level_max]")
+			tradeable := request.URL.Query().Get("filter[tradeable]")
+			craftable := request.URL.Query().Get("filter[craftable]")
+			recyclable := request.URL.Query().Get("filter[recyclable]")
+			craftSkill := request.URL.Query().Get("filter[craft_skill]")
+			effect := request.URL.Query().Get("filter[effect]")
+			effectOperator := request.URL.Query().Get("filter[effect_operator]")
+			effectValue := request.URL.Query().Get("filter[effect_value]")
+			if effect == "" && effectOperator == "" && effectValue == "0" {
+				effectValue = ""
+			}
+			sortField := request.URL.Query().Get("sort")
+			direction := request.URL.Query().Get("direction")
+			types, subtypes, craftSkills, effects := itemFilterOptions(allItems)
+			allItems = filterItems(allItems, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue)
+			sortItems(allItems, sortField, direction)
+			size := datatable.DefaultSize
+			if parsedSize, parseErr := strconv.Atoi(request.URL.Query().Get("size")); parseErr == nil {
+				size = datatable.ValidSize(parsedSize)
+			}
+			items, page := paginateItems(allItems, page, size)
+			return List(items, page, len(allItems), search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction, size, types, subtypes, craftSkills, effects), http.StatusOK
 		},
 	})
 }
 
-func paginateItems(items []*schemas.ItemSchema, page int) ([]*schemas.ItemSchema, int, int) {
+func sortItems(items []*schemas.ItemSchema, field, direction string) {
+	if direction != "asc" && direction != "desc" {
+		return
+	}
+	sort.SliceStable(items, func(left, right int) bool {
+		compare := func(a, b string) bool {
+			if direction == "asc" {
+				return a < b
+			}
+			return a > b
+		}
+		switch field {
+		case "code":
+			return compare(items[left].Code, items[right].Code)
+		case "name":
+			return compare(items[left].Name, items[right].Name)
+		case "type":
+			return compare(items[left].Type, items[right].Type)
+		case "subtype":
+			return compare(items[left].Subtype, items[right].Subtype)
+		case "level":
+			if direction == "asc" {
+				return items[left].Level < items[right].Level
+			}
+			return items[left].Level > items[right].Level
+		default:
+			return false
+		}
+	})
+}
+
+func itemFilterOptions(items []*schemas.ItemSchema) ([]string, []string, []string, []string) {
+	types := map[string]struct{}{}
+	subtypes := map[string]struct{}{}
+	craftSkills := map[string]struct{}{}
+	effects := map[string]struct{}{}
+	for _, item := range items {
+		types[item.Type] = struct{}{}
+		if item.Subtype != "" {
+			subtypes[item.Subtype] = struct{}{}
+		}
+		if item.Craft != nil && item.Craft.Skill != nil && *item.Craft.Skill != "" {
+			craftSkills[*item.Craft.Skill] = struct{}{}
+		}
+		if item.Effects != nil {
+			for _, itemEffect := range *item.Effects {
+				effects[itemEffect.Code] = struct{}{}
+			}
+		}
+	}
+	typeValues := make([]string, 0, len(types))
+	for value := range types {
+		typeValues = append(typeValues, value)
+	}
+	subtypeValues := make([]string, 0, len(subtypes))
+	for value := range subtypes {
+		subtypeValues = append(subtypeValues, value)
+	}
+	craftSkillValues := make([]string, 0, len(craftSkills))
+	for value := range craftSkills {
+		craftSkillValues = append(craftSkillValues, value)
+	}
+	sort.Strings(typeValues)
+	sort.Strings(subtypeValues)
+	sort.Strings(craftSkillValues)
+	effectValues := make([]string, 0, len(effects))
+	for value := range effects {
+		effectValues = append(effectValues, value)
+	}
+	sort.Strings(effectValues)
+	return typeValues, subtypeValues, craftSkillValues, effectValues
+}
+
+func filterItems(items []*schemas.ItemSchema, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue string) []*schemas.ItemSchema {
+	search = strings.ToLower(strings.TrimSpace(search))
+	itemType = strings.ToLower(strings.TrimSpace(itemType))
+	subtype = strings.ToLower(strings.TrimSpace(subtype))
+	min := parseLevel(minLevel)
+	maxLevelValue := parseLevel(maxLevel)
+	if search == "" && itemType == "" && subtype == "" && min == 0 && maxLevelValue == 0 && tradeable == "" && craftable == "" && recyclable == "" && craftSkill == "" && effect == "" {
+		return items
+	}
+	filtered := make([]*schemas.ItemSchema, 0, len(items))
+	for _, item := range items {
+		matchesSearch := search == "" || strings.Contains(strings.ToLower(item.Code), search) || strings.Contains(strings.ToLower(item.Name), search) || strings.Contains(strings.ToLower(item.Type), search) || strings.Contains(strings.ToLower(item.Subtype), search)
+		if matchesSearch &&
+			(itemType == "" || strings.EqualFold(item.Type, itemType)) &&
+			(subtype == "" || strings.EqualFold(item.Subtype, subtype)) &&
+			(min == 0 || item.Level >= min) &&
+			(maxLevelValue == 0 || item.Level <= maxLevelValue) &&
+			(matchesBool(item.Tradeable, tradeable)) &&
+			(matchesBool(item.Craft != nil, craftable)) &&
+			(matchesBool(item.Recyclable != nil && *item.Recyclable, recyclable)) &&
+			(matchesCraftSkill(item, craftSkill)) &&
+			(matchesEffect(item, effect, effectOperator, effectValue)) {
+			filtered = append(filtered, item)
+		}
+	}
+	return filtered
+}
+
+func matchesEffect(item *schemas.ItemSchema, code, operator, rawValue string) bool {
+	if code == "" || rawValue == "" || (operator != "eq" && operator != "gt" && operator != "gte" && operator != "lt" && operator != "lte") {
+		return true
+	}
+	value, err := strconv.Atoi(rawValue)
+	if err != nil {
+		return true
+	}
+	if item.Effects == nil {
+		return false
+	}
+	for _, effect := range *item.Effects {
+		if effect.Code != code {
+			continue
+		}
+		matches := effect.Value == value
+		switch operator {
+		case "gt":
+			matches = effect.Value > value
+		case "gte":
+			matches = effect.Value >= value
+		case "lt":
+			matches = effect.Value < value
+		case "lte":
+			matches = effect.Value <= value
+		}
+		if matches {
+			return true
+		}
+	}
+	return false
+}
+
+func effectValueOrZero(value string) string {
+	if value == "" {
+		return "0"
+	}
+	return value
+}
+
+func matchesCraftSkill(item *schemas.ItemSchema, skill string) bool {
+	if skill == "" {
+		return true
+	}
+	return item.Craft != nil && item.Craft.Skill != nil && strings.EqualFold(*item.Craft.Skill, skill)
+}
+
+func matchesBool(value bool, filter string) bool {
+	if filter == "true" {
+		return value
+	}
+	if filter == "false" {
+		return !value
+	}
+	return true
+}
+
+func parseLevel(value string) int {
+	level, err := strconv.Atoi(value)
+	if err != nil || level < 1 || level > 50 {
+		return 0
+	}
+	return level
+}
+
+func paginateItems(items []*schemas.ItemSchema, page, size int) ([]*schemas.ItemSchema, int) {
 	if page < 1 {
 		page = 1
 	}
-	totalPages := max(1, (len(items)+itemsPageSize-1)/itemsPageSize)
+	totalPages := totalPagesForItems(len(items), size)
 	page = min(page, totalPages)
-	start := (page - 1) * itemsPageSize
-	end := min(start+itemsPageSize, len(items))
-	return items[start:end], page, totalPages
+	start := (page - 1) * size
+	end := min(start+size, len(items))
+	return items[start:end], page
 }
 
-templ List(items []*schemas.ItemSchema, page, totalPages int) {
+func totalPagesForItems(totalItems, size int) int {
+	return max(1, (totalItems+size-1)/size)
+}
+
+func itemQuery(page, size int, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction string) datatable.Query {
+	query := datatable.Query{Page: page, Size: size, Search: search, Sort: sortField, Direction: direction}
+	query.Filters = map[string]string{}
+	for key, value := range map[string]string{"type": itemType, "subtype": subtype, "level_min": minLevel, "level_max": maxLevel, "tradeable": tradeable, "craftable": craftable, "recyclable": recyclable, "craft_skill": craftSkill, "effect": effect, "effect_operator": effectOperator, "effect_value": effectValue} {
+		if value != "" {
+			query.Filters[key] = value
+		}
+	}
+	return query
+}
+
+templ List(items []*schemas.ItemSchema, page, totalItems int, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction string, size int, types, subtypes, craftSkills, effects []string) {
 	@layouts.Base(layouts.Props{Route: route}) {
 		<div class="card">
 			@datatable.DataTable(datatable.DataTableProps[*schemas.ItemSchema]{
-				Data: items,
+				Data:          items,
+				Filter:        itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, types, subtypes, craftSkills, effects),
+				FilterModalID: "items-filter-modal",
+				Path:          route.Path,
+				Query:         itemQuery(page, size, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction),
+				TotalItems:    &totalItems,
 				Columns: []datatable.Column[*schemas.ItemSchema]{
-					{Header: "Code", Field: "code", Cell: cell},
-					{Header: "Name", Field: "name"},
-					{Header: "Type", Field: "type"},
-					{Header: "Subtype", Field: "subtype"},
-					{Header: "Level", Field: "level"},
+					{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+					{Header: "Name", Field: "name", Sortable: true},
+					{Header: "Type", Field: "type", Sortable: true},
+					{Header: "Subtype", Field: "subtype", Sortable: true},
+					{Header: "Level", Field: "level", Sortable: true},
 				},
 				RowHref: func(item *schemas.ItemSchema) string {
 					return route.Path + "/" + item.Code
-				},
-				Pagination: datatable.Pagination{
-					Page:       page,
-					TotalPages: totalPages,
-					Href: func(page int) string {
-						return route.Path + "?page=" + strconv.Itoa(page)
-					},
 				},
 			})
 		</div>
@@ -77,4 +281,317 @@ templ cell(item *schemas.ItemSchema) {
 		Name:  item.Name,
 		Type:  artifact.TypeItems,
 	})
+}
+
+templ itemFilter(itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue string, types, subtypes, craftSkills, effects []string) {
+	<form
+		action={ route.Path }
+		data-effect-filter
+		data-swr-navigate
+		method="get"
+	>
+		<div class="modal-header">
+			<h5 id="items-filter-modal-title" class="modal-title">
+				Filter items
+			</h5>
+			<button
+				aria-label="Close"
+				class="btn-close"
+				data-bs-dismiss="modal"
+				type="button"
+			></button>
+		</div>
+		<div class="modal-body">
+			<div class="mb-3 row">
+				<div class="col">
+					<label class="form-label" for="item-filter-type">
+						Type
+					</label>
+					<select
+						id="item-filter-type"
+						class="form-select"
+						name="filter[type]"
+					>
+						<option
+							selected?={ itemType == "" }
+							value=""
+						>Any</option>
+						for _, value := range types {
+							<option
+								selected?={ itemType == value }
+								value={ value }
+							>{ value }</option>
+						}
+					</select>
+				</div>
+				<div class="col">
+					<label
+						class="form-label"
+						for="item-filter-subtype"
+					>Subtype</label>
+					<select
+						id="item-filter-subtype"
+						class="form-select"
+						name="filter[subtype]"
+					>
+						<option selected?={ subtype == "" } value="">
+							Any
+						</option>
+						for _, value := range subtypes {
+							<option
+								selected?={ subtype == value }
+								value={ value }
+							>{ value }</option>
+						}
+					</select>
+				</div>
+				<div class="col">
+					<label
+						class="form-label"
+						for="item-filter-craft-skill"
+					>Craft skill</label>
+					<select
+						id="item-filter-craft-skill"
+						class="form-select"
+						name="filter[craft_skill]"
+					>
+						<option selected?={ craftSkill == "" } value="">
+							Any
+						</option>
+						for _, value := range craftSkills {
+							<option
+								selected?={ craftSkill == value }
+								value={ value }
+							>{ value }</option>
+						}
+					</select>
+				</div>
+			</div>
+			<div class="mb-3 row">
+				<div class="col-6">
+					<label
+						class="form-label"
+						for="item-filter-effect"
+					>Effect</label>
+					<select
+						id="item-filter-effect"
+						class="form-select"
+						name="filter[effect]"
+					>
+						<option selected?={ effect == "" } value="">
+							Any
+						</option>
+						for _, value := range effects {
+							<option
+								selected?={ effect == value }
+								value={ value }
+							>{ value }</option>
+						}
+					</select>
+				</div>
+				<div class="col-3">
+					<label
+						class="form-label"
+						for="item-filter-effect-operator"
+					>Operator</label>
+					<select
+						id="item-filter-effect-operator"
+						class="form-select"
+						name="filter[effect_operator]"
+					>
+						<option
+							selected?={ effectOperator == "" }
+							value=""
+						>Any</option>
+						<option
+							selected?={ effectOperator == "eq" }
+							value="eq"
+						>=</option>
+						<option
+							selected?={ effectOperator == "gt" }
+							value="gt"
+						>&gt;</option>
+						<option
+							selected?={ effectOperator == "gte" }
+							value="gte"
+						>&gt;=</option>
+						<option
+							selected?={ effectOperator == "lt" }
+							value="lt"
+						>&lt;</option>
+						<option
+							selected?={ effectOperator == "lte" }
+							value="lte"
+						>&lt;=</option>
+					</select>
+				</div>
+				<div class="col-3">
+					<label
+						class="form-label"
+						for="item-filter-effect-value"
+					>Value</label>
+					<input
+						id="item-filter-effect-value"
+						class="form-control"
+						name="filter[effect_value]"
+						type="number"
+						value={ effectValueOrZero(effectValue) }
+					/>
+				</div>
+			</div>
+			<div
+				class="d-none invalid-feedback mb-3 text-center"
+				data-effect-filter-feedback
+			>
+				Complete Effect, Operator, and Value to use this filter.
+			</div>
+			<div class="mb-3 row">
+				<div class="col">
+					<label
+						class="form-label"
+						for="item-filter-craftable"
+					>Craftable</label>
+					<select
+						id="item-filter-craftable"
+						class="form-select"
+						name="filter[craftable]"
+					>
+						<option selected?={ craftable == "" } value="">
+							Any
+						</option>
+						<option
+							selected?={ craftable == "true" }
+							value="true"
+						>Craftable</option>
+						<option
+							selected?={ craftable == "false" }
+							value="false"
+						>Not craftable</option>
+					</select>
+				</div>
+				<div class="col">
+					<label
+						class="form-label"
+						for="item-filter-recyclable"
+					>Recyclable</label>
+					<select
+						id="item-filter-recyclable"
+						class="form-select"
+						name="filter[recyclable]"
+					>
+						<option selected?={ recyclable == "" } value="">
+							Any
+						</option>
+						<option
+							selected?={ recyclable == "true" }
+							value="true"
+						>Recyclable</option>
+						<option
+							selected?={ recyclable == "false" }
+							value="false"
+						>Not recyclable</option>
+					</select>
+				</div>
+				<div class="col">
+					<label
+						class="form-label"
+						for="item-filter-tradeable"
+					>Tradeable</label>
+					<select
+						id="item-filter-tradeable"
+						class="form-select"
+						name="filter[tradeable]"
+					>
+						<option selected?={ tradeable == "" } value="">
+							Any
+						</option>
+						<option
+							selected?={ tradeable == "true" }
+							value="true"
+						>Tradeable</option>
+						<option
+							selected?={ tradeable == "false" }
+							value="false"
+						>Not tradeable</option>
+					</select>
+				</div>
+			</div>
+			<div class="mb-3 row">
+				<div class="col">
+					<label
+						class="form-label"
+						for="item-filter-min-level"
+					>Minimum level</label>
+					<select
+						id="item-filter-min-level"
+						class="form-select"
+						name="filter[level_min]"
+					>
+						<option selected?={ minLevel == "" } value="">
+							Any
+						</option>
+						<option selected?={ minLevel == "1" } value="1">
+							1
+						</option>
+						for level := 5; level <= 50; level += 5 {
+							<option
+								selected?={ minLevel == strconv.Itoa(level) }
+								value={ strconv.Itoa(level) }
+							>{ strconv.Itoa(level) }</option>
+						}
+					</select>
+				</div>
+				<div class="col">
+					<label
+						class="form-label"
+						for="item-filter-max-level"
+					>Maximum level</label>
+					<select
+						id="item-filter-max-level"
+						class="form-select"
+						name="filter[level_max]"
+					>
+						<option selected?={ maxLevel == "" } value="">
+							Any
+						</option>
+						<option selected?={ maxLevel == "1" } value="1">
+							1
+						</option>
+						for level := 5; level <= 50; level += 5 {
+							<option
+								selected?={ maxLevel == strconv.Itoa(level) }
+								value={ strconv.Itoa(level) }
+							>{ strconv.Itoa(level) }</option>
+						}
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="btn-list modal-footer">
+			<button
+				class="btn btn-outline-danger me-auto"
+				data-filter-reset
+				type="button"
+			>
+				<i aria-hidden="true" class="me-2 ti ti-restore"></i>
+				Reset
+			</button>
+			<button
+				class="btn btn-outline-secondary"
+				data-bs-dismiss="modal"
+				type="button"
+			>
+				<i aria-hidden="true" class="me-2 ti ti-x"></i>
+				Cancel
+			</button>
+			<button
+				class="btn btn-primary"
+				data-effect-filter-submit
+				type="submit"
+			>
+				<i aria-hidden="true" class="me-2 ti ti-filter"></i>
+				Filter
+			</button>
+		</div>
+	</form>
 }
