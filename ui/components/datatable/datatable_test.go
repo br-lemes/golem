@@ -16,6 +16,24 @@ type dataTableTestItem struct {
 	Name  string `json:"name"`
 }
 
+func TestSort(t *testing.T) {
+	items := []dataTableTestItem{{Level: 20, Name: "B"}, {Level: 5, Name: "A"}}
+	columns := []Column[dataTableTestItem]{
+		{Field: "level", Sortable: true},
+		{Field: "name", Sortable: true},
+	}
+
+	Sort(items, "level", "asc", columns)
+	if items[0].Level != 5 || items[1].Level != 20 {
+		t.Fatalf("ascending sort = %#v", items)
+	}
+
+	Sort(items, "name", "desc", columns)
+	if items[0].Name != "B" || items[1].Name != "A" {
+		t.Fatalf("descending sort = %#v", items)
+	}
+}
+
 func renderDataTable(t *testing.T, component templ.Component) *goquery.Document {
 	t.Helper()
 	var output bytes.Buffer

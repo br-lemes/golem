@@ -9,9 +9,11 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"cmp"
 	"fmt"
 	"net/url"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -93,6 +95,65 @@ func DataTable[T any](props DataTableProps[T]) templ.Component {
 		}
 	}
 	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage, props.Path, props.Query, props.TotalItems, props.Filter, props.FilterModalID)
+}
+
+func Sort[T any](items []T, field, direction string, columns []Column[T]) {
+	if direction != "asc" && direction != "desc" {
+		return
+	}
+	for _, column := range columns {
+		if column.Field != field || !column.Sortable {
+			continue
+		}
+		sort.SliceStable(items, func(left, right int) bool {
+			comparison := compareFields(reflect.ValueOf(items[left]), reflect.ValueOf(items[right]), field)
+			if direction == "asc" {
+				return comparison < 0
+			}
+			return comparison > 0
+		})
+		return
+	}
+}
+
+func compareFields(left, right reflect.Value, fieldName string) int {
+	left = fieldValue(left, fieldName)
+	right = fieldValue(right, fieldName)
+	if !left.IsValid() || !right.IsValid() {
+		return 0
+	}
+	switch left.Kind() {
+	case reflect.String:
+		return strings.Compare(left.String(), right.String())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return cmp.Compare(left.Int(), right.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return cmp.Compare(left.Uint(), right.Uint())
+	case reflect.Float32, reflect.Float64:
+		return cmp.Compare(left.Float(), right.Float())
+	default:
+		return 0
+	}
+}
+
+func fieldValue(value reflect.Value, fieldName string) reflect.Value {
+	for value.IsValid() && value.Kind() == reflect.Pointer {
+		if value.IsNil() {
+			return reflect.Value{}
+		}
+		value = value.Elem()
+	}
+	if !value.IsValid() || value.Kind() != reflect.Struct {
+		return reflect.Value{}
+	}
+	typeOfValue := value.Type()
+	for index := 0; index < value.NumField(); index++ {
+		field := typeOfValue.Field(index)
+		if strings.Split(field.Tag.Get("json"), ",")[0] == fieldName {
+			return value.Field(index)
+		}
+	}
+	return reflect.Value{}
 }
 
 func Styles() templ.Component {
@@ -221,7 +282,7 @@ func dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []str
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(rowHrefs[rowIndex])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 180, Col: 39}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 241, Col: 39}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 				if templ_7745c5c3_Err != nil {
@@ -262,7 +323,7 @@ func dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []str
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(len(columns)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 193, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 254, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -281,7 +342,7 @@ func dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []str
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(emptyMessage)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 198, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 259, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -305,7 +366,7 @@ func dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []str
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(filterModalID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 208, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 269, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -318,7 +379,7 @@ func dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []str
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(filterModalID + "-title")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 210, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 271, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -398,7 +459,7 @@ func cells(row []dataTableCell, columns []dataTableColumn) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(row[index].Text)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 230, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/datatable.templ`, Line: 291, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {

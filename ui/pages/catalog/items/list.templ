@@ -16,6 +16,14 @@ import (
 
 var route *routes.Node
 
+var columns = []datatable.Column[*schemas.ItemSchema]{
+	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+	{Header: "Name", Field: "name", Sortable: true},
+	{Header: "Type", Field: "type", Sortable: true},
+	{Header: "Subtype", Field: "subtype", Sortable: true},
+	{Header: "Level", Field: "level", Sortable: true},
+}
+
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Items",
@@ -46,7 +54,7 @@ func init() {
 			direction := request.URL.Query().Get("direction")
 			types, subtypes, craftSkills, effects := itemFilterOptions(allItems)
 			allItems = filterItems(allItems, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue)
-			sortItems(allItems, sortField, direction)
+			datatable.Sort(allItems, sortField, direction, columns)
 			size := datatable.DefaultSize
 			if parsedSize, parseErr := strconv.Atoi(request.URL.Query().Get("size")); parseErr == nil {
 				size = datatable.ValidSize(parsedSize)
@@ -54,37 +62,6 @@ func init() {
 			items, page := datatable.Paginate(allItems, page, size)
 			return List(items, page, len(allItems), search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction, size, types, subtypes, craftSkills, effects), http.StatusOK
 		},
-	})
-}
-
-func sortItems(items []*schemas.ItemSchema, field, direction string) {
-	if direction != "asc" && direction != "desc" {
-		return
-	}
-	sort.SliceStable(items, func(left, right int) bool {
-		compare := func(a, b string) bool {
-			if direction == "asc" {
-				return a < b
-			}
-			return a > b
-		}
-		switch field {
-		case "code":
-			return compare(items[left].Code, items[right].Code)
-		case "name":
-			return compare(items[left].Name, items[right].Name)
-		case "type":
-			return compare(items[left].Type, items[right].Type)
-		case "subtype":
-			return compare(items[left].Subtype, items[right].Subtype)
-		case "level":
-			if direction == "asc" {
-				return items[left].Level < items[right].Level
-			}
-			return items[left].Level > items[right].Level
-		default:
-			return false
-		}
 	})
 }
 
@@ -244,13 +221,7 @@ templ List(items []*schemas.ItemSchema, page, totalItems int, search, itemType, 
 				Path:          route.Path,
 				Query:         itemQuery(page, size, search, itemType, subtype, minLevel, maxLevel, tradeable, craftable, recyclable, craftSkill, effect, effectOperator, effectValue, sortField, direction),
 				TotalItems:    &totalItems,
-				Columns: []datatable.Column[*schemas.ItemSchema]{
-					{Header: "Code", Field: "code", Sortable: true, Cell: cell},
-					{Header: "Name", Field: "name", Sortable: true},
-					{Header: "Type", Field: "type", Sortable: true},
-					{Header: "Subtype", Field: "subtype", Sortable: true},
-					{Header: "Level", Field: "level", Sortable: true},
-				},
+				Columns:       columns,
 				RowHref: func(item *schemas.ItemSchema) string {
 					return route.Path + "/" + item.Code
 				},
