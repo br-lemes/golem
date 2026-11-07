@@ -15,29 +15,6 @@ const DefaultSize = 10
 
 var Sizes = []int{5, 10, 25, 50, 100, 250, 500, 1000}
 
-func ValidSize(size int) int {
-	for _, allowed := range Sizes {
-		if size == allowed {
-			return size
-		}
-	}
-	return DefaultSize
-}
-
-func Paginate[T any](items []T, page, size int) ([]T, int) {
-	if page < 1 {
-		page = 1
-	}
-	if size < 1 {
-		size = DefaultSize
-	}
-	totalPages := max(1, (len(items)+size-1)/size)
-	page = min(page, totalPages)
-	start := (page - 1) * size
-	end := min(start+size, len(items))
-	return items[start:end], page
-}
-
 func paginationNav(path string, query Query, totalItems *int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -121,7 +98,7 @@ func paginationNav(path string, query Query, totalItems *int) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(size))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 63, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 40, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +111,7 @@ func paginationNav(path string, query Query, totalItems *int) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(size))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 64, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 41, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -198,7 +175,7 @@ func paginationControl(path string, query Query, page int, icon, label string, e
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 90, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 67, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -211,7 +188,7 @@ func paginationControl(path string, query Query, page int, icon, label string, e
 			var templ_7745c5c3_Var6 templ.SafeURL
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, query, page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 93, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 70, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -304,7 +281,7 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			var templ_7745c5c3_Var12 templ.SafeURL
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, query, page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 113, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 90, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -317,7 +294,7 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 114, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 91, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -335,7 +312,7 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue("Page " + strconv.Itoa(page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 119, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 96, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
@@ -348,7 +325,7 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			var templ_7745c5c3_Var15 templ.SafeURL
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, query, page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 122, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 99, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -361,7 +338,7 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 123, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 100, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {

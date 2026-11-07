@@ -7,29 +7,6 @@ const DefaultSize = 10
 
 var Sizes = []int{5, 10, 25, 50, 100, 250, 500, 1000}
 
-func ValidSize(size int) int {
-	for _, allowed := range Sizes {
-		if size == allowed {
-			return size
-		}
-	}
-	return DefaultSize
-}
-
-func Paginate[T any](items []T, page, size int) ([]T, int) {
-	if page < 1 {
-		page = 1
-	}
-	if size < 1 {
-		size = DefaultSize
-	}
-	totalPages := max(1, (len(items)+size-1)/size)
-	page = min(page, totalPages)
-	start := (page - 1) * size
-	end := min(start+size, len(items))
-	return items[start:end], page
-}
-
 templ paginationNav(path string, query Query, totalItems *int) {
 	{{
 		if path == "" || totalItems == nil {

@@ -1,11 +1,9 @@
 package datatable
 
 import (
-	"cmp"
 	"fmt"
 	"net/url"
 	"reflect"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -87,65 +85,6 @@ func DataTable[T any](props DataTableProps[T]) templ.Component {
 		}
 	}
 	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage, props.Path, props.Query, props.TotalItems, props.Filter, props.FilterModalID)
-}
-
-func Sort[T any](items []T, field, direction string, columns []Column[T]) {
-	if direction != "asc" && direction != "desc" {
-		return
-	}
-	for _, column := range columns {
-		if column.Field != field || !column.Sortable {
-			continue
-		}
-		sort.SliceStable(items, func(left, right int) bool {
-			comparison := compareFields(reflect.ValueOf(items[left]), reflect.ValueOf(items[right]), field)
-			if direction == "asc" {
-				return comparison < 0
-			}
-			return comparison > 0
-		})
-		return
-	}
-}
-
-func compareFields(left, right reflect.Value, fieldName string) int {
-	left = fieldValue(left, fieldName)
-	right = fieldValue(right, fieldName)
-	if !left.IsValid() || !right.IsValid() {
-		return 0
-	}
-	switch left.Kind() {
-	case reflect.String:
-		return strings.Compare(left.String(), right.String())
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return cmp.Compare(left.Int(), right.Int())
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return cmp.Compare(left.Uint(), right.Uint())
-	case reflect.Float32, reflect.Float64:
-		return cmp.Compare(left.Float(), right.Float())
-	default:
-		return 0
-	}
-}
-
-func fieldValue(value reflect.Value, fieldName string) reflect.Value {
-	for value.IsValid() && value.Kind() == reflect.Pointer {
-		if value.IsNil() {
-			return reflect.Value{}
-		}
-		value = value.Elem()
-	}
-	if !value.IsValid() || value.Kind() != reflect.Struct {
-		return reflect.Value{}
-	}
-	typeOfValue := value.Type()
-	for index := 0; index < value.NumField(); index++ {
-		field := typeOfValue.Field(index)
-		if strings.Split(field.Tag.Get("json"), ",")[0] == fieldName {
-			return value.Field(index)
-		}
-	}
-	return reflect.Value{}
 }
 
 templ Styles() {
