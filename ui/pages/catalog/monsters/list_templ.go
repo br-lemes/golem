@@ -21,18 +21,31 @@ import (
 
 var route *routes.Node
 
+var columns = []datatable.Column[*schemas.MonsterSchema]{
+	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+	{Header: "Name", Field: "name", Sortable: true},
+	{Header: "Type", Field: "type", Sortable: true},
+	{Header: "Level", Field: "level", Sortable: true},
+	{Header: "HP", Field: "hp", Sortable: true},
+}
+
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Monsters",
 		Path:  "/catalog/monsters",
 		Icon:  "ti-skull",
-		Handler: func(_ *http.Request) (templ.Component, int) {
-			return List(catalog.Monsters.All()), http.StatusOK
+		Handler: func(request *http.Request) (templ.Component, int) {
+			query := datatable.QueryFromRequest(request)
+			allMonsters := catalog.Monsters.All()
+			allMonsters = datatable.Search(allMonsters, query.Search, columns)
+			page := datatable.Prepare(allMonsters, query, columns)
+			query.Page = page.Page
+			return List(page, query), http.StatusOK
 		},
 	})
 }
 
-func List(monsters []*schemas.MonsterSchema) templ.Component {
+func List(page datatable.Page[*schemas.MonsterSchema], query datatable.Query) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -70,14 +83,11 @@ func List(monsters []*schemas.MonsterSchema) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[*schemas.MonsterSchema]{
-				Data: monsters,
-				Columns: []datatable.Column[*schemas.MonsterSchema]{
-					{Header: "Code", Field: "code", Cell: cell},
-					{Header: "Name", Field: "name"},
-					{Header: "Type", Field: "type"},
-					{Header: "Level", Field: "level"},
-					{Header: "HP", Field: "hp"},
-				},
+				Data:       page.Data,
+				Path:       route.Path,
+				Query:      query,
+				TotalItems: &page.TotalItems,
+				Columns:    columns,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
