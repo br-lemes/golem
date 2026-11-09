@@ -28,6 +28,9 @@ templ Image(props ...Props) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
+	if p.Name == "" {
+		{{ p.Name = p.Code }}
+	}
 	{{ src := fmt.Sprintf("https://artifactsmmo.com/images/%s/%s.png", p.Type, p.Code) }}
 	<img
 		alt={ p.Name }

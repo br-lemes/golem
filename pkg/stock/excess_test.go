@@ -1,4 +1,4 @@
-package cmd
+package stock
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/br-lemes/golem/pkg/models"
 )
 
-func TestStockExcess(t *testing.T) {
+func TestExcess(t *testing.T) {
 	stocks := []models.Stock{
 		{
 			Code:     "raw_chicken",
@@ -57,18 +57,18 @@ func TestStockExcess(t *testing.T) {
 		return (code == "golden_egg" || code == "wolf_ears") && (npc == "" || npc == "all" || npc == "monk")
 	}
 
-	excess := stockExcess(stocks, quantities, false, "", sellable)
-	if len(excess) != 1 || excess["raw_chicken"].Excess != 4 {
-		t.Fatalf("stockExcess() = %#v", excess)
+	result := excess(stocks, quantities, false, "", sellable)
+	if len(result) != 1 || result["raw_chicken"].Excess != 4 {
+		t.Fatalf("excess() = %#v", result)
 	}
 
-	excess = stockExcess(stocks, quantities, false, "all", sellable)
-	if len(excess) != 2 || excess["golden_egg"].Excess != 2 || excess["wolf_ears"].Excess != 3 {
-		t.Fatalf("sell stockExcess() = %#v", excess)
+	result = excess(stocks, quantities, false, "all", sellable)
+	if len(result) != 2 || result["golden_egg"].Excess != 2 || result["wolf_ears"].Excess != 3 {
+		t.Fatalf("sell excess() = %#v", result)
 	}
 
-	excess = stockExcess(stocks, quantities, true, "", sellable)
-	if len(excess) != 4 || excess["iron_sword"].Excess != 2 {
-		t.Fatalf("all stockExcess() = %#v", excess)
+	result = excess(stocks, quantities, true, "", sellable)
+	if len(result) != 4 || result["iron_sword"].Excess != 2 {
+		t.Fatalf("all excess() = %#v", result)
 	}
 }

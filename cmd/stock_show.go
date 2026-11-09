@@ -9,7 +9,7 @@ import (
 var stockShowCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Use:   "show <code>...",
-	Short: "Show requirements for stock items",
+	Short: "Show stock overview for selected items",
 	RunE:  stockRun,
 
 	ValidArgsFunction: completion.Item(0).Build(),

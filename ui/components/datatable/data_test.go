@@ -3,8 +3,24 @@ package datatable
 import "testing"
 
 type dataTableTestItem struct {
-	Level int    `json:"level"`
-	Name  string `json:"name"`
+	Enabled bool   `json:"enabled"`
+	Level   int    `json:"level"`
+	Name    string `json:"name"`
+}
+
+func TestSortBool(t *testing.T) {
+	items := []dataTableTestItem{{Enabled: true}, {Enabled: false}}
+	columns := []Column[dataTableTestItem]{{Field: "enabled", Sortable: true}}
+
+	Sort(items, "enabled", "asc", columns)
+	if items[0].Enabled || !items[1].Enabled {
+		t.Fatalf("ascending bool sort = %#v", items)
+	}
+
+	Sort(items, "enabled", "desc", columns)
+	if !items[0].Enabled || items[1].Enabled {
+		t.Fatalf("descending bool sort = %#v", items)
+	}
 }
 
 func TestSort(t *testing.T) {

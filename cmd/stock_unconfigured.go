@@ -1,43 +1,24 @@
 package cmd
 
 import (
-	"github.com/br-lemes/golem/pkg/api"
 	"github.com/br-lemes/golem/pkg/cache"
 	"github.com/br-lemes/golem/pkg/console"
-	"github.com/br-lemes/golem/pkg/models"
+	"github.com/br-lemes/golem/pkg/stock"
 	"github.com/spf13/cobra"
 )
 
 var stockUnconfiguredCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Use:   "unconfigured",
-	Short: "List held items without stock configuration",
+	Short: "List held items without configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
-		characters, err := api.AccountsCharacters("")
+		unconfigured, err := stock.Unconfigured(cache.ListStocks())
 		if err != nil {
 			return err
 		}
-		bankItems, err := api.MyBankItems()
-		if err != nil {
-			return err
-		}
-		return console.Auto(stockUnconfigured(cache.ListStocks(), stockItemQuantities(bankItems, characters)))
+		return console.Auto(unconfigured)
 	},
-}
-
-func stockUnconfigured(stocks []models.Stock, quantities map[string]int) map[string]int {
-	configured := stockConfigured(stocks)
-	result := map[string]int{}
-	for code, quantity := range quantities {
-		if code != "" && quantity > 0 {
-			_, found := configured[code]
-			if !found {
-				result[code] = quantity
-			}
-		}
-	}
-	return result
 }
 
 func init() {

@@ -14,6 +14,7 @@ import (
 	"github.com/br-lemes/golem/ui/components/routecards"
 	"github.com/br-lemes/golem/ui/layouts"
 	_ "github.com/br-lemes/golem/ui/pages/cache/filters"
+	_ "github.com/br-lemes/golem/ui/pages/cache/stock"
 	"github.com/br-lemes/golem/ui/routes"
 )
 

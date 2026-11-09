@@ -16,8 +16,8 @@ var stockListCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Args:    cobra.ArbitraryArgs,
 	Use:     "list [code...]",
-	Short:   "List configured stock quantities",
-	Long: `List configured stock quantities
+	Short:   "List stock configuration",
+	Long: `List stock configuration
 
 Arguments:
   code   The code of the item.`,

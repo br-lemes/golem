@@ -1,4 +1,4 @@
-package cmd
+package stock
 
 import (
 	"testing"
@@ -21,7 +21,7 @@ func TestStockUnconfigured(t *testing.T) {
 		"empty":  0,
 	}
 
-	result := stockUnconfigured(stocks, quantities)
+	result := unconfigured(stocks, quantities)
 	if len(result) != 1 || result["other"] != 3 {
 		t.Fatalf("stockUnconfigured() = %#v", result)
 	}

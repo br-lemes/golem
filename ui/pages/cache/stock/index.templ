@@ -1,0 +1,32 @@
+package stock
+
+import (
+	"net/http"
+
+	"github.com/br-lemes/golem/ui/components/routecards"
+	"github.com/br-lemes/golem/ui/layouts"
+	_ "github.com/br-lemes/golem/ui/pages/cache/stock/configuration"
+	_ "github.com/br-lemes/golem/ui/pages/cache/stock/excess"
+	_ "github.com/br-lemes/golem/ui/pages/cache/stock/overview"
+	_ "github.com/br-lemes/golem/ui/pages/cache/stock/unconfigured"
+	"github.com/br-lemes/golem/ui/routes"
+)
+
+var route *routes.Node
+
+func init() {
+	route = routes.RegisterRoute(routes.Definition{
+		Label: "Stock",
+		Path:  "/cache/stock",
+		Icon:  "ti-box",
+		Handler: func(_ *http.Request) (templ.Component, int) {
+			return Index(), http.StatusOK
+		},
+	})
+}
+
+templ Index() {
+	@layouts.Base(layouts.Props{Route: route}) {
+		@routecards.RouteCards(routecards.Props{Route: route})
+	}
+}

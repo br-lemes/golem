@@ -143,6 +143,14 @@ func compareFields(left, right reflect.Value, fieldName string) int {
 		return cmp.Compare(left.Uint(), right.Uint())
 	case reflect.Float32, reflect.Float64:
 		return cmp.Compare(left.Float(), right.Float())
+	case reflect.Bool:
+		if left.Bool() == right.Bool() {
+			return 0
+		}
+		if !left.Bool() {
+			return -1
+		}
+		return 1
 	default:
 		return 0
 	}

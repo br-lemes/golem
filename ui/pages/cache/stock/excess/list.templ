@@ -1,0 +1,89 @@
+package excess
+
+import (
+	"net/http"
+
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/stock"
+	"github.com/br-lemes/golem/ui/components/artifact"
+	"github.com/br-lemes/golem/ui/components/datatable"
+	"github.com/br-lemes/golem/ui/components/error500"
+	"github.com/br-lemes/golem/ui/layouts"
+	"github.com/br-lemes/golem/ui/routes"
+)
+
+var route *routes.Node
+
+var columns = []datatable.Column[item]{
+	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+	{Header: "Current", Field: "current", Sortable: true},
+	{Header: "Quantity", Field: "quantity", Sortable: true},
+	{Header: "Excess", Field: "excess", Sortable: true},
+}
+
+type item struct {
+	Code     string `json:"code"`
+	Current  int    `json:"current"`
+	Quantity int    `json:"quantity"`
+	Excess   int    `json:"excess"`
+}
+
+func init() {
+	route = routes.RegisterRoute(routes.Definition{
+		Order: 2,
+		Label: "Excess",
+		Path:  "/cache/stock/excess",
+		Icon:  "ti-chart-bar",
+		Handler: func(request *http.Request) (templ.Component, int) {
+			result, err := stock.Excess(cache.ListStocks(), false, "")
+			if err != nil {
+				return error500.Error500(err), http.StatusInternalServerError
+			}
+			query := datatable.QueryFromRequest(request)
+			if query.Sort == "" {
+				query.Sort = "code"
+				query.Direction = "asc"
+			}
+			items := excessItems(result)
+			items = datatable.Search(items, query.Search, columns)
+			page := datatable.Prepare(items, query, columns)
+			query.Page = page.Page
+			return List(page, query), http.StatusOK
+		},
+	})
+}
+
+templ List(page datatable.Page[item], query datatable.Query) {
+	@layouts.Base(layouts.Props{Route: route}) {
+		<div class="card">
+			@datatable.DataTable(datatable.DataTableProps[item]{
+				Data:       page.Data,
+				Path:       route.Path,
+				Query:      query,
+				TotalItems: &page.TotalItems,
+				Columns:    columns,
+			})
+		</div>
+	}
+}
+
+templ cell(stock item) {
+	@artifact.Label(artifact.Props{
+		Class: "font-monospace small",
+		Code:  stock.Code,
+		Type:  artifact.TypeItems,
+	})
+}
+
+func excessItems(values map[string]stock.ItemExcess) []item {
+	items := make([]item, 0, len(values))
+	for code, value := range values {
+		items = append(items, item{
+			Code:     code,
+			Current:  value.Current,
+			Quantity: value.Quantity,
+			Excess:   value.Excess,
+		})
+	}
+	return items
+}

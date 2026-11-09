@@ -1,0 +1,61 @@
+package configuration
+
+import (
+	"net/http"
+
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/models"
+	"github.com/br-lemes/golem/ui/components/artifact"
+	"github.com/br-lemes/golem/ui/components/datatable"
+	"github.com/br-lemes/golem/ui/layouts"
+	"github.com/br-lemes/golem/ui/routes"
+)
+
+var route *routes.Node
+
+var columns = []datatable.Column[models.Stock]{
+	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+	{Header: "Quantity", Field: "quantity", Sortable: true},
+	{Header: "Mode", Field: "mode", Sortable: true},
+	{Header: "Enabled", Field: "enabled", Sortable: true},
+	{Header: "Discard", Field: "discard", Sortable: true},
+	{Header: "Replenishing", Field: "replenishing", Sortable: true},
+}
+
+func init() {
+	route = routes.RegisterRoute(routes.Definition{
+		Order: 3,
+		Label: "Configuration",
+		Path:  "/cache/stock/configuration",
+		Icon:  "ti-settings",
+		Handler: func(request *http.Request) (templ.Component, int) {
+			query := datatable.QueryFromRequest(request)
+			stocks := datatable.Search(cache.ListStocks(), query.Search, columns)
+			page := datatable.Prepare(stocks, query, columns)
+			query.Page = page.Page
+			return List(page, query), http.StatusOK
+		},
+	})
+}
+
+templ List(page datatable.Page[models.Stock], query datatable.Query) {
+	@layouts.Base(layouts.Props{Route: route}) {
+		<div class="card">
+			@datatable.DataTable(datatable.DataTableProps[models.Stock]{
+				Data:       page.Data,
+				Path:       route.Path,
+				Query:      query,
+				TotalItems: &page.TotalItems,
+				Columns:    columns,
+			})
+		</div>
+	}
+}
+
+templ cell(stock models.Stock) {
+	@artifact.Label(artifact.Props{
+		Class: "font-monospace small",
+		Code:  stock.Code,
+		Type:  artifact.TypeItems,
+	})
+}

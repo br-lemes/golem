@@ -1,0 +1,90 @@
+package overview
+
+import (
+	"net/http"
+
+	"github.com/br-lemes/golem/pkg/cache"
+	"github.com/br-lemes/golem/pkg/stock"
+	"github.com/br-lemes/golem/ui/components/artifact"
+	"github.com/br-lemes/golem/ui/components/datatable"
+	"github.com/br-lemes/golem/ui/components/error500"
+	"github.com/br-lemes/golem/ui/layouts"
+	"github.com/br-lemes/golem/ui/routes"
+)
+
+var route *routes.Node
+
+var columns = []datatable.Column[row]{
+	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+	{Header: "Current", Field: "current", Sortable: true},
+	{Header: "Needed", Field: "needed", Sortable: true},
+	{Header: "Demand", Field: "demand", Sortable: true},
+	{Header: "Safety", Field: "safety", Sortable: true},
+	{Header: "Target", Field: "target", Sortable: true},
+}
+
+type row struct {
+	Code    string `json:"code"`
+	Current int    `json:"current"`
+	Needed  int    `json:"needed"`
+	Demand  int    `json:"demand"`
+	Safety  int    `json:"safety"`
+	Target  int    `json:"target"`
+}
+
+func init() {
+	route = routes.RegisterRoute(routes.Definition{
+		Order: 1,
+		Label: "Overview",
+		Path:  "/cache/stock/overview",
+		Icon:  "ti-dashboard",
+		Handler: func(request *http.Request) (templ.Component, int) {
+			items, err := stock.Overview(cache.ListStocks(), nil, false)
+			if err != nil {
+				return error500.Error500(err), http.StatusInternalServerError
+			}
+			data := make([]row, 0, len(items))
+			for code, item := range items {
+				data = append(data, row{
+					Code:    code,
+					Current: item.Current,
+					Needed:  item.Needed,
+					Demand:  item.Demand,
+					Safety:  item.Safety,
+					Target:  item.Target,
+				})
+			}
+			query := datatable.QueryFromRequest(request)
+			if query.Sort == "" {
+				query.Sort = "code"
+				query.Direction = "asc"
+			}
+			data = datatable.Search(data, query.Search, columns)
+			page := datatable.Prepare(data, query, columns)
+			query.Page = page.Page
+			return List(page, query), http.StatusOK
+		},
+	})
+}
+
+templ List(page datatable.Page[row], query datatable.Query) {
+	@layouts.Base(layouts.Props{Route: route}) {
+		<div class="card">
+			@datatable.DataTable(datatable.DataTableProps[row]{
+				Data:       page.Data,
+				Path:       route.Path,
+				Query:      query,
+				TotalItems: &page.TotalItems,
+				Columns:    columns,
+			})
+		</div>
+	}
+}
+
+templ cell(item row) {
+	@artifact.Label(artifact.Props{
+		Class: "font-monospace small",
+		Code:  item.Code,
+		Type:  artifact.TypeItems,
+	})
+}

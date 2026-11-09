@@ -1,0 +1,23 @@
+package error500
+
+import "github.com/br-lemes/golem/ui/layouts"
+
+templ Error500(err error) {
+	@layouts.Base() {
+		<div class="align-items-center d-flex flex-column flex-fill justify-content-center">
+			<img
+				alt="Golem 500 Logo"
+				class="img-fluid"
+				src="/assets/images/500.png"
+				style="width: min(80vw, 400px);"
+			/>
+			<h1
+				class="display-5 fw-semibold mt-3"
+				style="font-variant-caps: small-caps;"
+			>
+				Internal Server Error
+			</h1>
+			<p class="fs-1">{ err.Error() }</p>
+		</div>
+	}
+}

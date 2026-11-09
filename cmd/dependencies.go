@@ -11,6 +11,7 @@ import (
 	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/models"
 	"github.com/br-lemes/golem/pkg/schemas"
+	"github.com/br-lemes/golem/pkg/stock"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -82,7 +83,7 @@ func dependenciesRun(codes []string, flags dependenciesFlags) error {
 		if err != nil {
 			return err
 		}
-		ignoredStockCodes = dependenciesIgnoredStockCodes(cache.ListStocks(), stockItemQuantities(bankItems, characters))
+		ignoredStockCodes = dependenciesIgnoredStockCodes(cache.ListStocks(), stock.ItemQuantities(bankItems, characters))
 	}
 	if len(codes) > 0 {
 		codes = slices.DeleteFunc(codes, func(code string) bool {
