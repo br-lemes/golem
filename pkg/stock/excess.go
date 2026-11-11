@@ -30,7 +30,11 @@ func excess(stocks []models.Stock, quantities map[string]int, all bool, sell str
 		}
 		current := quantities[stock.Code]
 		if current > stock.Quantity {
-			result[stock.Code] = ItemExcess{Current: current, Quantity: stock.Quantity, Excess: current - stock.Quantity}
+			result[stock.Code] = ItemExcess{
+				Current:  current,
+				Quantity: stock.Quantity,
+				Excess:   current - stock.Quantity,
+			}
 		}
 	}
 	return result

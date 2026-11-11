@@ -5,12 +5,42 @@ import (
 	"fmt"
 )
 
-templ dataTableHeader(rowCount, columnCount int, path string, query Query, totalItems *int, hasFilter bool, filterModalID string) {
+templ dataTableHeader(rowCount, columnCount int, path string, query Query, totalItems *int, hasFilter bool, filterModalID string, refresh string, refreshPeriod int) {
 	{{ filterSummary := filterSummary(query.Filters) }}
 	<tr>
 		<th colspan={ fmt.Sprint(columnCount) }>
 			<div class="align-items-center g-2 row">
 				<div class="col-md-4">
+					if refresh == RefreshAuto {
+						<div class="input-icon">
+							<span class="input-icon-addon">
+								<i aria-hidden="true" class="ti ti-refresh"></i>
+							</span>
+							<select
+								aria-label="Auto refresh"
+								class="form-select w-auto"
+								data-swr-refresh={ refresh }
+							>
+								for _, period := range RefreshPeriods {
+									<option
+										selected?={ period == refreshPeriod }
+										value={ period }
+									>
+										{ period }s
+									</option>
+								}
+							</select>
+						</div>
+					} else if refresh == RefreshManual {
+						<a
+							aria-label="Refresh"
+							class="btn btn-icon btn-primary rounded-circle"
+							data-swr="true"
+							href={ queryHref(path, query, query.Page) }
+						>
+							<i aria-hidden="true" class="ti ti-refresh"></i>
+						</a>
+					}
 					if hasFilter {
 						<button
 							aria-label="Filter"
@@ -24,7 +54,7 @@ templ dataTableHeader(rowCount, columnCount int, path string, query Query, total
 						</button>
 					}
 				</div>
-				<div class="col-md-4 text-center">
+				<div class="col-md-4 text-center" data-swr-region="summary">
 					<div
 						aria-label={ recordsLabel(rowCount, totalItems) }
 						class="small"

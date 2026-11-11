@@ -40,7 +40,7 @@ func paginationNav(path string, query Query, totalItems *int) templ.Component {
 			return
 		}
 		totalPages := max(1, (*totalItems+query.Size-1)/query.Size)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center\" data-swr-region=\"pagination\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

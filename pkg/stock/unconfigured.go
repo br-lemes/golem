@@ -17,7 +17,8 @@ func unconfigured(stocks []models.Stock, quantities map[string]int) map[string]i
 	result := map[string]int{}
 	for code, quantity := range quantities {
 		if code != "" && quantity > 0 {
-			if _, found := configured[code]; !found {
+			_, found := configured[code]
+			if !found {
 				result[code] = quantity
 			}
 		}

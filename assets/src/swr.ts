@@ -4,6 +4,11 @@ import * as notifications from "./notifications";
 
 const pages = new Map<string, string>();
 
+const defaultRefreshPeriod = 5;
+const refreshPeriodCookie = "swr-refresh-period";
+
+const refreshPeriods = [0, 5, 10, 15, 30, 45, 60, 90];
+
 type Operation = {
 	id: number;
 	href: string;
@@ -13,6 +18,7 @@ type Operation = {
 
 let currentOperation: Operation | undefined;
 let nextOperationID = 0;
+let refreshTimer: number | undefined;
 
 document.addEventListener("click", (event: MouseEvent) => {
 	const target = event.target as Element | null;
@@ -31,6 +37,16 @@ document.addEventListener("click", (event: MouseEvent) => {
 	closeSidebarMenu(source);
 	console.log("[swr] click", { url: href });
 	void navigate(href);
+});
+
+document.addEventListener("change", (event: Event) => {
+	const select = event.target as HTMLSelectElement | null;
+	if (!select?.matches("[data-swr-refresh='auto']")) {
+		return;
+	}
+	// biome-ignore lint/suspicious/noDocumentCookie: LAN HTTP, single write
+	document.cookie = `${refreshPeriodCookie}=${select.value}; path=/; max-age=31536000; samesite=lax`;
+	scheduleRefresh();
 });
 
 window.addEventListener("popstate", () => {
@@ -64,7 +80,7 @@ export const navigate = async (
 	});
 
 	try {
-		if (cached) {
+		if (cached && pushHistory && !hasDiffContent()) {
 			console.log("[swr] stale swap", {
 				id: operation.id,
 				url: operation.href,
@@ -100,7 +116,9 @@ export const navigate = async (
 			id: operation.id,
 			url: operation.href,
 		});
-		swapContent(selected);
+		if (!diffContent(text)) {
+			swapContent(selected);
+		}
 		if (pushHistory && !cached) {
 			scrollToTop();
 		}
@@ -120,6 +138,7 @@ export const navigate = async (
 		if (currentOperation === operation) {
 			setLoading(operation, "idle");
 			currentOperation = undefined;
+			scheduleRefresh();
 		}
 		console.log("[swr] operation finished", {
 			id: operation.id,
@@ -128,17 +147,79 @@ export const navigate = async (
 	}
 };
 
-const cancel = (operation: Operation | undefined): void => {
-	if (!operation || operation.cancelled) {
-		return;
+const diffContent = (text: string): boolean => {
+	const current = document.querySelector<HTMLTableElement>(
+		"table[data-swr-diff]",
+	);
+	const incomingDocument = new DOMParser().parseFromString(text, "text/html");
+	const incoming = incomingDocument.querySelector<HTMLTableElement>(
+		"table[data-swr-diff]",
+	);
+	if (!current || !incoming) {
+		return false;
 	}
-	operation.cancelled = true;
-	operation.controller.abort();
-	console.log("[swr] operation cancelled", {
-		id: operation.id,
-		url: operation.href,
-	});
+	for (const region of ["summary", "pagination"]) {
+		const currentRegion = document.querySelector<HTMLElement>(
+			`[data-swr-region="${region}"]`,
+		);
+		const incomingRegion = incomingDocument.querySelector<HTMLElement>(
+			`[data-swr-region="${region}"]`,
+		);
+		if (!currentRegion || !incomingRegion) {
+			continue;
+		}
+		if (currentRegion.innerHTML !== incomingRegion.innerHTML) {
+			currentRegion.replaceWith(
+				document.importNode(incomingRegion, true),
+			);
+		}
+	}
+	const currentRows = new Map(
+		Array.from(
+			current.querySelectorAll<HTMLTableRowElement>(
+				"tbody tr[data-swr-key]",
+			),
+		).map((row) => [row.dataset.swrKey, row]),
+	);
+	const incomingRows = Array.from(
+		incoming.querySelectorAll<HTMLTableRowElement>(
+			"tbody tr[data-swr-key]",
+		),
+	);
+	if (currentRows.size !== incomingRows.length) {
+		return false;
+	}
+	for (const incomingRow of incomingRows) {
+		const currentRow = currentRows.get(incomingRow.dataset.swrKey);
+		if (!currentRow) {
+			return false;
+		}
+		for (const incomingCell of incomingRow.querySelectorAll<HTMLElement>(
+			"[data-swr-field]",
+		)) {
+			const field = incomingCell.dataset.swrField;
+			const currentCell = currentRow.querySelector<HTMLElement>(
+				`[data-swr-field="${field}"]`,
+			);
+			if (
+				!currentCell ||
+				currentCell.innerHTML === incomingCell.innerHTML
+			) {
+				continue;
+			}
+			currentCell.innerHTML = incomingCell.innerHTML;
+			currentCell.classList.add("table-warning");
+			window.setTimeout(
+				() => currentCell.classList.remove("table-warning"),
+				2000,
+			);
+		}
+	}
+	return true;
 };
+
+const hasDiffContent = (): boolean =>
+	document.querySelector("table[data-swr-diff]") !== null;
 
 const setLoading = (
 	operation: Operation,
@@ -158,6 +239,59 @@ const setLoading = (
 const scrollToTop = (): void => {
 	window.scrollTo(0, 0);
 };
+
+const cancel = (operation: Operation | undefined): void => {
+	if (!operation || operation.cancelled) {
+		return;
+	}
+	operation.cancelled = true;
+	operation.controller.abort();
+	console.log("[swr] operation cancelled", {
+		id: operation.id,
+		url: operation.href,
+	});
+};
+
+const scheduleRefresh = (): void => {
+	clearRefreshTimer();
+	const source = document.querySelector<HTMLSelectElement>(
+		'select[data-swr-refresh="auto"]',
+	);
+	if (!source) {
+		return;
+	}
+	const seconds = readRefreshPeriod();
+	if (seconds <= 0) {
+		return;
+	}
+	refreshTimer = window.setTimeout(() => {
+		refreshTimer = undefined;
+		if (
+			document.visibilityState === "visible" &&
+			currentOperation === undefined
+		) {
+			void navigate(window.location.href, false);
+			return;
+		}
+		scheduleRefresh();
+	}, seconds * 1000);
+};
+
+const clearRefreshTimer = (): void => {
+	if (refreshTimer !== undefined) {
+		window.clearTimeout(refreshTimer);
+		refreshTimer = undefined;
+	}
+};
+
+function readRefreshPeriod(): number {
+	const match = document.cookie.match(
+		new RegExp(`(?:^|;\\s*)${refreshPeriodCookie}=([^;]*)`),
+	);
+	if (!match) return defaultRefreshPeriod;
+	const parsed = Number.parseInt(decodeURIComponent(match[1]), 10);
+	return refreshPeriods.includes(parsed) ? parsed : defaultRefreshPeriod;
+}
 
 const hrefFor = (source: HTMLElement): string | undefined => {
 	const value = source.dataset.swr;
@@ -195,15 +329,26 @@ const isPlainNavigation = (
 	source: HTMLElement,
 	href: string,
 ): boolean => {
+	if (source instanceof HTMLAnchorElement && source.target) {
+		console.error(
+			"[swr] anchors with data-swr must not set target; deferring to browser",
+			source,
+		);
+		return false;
+	}
+	const sel = window.getSelection();
+	const hasSelectionInSource =
+		sel?.isCollapsed === false &&
+		sel?.anchorNode != null &&
+		source.contains(sel?.anchorNode);
 	return (
 		event.button === 0 &&
-		window.getSelection()?.isCollapsed !== false &&
+		!hasSelectionInSource &&
 		!event.defaultPrevented &&
 		!event.metaKey &&
 		!event.ctrlKey &&
 		!event.shiftKey &&
 		!event.altKey &&
-		(!(source instanceof HTMLAnchorElement) || !source.target) &&
 		new URL(href).origin === window.location.origin
 	);
 };
@@ -215,6 +360,7 @@ const cacheInitialPage = (): void => {
 	}
 	pages.set(window.location.href, target.outerHTML);
 	console.log("[swr] initial page cached", { url: window.location.href });
+	scheduleRefresh();
 };
 
 cacheInitialPage();

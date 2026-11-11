@@ -1,6 +1,9 @@
 package datatable
 
-import "testing"
+import (
+	"net/http"
+	"testing"
+)
 
 type dataTableTestItem struct {
 	Enabled bool   `json:"enabled"`
@@ -56,5 +59,37 @@ func TestSearch(t *testing.T) {
 	results = Search(items, "20", columns)
 	if len(results) != 1 || results[0].Level != 20 {
 		t.Fatalf("numeric search = %#v", results)
+	}
+}
+
+func TestRefreshPeriodFromRequest(t *testing.T) {
+	tests := []struct {
+		cookie   string
+		expected int
+	}{
+		{"", DefaultRefreshPeriod},
+		{"off", DefaultRefreshPeriod},
+		{"0", 0},
+		{"5", 5},
+		{"90", 90},
+		{"7", DefaultRefreshPeriod},
+		{" 10 ", 10},
+	}
+	for _, test := range tests {
+		request, err := http.NewRequest(http.MethodGet, "http://example.com/", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if test.cookie != "" {
+			cookie := &http.Cookie{
+				Name:  "swr-refresh-period",
+				Value: test.cookie,
+			}
+			request.AddCookie(cookie)
+		}
+		actual := RefreshPeriodFromRequest(request)
+		if actual != test.expected {
+			t.Fatalf("RefreshPeriodFromRequest(%q) = %d, want %d", test.cookie, actual, test.expected)
+		}
 	}
 }

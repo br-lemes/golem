@@ -16,6 +16,26 @@ type Page[T any] struct {
 	TotalItems int
 }
 
+const DefaultRefreshPeriod = 5
+const refreshPeriodCookie = "swr-refresh-period"
+
+var RefreshPeriods = []int{0, 5, 10, 15, 30, 45, 60, 90}
+
+func RefreshPeriodFromRequest(request *http.Request) int {
+	cookie, err := request.Cookie(refreshPeriodCookie)
+	if err != nil {
+		return DefaultRefreshPeriod
+	}
+	parsed, err := strconv.Atoi(strings.TrimSpace(cookie.Value))
+	if err != nil {
+		return DefaultRefreshPeriod
+	}
+	if slices.Contains(RefreshPeriods, parsed) {
+		return parsed
+	}
+	return DefaultRefreshPeriod
+}
+
 func QueryFromRequest(request *http.Request) Query {
 	values := request.URL.Query()
 	page, err := strconv.Atoi(values.Get("page"))

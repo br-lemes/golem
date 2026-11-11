@@ -45,13 +45,16 @@ func Overview(stocks []models.Stock, codes []string, target bool) (map[string]It
 func Calculate(stocks []models.Stock, quantities map[string]int, characters []schemas.CharacterSchema, codes []string, target bool) (map[string]ItemStock, error) {
 	configured := configured(stocks)
 	reachable := taskSafeties(catalog.Tasks().All(), nil, maxSkillLevels(characters))
-	if err := initialize(configured, potionSafeties()); err != nil {
+	err := initialize(configured, potionSafeties())
+	if err != nil {
 		return nil, err
 	}
-	if err := initialize(configured, allTaskSafeties(catalog.Tasks().All())); err != nil {
+	err = initialize(configured, allTaskSafeties(catalog.Tasks().All()))
+	if err != nil {
 		return nil, err
 	}
-	if err := updateReplenishing(configured, quantities); err != nil {
+	err = updateReplenishing(configured, quantities)
+	if err != nil {
 		return nil, err
 	}
 	return requirements(configured, quantities, characters, taskCodes(), reachable, codes, target), nil

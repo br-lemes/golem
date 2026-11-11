@@ -63,19 +63,17 @@ func init() {
 				})
 			}
 			query := datatable.QueryFromRequest(request)
-			if query.Sort == "" {
-				query.Sort = "code"
-				query.Direction = "asc"
-			}
 			data = datatable.Search(data, query.Search, columns)
+			datatable.Sort(data, "code", "asc", columns)
 			page := datatable.Prepare(data, query, columns)
 			query.Page = page.Page
-			return List(page, query), http.StatusOK
+			refreshPeriod := datatable.RefreshPeriodFromRequest(request)
+			return List(page, query, refreshPeriod), http.StatusOK
 		},
 	})
 }
 
-func List(page datatable.Page[row], query datatable.Query) templ.Component {
+func List(page datatable.Page[row], query datatable.Query, refreshPeriod int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -113,11 +111,15 @@ func List(page datatable.Page[row], query datatable.Query) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[row]{
-				Data:       page.Data,
-				Path:       route.Path,
-				Query:      query,
-				TotalItems: &page.TotalItems,
-				Columns:    columns,
+				Data:          page.Data,
+				Path:          route.Path,
+				Query:         query,
+				TotalItems:    &page.TotalItems,
+				Refresh:       datatable.RefreshAuto,
+				RefreshPeriod: refreshPeriod,
+				Diff:          true,
+				RowKey:        func(item row) string { return item.Code },
+				Columns:       columns,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

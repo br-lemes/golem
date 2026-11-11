@@ -219,9 +219,7 @@ func TestRecipeRequirementsExpandsNPCOffer(t *testing.T) {
 	offers := map[string][]schemas.SimpleNPCItemSchema{
 		"corrupted_crown": {offer},
 	}
-	direct := map[string]goal{
-		"corrupted_crown": {Quantity: 5, Expand: true},
-	}
+	direct := map[string]goal{"corrupted_crown": {Quantity: 5, Expand: true}}
 
 	required, needed := recipeRequirements(nil, offers, direct, nil, nil)
 	if required["corrupted_gem"] != 1100 || needed["corrupted_gem"] != 1100 {

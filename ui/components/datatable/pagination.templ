@@ -14,7 +14,7 @@ templ paginationNav(path string, query Query, totalItems *int) {
 		}
 	}}
 	{{ totalPages := max(1, (*totalItems+query.Size-1)/query.Size) }}
-	<div class="align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center">
+	<div class="align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center" data-swr-region="pagination">
 		if totalPages > 1 {
 			<nav aria-label="Pagination">
 				<ul class="justify-content-center mb-0 pagination">

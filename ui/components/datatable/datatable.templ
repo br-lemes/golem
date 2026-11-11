@@ -22,11 +22,20 @@ type DataTableProps[T any] struct {
 	EmptyMessage  string
 	Filter        templ.Component
 	FilterModalID string
+	Refresh       string
+	RefreshPeriod int
 	Path          string
 	Query         Query
 	TotalItems    *int
 	RowHref       func(T) string
+	Diff          bool
+	RowKey        func(T) string
 }
+
+const (
+	RefreshManual = "manual"
+	RefreshAuto   = "auto"
+)
 
 type Query struct {
 	Page      int
@@ -58,6 +67,7 @@ func DataTable[T any](props DataTableProps[T]) templ.Component {
 
 	rows := make([][]dataTableCell, value.Len())
 	rowHrefs := make([]string, value.Len())
+	rowKeys := make([]string, value.Len())
 	for rowIndex := 0; rowIndex < value.Len(); rowIndex++ {
 		item := value.Index(rowIndex)
 		rows[rowIndex] = make([]dataTableCell, len(props.Columns))
@@ -73,6 +83,9 @@ func DataTable[T any](props DataTableProps[T]) templ.Component {
 		if props.RowHref != nil {
 			rowHrefs[rowIndex] = props.RowHref(item.Interface().(T))
 		}
+		if props.RowKey != nil {
+			rowKeys[rowIndex] = props.RowKey(item.Interface().(T))
+		}
 	}
 
 	definitions := make([]dataTableColumn, len(props.Columns))
@@ -84,7 +97,7 @@ func DataTable[T any](props DataTableProps[T]) templ.Component {
 			Sortable: column.Sortable,
 		}
 	}
-	return dataTable(rows, definitions, rowHrefs, props.EmptyMessage, props.Path, props.Query, props.TotalItems, props.Filter, props.FilterModalID)
+	return dataTable(rows, definitions, rowHrefs, rowKeys, props.EmptyMessage, props.Path, props.Query, props.TotalItems, props.Filter, props.FilterModalID, props.Refresh, props.RefreshPeriod, props.Diff)
 }
 
 templ Styles() {
@@ -165,23 +178,26 @@ func queryHref(path string, query Query, page int) string {
 	return path
 }
 
-templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []string, emptyMessage, path string, query Query, totalItems *int, filter templ.Component, filterModalID string) {
+templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs, rowKeys []string, emptyMessage, path string, query Query, totalItems *int, filter templ.Component, filterModalID string, refresh string, refreshPeriod int, diff bool) {
 	<div class="table-responsive">
-		<table class="data-table table table-hover table-striped table-vcenter">
+		<table class="data-table table table-hover table-striped table-vcenter" data-swr-diff?={ diff }>
 			<thead>
 				if path != "" {
-					@dataTableHeader(len(rows), len(columns), path, query, totalItems, filter != nil, filterModalID)
+					@dataTableHeader(len(rows), len(columns), path, query, totalItems, filter != nil, filterModalID, refresh, refreshPeriod)
 				}
 				@dataTableColumns(columns, path, query)
 			</thead>
 			<tbody>
 				for rowIndex, row := range rows {
 					if rowHrefs[rowIndex] != "" {
-						<tr data-swr={ rowHrefs[rowIndex] }>
+						<tr
+							data-swr={ rowHrefs[rowIndex] }
+							data-swr-key={ rowKeys[rowIndex] }
+						>
 							@cells(row, columns)
 						</tr>
 					} else {
-						<tr>
+						<tr data-swr-key={ rowKeys[rowIndex] }>
 							@cells(row, columns)
 						</tr>
 					}
@@ -223,7 +239,10 @@ templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs []st
 
 templ cells(row []dataTableCell, columns []dataTableColumn) {
 	for index := range columns {
-		<td class={ row[index].Class }>
+		<td
+			class={ row[index].Class }
+			data-swr-field={ columns[index].Field }
+		>
 			if row[index].Component != nil {
 				@row[index].Component
 			} else {
