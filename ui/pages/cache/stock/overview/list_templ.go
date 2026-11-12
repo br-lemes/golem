@@ -22,7 +22,7 @@ import (
 
 var route *routes.Node
 
-var columns = []datatable.Column[row]{
+var columns = []datatable.Column[item]{
 	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
 	{Header: "Current", Field: "current", Sortable: true},
 	{Header: "Needed", Field: "needed", Sortable: true},
@@ -31,7 +31,7 @@ var columns = []datatable.Column[row]{
 	{Header: "Target", Field: "target", Sortable: true},
 }
 
-type row struct {
+type item struct {
 	Code    string `json:"code"`
 	Current int    `json:"current"`
 	Needed  int    `json:"needed"`
@@ -47,25 +47,15 @@ func init() {
 		Path:  "/cache/stock/overview",
 		Icon:  "ti-dashboard",
 		Handler: func(request *http.Request) (templ.Component, int) {
-			items, err := stock.Overview(cache.ListStocks(), nil, false)
+			result, err := stock.Overview(cache.ListStocks(), nil, false)
 			if err != nil {
 				return error500.Error500(err), http.StatusInternalServerError
 			}
-			data := make([]row, 0, len(items))
-			for code, item := range items {
-				data = append(data, row{
-					Code:    code,
-					Current: item.Current,
-					Needed:  item.Needed,
-					Demand:  item.Demand,
-					Safety:  item.Safety,
-					Target:  item.Target,
-				})
-			}
 			query := datatable.QueryFromRequest(request)
-			data = datatable.Search(data, query.Search, columns)
-			datatable.Sort(data, "code", "asc", columns)
-			page := datatable.Prepare(data, query, columns)
+			items := overviewItems(result)
+			items = datatable.Search(items, query.Search, columns)
+			datatable.Sort(items, "code", "asc", columns)
+			page := datatable.Prepare(items, query, columns)
 			query.Page = page.Page
 			refreshPeriod := datatable.RefreshPeriodFromRequest(request)
 			return List(page, query, refreshPeriod), http.StatusOK
@@ -73,7 +63,7 @@ func init() {
 	})
 }
 
-func List(page datatable.Page[row], query datatable.Query, refreshPeriod int) templ.Component {
+func List(page datatable.Page[item], query datatable.Query, refreshPeriod int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -110,7 +100,7 @@ func List(page datatable.Page[row], query datatable.Query, refreshPeriod int) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[row]{
+			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[item]{
 				Data:          page.Data,
 				Path:          route.Path,
 				Query:         query,
@@ -118,7 +108,7 @@ func List(page datatable.Page[row], query datatable.Query, refreshPeriod int) te
 				Refresh:       datatable.RefreshAuto,
 				RefreshPeriod: refreshPeriod,
 				Diff:          true,
-				RowKey:        func(item row) string { return item.Code },
+				RowKey:        func(item item) string { return item.Code },
 				Columns:       columns,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -138,7 +128,7 @@ func List(page datatable.Page[row], query datatable.Query, refreshPeriod int) te
 	})
 }
 
-func cell(item row) templ.Component {
+func cell(item item) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -169,6 +159,21 @@ func cell(item row) templ.Component {
 		}
 		return nil
 	})
+}
+
+func overviewItems(values map[string]stock.ItemStock) []item {
+	items := make([]item, 0, len(values))
+	for code, value := range values {
+		items = append(items, item{
+			Code:    code,
+			Current: value.Current,
+			Needed:  value.Needed,
+			Demand:  value.Demand,
+			Safety:  value.Safety,
+			Target:  value.Target,
+		})
+	}
+	return items
 }
 
 var _ = templruntime.GeneratedTemplate

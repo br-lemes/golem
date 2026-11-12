@@ -14,7 +14,7 @@ import (
 
 var route *routes.Node
 
-var columns = []datatable.Column[row]{
+var columns = []datatable.Column[item]{
 	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
 	{Header: "Current", Field: "current", Sortable: true},
 	{Header: "Needed", Field: "needed", Sortable: true},
@@ -23,7 +23,7 @@ var columns = []datatable.Column[row]{
 	{Header: "Target", Field: "target", Sortable: true},
 }
 
-type row struct {
+type item struct {
 	Code    string `json:"code"`
 	Current int    `json:"current"`
 	Needed  int    `json:"needed"`
@@ -39,25 +39,15 @@ func init() {
 		Path:  "/cache/stock/overview",
 		Icon:  "ti-dashboard",
 		Handler: func(request *http.Request) (templ.Component, int) {
-			items, err := stock.Overview(cache.ListStocks(), nil, false)
+			result, err := stock.Overview(cache.ListStocks(), nil, false)
 			if err != nil {
 				return error500.Error500(err), http.StatusInternalServerError
 			}
-			data := make([]row, 0, len(items))
-			for code, item := range items {
-				data = append(data, row{
-					Code:    code,
-					Current: item.Current,
-					Needed:  item.Needed,
-					Demand:  item.Demand,
-					Safety:  item.Safety,
-					Target:  item.Target,
-				})
-			}
 			query := datatable.QueryFromRequest(request)
-			data = datatable.Search(data, query.Search, columns)
-			datatable.Sort(data, "code", "asc", columns)
-			page := datatable.Prepare(data, query, columns)
+			items := overviewItems(result)
+			items = datatable.Search(items, query.Search, columns)
+			datatable.Sort(items, "code", "asc", columns)
+			page := datatable.Prepare(items, query, columns)
 			query.Page = page.Page
 			refreshPeriod := datatable.RefreshPeriodFromRequest(request)
 			return List(page, query, refreshPeriod), http.StatusOK
@@ -65,10 +55,10 @@ func init() {
 	})
 }
 
-templ List(page datatable.Page[row], query datatable.Query, refreshPeriod int) {
+templ List(page datatable.Page[item], query datatable.Query, refreshPeriod int) {
 	@layouts.Base(layouts.Props{Route: route}) {
 		<div class="card">
-			@datatable.DataTable(datatable.DataTableProps[row]{
+			@datatable.DataTable(datatable.DataTableProps[item]{
 				Data:          page.Data,
 				Path:          route.Path,
 				Query:         query,
@@ -76,17 +66,32 @@ templ List(page datatable.Page[row], query datatable.Query, refreshPeriod int) {
 				Refresh:       datatable.RefreshAuto,
 				RefreshPeriod: refreshPeriod,
 				Diff:          true,
-				RowKey:        func(item row) string { return item.Code },
+				RowKey:        func(item item) string { return item.Code },
 				Columns:       columns,
 			})
 		</div>
 	}
 }
 
-templ cell(item row) {
+templ cell(item item) {
 	@artifact.Label(artifact.Props{
 		Class: "font-monospace small",
 		Code:  item.Code,
 		Type:  artifact.TypeItems,
 	})
+}
+
+func overviewItems(values map[string]stock.ItemStock) []item {
+	items := make([]item, 0, len(values))
+	for code, value := range values {
+		items = append(items, item{
+			Code:    code,
+			Current: value.Current,
+			Needed:  value.Needed,
+			Demand:  value.Demand,
+			Safety:  value.Safety,
+			Target:  value.Target,
+		})
+	}
+	return items
 }
