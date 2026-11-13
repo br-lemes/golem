@@ -10,7 +10,7 @@ import (
 
 var equipCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
-	Use:   "equip <name> <code>",
+	Use:   "equip <name> <code>[@<slot>][=<qtd>]...",
 	Short: "Equip one or more items on a character",
 	Long: `Equip one or more items on a character
 
