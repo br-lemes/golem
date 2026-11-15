@@ -28,6 +28,11 @@ type fightFlags struct {
 	Utility2Reserve int      `flag:"utility2-reserve" desc:"percentage of planned inventory space reserved for utility2"`
 }
 
+type fightItemFlags struct {
+	Without []string `flag:"without" desc:"forbid items from the fight, even if owned"`
+	Use     []string `flag:"use" desc:"force using a bank item in the fight"`
+}
+
 var fightCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	Use:   "fight <name> <code>",
@@ -46,11 +51,19 @@ Arguments:
 		if err != nil {
 			return err
 		}
+		itemFlags, err := utils.ReadFlags[fightItemFlags](cmd)
+		if err != nil {
+			return err
+		}
 		movement, err := movementOptions(cmd)
 		if err != nil {
 			return err
 		}
 		err = fightValidate(code, flags, false)
+		if err != nil {
+			return err
+		}
+		err = fightItemValidate(itemFlags)
 		if err != nil {
 			return err
 		}
@@ -77,7 +90,11 @@ Arguments:
 		}
 
 		monster, _ := catalog.Monsters.Get(code)
-		fightResult, err := best.FindFightByName(name, *monster, false, false)
+		fightOptions := best.FightOptions{
+			Without: itemFlags.Without,
+			Use:     itemFlags.Use,
+		}
+		fightResult, err := best.FindFightByName(name, *monster, fightOptions)
 		if err != nil {
 			return err
 		}
@@ -270,6 +287,51 @@ func fightValidate(monster string, flags fightFlags, boss bool) error {
 	return nil
 }
 
+func fightItemValidate(flags fightItemFlags) error {
+	if len(flags.Use) == 0 {
+		return validateFightItems(flags, nil)
+	}
+	bankItems, err := api.MyBankItems()
+	if err != nil {
+		return err
+	}
+	bank := make(map[string]int)
+	for _, item := range bankItems {
+		if item.Code != "" {
+			bank[item.Code] += item.Quantity
+		}
+	}
+	return validateFightItems(flags, bank)
+}
+
+func validateFightItems(flags fightItemFlags, bank map[string]int) error {
+	without := make(map[string]bool)
+	for _, code := range flags.Without {
+		_, found := catalog.Items().Get(code)
+		if !found {
+			return fmt.Errorf("item %s not found", code)
+		}
+		without[code] = true
+	}
+	uses := make(map[string]int)
+	for _, code := range flags.Use {
+		_, found := catalog.Items().Get(code)
+		if !found {
+			return fmt.Errorf("item %s not found", code)
+		}
+		if without[code] {
+			return fmt.Errorf("item %s cannot be forbidden and forced", code)
+		}
+		uses[code]++
+	}
+	for code, count := range uses {
+		if bank[code] < count {
+			return fmt.Errorf("item %s is not available in the bank", code)
+		}
+	}
+	return nil
+}
+
 func fightOptionsValidate(flags fightOptions) error {
 	if flags.Utility1 != "" && flags.Utility1 == flags.Utility2 {
 		return fmt.Errorf("--utility1 and --utility2 cannot use the same item")
@@ -428,7 +490,21 @@ func registerFightFlags(cmd *cobra.Command) {
 	}
 }
 
+func registerFightItemFlags(cmd *cobra.Command) {
+	err := utils.RegisterFlags[fightItemFlags](cmd)
+	if err != nil {
+		panic(err)
+	}
+	for _, name := range []string{"without", "use"} {
+		err = cmd.RegisterFlagCompletionFunc(name, completion.UniqueList(catalog.Items().Equipments().Keys))
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func init() {
 	rootCmd.AddCommand(fightCmd)
 	registerFightFlags(fightCmd)
+	registerFightItemFlags(fightCmd)
 }

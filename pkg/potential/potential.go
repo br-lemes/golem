@@ -201,7 +201,7 @@ func cachedCombat(d deps, character schemas.CharacterSchema, monsters []*schemas
 	console.Debugf("potential: combat cache miss level=%d\n", character.Level)
 	loadouts := map[string]map[string]string{}
 	for _, monster := range monsters {
-		fight, err := d.findFight(character, *monster, available, false, false)
+		fight, err := d.findFight(character, *monster, available, best.FightOptions{})
 		if err != nil {
 			return nil, fmt.Errorf("check monster %s at level %d: %w", monster.Code, character.Level, err)
 		}

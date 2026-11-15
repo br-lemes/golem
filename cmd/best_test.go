@@ -58,6 +58,52 @@ func TestBestFightFlags(t *testing.T) {
 	if !flags.Full {
 		t.Fatal("full flag was not read")
 	}
+	err = command.Flags().Set("without", "iron_sword")
+	if err != nil {
+		t.Fatalf("set without flag: %v", err)
+	}
+	err = command.Flags().Set("with", "wooden_stick")
+	if err != nil {
+		t.Fatalf("set with flag: %v", err)
+	}
+	err = command.Flags().Set("use", "copper_sword")
+	if err != nil {
+		t.Fatalf("set use flag: %v", err)
+	}
+	flags, err = utils.ReadFlags[bestFightFlags](command)
+	if err != nil {
+		t.Fatalf("read item flags: %v", err)
+	}
+	if len(flags.Without) != 1 || flags.Without[0] != "iron_sword" {
+		t.Fatalf("without = %v", flags.Without)
+	}
+	if len(flags.With) != 1 || flags.With[0] != "wooden_stick" {
+		t.Fatalf("with = %v", flags.With)
+	}
+	if len(flags.Use) != 1 || flags.Use[0] != "copper_sword" {
+		t.Fatalf("use = %v", flags.Use)
+	}
+}
+
+func TestBestFightValidateItems(t *testing.T) {
+	valid := bestFightFlags{Without: []string{"iron_sword"}}
+	err := bestFightValidateItems(valid)
+	if err != nil {
+		t.Fatalf("valid without item rejected: %v", err)
+	}
+	missing := bestFightFlags{Without: []string{"missing_item"}}
+	err = bestFightValidateItems(missing)
+	if err == nil {
+		t.Fatal("missing item accepted")
+	}
+	conflict := bestFightFlags{
+		Without: []string{"iron_sword"},
+		Use:     []string{"iron_sword"},
+	}
+	err = bestFightValidateItems(conflict)
+	if err == nil {
+		t.Fatal("conflicting item accepted")
+	}
 }
 
 func TestBestFightFullResult(t *testing.T) {

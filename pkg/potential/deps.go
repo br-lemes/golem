@@ -9,7 +9,7 @@ import (
 type deps struct {
 	accountsCharacters func(string) ([]schemas.CharacterSchema, error)
 	findEquipment      func(schemas.CharacterSchema, best.EquipmentOptions) (map[string]best.BestResult, error)
-	findFight          func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error)
+	findFight          func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error)
 }
 
 var defaultDeps = deps{

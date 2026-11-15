@@ -2,6 +2,7 @@ package best
 
 import (
 	"errors"
+	"slices"
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/cache"
@@ -434,7 +435,8 @@ func TestFindFightWithAvailableBuildsResult(t *testing.T) {
 	}
 	character := schemas.CharacterSchema{Level: 5}
 	available := map[string]int{"iron_sword": 1}
-	result, err := FindFightWithAvailable(character, *monster, available, true, false)
+	options := FightOptions{All: true}
+	result, err := FindFightWithAvailable(character, *monster, available, options)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -455,7 +457,8 @@ func TestFindFightWithAvailableReportsUnownedItems(t *testing.T) {
 		t.Fatal("sonnengott monster is missing from the catalog")
 	}
 	available := map[string]int{"iron_sword": 1}
-	result, err := FindFightWithAvailable(character, *monster, available, true, false)
+	options := FightOptions{All: true}
+	result, err := FindFightWithAvailable(character, *monster, available, options)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -476,7 +479,8 @@ func TestFindFightWithAvailableReportsUnownedUtilities(t *testing.T) {
 	}
 	character := schemas.CharacterSchema{Level: 10}
 	available := map[string]int{}
-	result, err := FindFightWithAvailable(character, *monster, available, true, false)
+	options := FightOptions{All: true}
+	result, err := FindFightWithAvailable(character, *monster, available, options)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -527,7 +531,7 @@ func TestFindFightWithAvailableFiltersInvalidItems(t *testing.T) {
 	}
 	character := schemas.CharacterSchema{Level: 1}
 	monster := schemas.MonsterSchema{Code: "chicken", Level: 1, Hp: 60}
-	result, err := FindFightWithAvailable(character, monster, available, false, false)
+	result, err := FindFightWithAvailable(character, monster, available, FightOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -549,12 +553,108 @@ func TestFindFightWithAvailableLimitsAdeptRings(t *testing.T) {
 	}
 	character := schemas.CharacterSchema{Level: 50}
 	monster := schemas.MonsterSchema{Code: "chicken", Level: 1, Hp: 60}
-	result, err := FindFightWithAvailable(character, monster, available, false, false)
+	result, err := FindFightWithAvailable(character, monster, available, FightOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if result.FinalEquipment == nil {
 		t.Fatal("result has no final equipment")
+	}
+}
+
+func TestFindFightWithAvailableAppliesWithAndWithout(t *testing.T) {
+	err := cache.Initialize(config.Storage{Cache: t.TempDir() + "/cache.db"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ResetSimulationCache()
+	character := schemas.CharacterSchema{Level: 50}
+	monster := schemas.MonsterSchema{Code: "chicken", Level: 1, Hp: 60}
+	available := map[string]int{"iron_sword": 1}
+	options := FightOptions{
+		Without: []string{"iron_sword"},
+		With:    []string{"wooden_stick"},
+	}
+	result, err := FindFightWithAvailable(character, monster, available, options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.FinalEquipment["weapon"] != "wooden_stick" {
+		t.Fatalf("weapon = %q, want wooden_stick", result.FinalEquipment["weapon"])
+	}
+	if len(result.Unowned) != 1 || result.Unowned[0] != "wooden_stick" {
+		t.Fatalf("unowned = %v, want [wooden_stick]", result.Unowned)
+	}
+}
+
+func TestFindFightWithAvailableUseForcesItem(t *testing.T) {
+	err := cache.Initialize(config.Storage{Cache: t.TempDir() + "/cache.db"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ResetSimulationCache()
+	character := schemas.CharacterSchema{Level: 50}
+	monster := schemas.MonsterSchema{Code: "chicken", Level: 1, Hp: 60}
+	available := map[string]int{"iron_sword": 1}
+	options := FightOptions{Use: []string{"wooden_stick"}}
+	result, err := FindFightWithAvailable(character, monster, available, options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.FinalEquipment["weapon"] != "wooden_stick" {
+		t.Fatalf("weapon = %q, want wooden_stick", result.FinalEquipment["weapon"])
+	}
+}
+
+func TestFindFightWithAvailableUseForcesOneRing(t *testing.T) {
+	err := cache.Initialize(config.Storage{Cache: t.TempDir() + "/cache.db"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ResetSimulationCache()
+	character := schemas.CharacterSchema{Level: 50}
+	monster := schemas.MonsterSchema{Code: "chicken", Level: 1, Hp: 60}
+	options := FightOptions{Use: []string{"iron_ring"}}
+	result, err := FindFightWithAvailable(character, monster, map[string]int{}, options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rings := []string{
+		result.FinalEquipment["ring1"],
+		result.FinalEquipment["ring2"],
+	}
+	if !slices.Contains(rings, "iron_ring") {
+		t.Fatalf("rings = %v, want iron_ring", rings)
+	}
+}
+
+func TestFindFightWithAvailableRejectsConflictingItems(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50}
+	options := FightOptions{
+		Without: []string{"iron_sword"},
+		Use:     []string{"iron_sword"},
+	}
+	_, err := forcedFightItems(character, options)
+	if err == nil {
+		t.Fatal("conflicting item was accepted")
+	}
+}
+
+func TestFindFightWithAvailableRejectsFullForcedSlot(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50}
+	options := FightOptions{Use: []string{"iron_sword", "wooden_stick"}}
+	_, err := forcedFightItems(character, options)
+	if err == nil {
+		t.Fatal("two forced weapons were accepted")
+	}
+}
+
+func TestFindFightWithAvailableRejectsIncompatibleItem(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50}
+	options := FightOptions{Use: []string{"copper_ore"}}
+	_, err := forcedFightItems(character, options)
+	if err == nil {
+		t.Fatal("non-equipment item was accepted")
 	}
 }
 
@@ -567,7 +667,8 @@ func TestFindFightWithAvailableRejectsInsufficientRingQuantity(t *testing.T) {
 	available := map[string]int{"iron_sword": 1, "ring_of_the_adept": 1}
 	character := schemas.CharacterSchema{Level: 50}
 	monster := schemas.MonsterSchema{Code: "chicken", Level: 1, Hp: 60}
-	result, err := FindFightWithAvailable(character, monster, available, false, true)
+	options := FightOptions{AdeptRing: true}
+	result, err := FindFightWithAvailable(character, monster, available, options)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -723,7 +824,7 @@ func TestFindFightByNamePropagatesCharacterError(t *testing.T) {
 		return schemas.CharacterSchema{}, want
 	}
 	d := deps{characters: characters}
-	_, err := findFightByName(d, "unknown", schemas.MonsterSchema{}, false, false)
+	_, err := findFightByName(d, "unknown", schemas.MonsterSchema{}, FightOptions{})
 	if !errors.Is(err, want) {
 		t.Fatalf("findFightByName() error = %v, want %v", err, want)
 	}
@@ -746,7 +847,7 @@ func TestFindFightByNameFindsCharacter(t *testing.T) {
 	if !ok {
 		t.Fatal("chicken monster is missing from the catalog")
 	}
-	result, err := findFightByName(d, "test", *monster, false, false)
+	result, err := findFightByName(d, "test", *monster, FightOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -761,7 +862,7 @@ func TestFindFightAtLevelPropagatesBankError(t *testing.T) {
 		return nil, want
 	}
 	d := deps{myBankItems: bankItems}
-	_, err := findFightAtLevel(d, 1, schemas.MonsterSchema{}, false, false)
+	_, err := findFightAtLevel(d, 1, schemas.MonsterSchema{}, FightOptions{})
 	if !errors.Is(err, want) {
 		t.Fatalf("findFightAtLevel() error = %v, want %v", err, want)
 	}
@@ -781,7 +882,7 @@ func TestFindFightAtLevelFindsFight(t *testing.T) {
 	if !ok {
 		t.Fatal("chicken monster is missing from the catalog")
 	}
-	result, err := findFightAtLevel(d, 1, *monster, false, false)
+	result, err := findFightAtLevel(d, 1, *monster, FightOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -796,7 +897,7 @@ func TestFindFightPropagatesBankError(t *testing.T) {
 		return nil, want
 	}
 	d := deps{myBankItems: bankItems}
-	_, err := findFight(d, schemas.CharacterSchema{}, schemas.MonsterSchema{}, false, false)
+	_, err := findFight(d, schemas.CharacterSchema{}, schemas.MonsterSchema{}, FightOptions{})
 	if !errors.Is(err, want) {
 		t.Fatalf("findFight() error = %v, want %v", err, want)
 	}
@@ -824,7 +925,7 @@ func TestFindFightIncludesInventoryAndEquipment(t *testing.T) {
 		return []schemas.SimpleItemSchema{{Code: "iron_sword", Quantity: 1}}, nil
 	}
 	d := deps{myBankItems: bankItems}
-	result, err := findFight(d, character, *monster, false, false)
+	result, err := findFight(d, character, *monster, FightOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}

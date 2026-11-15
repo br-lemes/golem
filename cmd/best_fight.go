@@ -13,11 +13,14 @@ import (
 )
 
 type bestFightFlags struct {
-	Name                    string `flag:"name" shorthand:"n" desc:"Use a real character as the base"`
-	Level                   int    `flag:"level" default:"1" desc:"Fake character level (1-50)"`
-	All                     bool   `flag:"all" desc:"Include all equippable equipment, even if not owned"`
-	Full                    bool   `flag:"full" desc:"Show the complete final equipment"`
-	AllowDuplicateAdeptRing bool   `flag:"allow-duplicate-adept-ring" desc:"Allow using ring_of_the_adept twice"`
+	Name                    string   `flag:"name" shorthand:"n" desc:"Use a real character as the base"`
+	Level                   int      `flag:"level" default:"1" desc:"Fake character level (1-50)"`
+	All                     bool     `flag:"all" desc:"Include all equippable equipment, even if not owned"`
+	Full                    bool     `flag:"full" desc:"Show the complete final equipment"`
+	AllowDuplicateAdeptRing bool     `flag:"allow-duplicate-adept-ring" desc:"Allow using ring_of_the_adept twice"`
+	Without                 []string `flag:"without" desc:"Forbid items from the selection, even if owned"`
+	With                    []string `flag:"with" desc:"Include items in the selection, even if not owned"`
+	Use                     []string `flag:"use" desc:"Force using specific items in the selection"`
 }
 
 var bestFightCmd = &cobra.Command{
@@ -56,17 +59,54 @@ func bestFightValidate(monster string, flags bestFightFlags, levelChanged bool) 
 	if flags.Name != "" && levelChanged {
 		return fmt.Errorf("--name and --level are mutually exclusive")
 	}
+	return bestFightValidateItems(flags)
+}
+
+func bestFightValidateItems(flags bestFightFlags) error {
+	for _, code := range flags.Without {
+		_, exists := catalog.Items().Get(code)
+		if !exists {
+			return fmt.Errorf("invalid item: %s", code)
+		}
+	}
+	keep := make(map[string]bool)
+	for _, code := range flags.With {
+		_, exists := catalog.Items().Get(code)
+		if !exists {
+			return fmt.Errorf("invalid item: %s", code)
+		}
+		keep[code] = true
+	}
+	for _, code := range flags.Use {
+		_, exists := catalog.Items().Get(code)
+		if !exists {
+			return fmt.Errorf("invalid item: %s", code)
+		}
+		keep[code] = true
+	}
+	for _, code := range flags.Without {
+		if keep[code] {
+			return fmt.Errorf("item cannot be forbidden and forced: %s", code)
+		}
+	}
 	return nil
 }
 
 func bestFightRun(monster string, flags bestFightFlags) error {
 	monsterData, _ := catalog.Monsters.Get(monster)
+	options := best.FightOptions{
+		All:       flags.All,
+		AdeptRing: flags.AllowDuplicateAdeptRing,
+		Without:   flags.Without,
+		With:      flags.With,
+		Use:       flags.Use,
+	}
 	var result best.Result
 	var err error
 	if flags.Name != "" {
-		result, err = best.FindFightByName(flags.Name, *monsterData, flags.All, flags.AllowDuplicateAdeptRing)
+		result, err = best.FindFightByName(flags.Name, *monsterData, options)
 	} else {
-		result, err = best.FindFightAtLevel(flags.Level, *monsterData, flags.All, flags.AllowDuplicateAdeptRing)
+		result, err = best.FindFightAtLevel(flags.Level, *monsterData, options)
 	}
 	if err != nil {
 		return err
@@ -102,5 +142,11 @@ func init() {
 	err = bestFightCmd.RegisterFlagCompletionFunc("name", completion.SingleValue(cache.GetCharacters))
 	if err != nil {
 		panic(err)
+	}
+	for _, name := range []string{"without", "with", "use"} {
+		err = bestFightCmd.RegisterFlagCompletionFunc(name, completion.UniqueList(catalog.Items().Equipments().Keys))
+		if err != nil {
+			panic(err)
+		}
 	}
 }

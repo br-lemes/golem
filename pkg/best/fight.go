@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"slices"
 	"sort"
 	"strings"
 
@@ -96,7 +97,15 @@ type cachedSimulationResult struct {
 	Safe                  bool
 }
 
-func findFight(d deps, character schemas.CharacterSchema, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+type FightOptions struct {
+	All       bool
+	AdeptRing bool
+	Without   []string
+	With      []string
+	Use       []string
+}
+
+func findFight(d deps, character schemas.CharacterSchema, monster schemas.MonsterSchema, options FightOptions) (Result, error) {
 	available, err := bankAvailable(d)
 	if err != nil {
 		return Result{}, err
@@ -113,34 +122,34 @@ func findFight(d deps, character schemas.CharacterSchema, monster schemas.Monste
 			available[code]++
 		}
 	}
-	return FindFightWithAvailable(character, monster, available, includeUnowned, allowDuplicateAdeptRing)
+	return FindFightWithAvailable(character, monster, available, options)
 }
 
-func FindFightByName(name string, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+func FindFightByName(name string, monster schemas.MonsterSchema, options FightOptions) (Result, error) {
 	//+gocover:ignore:block public dependency wrapper
-	return findFightByName(defaultDeps, name, monster, includeUnowned, allowDuplicateAdeptRing)
+	return findFightByName(defaultDeps, name, monster, options)
 }
 
-func findFightByName(d deps, name string, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+func findFightByName(d deps, name string, monster schemas.MonsterSchema, options FightOptions) (Result, error) {
 	character, err := d.characters(name)
 	if err != nil {
 		return Result{}, err
 	}
-	return findFight(d, character, monster, includeUnowned, allowDuplicateAdeptRing)
+	return findFight(d, character, monster, options)
 }
 
-func FindFightAtLevel(level int, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+func FindFightAtLevel(level int, monster schemas.MonsterSchema, options FightOptions) (Result, error) {
 	//+gocover:ignore:block public dependency wrapper
-	return findFightAtLevel(defaultDeps, level, monster, includeUnowned, allowDuplicateAdeptRing)
+	return findFightAtLevel(defaultDeps, level, monster, options)
 }
 
-func findFightAtLevel(d deps, level int, monster schemas.MonsterSchema, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
+func findFightAtLevel(d deps, level int, monster schemas.MonsterSchema, options FightOptions) (Result, error) {
 	available, err := bankAvailable(d)
 	if err != nil {
 		return Result{}, err
 	}
 	character := schemas.CharacterSchema{Level: level}
-	return FindFightWithAvailable(character, monster, available, includeUnowned, allowDuplicateAdeptRing)
+	return FindFightWithAvailable(character, monster, available, options)
 }
 
 func bankAvailable(d deps) (map[string]int, error) {
@@ -155,15 +164,99 @@ func bankAvailable(d deps) (map[string]int, error) {
 	return available, nil
 }
 
-func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.MonsterSchema, available map[string]int, includeUnowned, allowDuplicateAdeptRing bool) (Result, error) {
-	if processSimulationCache == nil {
-		processSimulationCache = make(map[string]cachedSimulationResult)
+type forcedFight struct {
+	counts map[string]int
+	types  map[string]bool
+}
+
+func forcedFightItems(character schemas.CharacterSchema, options FightOptions) (forcedFight, error) {
+	forced := forcedFight{
+		counts: make(map[string]int),
+		types:  make(map[string]bool),
 	}
-	ownedCodes := make(map[string]bool, len(available))
-	for code := range available {
-		ownedCodes[code] = true
+	keep := make(map[string]bool)
+	for _, code := range options.Without {
+		_, exists := catalog.Items().Get(code)
+		if !exists {
+			return forced, fmt.Errorf("invalid item: %s", code)
+		}
 	}
-	if includeUnowned {
+	for _, code := range options.With {
+		_, err := fightOptionItem(character, code)
+		if err != nil {
+			return forced, err
+		}
+		keep[code] = true
+	}
+	for _, code := range options.Use {
+		item, err := fightOptionItem(character, code)
+		if err != nil {
+			return forced, err
+		}
+		forced.counts[code]++
+		forced.types[item.Type] = true
+		keep[code] = true
+	}
+	for _, code := range options.Without {
+		if keep[code] {
+			return forced, fmt.Errorf("item cannot be forbidden and forced: %s", code)
+		}
+	}
+	typeTotals := make(map[string]int)
+	for code, count := range forced.counts {
+		item, exists := catalog.Items().Get(code)
+		if exists {
+			typeTotals[item.Type] += count
+		}
+	}
+	for itemType, total := range typeTotals {
+		if total > len(simulationSlotsForType(itemType)) {
+			return forced, fmt.Errorf("too many forced items of type: %s", itemType)
+		}
+	}
+	adeptCount := forced.counts["ring_of_the_adept"]
+	if !options.AdeptRing && adeptCount > adeptRingLimit(character) {
+		return forced, fmt.Errorf("duplicate ring_of_the_adept is not allowed")
+	}
+	return forced, nil
+}
+
+func fightOptionItem(character schemas.CharacterSchema, code string) (schemas.ItemSchema, error) {
+	item, exists := catalog.Items().Get(code)
+	if !exists {
+		return schemas.ItemSchema{}, fmt.Errorf("invalid item: %s", code)
+	}
+	if len(fightItemSlots(*item)) == 0 {
+		return schemas.ItemSchema{}, fmt.Errorf("item cannot be used in combat: %s", code)
+	}
+	if !CanEquip(character, *item) {
+		return schemas.ItemSchema{}, fmt.Errorf("item cannot be equipped: %s", code)
+	}
+	return *item, nil
+}
+
+func fightItemSlots(item schemas.ItemSchema) []string {
+	if item.Type == "utility" {
+		return simulationBestUtilitySlots
+	}
+	return simulationSlotsForType(item.Type)
+}
+
+func simulationSlotsForType(itemType string) []string {
+	if itemType == "utility" {
+		return simulationBestUtilitySlots
+	}
+	result := make([]string, 0)
+	for _, slot := range catalog.EquipmentTypeToSlots[itemType] {
+		if slices.Contains(simulationBestSlots, slot) {
+			result = append(result, slot)
+		}
+	}
+	return result
+}
+
+func applyFightAvailability(available map[string]int, options FightOptions, forced forcedFight) {
+	if options.All {
 		for _, item := range catalog.Items().All() {
 			if item.Type == "tool" || item.Subtype == "tool" {
 				continue
@@ -173,6 +266,160 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 			}
 		}
 	}
+	keep := make(map[string]bool)
+	for _, code := range options.With {
+		keep[code] = true
+	}
+	for code := range forced.counts {
+		keep[code] = true
+	}
+	for _, item := range catalog.Items().All() {
+		if forced.types[item.Type] && !keep[item.Code] {
+			delete(available, item.Code)
+		}
+	}
+	for _, code := range options.With {
+		if available[code] < 1 {
+			available[code] = 1
+		}
+	}
+	for code, count := range forced.counts {
+		if available[code] < count {
+			available[code] = count
+		}
+	}
+	for _, code := range options.Without {
+		delete(available, code)
+	}
+}
+
+func ensureFightCandidates(nonDominated, validItems []schemas.ItemSchema, options FightOptions) []schemas.ItemSchema {
+	explicit := make(map[string]bool)
+	for _, code := range options.With {
+		explicit[code] = true
+	}
+	for _, code := range options.Use {
+		explicit[code] = true
+	}
+	existing := make(map[string]bool, len(nonDominated))
+	for _, item := range nonDominated {
+		existing[item.Code] = true
+	}
+	for _, item := range validItems {
+		if explicit[item.Code] && !existing[item.Code] {
+			nonDominated = append(nonDominated, item)
+			existing[item.Code] = true
+		}
+	}
+	return nonDominated
+}
+
+func applyForcedFightItems(slots map[string]string, forced forcedFight) (map[string]string, bool, error) {
+	if len(forced.counts) == 0 {
+		return slots, false, nil
+	}
+	result := copyStringMap(slots)
+	changed := false
+	types := make([]string, 0, len(forced.types))
+	for itemType := range forced.types {
+		types = append(types, itemType)
+	}
+	sort.Strings(types)
+	for _, itemType := range types {
+		groupForced := make(map[string]int)
+		for code, count := range forced.counts {
+			item, exists := catalog.Items().Get(code)
+			if exists && item.Type == itemType {
+				groupForced[code] = count
+			}
+		}
+		groupSlots := simulationSlotsForType(itemType)
+		groupChanged, err := applyForcedFightGroup(result, groupSlots, groupForced)
+		if err != nil {
+			return nil, false, err
+		}
+		changed = changed || groupChanged
+	}
+	return result, changed, nil
+}
+
+func applyForcedFightGroup(slots map[string]string, groupSlots []string, forced map[string]int) (bool, error) {
+	existing := make(map[string]int)
+	for _, slot := range groupSlots {
+		code := slots[slot]
+		if code != "" {
+			existing[code]++
+		}
+	}
+	keep := make(map[string]int)
+	remaining := make(map[string]int)
+	for code, need := range forced {
+		kept := existing[code]
+		if kept > need {
+			kept = need
+		}
+		keep[code] = kept
+		remaining[code] = need - kept
+	}
+	preserved := make(map[string]bool)
+	for _, slot := range groupSlots {
+		code := slots[slot]
+		if code == "" || keep[code] == 0 {
+			continue
+		}
+		preserved[slot] = true
+		keep[code]--
+	}
+	emptySlots := make([]string, 0)
+	occupiedSlots := make([]string, 0)
+	for _, slot := range groupSlots {
+		if preserved[slot] {
+			continue
+		}
+		if slots[slot] == "" {
+			emptySlots = append(emptySlots, slot)
+		} else {
+			occupiedSlots = append(occupiedSlots, slot)
+		}
+	}
+	candidates := append(emptySlots, occupiedSlots...)
+	codes := make([]string, 0, len(remaining))
+	for code := range remaining {
+		codes = append(codes, code)
+	}
+	sort.Strings(codes)
+	changed := false
+	for _, code := range codes {
+		for remaining[code] > 0 {
+			if len(candidates) == 0 {
+				return false, fmt.Errorf("cannot force item: %s", code)
+			}
+			slot := candidates[0]
+			candidates = candidates[1:]
+			if slots[slot] != code {
+				changed = true
+			}
+			slots[slot] = code
+			remaining[code]--
+		}
+	}
+	return changed, nil
+}
+
+func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.MonsterSchema, available map[string]int, fightOptions FightOptions) (Result, error) {
+	if processSimulationCache == nil {
+		processSimulationCache = make(map[string]cachedSimulationResult)
+	}
+	forced, err := forcedFightItems(character, fightOptions)
+	if err != nil {
+		return Result{}, err
+	}
+	ownedCodes := make(map[string]bool, len(available))
+	for code := range available {
+		ownedCodes[code] = true
+	}
+	applyFightAvailability(available, fightOptions, forced)
+	allowDuplicateAdeptRing := fightOptions.AdeptRing
 
 	validItems := make([]schemas.ItemSchema, 0)
 	for code, quantity := range available {
@@ -196,6 +443,7 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 		return validItems[i].Code < validItems[j].Code
 	})
 	nonDominated := surplus.NonDominated(validItems, character)
+	nonDominated = ensureFightCandidates(nonDominated, validItems, fightOptions)
 	options := make(map[string][]string)
 	for _, slot := range simulationBestSlots {
 		options[slot] = []string{}
@@ -278,6 +526,13 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 	current = copyStringMap(bestLoadout)
 	if best.Winrate < 100 {
 		current, best = refineWithUtilities(character, monster, current, bestLoadout, best, options, available, allowDuplicateAdeptRing, finalSimulationIterations, betterSimulationScore)
+	}
+	current, forcedChanged, err := applyForcedFightItems(current, forced)
+	if err != nil {
+		return Result{}, err
+	}
+	if forcedChanged {
+		best = evaluateSimulationLoadoutIterations(character, monster, current, finalSimulationIterations)
 	}
 	setSimulationContext(&best, character, monster, current)
 	focus := "prospecting"
@@ -987,24 +1242,27 @@ func betterSimulationScore(a, b Result) bool {
 }
 
 func adeptRingAllowed(character schemas.CharacterSchema, slots map[string]string) bool {
-	original := characterSlots(character)
-	originalCount := 0
-	for _, slot := range []string{"ring1", "ring2"} {
-		if original[slot] == "ring_of_the_adept" {
-			originalCount++
-		}
-	}
-	limit := originalCount
-	if limit < 1 {
-		limit = 1
-	}
 	count := 0
 	for _, slot := range []string{"ring1", "ring2"} {
 		if slots[slot] == "ring_of_the_adept" {
 			count++
 		}
 	}
-	return count <= limit
+	return count <= adeptRingLimit(character)
+}
+
+func adeptRingLimit(character schemas.CharacterSchema) int {
+	original := characterSlots(character)
+	limit := 0
+	for _, slot := range []string{"ring1", "ring2"} {
+		if original[slot] == "ring_of_the_adept" {
+			limit++
+		}
+	}
+	if limit < 1 {
+		limit = 1
+	}
+	return limit
 }
 
 func simulationArtifactOrderScore(character schemas.CharacterSchema, slots map[string]string) int {

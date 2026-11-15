@@ -40,7 +40,7 @@ func TestEvaluateRejectsItemsThatNoCharacterCanEquip(t *testing.T) {
 
 func TestEvaluateReportsUsage(t *testing.T) {
 	d := testDeps(t, 1)
-	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 		return best.Result{
 			Winrate:        100,
 			FinalEquipment: map[string]string{"weapon": "wooden_stick"},
@@ -65,7 +65,7 @@ func TestEvaluateReportsUsage(t *testing.T) {
 
 func TestEvaluateIncludesLoadoutsWithDetails(t *testing.T) {
 	d := testDeps(t, 1)
-	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 		return best.Result{
 			Winrate:        100,
 			FinalEquipment: map[string]string{"weapon": "wooden_stick"},
@@ -88,7 +88,7 @@ func TestEvaluateIncludesLoadoutsWithDetails(t *testing.T) {
 
 func TestEvaluateReportsAlternativesWhenUnused(t *testing.T) {
 	d := testDeps(t, 1)
-	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 		return best.Result{
 			Winrate:        100,
 			FinalEquipment: map[string]string{"weapon": "iron_sword"},
@@ -109,7 +109,7 @@ func TestEvaluateReportsAlternativesWhenUnused(t *testing.T) {
 
 func TestEvaluateExcludesUnavailableItems(t *testing.T) {
 	d := testDeps(t, 10)
-	d.findFight = func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, available map[string]int, _ bool, _ bool) (best.Result, error) {
+	d.findFight = func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, available map[string]int, _ best.FightOptions) (best.Result, error) {
 		if available["wooden_stick"] != 0 {
 			return best.Result{}, errors.New("excluded item is available")
 		}
@@ -132,7 +132,7 @@ func TestEvaluateExcludesUnavailableItems(t *testing.T) {
 
 func TestEvaluateSeparatesCharacterAndGearLevels(t *testing.T) {
 	d := testDeps(t, 10)
-	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 		return best.Result{
 			Winrate:        100,
 			FinalEquipment: map[string]string{"weapon": "water_bow"},
@@ -150,7 +150,7 @@ func TestEvaluateSeparatesCharacterAndGearLevels(t *testing.T) {
 
 func TestEvaluateIncludesTargetAboveGearLevel(t *testing.T) {
 	d := testDeps(t, 10)
-	d.findFight = func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, available map[string]int, _ bool, _ bool) (best.Result, error) {
+	d.findFight = func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, available map[string]int, _ best.FightOptions) (best.Result, error) {
 		if available["iron_sword"] == 0 {
 			return best.Result{}, errors.New("evaluated item is unavailable")
 		}
@@ -171,7 +171,7 @@ func TestEvaluateIncludesTargetAboveGearLevel(t *testing.T) {
 
 func TestEvaluateMakesAllTargetItemsAvailable(t *testing.T) {
 	d := testDeps(t, 10)
-	d.findFight = func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, available map[string]int, _ bool, _ bool) (best.Result, error) {
+	d.findFight = func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, available map[string]int, _ best.FightOptions) (best.Result, error) {
 		if available["iron_sword"] == 0 || available["water_bow"] == 0 {
 			return best.Result{}, errors.New("evaluated items are unavailable")
 		}
@@ -193,7 +193,7 @@ func TestCachedCombatReusesStoredLoadouts(t *testing.T) {
 	_ = testDeps(t, 1)
 	calls := 0
 	d := deps{
-		findFight: func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+		findFight: func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 			calls++
 			return best.Result{
 				Winrate:        100,
@@ -208,7 +208,7 @@ func TestCachedCombatReusesStoredLoadouts(t *testing.T) {
 	if err != nil || calls != 1 {
 		t.Fatalf("first cachedCombat calls/error = %d/%v", calls, err)
 	}
-	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 		return best.Result{}, errors.New("cache miss")
 	}
 	_, err = cachedCombat(d, character, monsters, available)
@@ -230,7 +230,7 @@ func testDeps(t *testing.T, level int) deps {
 		findEquipment: func(schemas.CharacterSchema, best.EquipmentOptions) (map[string]best.BestResult, error) {
 			return map[string]best.BestResult{}, nil
 		},
-		findFight: func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+		findFight: func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 			return best.Result{}, nil
 		},
 	}

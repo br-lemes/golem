@@ -65,7 +65,7 @@ func TestEvaluatePropagatesNormalCombatError(t *testing.T) {
 	}
 	item := schemas.SimpleItemSchema{Code: "wooden_stick", Quantity: 1}
 	d := evaluationTestDeps(1, []schemas.SimpleItemSchema{item})
-	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 		return best.Result{}, want
 	}
 	_, err = evaluate(d, []string{"wooden_stick"}, false)
@@ -99,7 +99,7 @@ func TestEvaluatePropagatesShortageCombatError(t *testing.T) {
 	}
 	item := schemas.SimpleItemSchema{Code: "wooden_stick", Quantity: 1}
 	d := evaluationTestDeps(1, []schemas.SimpleItemSchema{item})
-	d.findFight = func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, available map[string]int, _, _ bool) (best.Result, error) {
+	d.findFight = func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, available map[string]int, _ best.FightOptions) (best.Result, error) {
 		if available["wooden_stick"] == 0 {
 			return best.Result{}, want
 		}
@@ -177,7 +177,7 @@ func TestGlobalOwnedCollectsBankLoadoutsAndInventory(t *testing.T) {
 func TestMarkCombatAndMergeUsage(t *testing.T) {
 	monsters := []*schemas.MonsterSchema{{Code: "chicken"}, {Code: "rat"}}
 	d := deps{
-		findFight: func(_ schemas.CharacterSchema, monster schemas.MonsterSchema, _ map[string]int, _, _ bool) (best.Result, error) {
+		findFight: func(_ schemas.CharacterSchema, monster schemas.MonsterSchema, _ map[string]int, _ best.FightOptions) (best.Result, error) {
 			if monster.Code == "rat" {
 				return best.Result{Winrate: 50}, nil
 			}
@@ -221,7 +221,7 @@ func TestMarkCraftingUsesSelectedEquipment(t *testing.T) {
 func TestMarkCombatPropagatesFinderError(t *testing.T) {
 	want := errors.New("finder failed")
 	d := deps{
-		findFight: func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+		findFight: func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 			return best.Result{}, want
 		},
 	}
@@ -251,7 +251,7 @@ func TestCachedMarkCombatReadsStoredResults(t *testing.T) {
 		t.Fatal(err)
 	}
 	d := deps{
-		findFight: func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+		findFight: func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 			return best.Result{
 				Winrate:        100,
 				FinalEquipment: map[string]string{"weapon": "wooden_stick"},
@@ -263,7 +263,7 @@ func TestCachedMarkCombatReadsStoredResults(t *testing.T) {
 	if err != nil || len(first) != 1 {
 		t.Fatalf("first cache result/error = %v/%v", first, err)
 	}
-	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, bool, bool) (best.Result, error) {
+	d.findFight = func(schemas.CharacterSchema, schemas.MonsterSchema, map[string]int, best.FightOptions) (best.Result, error) {
 		return best.Result{}, errors.New("cache miss")
 	}
 	second, err := cachedMarkCombat(d, schemas.CharacterSchema{}, monsters, map[string]int{}, "normal")
@@ -285,7 +285,7 @@ func TestEvaluateRunsCombatAndCraftingScenarios(t *testing.T) {
 			items := []schemas.SimpleItemSchema{item}
 			return items, nil
 		},
-		findFight: func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, _ map[string]int, _, _ bool) (best.Result, error) {
+		findFight: func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, _ map[string]int, _ best.FightOptions) (best.Result, error) {
 			return best.Result{
 				Winrate:        100,
 				FinalEquipment: map[string]string{"weapon": "wooden_stick"},
@@ -343,7 +343,7 @@ func evaluationTestDeps(level int, bank []schemas.SimpleItemSchema) deps {
 			return []schemas.CharacterSchema{{Level: level}}, nil
 		},
 		myBankItems: func() ([]schemas.SimpleItemSchema, error) { return bank, nil },
-		findFight: func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, _ map[string]int, _, _ bool) (best.Result, error) {
+		findFight: func(_ schemas.CharacterSchema, _ schemas.MonsterSchema, _ map[string]int, _ best.FightOptions) (best.Result, error) {
 			return best.Result{
 				Winrate:        100,
 				FinalEquipment: map[string]string{"weapon": "wooden_stick"},

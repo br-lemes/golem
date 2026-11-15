@@ -191,7 +191,7 @@ func markCombat(d deps, character schemas.CharacterSchema, monsters []*schemas.M
 	loadouts := map[string]map[string]string{}
 	for _, monster := range monsters {
 		console.Debugf("usage: checking %s against monster %s\n", scenario, monster.Code)
-		fight, err := d.findFight(character, *monster, available, false, false)
+		fight, err := d.findFight(character, *monster, available, best.FightOptions{})
 		if err != nil {
 			return nil, fmt.Errorf("check monster %s (%s): %w", monster.Code, scenario, err)
 		}
