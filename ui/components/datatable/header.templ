@@ -102,7 +102,7 @@ templ dataTableHeader(rowCount, columnCount int, path string, query Query, total
 templ dataTableColumns(columns []dataTableColumn, path string, query Query) {
 	<tr>
 		for _, column := range columns {
-			<th>
+			<th class="text-nowrap">
 				if column.Sortable && path != "" {
 					<a
 						class="text-decoration-none text-reset"

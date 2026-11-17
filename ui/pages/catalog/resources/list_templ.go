@@ -21,18 +21,29 @@ import (
 
 var route *routes.Node
 
+var columns = []datatable.Column[*schemas.ResourceSchema]{
+	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+	{Header: "Skill", Field: "skill", Sortable: true},
+	{Header: "Level", Field: "level", Sortable: true},
+}
+
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Resources",
 		Path:  "/catalog/resources",
 		Icon:  "ti-leaf",
-		Handler: func(_ *http.Request) (templ.Component, int) {
-			return List(catalog.Resources.All()), http.StatusOK
+		Handler: func(request *http.Request) (templ.Component, int) {
+			query := datatable.QueryFromRequest(request)
+			resources := catalog.Resources.All()
+			resources = datatable.Search(resources, query.Search, columns)
+			page := datatable.Prepare(resources, query, columns)
+			query.Page = page.Page
+			return List(page, query), http.StatusOK
 		},
 	})
 }
 
-func List(resources []*schemas.ResourceSchema) templ.Component {
+func List(page datatable.Page[*schemas.ResourceSchema], query datatable.Query) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -70,13 +81,11 @@ func List(resources []*schemas.ResourceSchema) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[*schemas.ResourceSchema]{
-				Data: resources,
-				Columns: []datatable.Column[*schemas.ResourceSchema]{
-					{Header: "Code", Field: "code", Cell: cell},
-					{Header: "Name", Field: "name"},
-					{Header: "Skill", Field: "skill"},
-					{Header: "Level", Field: "level"},
-				},
+				Columns:    columns,
+				Data:       page.Data,
+				Path:       route.Path,
+				Query:      query,
+				TotalItems: &page.TotalItems,
 				RowHref: func(resource *schemas.ResourceSchema) string {
 					return route.Path + "/" + resource.Code
 				},

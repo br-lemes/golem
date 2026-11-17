@@ -20,18 +20,29 @@ import (
 
 var route *routes.Node
 
+var columns = []datatable.Column[*schemas.EventSchema]{
+	{Header: "Code", Field: "code", Sortable: true, Class: "font-monospace"},
+	{Header: "Name", Field: "name", Sortable: true},
+	{Header: "Duration", Field: "duration", Sortable: true},
+}
+
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Events",
 		Path:  "/catalog/events",
 		Icon:  "ti-calendar-event",
-		Handler: func(_ *http.Request) (templ.Component, int) {
-			return List(catalog.Events.All()), http.StatusOK
+		Handler: func(request *http.Request) (templ.Component, int) {
+			query := datatable.QueryFromRequest(request)
+			events := catalog.Events.All()
+			events = datatable.Search(events, query.Search, columns)
+			page := datatable.Prepare(events, query, columns)
+			query.Page = page.Page
+			return List(page, query), http.StatusOK
 		},
 	})
 }
 
-func List(events []*schemas.EventSchema) templ.Component {
+func List(page datatable.Page[*schemas.EventSchema], query datatable.Query) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -69,12 +80,11 @@ func List(events []*schemas.EventSchema) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[*schemas.EventSchema]{
-				Data: events,
-				Columns: []datatable.Column[*schemas.EventSchema]{
-					{Header: "Code", Field: "code", Class: "font-monospace"},
-					{Header: "Name", Field: "name"},
-					{Header: "Duration", Field: "duration"},
-				},
+				Columns:    columns,
+				Data:       page.Data,
+				Path:       route.Path,
+				Query:      query,
+				TotalItems: &page.TotalItems,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

@@ -15,7 +15,6 @@ var route *routes.Node
 
 var columns = []datatable.Column[*schemas.MonsterSchema]{
 	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
-	{Header: "Name", Field: "name", Sortable: true},
 	{Header: "Type", Field: "type", Sortable: true},
 	{Header: "Level", Field: "level", Sortable: true},
 	{Header: "HP", Field: "hp", Sortable: true},
@@ -28,9 +27,9 @@ func init() {
 		Icon:  "ti-skull",
 		Handler: func(request *http.Request) (templ.Component, int) {
 			query := datatable.QueryFromRequest(request)
-			allMonsters := catalog.Monsters.All()
-			allMonsters = datatable.Search(allMonsters, query.Search, columns)
-			page := datatable.Prepare(allMonsters, query, columns)
+			monsters := catalog.Monsters.All()
+			monsters = datatable.Search(monsters, query.Search, columns)
+			page := datatable.Prepare(monsters, query, columns)
 			query.Page = page.Page
 			return List(page, query), http.StatusOK
 		},
@@ -41,11 +40,11 @@ templ List(page datatable.Page[*schemas.MonsterSchema], query datatable.Query) {
 	@layouts.Base(layouts.Props{Route: route}) {
 		<div class="card">
 			@datatable.DataTable(datatable.DataTableProps[*schemas.MonsterSchema]{
+				Columns:    columns,
 				Data:       page.Data,
 				Path:       route.Path,
 				Query:      query,
 				TotalItems: &page.TotalItems,
-				Columns:    columns,
 			})
 		</div>
 	}

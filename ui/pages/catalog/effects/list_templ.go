@@ -21,18 +21,30 @@ import (
 
 var route *routes.Node
 
+var columns = []datatable.Column[*schemas.EffectSchema]{
+	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+	{Header: "Type", Field: "type", Sortable: true},
+	{Header: "Subtype", Field: "subtype", Sortable: true},
+	{Header: "Description", Field: "description", Cell: description},
+}
+
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Effects",
 		Path:  "/catalog/effects",
 		Icon:  "ti-sparkles",
-		Handler: func(_ *http.Request) (templ.Component, int) {
-			return List(catalog.Effects().All()), http.StatusOK
+		Handler: func(request *http.Request) (templ.Component, int) {
+			query := datatable.QueryFromRequest(request)
+			effects := catalog.Effects().All()
+			effects = datatable.Search(effects, query.Search, columns)
+			page := datatable.Prepare(effects, query, columns)
+			query.Page = page.Page
+			return List(page, query), http.StatusOK
 		},
 	})
 }
 
-func List(effects []*schemas.EffectSchema) templ.Component {
+func List(page datatable.Page[*schemas.EffectSchema], query datatable.Query) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -70,14 +82,11 @@ func List(effects []*schemas.EffectSchema) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = datatable.DataTable(datatable.DataTableProps[*schemas.EffectSchema]{
-				Data: effects,
-				Columns: []datatable.Column[*schemas.EffectSchema]{
-					{Header: "Code", Field: "code", Cell: cell},
-					{Header: "Name", Field: "name"},
-					{Header: "Type", Field: "type"},
-					{Header: "Subtype", Field: "subtype"},
-					{Header: "Description", Field: "description"},
-				},
+				Columns:    columns,
+				Data:       page.Data,
+				Path:       route.Path,
+				Query:      query,
+				TotalItems: &page.TotalItems,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -123,6 +132,61 @@ func cell(effect *schemas.EffectSchema) templ.Component {
 			Name:  effect.Name,
 			Type:  artifact.TypeEffects,
 		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func description(effect *schemas.EffectSchema) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"d-grid\"><span class=\"text-truncate\" title=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(effect.Description)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/effects/list.templ`, Line: 64, Col: 56}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(effect.Description)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/catalog/effects/list.templ`, Line: 65, Col: 23}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

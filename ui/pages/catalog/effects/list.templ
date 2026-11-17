@@ -13,29 +13,38 @@ import (
 
 var route *routes.Node
 
+var columns = []datatable.Column[*schemas.EffectSchema]{
+	{Header: "Code", Field: "code", Sortable: true, Cell: cell},
+	{Header: "Type", Field: "type", Sortable: true},
+	{Header: "Subtype", Field: "subtype", Sortable: true},
+	{Header: "Description", Field: "description", Cell: description},
+}
+
 func init() {
 	route = routes.RegisterRoute(routes.Definition{
 		Label: "Effects",
 		Path:  "/catalog/effects",
 		Icon:  "ti-sparkles",
-		Handler: func(_ *http.Request) (templ.Component, int) {
-			return List(catalog.Effects().All()), http.StatusOK
+		Handler: func(request *http.Request) (templ.Component, int) {
+			query := datatable.QueryFromRequest(request)
+			effects := catalog.Effects().All()
+			effects = datatable.Search(effects, query.Search, columns)
+			page := datatable.Prepare(effects, query, columns)
+			query.Page = page.Page
+			return List(page, query), http.StatusOK
 		},
 	})
 }
 
-templ List(effects []*schemas.EffectSchema) {
+templ List(page datatable.Page[*schemas.EffectSchema], query datatable.Query) {
 	@layouts.Base(layouts.Props{Route: route}) {
 		<div class="card">
 			@datatable.DataTable(datatable.DataTableProps[*schemas.EffectSchema]{
-				Data: effects,
-				Columns: []datatable.Column[*schemas.EffectSchema]{
-					{Header: "Code", Field: "code", Cell: cell},
-					{Header: "Name", Field: "name"},
-					{Header: "Type", Field: "type"},
-					{Header: "Subtype", Field: "subtype"},
-					{Header: "Description", Field: "description"},
-				},
+				Columns:    columns,
+				Data:       page.Data,
+				Path:       route.Path,
+				Query:      query,
+				TotalItems: &page.TotalItems,
 			})
 		</div>
 	}
@@ -48,4 +57,12 @@ templ cell(effect *schemas.EffectSchema) {
 		Name:  effect.Name,
 		Type:  artifact.TypeEffects,
 	})
+}
+
+templ description(effect *schemas.EffectSchema) {
+	<div class="d-grid">
+		<span class="text-truncate" title={ effect.Description }>
+			{ effect.Description }
+		</span>
+	</div>
 }
