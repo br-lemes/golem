@@ -10,7 +10,7 @@ import (
 )
 
 type potentialFlags struct {
-	CharacterLevel int      `flag:"character-level" desc:"Limit the simulated character level"`
+	CharacterLevel int      `flag:"character-level" desc:"Use this character level instead of the account levels"`
 	Details        bool     `flag:"details" desc:"Include monster and effect uses"`
 	EquipmentLevel int      `flag:"equipment-level" desc:"Limit the available equipment level"`
 	Loadouts       bool     `flag:"loadouts" desc:"Include combat loadouts"`

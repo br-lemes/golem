@@ -2,6 +2,7 @@ package potential
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/best"
@@ -145,6 +146,39 @@ func TestEvaluateSeparatesCharacterAndGearLevels(t *testing.T) {
 	result := results["water_bow"]
 	if len(result.Uses) != 1 || result.Uses[0].CharacterLevel != 10 || result.Uses[0].EquipmentLevel != 5 {
 		t.Fatalf("result = %+v", result)
+	}
+}
+
+func TestEvaluateUsesExplicitCharacterLevel(t *testing.T) {
+	for _, test := range []struct {
+		accountLevel   int
+		characterLevel int
+	}{
+		{accountLevel: 10, characterLevel: 5},
+		{accountLevel: 1, characterLevel: 20},
+	} {
+		d := testDeps(t, test.accountLevel)
+		d.accountsCharacters = func(string) ([]schemas.CharacterSchema, error) {
+			t.Fatal("accounts characters should not be queried")
+			return nil, nil
+		}
+		d.findFight = func(character schemas.CharacterSchema, _ schemas.MonsterSchema, _ map[string]int, _ best.FightOptions) (best.Result, error) {
+			if character.Level != test.characterLevel {
+				return best.Result{}, fmt.Errorf("character level = %d, want %d", character.Level, test.characterLevel)
+			}
+			return best.Result{
+				Winrate:        100,
+				FinalEquipment: map[string]string{"weapon": "wooden_stick"},
+			}, nil
+		}
+		results, err := evaluate(d, []string{"wooden_stick"}, nil, false, test.characterLevel, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		result := results["wooden_stick"]
+		if !result.Used || len(result.Uses) != 1 || result.Uses[0].CharacterLevel != test.characterLevel || result.Uses[0].EquipmentLevel != test.characterLevel {
+			t.Fatalf("result = %+v", result)
+		}
 	}
 }
 

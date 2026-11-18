@@ -70,13 +70,14 @@ func evaluate(d deps, codes, without []string, includeLoadouts bool, characterLe
 		}
 		excluded[excludedCode] = true
 	}
-	characters, err := d.accountsCharacters("")
-	if err != nil {
-		return nil, err
-	}
+	var characters []schemas.CharacterSchema
 	if characterLevel > 0 {
-		for index := range characters {
-			characters[index].Level = min(characters[index].Level, characterLevel)
+		characters = []schemas.CharacterSchema{{Level: characterLevel}}
+	} else {
+		var err error
+		characters, err = d.accountsCharacters("")
+		if err != nil {
+			return nil, err
 		}
 	}
 	for code, item := range targets {
