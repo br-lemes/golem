@@ -10,7 +10,7 @@ templ dataTableHeader(rowCount, columnCount int, path string, query Query, total
 	<tr>
 		<th colspan={ fmt.Sprint(columnCount) }>
 			<div class="align-items-center g-2 row">
-				<div class="col-md-4">
+				<div class="col-md-4 d-flex justify-content-center justify-content-md-start">
 					if refresh == RefreshAuto {
 						<div class="input-icon">
 							<span class="input-icon-addon">
@@ -73,7 +73,7 @@ templ dataTableHeader(rowCount, columnCount int, path string, query Query, total
 						</div>
 					}
 				</div>
-				<div class="col-md-4 d-flex justify-content-md-end">
+				<div class="col-md-4 d-flex justify-content-center justify-content-md-end">
 					<form
 						action={ queryHref(path, query, query.Page) }
 						data-swr-navigate
