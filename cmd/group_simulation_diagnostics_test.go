@@ -140,7 +140,7 @@ func TestGroupSimulationDiagnosticsByCharacter(t *testing.T) {
 			"Turn 3: Character_2 used earth attack and dealt 10 damage (Critical strike).",
 			"Turn 4: Character_1's Vampiric Strike heals Character_2 for 8 HP.",
 			"Turn 5: Character_1 used Health Potion and restored 100 HP. (HP: 100/200)",
-			"Turn 6: King Slime used fire attack against Character_2 and dealt 13 damage. Character_2 HP: 87/100",
+			"Turn 6: King Slime used fire attack against Character_2 and dealt 13 damage (Critical strike). Character_2 HP: 87/100",
 			"Turn 6: King Slime used earth attack against Character_2 and dealt 13 damage. Character_2 HP: 74/100",
 			"Turn 7: Character_2 has been defeated!",
 		},
@@ -149,6 +149,10 @@ func TestGroupSimulationDiagnosticsByCharacter(t *testing.T) {
 	characters := diagnostics["characters"].(map[string]map[string]interface{})
 	if intValue(characters["Character_2"]["critical_hits"]) != 1 {
 		t.Fatal("critical hit was assigned to the wrong character")
+	}
+	monster := diagnostics["monster"].(map[string]interface{})
+	if intValue(monster["critical_hits"]) != 1 {
+		t.Fatal("monster critical hit was assigned to the wrong side")
 	}
 	if intValue(characters["Character_1"]["vampiric_strike_activations"]) != 1 {
 		t.Fatal("Vampiric Strike was assigned to the wrong character")

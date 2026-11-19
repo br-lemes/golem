@@ -178,7 +178,7 @@ func groupSimulationDiagnostics(results []schemas.CombatResultSchema, fighters [
 				incrementCharacter(characters, character, "attacks_received")
 				incrementCharacterBy(characters, character, "damage_received", groupDiagnosticNumber(log, "dealt"))
 			}
-			isPlayer := strings.Contains(log, "Character_") && strings.Contains(log, "used ")
+			isPlayer := strings.Contains(log, ": Character_") && strings.Contains(log, " used ")
 			side := monster
 			if isPlayer {
 				side = player
@@ -188,7 +188,7 @@ func groupSimulationDiagnostics(results []schemas.CombatResultSchema, fighters [
 				if key != lastCritical {
 					side["critical_hits"] = intValue(side["critical_hits"]) + 1
 					lastCritical = key
-					if character >= 0 {
+					if isPlayer && character >= 0 {
 						incrementCharacter(characters, character, "critical_hits")
 					}
 				}
