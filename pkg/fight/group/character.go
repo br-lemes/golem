@@ -108,7 +108,7 @@ func FighterFromLoadout(name string, level int, items []string) Fighter {
 	if level < 1 {
 		level = 1
 	}
-	fighter := Fighter{Name: name}
+	fighter := Fighter{Name: name, Level: level}
 	fighter.Stats.HP = 120 + (level-1)*5
 	fighter.Stats.Initiative = 100
 	for _, code := range items {

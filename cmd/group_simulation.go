@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/br-lemes/golem/pkg/catalog"
+	"github.com/br-lemes/golem/pkg/fight"
 	"github.com/br-lemes/golem/pkg/fight/group"
 	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
@@ -107,7 +108,7 @@ func groupSimulationResults(results []group.Result, logs bool) []schemas.CombatR
 	return output
 }
 
-func groupSimulationReport(results []schemas.CombatResultSchema, includeLogs bool, haste int) groupSimulationOutput {
+func groupSimulationReport(results []schemas.CombatResultSchema, includeLogs bool, fighters []group.Fighter, monster schemas.MonsterSchema) groupSimulationOutput {
 	wins := 0
 	for _, result := range results {
 		if result.Result == "win" {
@@ -123,7 +124,7 @@ func groupSimulationReport(results []schemas.CombatResultSchema, includeLogs boo
 		Results:     results,
 		Winrate:     winrate,
 		Wins:        wins,
-		Diagnostics: groupSimulationDiagnostics(results, haste),
+		Diagnostics: groupSimulationDiagnostics(results, fighters, monster),
 	}
 	if !includeLogs {
 		for i := range output.Results {
@@ -133,7 +134,7 @@ func groupSimulationReport(results []schemas.CombatResultSchema, includeLogs boo
 	return output
 }
 
-func groupSimulationDiagnostics(results []schemas.CombatResultSchema, haste int) map[string]interface{} {
+func groupSimulationDiagnostics(results []schemas.CombatResultSchema, fighters []group.Fighter, monsterSchema schemas.MonsterSchema) map[string]interface{} {
 	var turns, hp float32
 	for _, result := range results {
 		turns += float32(result.Turns)
@@ -151,6 +152,20 @@ func groupSimulationDiagnostics(results []schemas.CombatResultSchema, haste int)
 	player := map[string]interface{}{}
 	monster := map[string]interface{}{}
 	characters := map[string]map[string]interface{}{}
+	groupLevel := 0
+	for index, fighter := range fighters {
+		groupLevel += fighter.Level
+		characters[fmt.Sprintf("Character_%d", index+1)] = map[string]interface{}{}
+	}
+	if len(fighters) > 0 {
+		groupLevel /= len(fighters)
+	}
+	groupXP := 0
+	for index, fighter := range fighters {
+		xp := fight.CombatXP(groupLevel, fighter.Stats.Wisdom, monsterSchema)
+		characters[fmt.Sprintf("Character_%d", index+1)]["xp"] = xp
+		groupXP += xp
+	}
 	for _, result := range results {
 		lastCritical := ""
 		for _, log := range result.Logs {
@@ -294,6 +309,7 @@ func groupSimulationDiagnostics(results []schemas.CombatResultSchema, haste int)
 			}
 		}
 	}
+	haste := groupSimulationAverageHaste(fighters)
 	cooldown := float64(turns*2) * (1 - float64(haste)/100)
 	if cooldown < 5 {
 		cooldown = 5
@@ -302,12 +318,25 @@ func groupSimulationDiagnostics(results []schemas.CombatResultSchema, haste int)
 		"average_turns":          turns,
 		"average_final_hp":       hp,
 		"average_fight_cooldown": float32(math.Round(cooldown)),
-		"xp":                     0,
-		"xp_per_cycle":           0.0,
+		"xp":                     groupXP,
+		"xp_per_cycle":           float32(groupXP) * groupSimulationWinrate(results) / 100 / float32(math.Round(cooldown)),
 		"player":                 player,
 		"characters":             characters,
 		"monster":                monster,
 	}
+}
+
+func groupSimulationWinrate(results []schemas.CombatResultSchema) float32 {
+	if len(results) == 0 {
+		return 0
+	}
+	wins := 0
+	for _, result := range results {
+		if result.Result == "win" {
+			wins++
+		}
+	}
+	return float32(wins) * 100 / float32(len(results))
 }
 
 func groupDiagnosticCharacter(log string) int {

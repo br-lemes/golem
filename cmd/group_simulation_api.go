@@ -20,7 +20,7 @@ var groupSimulationAPICmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		_, err = groupSimulationMonster(args)
+		monster, err := groupSimulationMonster(args)
 		if err != nil {
 			return err
 		}
@@ -41,7 +41,7 @@ var groupSimulationAPICmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		diagnostics := groupSimulationDiagnostics(result.Results, groupSimulationAverageHaste(fighters))
+		diagnostics := groupSimulationDiagnostics(result.Results, fighters, *monster)
 		if !flags.Logs {
 			for i := range result.Results {
 				result.Results[i].Logs = []string{}

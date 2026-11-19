@@ -41,6 +41,7 @@ type Stats struct {
 
 type Fighter struct {
 	Name      string
+	Level     int
 	Stats     Stats
 	Utilities []Utility
 }
