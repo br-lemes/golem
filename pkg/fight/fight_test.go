@@ -662,7 +662,7 @@ func TestSimulateBurnTicksAndDecays(t *testing.T) {
 	}
 }
 
-func TestPlayerGreedAwakensBeforeEvaluatingDamageThresholds(t *testing.T) {
+func TestPlayerGreedEvaluatesAllDamageThresholds(t *testing.T) {
 	effects := &[]schemas.SimpleEffectSchema{{Code: "burn", Value: 20}}
 	fighter := Fighter{
 		Stats: Stats{HP: 100, AttackEarth: 1, Greed: 10, Initiative: 1},
@@ -683,12 +683,13 @@ func TestPlayerGreedAwakensBeforeEvaluatingDamageThresholds(t *testing.T) {
 		},
 	})
 	joined := strings.Join(result.Logs, "\n")
-	if strings.Contains(joined, "Turn 1: Greed empowers Character_1") {
-		t.Fatalf("Greed was applied during its awakening turn: %s", joined)
-	}
-	want := "Turn 3: Greed empowers Character_1 (+10% damage, total +40%)."
-	if !strings.Contains(joined, want) {
-		t.Fatalf("Greed activation log missing; got logs: %s", joined)
+	for _, want := range []string{
+		"Turn 1: Greed empowers Character_1 (+10% damage, total +20%).",
+		"Turn 3: Greed empowers Character_1 (+10% damage, total +40%).",
+	} {
+		if !strings.Contains(joined, want) {
+			t.Fatalf("Greed activation log missing %q; got logs: %s", want, joined)
+		}
 	}
 }
 

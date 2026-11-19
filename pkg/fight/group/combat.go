@@ -320,6 +320,7 @@ func (combat *Combat) preparePlayerAction(index, turn int) []string {
 		logs = append(logs, splashLog)
 	}
 	logs = append(logs, combat.applyPlayerBurn(index, turn)...)
+	logs = append(logs, combat.updatePlayerGreed(index, turn)...)
 	if !combat.Players[index].Alive {
 		return logs
 	}
@@ -747,18 +748,7 @@ func (combat *Combat) attackMonster(index, turn int) []string {
 		combat.Monster.Berserked = true
 		logs = append(logs, fmt.Sprintf("Turn %d: The monster's Berserker Rage activates, gaining %d%% permanent damage!", turn, combat.Monster.BerserkerRage))
 	}
-	if player.Fighter.Stats.Greed > 0 {
-		if player.GreedAwakened {
-			thresholds := greedThresholds(player.MaxHP, player.HP)
-			for player.GreedStacks < thresholds {
-				player.GreedStacks++
-				total := player.Fighter.Stats.Greed * player.GreedStacks
-				logs = append(logs, fmt.Sprintf("Turn %d: Greed empowers Character_%d (+%d%% damage, total +%d%%).", turn, index+1, player.Fighter.Stats.Greed, total))
-			}
-		} else {
-			player.GreedAwakened = true
-		}
-	}
+	logs = append(logs, combat.updatePlayerGreed(index, turn)...)
 	if player.Fighter.Stats.EnchantedMirror > 0 && combat.Monster.Turns%3 == 1 && totalDamage > 0 {
 		reflected := int(math.Round(float64(totalDamage) * float64(player.Fighter.Stats.EnchantedMirror) / 100))
 		combat.Monster.HP -= float64(reflected)
@@ -776,6 +766,21 @@ func (combat *Combat) attackMonster(index, turn int) []string {
 		if player.ShellTurns == 0 {
 			logs = append(logs, fmt.Sprintf("Turn %d: Character_%d's shell effect has worn off.", turn, index+1))
 		}
+	}
+	return logs
+}
+
+func (combat *Combat) updatePlayerGreed(index, turn int) []string {
+	player := &combat.Players[index]
+	if player.Fighter.Stats.Greed <= 0 {
+		return nil
+	}
+	thresholds := greedThresholds(player.MaxHP, player.HP)
+	logs := []string{}
+	for player.GreedStacks < thresholds {
+		player.GreedStacks++
+		total := player.Fighter.Stats.Greed * player.GreedStacks
+		logs = append(logs, fmt.Sprintf("Turn %d: Greed empowers Character_%d (+%d%% damage, total +%d%%).", turn, index+1, player.Fighter.Stats.Greed, total))
 	}
 	return logs
 }

@@ -340,10 +340,6 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 	monsterFrenzyNext := false
 	monsterFrenzyActive := false
 	playerGreedStacks := 0
-	// The API awakens character Greed after the first monster turn. The
-	// damage that triggered the awakening is not eligible for an immediate
-	// Greed update; thresholds are evaluated from the following monster turn.
-	playerGreedAwakened := player.Stats.Greed <= 0
 	if player.Stats.Greed > 0 {
 		logs = append(logs, fmt.Sprintf("Turn 1: Greed awakens. Character_1 gains +%d%% damage each time they lose 10%% max HP.", player.Stats.Greed))
 	}
@@ -370,18 +366,10 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 			if playerFrenzyNext {
 				playerFrenzyNext = false
 				playerFrenzyActive = true
-				greedBonus := playerGreedStacks - 1
-				if greedBonus < 0 {
-					greedBonus = 0
-				}
-				p.damageFactor = 1 + float64(player.Stats.Greed*greedBonus+player.Stats.Frenzy)/100
+				p.damageFactor = 1 + float64(player.Stats.Greed*playerGreedStacks)/100
 			} else {
 				playerFrenzyActive = false
-				greedBonus := playerGreedStacks - 1
-				if greedBonus < 0 {
-					greedBonus = 0
-				}
-				p.damageFactor = 1 + float64(player.Stats.Greed*greedBonus)/100
+				p.damageFactor = 1 + float64(player.Stats.Greed*playerGreedStacks)/100
 			}
 			if player.Stats.Shell > 0 && !shellActivated && isBoss(monster) && p.hp < p.maxHP*0.40 {
 				shellActivated = true
@@ -436,7 +424,6 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 			if monsterFrenzyNext {
 				monsterFrenzyNext = false
 				monsterFrenzyActive = true
-				m.damageFactor *= 1 + float64(monsterFrenzy)/100
 				logs = append(logs, fmt.Sprintf("Turn %d: The monster's Frenzy activates. +%d%% damage applies on its next attack.", turn, monsterFrenzy))
 			}
 			if m.stats.Healing > 0 && monsterTurns%3 == 0 {
@@ -472,6 +459,13 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 				burnDamage = 0
 			} else {
 				burnDamage = decayBurnDamage(damage)
+			}
+		}
+		if playerTurn && player.Stats.Greed > 0 {
+			thresholds := int(math.Floor(math.Max(0, p.maxHP-math.Max(0, p.hp))*10/p.maxHP + 1e-9))
+			if thresholds > playerGreedStacks {
+				playerGreedStacks = thresholds
+				logs = append(logs, fmt.Sprintf("Turn %d: Greed empowers Character_1 (+%d%% damage, total +%d%%).", turn, player.Stats.Greed, player.Stats.Greed*playerGreedStacks))
 			}
 		}
 		if playerTurn && !playerBurnStarted && player.Stats.Burn > 0 {
@@ -518,7 +512,16 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 			result.Turns = turn - 1
 			break
 		}
+		frenzyDamage := 0
+		if playerTurn && playerFrenzyActive {
+			frenzyDamage = player.Stats.Frenzy
+		}
+		if !playerTurn && monsterFrenzyActive {
+			frenzyDamage = monsterFrenzy
+		}
+		attacker.stats.Dmg += frenzyDamage
 		hits := attackHits(attacker.stats, defender.stats, options.RNG, options.CriticalSequence, &criticalIndex)
+		attacker.stats.Dmg -= frenzyDamage
 		damage := 0
 		monsterCriticalDamage := 0
 		actor := monster.Name
@@ -587,14 +590,12 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 			playerFrenzyNext = true
 			logs = append(logs, fmt.Sprintf("Turn %d: Character_1's Frenzy triggers on critical. +%d%% damage will apply on each ally's next turn, active until the end of Character_1's next turn.", turn, player.Stats.Frenzy))
 		}
-		if !playerTurn && player.Stats.Greed > 0 && playerGreedAwakened {
+		if !playerTurn && player.Stats.Greed > 0 {
 			thresholds := int(math.Floor(math.Max(0, p.maxHP-math.Max(0, p.hp))*10/p.maxHP + 1e-9))
 			if thresholds > playerGreedStacks {
 				playerGreedStacks = thresholds
 				logs = append(logs, fmt.Sprintf("Turn %d: Greed empowers Character_1 (+%d%% damage, total +%d%%).", turn, player.Stats.Greed, player.Stats.Greed*playerGreedStacks))
 			}
-		} else if !playerTurn && player.Stats.Greed > 0 {
-			playerGreedAwakened = true
 		}
 		if !playerTurn && monsterCriticalDamage > 0 && monsterFrenzy > 0 {
 			monsterFrenzyNext = true
@@ -620,7 +621,6 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 			logs = append(logs, fmt.Sprintf("Turn %d: %s takes %d reflected damage. %s HP: %d/%d", turn, monster.Name, reflected, monster.Name, maxInt(0, int(math.Round(m.hp))), monster.Hp))
 		}
 		if !playerTurn && monsterFrenzyActive {
-			m.damageFactor /= 1 + float64(monsterFrenzy)/100
 			monsterFrenzyActive = false
 		}
 		if playerTurn && greed > 0 {
