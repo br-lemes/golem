@@ -50,9 +50,16 @@ func TestBestFightFlags(t *testing.T) {
 	if flags.Loadout {
 		t.Fatal("loadout flag should default to false")
 	}
+	if flags.AllowUnsafe {
+		t.Fatal("allow-unsafe flag should default to false")
+	}
 	err = command.Flags().Set("full", "true")
 	if err != nil {
 		t.Fatalf("set full flag: %v", err)
+	}
+	err = command.Flags().Set("allow-unsafe", "true")
+	if err != nil {
+		t.Fatalf("set allow-unsafe flag: %v", err)
 	}
 	flags, err = utils.ReadFlags[bestFightFlags](command)
 	if err != nil {
@@ -60,6 +67,9 @@ func TestBestFightFlags(t *testing.T) {
 	}
 	if !flags.Full {
 		t.Fatal("full flag was not read")
+	}
+	if !flags.AllowUnsafe {
+		t.Fatal("allow-unsafe flag was not read")
 	}
 	err = command.Flags().Set("without", "iron_sword")
 	if err != nil {

@@ -24,6 +24,7 @@ type bestFightFlags struct {
 	With                    []string `flag:"with" desc:"Include items in the selection, even if not owned"`
 	Use                     []string `flag:"use" desc:"Force using specific items in the selection"`
 	Loadout                 bool     `flag:"loadout" desc:"Output the selected loadout in simulation file format instead of the fight result"`
+	AllowUnsafe             bool     `flag:"allow-unsafe" desc:"Allow saving loadouts with simulated winrate below 100%"`
 }
 
 const bestFightUtilityQuantity = 100
@@ -117,6 +118,9 @@ func bestFightRun(monster string, flags bestFightFlags) error {
 		return err
 	}
 	if flags.Loadout {
+		if result.Winrate < 100 && !flags.AllowUnsafe {
+			return fmt.Errorf("cannot save loadout with simulated winrate %.2f%%; use --allow-unsafe to save it anyway", result.Winrate)
+		}
 		return console.Auto(bestFightLoadout(result))
 	}
 	if flags.Full {
