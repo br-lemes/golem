@@ -28,6 +28,14 @@ func TestCombatRunPartyDefeatsMonster(t *testing.T) {
 	}
 }
 
+func TestBurnAmountIncludesDamageBonuses(t *testing.T) {
+	stats := Stats{AttackFire: 20, Dmg: 50, Burn: 20}
+	got := burnAmount(stats, stats.Burn)
+	if got != 6 {
+		t.Fatalf("burn amount = %v, want 6", got)
+	}
+}
+
 func TestCombatRunMonsterDefeatsParty(t *testing.T) {
 	fighters := []Fighter{{Name: "one", Stats: Stats{HP: 10, Initiative: 10}}}
 	monster := Monster{

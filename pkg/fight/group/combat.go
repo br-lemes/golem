@@ -859,7 +859,10 @@ func (combat *Combat) applyMonsterBurn(turn int) []string {
 }
 
 func burnAmount(stats Stats, percent int) float64 {
-	total := stats.AttackFire + stats.AttackEarth + stats.AttackWater + stats.AttackAir
+	total := elemental(stats.AttackFire, stats.Dmg+stats.DmgFire, 0)
+	total += elemental(stats.AttackEarth, stats.Dmg+stats.DmgEarth, 0)
+	total += elemental(stats.AttackWater, stats.Dmg+stats.DmgWater, 0)
+	total += elemental(stats.AttackAir, stats.Dmg+stats.DmgAir, 0)
 	return float64(total) * float64(percent) / 100
 }
 
