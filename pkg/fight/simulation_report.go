@@ -4,10 +4,10 @@ import "github.com/br-lemes/golem/pkg/schemas"
 
 type SimulationReport struct {
 	Results     []schemas.CombatResultSchema `json:"results"`
-	Wins        int                          `json:"wins"`
+	Diagnostics SimulationDiagnostics        `json:"diagnostics"`
 	Losses      int                          `json:"losses"`
 	Winrate     float32                      `json:"winrate"`
-	Diagnostics SimulationDiagnostics        `json:"diagnostics"`
+	Wins        int                          `json:"wins"`
 }
 
 func Report(player Fighter, level int, monster schemas.MonsterSchema, results []schemas.CombatResultSchema) SimulationReport {

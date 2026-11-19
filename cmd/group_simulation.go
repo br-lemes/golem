@@ -19,11 +19,11 @@ type groupSimulationFlags struct {
 }
 
 type groupSimulationOutput struct {
-	Losses      int                          `json:"losses"`
 	Results     []schemas.CombatResultSchema `json:"results"`
+	Diagnostics map[string]interface{}       `json:"diagnostics"`
+	Losses      int                          `json:"losses"`
 	Winrate     float32                      `json:"winrate"`
 	Wins        int                          `json:"wins"`
-	Diagnostics map[string]interface{}       `json:"diagnostics"`
 }
 
 type groupSimulationComparison struct {
