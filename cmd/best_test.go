@@ -47,6 +47,9 @@ func TestBestFightFlags(t *testing.T) {
 	if flags.Full {
 		t.Fatal("full flag should default to false")
 	}
+	if flags.Loadout {
+		t.Fatal("loadout flag should default to false")
+	}
 	err = command.Flags().Set("full", "true")
 	if err != nil {
 		t.Fatalf("set full flag: %v", err)
@@ -126,6 +129,40 @@ func TestBestFightFullResult(t *testing.T) {
 	}
 	if result.Utilities["utility1"] != "health_potion" || result.Utilities["utility2"] != "" {
 		t.Fatalf("full utilities = %#v", result.Utilities)
+	}
+}
+
+func TestBestFightLoadout(t *testing.T) {
+	loadout := bestFightLoadout(best.Result{
+		Level: 12,
+		FinalEquipment: map[string]string{
+			"weapon":   "iron_sword",
+			"helmet":   "iron_helmet",
+			"utility1": "",
+			"utility2": "health_potion",
+		},
+	})
+	if len(loadout) != 1 {
+		t.Fatalf("loadout length = %d", len(loadout))
+	}
+	character := loadout[0]
+	if character.Level != 12 {
+		t.Fatalf("level = %d", character.Level)
+	}
+	if character.WeaponSlot == nil || *character.WeaponSlot != "iron_sword" {
+		t.Fatalf("weapon = %v", character.WeaponSlot)
+	}
+	if character.HelmetSlot == nil || *character.HelmetSlot != "iron_helmet" {
+		t.Fatalf("helmet = %v", character.HelmetSlot)
+	}
+	if character.Utility1Slot != nil {
+		t.Fatalf("empty utility was included: %v", character.Utility1Slot)
+	}
+	if character.Utility2Slot == nil || *character.Utility2Slot != "health_potion" {
+		t.Fatalf("utility2 = %v", character.Utility2Slot)
+	}
+	if character.Utility2SlotQuantity == nil || *character.Utility2SlotQuantity != bestFightUtilityQuantity {
+		t.Fatalf("utility2 quantity = %v", character.Utility2SlotQuantity)
 	}
 }
 

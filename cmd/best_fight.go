@@ -8,6 +8,8 @@ import (
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
 	"github.com/br-lemes/golem/pkg/console"
+	"github.com/br-lemes/golem/pkg/fight"
+	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +23,10 @@ type bestFightFlags struct {
 	Without                 []string `flag:"without" desc:"Forbid items from the selection, even if owned"`
 	With                    []string `flag:"with" desc:"Include items in the selection, even if not owned"`
 	Use                     []string `flag:"use" desc:"Force using specific items in the selection"`
+	Loadout                 bool     `flag:"loadout" desc:"Output the selected loadout in simulation file format instead of the fight result"`
 }
+
+const bestFightUtilityQuantity = 100
 
 var bestFightCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
@@ -111,10 +116,27 @@ func bestFightRun(monster string, flags bestFightFlags) error {
 	if err != nil {
 		return err
 	}
+	if flags.Loadout {
+		return console.Auto(bestFightLoadout(result))
+	}
 	if flags.Full {
 		result = bestFightFullResult(result)
 	}
 	return console.Auto(result)
+}
+
+func bestFightLoadout(result best.Result) []schemas.FakeCharacterSchema {
+	character := schemas.FakeCharacterSchema{Level: result.Level}
+	for slot, code := range result.FinalEquipment {
+		if code == "" {
+			continue
+		}
+		fight.SetSlot(&character, slot, code)
+		if slot == "utility1" || slot == "utility2" {
+			fight.SetQuantity(&character, slot, bestFightUtilityQuantity)
+		}
+	}
+	return []schemas.FakeCharacterSchema{character}
 }
 
 func bestFightFullResult(result best.Result) best.Result {

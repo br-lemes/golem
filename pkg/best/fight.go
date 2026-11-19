@@ -23,6 +23,7 @@ import (
 const bestFightSimulationCacheVersion = 2
 
 type Result struct {
+	Level                 int               `json:"-"`
 	Winrate               float32           `json:"winrate"`
 	AverageTurns          float32           `json:"average_turns"`
 	AverageFinalHP        float32           `json:"average_final_hp"`
@@ -544,6 +545,7 @@ func FindFightWithAvailable(character schemas.CharacterSchema, monster schemas.M
 	equipment := simulationEquipmentChanges(current, original)
 	utilities := simulationUtilityChanges(current, character)
 	result := Result{
+		Level:                 character.Level,
 		Winrate:               best.Winrate,
 		AverageTurns:          best.AverageTurns,
 		AverageFinalHP:        best.AverageFinalHP,
