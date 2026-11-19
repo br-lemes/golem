@@ -509,6 +509,43 @@ func TestSimulateBerserkerRageActivatesBelowQuarterHealth(t *testing.T) {
 	}
 }
 
+func TestSimulateInitiativeTieUsesHigherHP(t *testing.T) {
+	player := Fighter{Stats: Stats{HP: 100, AttackFire: 1, Initiative: 10}}
+	monster := schemas.MonsterSchema{Hp: 120, AttackFire: 1, Initiative: 10}
+	if Simulate(player, monster, SimulationOptions{}).PlayerFirst {
+		t.Fatal("monster with higher HP should act first on an initiative tie")
+	}
+	player.Stats.HP = 150
+	if !Simulate(player, monster, SimulationOptions{}).PlayerFirst {
+		t.Fatal("player with higher HP should act first on an initiative tie")
+	}
+}
+
+func TestSimulateInitiativeAndHPTieUsesRandomOrder(t *testing.T) {
+	player := Fighter{Stats: Stats{HP: 100, AttackFire: 1, Initiative: 10}}
+	monster := schemas.MonsterSchema{Hp: 100, AttackFire: 1, Initiative: 10}
+	monsterFirst := Simulate(player, monster, SimulationOptions{
+		RNG: func() float64 { return 0.1 },
+	})
+	if monsterFirst.PlayerFirst {
+		t.Fatal("monster should act first when the tie roll is below 0.5")
+	}
+	playerFirst := Simulate(player, monster, SimulationOptions{
+		RNG: func() float64 { return 0.9 },
+	})
+	if !playerFirst.PlayerFirst {
+		t.Fatal("player should act first when the tie roll is above 0.5")
+	}
+}
+
+func TestSimulateInitiativeAndHPTieWithoutRNGDefaultsToPlayer(t *testing.T) {
+	player := Fighter{Stats: Stats{HP: 100, AttackFire: 1, Initiative: 10}}
+	monster := schemas.MonsterSchema{Hp: 100, AttackFire: 1, Initiative: 10}
+	if !Simulate(player, monster, SimulationOptions{}).PlayerFirst {
+		t.Fatal("player should act first on a full tie without an RNG")
+	}
+}
+
 func TestSimulatePlayerActsFirstAndWins(t *testing.T) {
 	fighter := Fighter{Stats: Stats{HP: 100, AttackFire: 100, Initiative: 10}}
 	monster := schemas.MonsterSchema{Hp: 50, ResFire: 0, Initiative: 1}

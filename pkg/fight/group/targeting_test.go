@@ -55,14 +55,44 @@ func TestInitiativeTieBreaksByHP(t *testing.T) {
 	}
 }
 
-func TestInitiativeAndHPTiePreservesPartyOrder(t *testing.T) {
-	combat := NewCombat([]Fighter{
+func TestInitiativeAndHPTieUsesRandomOrder(t *testing.T) {
+	fighters := []Fighter{
 		{Name: "first", Stats: Stats{HP: 100, Initiative: 20}},
 		{Name: "second", Stats: Stats{HP: 100, Initiative: 20}},
-	}, Monster{}, nil)
+	}
+	combat := NewCombat(fighters, Monster{}, sequenceRNG(0.1, 0.9, 0.5))
 	order := combat.TurnOrder()
+	if order[0] != 1 || order[1] != 0 {
+		t.Fatalf("tied initiative order = %v, want character 1 first", order)
+	}
+	combat = NewCombat(fighters, Monster{}, sequenceRNG(0.9, 0.1, 0.5))
+	order = combat.TurnOrder()
 	if order[0] != 0 || order[1] != 1 {
-		t.Fatalf("tied initiative order = %v, want party order [0 1]", order)
+		t.Fatalf("tied initiative order = %v, want character 0 first", order)
+	}
+}
+
+func TestInitiativeAndHPTieRandomizesMonsterOrder(t *testing.T) {
+	fighters := []Fighter{{Name: "one", Stats: Stats{HP: 100, Initiative: 20}}}
+	monster := Monster{Stats: Stats{HP: 100, Initiative: 20}}
+	combat := NewCombat(fighters, monster, sequenceRNG(0.9, 0.1))
+	order := combat.ActorOrder()
+	if order[0] != 0 || order[1] != -1 {
+		t.Fatalf("tied actor order = %v, want character first", order)
+	}
+	combat = NewCombat(fighters, monster, sequenceRNG(0.1, 0.9))
+	order = combat.ActorOrder()
+	if order[0] != -1 || order[1] != 0 {
+		t.Fatalf("tied actor order = %v, want monster first", order)
+	}
+}
+
+func sequenceRNG(values ...float64) RNG {
+	index := 0
+	return func() float64 {
+		value := values[index]
+		index++
+		return value
 	}
 }
 

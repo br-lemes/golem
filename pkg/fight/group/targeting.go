@@ -15,9 +15,22 @@ func (combat Combat) ActorOrder() []int {
 		if left.Initiative != right.Initiative {
 			return left.Initiative > right.Initiative
 		}
-		return left.HP > right.HP
+		if left.HP != right.HP {
+			return left.HP > right.HP
+		}
+		return combat.tieBreakValue(order[i]) > combat.tieBreakValue(order[j])
 	})
 	return order
+}
+
+func (combat Combat) tieBreakValue(index int) float64 {
+	if len(combat.tieBreak) == 0 {
+		return 0
+	}
+	if index < 0 {
+		return combat.tieBreak[len(combat.tieBreak)-1]
+	}
+	return combat.tieBreak[index]
 }
 
 func (combat Combat) actorStats(index int) Stats {
@@ -39,7 +52,10 @@ func (combat Combat) TurnOrder() []int {
 		if left.Fighter.Stats.Initiative != right.Fighter.Stats.Initiative {
 			return left.Fighter.Stats.Initiative > right.Fighter.Stats.Initiative
 		}
-		return left.MaxHP > right.MaxHP
+		if left.MaxHP != right.MaxHP {
+			return left.MaxHP > right.MaxHP
+		}
+		return combat.tieBreakValue(order[i]) > combat.tieBreakValue(order[j])
 	})
 	return order
 }

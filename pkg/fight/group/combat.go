@@ -109,6 +109,7 @@ type Combat struct {
 	targetIndex       int
 	guardIndex        int
 	bubbleIndex       int
+	tieBreak          []float64
 }
 
 type Result struct {
@@ -139,7 +140,32 @@ func NewCombat(fighters []Fighter, monster Monster, rng RNG) Combat {
 			GreedAwakened: fighter.Stats.Greed <= 0,
 		}
 	}
-	return Combat{Players: players, Monster: monster, RNG: rng}
+	combat := Combat{Players: players, Monster: monster, RNG: rng}
+	combat.assignTieBreaks()
+	return combat
+}
+
+func (combat *Combat) assignTieBreaks() {
+	stats := make([]Stats, 0, len(combat.Players)+1)
+	for _, player := range combat.Players {
+		stats = append(stats, player.Fighter.Stats)
+	}
+	stats = append(stats, combat.Monster.Stats)
+	tied := false
+	for i := range stats {
+		for j := i + 1; j < len(stats); j++ {
+			if stats[i].Initiative == stats[j].Initiative && stats[i].HP == stats[j].HP {
+				tied = true
+			}
+		}
+	}
+	if !tied {
+		return
+	}
+	combat.tieBreak = make([]float64, len(stats))
+	for i := range combat.tieBreak {
+		combat.tieBreak[i] = combat.RNG()
+	}
 }
 
 func (combat *Combat) Run(maxTurns int) Result {

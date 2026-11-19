@@ -243,6 +243,16 @@ func Simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 	return simulate(player, monster, options)
 }
 
+func playerActsFirst(player, monster Stats, rng RNG) bool {
+	if player.Initiative != monster.Initiative {
+		return player.Initiative > monster.Initiative
+	}
+	if player.HP != monster.HP {
+		return player.HP > monster.HP
+	}
+	return rng == nil || rng() >= 0.5
+}
+
 func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationOptions) Result {
 	criticalIndex := 0
 	if options.Critical.PlayerChance != nil {
@@ -278,7 +288,7 @@ func simulate(player Fighter, monster schemas.MonsterSchema, options SimulationO
 		damageFactor: 1,
 		barrier:      float64(monsterEffect(monster, "barrier")),
 	}
-	first := p.stats.Initiative >= m.stats.Initiative
+	first := playerActsFirst(p.stats, m.stats, options.RNG)
 	naturalHP := player.NaturalHP
 	if naturalHP <= 0 {
 		naturalHP = player.Stats.HP
