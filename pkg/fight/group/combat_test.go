@@ -36,6 +36,26 @@ func TestBurnAmountIncludesDamageBonuses(t *testing.T) {
 	}
 }
 
+func TestPoisonAntidoteTicksAndDoesNotReapply(t *testing.T) {
+	combat := NewCombat([]Fighter{{
+		Stats:     Stats{HP: 100, Initiative: 1, AttackEarth: 1},
+		Utilities: []Utility{{Code: "antidote", Antipoison: 50, Quantity: 2}},
+	}}, Monster{
+		Stats: Stats{HP: 1000, Initiative: 10, Poison: 100},
+		HP:    1000,
+		MaxHP: 1000,
+		Name:  "snake",
+	}, func() float64 { return 0.99 })
+	result := combat.Run(10)
+	joined := strings.Join(result.Logs, "\n")
+	if strings.Count(joined, "The monster applies a poison") != 1 {
+		t.Fatalf("poison applications = %d, want 1", strings.Count(joined, "The monster applies a poison"))
+	}
+	if !strings.Contains(joined, "suffers from poison and loses 50 HP") {
+		t.Fatal("remaining poison did not tick after antidote")
+	}
+}
+
 func TestCombatRunMonsterDefeatsParty(t *testing.T) {
 	fighters := []Fighter{{Name: "one", Stats: Stats{HP: 10, Initiative: 10}}}
 	monster := Monster{

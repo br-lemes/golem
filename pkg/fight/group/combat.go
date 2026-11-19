@@ -65,6 +65,7 @@ type Player struct {
 	BurnDamage    float64
 	BurnApplied   bool
 	Poison        int
+	PoisonStarted bool
 	FrenzyBonus   int
 	FrenzyUntil   int
 	GreedStacks   int
@@ -309,9 +310,7 @@ func (combat *Combat) preparePlayerAction(index, turn int) []string {
 	}
 	combat.Players[index].PlayedTurns++
 	poisonLog := combat.applyPoison(index, turn)
-	if poisonLog != "" {
-		logs = append(logs, poisonLog)
-	}
+	logs = append(logs, poisonLog...)
 	utilityLog := combat.consumeRestore(index, turn)
 	if utilityLog != "" {
 		logs = append(logs, utilityLog)
@@ -436,8 +435,9 @@ func utilityDisplayName(code string) string {
 	}
 }
 
-func (combat *Combat) applyPoison(index, turn int) string {
+func (combat *Combat) applyPoison(index, turn int) []string {
 	player := &combat.Players[index]
+	logs := []string{}
 	for utility := range player.Fighter.Utilities {
 		u := &player.Fighter.Utilities[utility]
 		if player.Poison > 0 && u.Quantity > 0 && u.Antipoison > 0 {
@@ -447,22 +447,25 @@ func (combat *Combat) applyPoison(index, turn int) string {
 			}
 			player.Poison -= removed
 			u.Quantity--
-			return fmt.Sprintf("Turn %d: Character_%d used %s and removed %d poison.", turn, index+1, u.Code, removed)
+			logs = append(logs, fmt.Sprintf("Turn %d: Character_%d used %s and removed %d poison.", turn, index+1, u.Code, removed))
+			break
 		}
 	}
 	if player.Poison <= 0 {
-		if combat.Monster.Stats.Poison > 0 && combat.Monster.Turns > 0 {
+		if !player.PoisonStarted && combat.Monster.Stats.Poison > 0 && combat.Monster.Turns > 0 {
 			player.Poison = combat.Monster.Stats.Poison
-			return fmt.Sprintf("Turn %d: The monster applies a poison of %d on Character_%d. (Character poison: %d)", turn, player.Poison, index+1, player.Poison)
+			player.PoisonStarted = true
+			return append(logs, fmt.Sprintf("Turn %d: The monster applies a poison of %d on Character_%d. (Character poison: %d)", turn, player.Poison, index+1, player.Poison))
 		}
-		return ""
+		return logs
 	}
 	damage := player.Poison
 	player.HP = math.Max(0, player.HP-float64(damage))
 	if player.HP == 0 {
 		player.Alive = false
 	}
-	return fmt.Sprintf("Turn %d: Character_%d suffers from poison and loses %d HP. Character_%d HP: %d/%d", turn, index+1, damage, index+1, int(player.HP), int(player.MaxHP))
+	poisonLog := fmt.Sprintf("Turn %d: Character_%d suffers from poison and loses %d HP. Character_%d HP: %d/%d", turn, index+1, damage, index+1, int(player.HP), int(player.MaxHP))
+	return append(logs, poisonLog)
 }
 
 func (combat *Combat) healPlayer(index int) int {
