@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -62,6 +63,17 @@ func readGroupSimulationFlags(cmd *cobra.Command) (groupSimulationFlags, error) 
 	return flags, nil
 }
 
+func groupSimulationAverageHaste(fighters []group.Fighter) int {
+	if len(fighters) == 0 {
+		return 0
+	}
+	var haste int
+	for _, fighter := range fighters {
+		haste += fighter.Stats.Haste
+	}
+	return int(math.Round(float64(haste) / float64(len(fighters))))
+}
+
 func groupSimulationResult(result group.Result, logs bool) schemas.CombatResultSchema {
 	characters := make([]map[string]interface{}, len(result.FinalHP))
 	for i, hp := range result.FinalHP {
@@ -95,7 +107,7 @@ func groupSimulationResults(results []group.Result, logs bool) []schemas.CombatR
 	return output
 }
 
-func groupSimulationReport(results []schemas.CombatResultSchema, includeLogs bool) groupSimulationOutput {
+func groupSimulationReport(results []schemas.CombatResultSchema, includeLogs bool, haste int) groupSimulationOutput {
 	wins := 0
 	for _, result := range results {
 		if result.Result == "win" {
@@ -111,7 +123,7 @@ func groupSimulationReport(results []schemas.CombatResultSchema, includeLogs boo
 		Results:     results,
 		Winrate:     winrate,
 		Wins:        wins,
-		Diagnostics: groupSimulationDiagnostics(results),
+		Diagnostics: groupSimulationDiagnostics(results, haste),
 	}
 	if !includeLogs {
 		for i := range output.Results {
@@ -121,7 +133,7 @@ func groupSimulationReport(results []schemas.CombatResultSchema, includeLogs boo
 	return output
 }
 
-func groupSimulationDiagnostics(results []schemas.CombatResultSchema) map[string]interface{} {
+func groupSimulationDiagnostics(results []schemas.CombatResultSchema, haste int) map[string]interface{} {
 	var turns, hp float32
 	for _, result := range results {
 		turns += float32(result.Turns)
@@ -282,10 +294,14 @@ func groupSimulationDiagnostics(results []schemas.CombatResultSchema) map[string
 			}
 		}
 	}
+	cooldown := float64(turns*2) * (1 - float64(haste)/100)
+	if cooldown < 5 {
+		cooldown = 5
+	}
 	return map[string]interface{}{
 		"average_turns":          turns,
 		"average_final_hp":       hp,
-		"average_fight_cooldown": turns * 2,
+		"average_fight_cooldown": float32(math.Round(cooldown)),
 		"xp":                     0,
 		"xp_per_cycle":           0.0,
 		"player":                 player,

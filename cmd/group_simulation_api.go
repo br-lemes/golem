@@ -37,7 +37,11 @@ var groupSimulationAPICmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		diagnostics := groupSimulationDiagnostics(result.Results)
+		fighters, err := group.FightersFromFile(flags.File)
+		if err != nil {
+			return err
+		}
+		diagnostics := groupSimulationDiagnostics(result.Results, groupSimulationAverageHaste(fighters))
 		if !flags.Logs {
 			for i := range result.Results {
 				result.Results[i].Logs = []string{}

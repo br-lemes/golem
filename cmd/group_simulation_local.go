@@ -30,7 +30,7 @@ var groupSimulationLocalCmd = &cobra.Command{
 			Iterations: flags.Iterations,
 		})
 		results := groupSimulationResults(summary.Results, true)
-		return console.Auto(groupSimulationReport(results, flags.Logs))
+		return console.Auto(groupSimulationReport(results, flags.Logs, groupSimulationAverageHaste(fighters)))
 	},
 }
 

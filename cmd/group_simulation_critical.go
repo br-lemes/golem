@@ -61,7 +61,8 @@ var groupSimulationCriticalCmd = &cobra.Command{
 			combat.GuardDecisions = groupGuardSequence(remote.Results[0].Logs)
 			localResults = append(localResults, groupSimulationResult(combat.Run(100), true))
 		}
-		diagnostics := groupSimulationDiagnostics(remote.Results)
+		averageHaste := groupSimulationAverageHaste(fighters)
+		diagnostics := groupSimulationDiagnostics(remote.Results, averageHaste)
 		if !flags.Logs {
 			remote.Results[0].Logs = []string{}
 		}
@@ -74,7 +75,7 @@ var groupSimulationCriticalCmd = &cobra.Command{
 		}
 		comparison := groupSimulationComparison{
 			API:   apiOutput,
-			Local: groupSimulationReport(localResults, flags.Logs),
+			Local: groupSimulationReport(localResults, flags.Logs, averageHaste),
 		}
 		comparison.Differences = groupDiagnosticDifferences(apiOutput.Diagnostics, comparison.Local.Diagnostics)
 		apiDamage := groupDamageSequence(remote.Results[0].Logs)

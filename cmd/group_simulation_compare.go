@@ -45,7 +45,7 @@ var groupSimulationCompareCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		diagnostics := groupSimulationDiagnostics(remote.Results)
+		diagnostics := groupSimulationDiagnostics(remote.Results, groupSimulationAverageHaste(fighters))
 		if !flags.Logs {
 			for i := range remote.Results {
 				remote.Results[i].Logs = []string{}
@@ -58,7 +58,7 @@ var groupSimulationCompareCmd = &cobra.Command{
 			Wins:        remote.Wins,
 			Diagnostics: diagnostics,
 		}
-		local := groupSimulationReport(localResults, flags.Logs)
+		local := groupSimulationReport(localResults, flags.Logs, groupSimulationAverageHaste(fighters))
 		comparison := groupSimulationComparison{API: apiOutput, Local: local}
 		if apiOutput.Wins != local.Wins {
 			comparison.Differences = append(comparison.Differences, "wins")

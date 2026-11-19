@@ -17,8 +17,8 @@ func TestGroupSimulationReportKeepsDiagnosticsWithoutLogs(t *testing.T) {
 		Turns:  2,
 	}
 
-	withLogs := groupSimulationReport([]schemas.CombatResultSchema{result}, true)
-	withoutLogs := groupSimulationReport([]schemas.CombatResultSchema{result}, false)
+	withLogs := groupSimulationReport([]schemas.CombatResultSchema{result}, true, 0)
+	withoutLogs := groupSimulationReport([]schemas.CombatResultSchema{result}, false, 0)
 	if len(withLogs.Results[0].Logs) != 2 {
 		t.Fatalf("logs with --logs = %d, want 2", len(withLogs.Results[0].Logs))
 	}
@@ -30,6 +30,21 @@ func TestGroupSimulationReportKeepsDiagnosticsWithoutLogs(t *testing.T) {
 	}
 	if intValue(withoutLogs.Diagnostics["player"].(map[string]interface{})["greed_activations"]) != 1 {
 		t.Fatal("diagnostics without logs missed Greed activation")
+	}
+}
+
+func TestGroupSimulationDiagnosticsAppliesHasteAndMinimumCooldown(t *testing.T) {
+	results := []schemas.CombatResultSchema{{Turns: 10}}
+	diagnostics := groupSimulationDiagnostics(results, 50)
+	got := diagnostics["average_fight_cooldown"]
+	if got != float32(10) {
+		t.Fatalf("haste cooldown = %v, want 10", got)
+	}
+	minimumResults := []schemas.CombatResultSchema{{Turns: 1}}
+	minimum := groupSimulationDiagnostics(minimumResults, 100)
+	got = minimum["average_fight_cooldown"]
+	if got != float32(5) {
+		t.Fatalf("minimum cooldown = %v, want 5", got)
 	}
 }
 
@@ -47,7 +62,7 @@ func TestGroupSimulationDiagnosticsRecognizesGroupEffects(t *testing.T) {
 			"Turn 9: The monster uses Void Drain and drains 10 HP from Character_1.",
 		},
 	}
-	diagnostics := groupSimulationDiagnostics([]schemas.CombatResultSchema{result})
+	diagnostics := groupSimulationDiagnostics([]schemas.CombatResultSchema{result}, 0)
 	player := diagnostics["player"].(map[string]interface{})
 	if intValue(player["healing_potions"]) != 1 {
 		t.Fatal("health potion was not diagnosed")
@@ -109,7 +124,7 @@ func TestGroupSimulationDiagnosticsByCharacter(t *testing.T) {
 			"Turn 7: Character_2 has been defeated!",
 		},
 	}
-	diagnostics := groupSimulationDiagnostics([]schemas.CombatResultSchema{result})
+	diagnostics := groupSimulationDiagnostics([]schemas.CombatResultSchema{result}, 0)
 	characters := diagnostics["characters"].(map[string]map[string]interface{})
 	if intValue(characters["Character_2"]["critical_hits"]) != 1 {
 		t.Fatal("critical hit was assigned to the wrong character")
