@@ -5,7 +5,7 @@ import "github.com/br-lemes/golem/pkg/models"
 // UsageCombatVersion must increase when aggregated combat loadout
 // selection can produce different results for the same inputs. Increment it
 // too whenever the individual fight simulation cache version changes.
-const UsageCombatVersion = 2
+const UsageCombatVersion = 3
 
 const (
 	UsageCombatType     = "usage"
