@@ -91,6 +91,7 @@ type Monster struct {
 	Berserked      bool
 	FrenzyPending  bool
 	GreedStacks    int
+	GreedAwakened  bool
 	BubbleElement  int
 	BaseRes        [4]int
 	BurnDamage     float64
@@ -565,7 +566,50 @@ func (combat *Combat) attackPlayerHits(index, turn int) []string {
 		combat.Monster.BurnDamage = burnAmount(player.Fighter.Stats, player.Fighter.Stats.Burn)
 		logs = append(logs, fmt.Sprintf("Turn %d: Character_%d applies a burn of %d on the monster. (Monster burn: %d)", turn, index+1, int(math.Floor(combat.Monster.BurnDamage)), int(math.Floor(combat.Monster.BurnDamage))))
 	}
+	logs = append(logs, combat.updateMonsterGreed(turn)...)
+	logs = append(logs, combat.checkMonsterBerserker(turn)...)
 	return logs
+}
+
+func (combat *Combat) awakenMonsterGreed(turn int) []string {
+	if combat.Monster.Stats.Greed <= 0 || combat.Monster.GreedAwakened {
+		return nil
+	}
+	combat.Monster.GreedAwakened = true
+	logs := []string{fmt.Sprintf("Turn %d: Greed awakens. The monster gains +%d%% damage each time it loses 10%% max HP.", turn, combat.Monster.Stats.Greed)}
+	for stack := 1; stack <= combat.Monster.GreedStacks; stack++ {
+		total := combat.Monster.Stats.Greed * stack
+		logs = append(logs, fmt.Sprintf("Turn %d: Greed empowers the monster (+%d%% damage, total +%d%%).", turn, combat.Monster.Stats.Greed, total))
+	}
+	return logs
+}
+
+func (combat *Combat) updateMonsterGreed(turn int) []string {
+	if combat.Monster.Stats.Greed <= 0 {
+		return nil
+	}
+	thresholds := greedThresholds(combat.Monster.MaxHP, combat.Monster.HP)
+	if !combat.Monster.GreedAwakened {
+		if thresholds > combat.Monster.GreedStacks {
+			combat.Monster.GreedStacks = thresholds
+		}
+		return nil
+	}
+	logs := []string{}
+	for combat.Monster.GreedStacks < thresholds {
+		combat.Monster.GreedStacks++
+		total := combat.Monster.Stats.Greed * combat.Monster.GreedStacks
+		logs = append(logs, fmt.Sprintf("Turn %d: Greed empowers the monster (+%d%% damage, total +%d%%).", turn, combat.Monster.Stats.Greed, total))
+	}
+	return logs
+}
+
+func (combat *Combat) checkMonsterBerserker(turn int) []string {
+	if combat.Monster.BerserkerRage <= 0 || combat.Monster.Berserked || combat.Monster.HP >= combat.Monster.MaxHP*0.25 {
+		return nil
+	}
+	combat.Monster.Berserked = true
+	return []string{fmt.Sprintf("Turn %d: The monster's Berserker Rage activates, gaining %d%% permanent damage!", turn, combat.Monster.BerserkerRage)}
 }
 
 func (combat *Combat) reduceMonsterResistance(element string, amount int) int {
@@ -643,6 +687,7 @@ func (combat *Combat) activeFrenzy(index, turn int) int {
 func (combat *Combat) attackMonster(index, turn int) []string {
 	combat.Monster.Turns++
 	logs := []string{}
+	logs = append(logs, combat.awakenMonsterGreed(turn)...)
 	if combat.Monster.Stats.SunShield > 0 {
 		logs = append(logs, fmt.Sprintf("Turn %d: Sun Shield activates. The first hit each turn is reduced by %d%%.", turn, combat.Monster.Stats.SunShield))
 	}
@@ -730,23 +775,11 @@ func (combat *Combat) attackMonster(index, turn int) []string {
 	if player.HP <= 0 {
 		player.Alive = false
 	}
-	if combat.Monster.Stats.Greed > 0 {
-		thresholds := greedThresholds(combat.Monster.MaxHP, combat.Monster.HP)
-		for combat.Monster.GreedStacks < thresholds {
-			combat.Monster.GreedStacks++
-			total := combat.Monster.Stats.Greed * combat.Monster.GreedStacks
-			logs = append(logs, fmt.Sprintf("Turn %d: Greed empowers the monster (+%d%% damage, total +%d%%).", turn, combat.Monster.Stats.Greed, total))
-		}
-	}
 	for _, hit := range hits {
 		if hit.Critical && combat.Monster.Stats.Frenzy > 0 {
 			combat.Monster.FrenzyPending = true
 			break
 		}
-	}
-	if combat.Monster.BerserkerRage > 0 && !combat.Monster.Berserked && combat.Monster.HP < combat.Monster.MaxHP*0.25 {
-		combat.Monster.Berserked = true
-		logs = append(logs, fmt.Sprintf("Turn %d: The monster's Berserker Rage activates, gaining %d%% permanent damage!", turn, combat.Monster.BerserkerRage))
 	}
 	logs = append(logs, combat.updatePlayerGreed(index, turn)...)
 	if player.Fighter.Stats.EnchantedMirror > 0 && combat.Monster.Turns%3 == 1 && totalDamage > 0 {
@@ -757,6 +790,8 @@ func (combat *Combat) attackMonster(index, turn int) []string {
 		}
 		logs = append(logs, fmt.Sprintf("Turn %d: Character_%d's Enchanted Mirror activates, dealing back %d damage to %s.", turn, index+1, reflected, combat.Monster.Name))
 		logs = append(logs, fmt.Sprintf("Turn %d: %s takes %d reflected damage. %s HP: %d/%d", turn, combat.Monster.Name, reflected, combat.Monster.Name, int(combat.Monster.HP), int(combat.Monster.MaxHP)))
+		logs = append(logs, combat.updateMonsterGreed(turn)...)
+		logs = append(logs, combat.checkMonsterBerserker(turn)...)
 	}
 	if wasAlive && !player.Alive {
 		logs = append(logs, fmt.Sprintf("Turn %d: Character_%d has been defeated!", turn, index+1))

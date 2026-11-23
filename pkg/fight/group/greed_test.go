@@ -45,11 +45,36 @@ func TestMonsterGreedUsesBoundedHPThresholds(t *testing.T) {
 	combat := NewCombat([]Fighter{fighter}, monster, func() float64 { return 0.99 })
 	result := combat.Run(10)
 	joined := strings.Join(result.Logs, "\n")
+	if !strings.Contains(joined, "Turn 1: Greed awakens. The monster gains +10% damage each time it loses 10% max HP.") {
+		t.Fatalf("monster Greed never awakened: %s", joined)
+	}
 	if !strings.Contains(joined, "Greed empowers the monster") {
 		t.Fatalf("monster Greed never activated: %s", joined)
 	}
 	if !strings.Contains(joined, "total +50%") {
 		t.Fatalf("monster Greed used an incorrect HP threshold: %s", joined)
+	}
+}
+
+func TestMonsterGreedAwakensOnItsFirstTurnBeforeLoggingEarlyStacks(t *testing.T) {
+	fighter := Fighter{Stats: Stats{HP: 5000, AttackEarth: 600, Initiative: 100}}
+	monster := Monster{
+		Name:  "Red Dragon",
+		Stats: Stats{HP: 5000, AttackFire: 1, Initiative: 1, Greed: 20},
+		HP:    5000,
+		MaxHP: 5000,
+	}
+
+	combat := NewCombat([]Fighter{fighter}, monster, func() float64 { return 0 })
+	result := combat.Run(4)
+	joined := strings.Join(result.Logs, "\n")
+	awaken := strings.Index(joined, "Turn 2: Greed awakens. The monster gains +20% damage each time it loses 10% max HP.")
+	empower := strings.Index(joined, "Turn 2: Greed empowers the monster (+20% damage, total +20%).")
+	if awaken < 0 || empower < awaken {
+		t.Fatalf("early monster Greed stacks were not logged with the awakening: %s", joined)
+	}
+	if strings.Contains(joined, "Turn 1: Greed empowers the monster") {
+		t.Fatalf("monster Greed was logged before it awakened: %s", joined)
 	}
 }
 
