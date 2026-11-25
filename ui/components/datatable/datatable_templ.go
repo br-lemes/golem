@@ -207,6 +207,12 @@ func dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs, rowK
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		if path != "" {
+			templ_7745c5c3_Err = dataTableHeader(path, query, totalItems, len(rows), filter != nil, filterModalID, refresh, refreshPeriod).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"table-responsive\"><table class=\"data-table table table-hover table-striped table-vcenter\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -220,12 +226,6 @@ func dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs, rowK
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "><thead>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
-		}
-		if path != "" {
-			templ_7745c5c3_Err = dataTableHeader(len(rows), len(columns), path, query, totalItems, filter != nil, filterModalID, refresh, refreshPeriod).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
 		}
 		templ_7745c5c3_Err = dataTableColumns(columns, path, query).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

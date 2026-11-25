@@ -179,12 +179,12 @@ func queryHref(path string, query Query, page int) string {
 }
 
 templ dataTable(rows [][]dataTableCell, columns []dataTableColumn, rowHrefs, rowKeys []string, emptyMessage, path string, query Query, totalItems *int, filter templ.Component, filterModalID string, refresh string, refreshPeriod int, diff bool) {
+	if path != "" {
+		@dataTableHeader(path, query, totalItems, len(rows), filter != nil, filterModalID, refresh, refreshPeriod)
+	}
 	<div class="table-responsive">
 		<table class="data-table table table-hover table-striped table-vcenter" data-swr-diff?={ diff }>
 			<thead>
-				if path != "" {
-					@dataTableHeader(len(rows), len(columns), path, query, totalItems, filter != nil, filterModalID, refresh, refreshPeriod)
-				}
 				@dataTableColumns(columns, path, query)
 			</thead>
 			<tbody>
