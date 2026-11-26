@@ -152,4 +152,5 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	rootCmd.SetUsageTemplate(strings.Replace(rootCmd.UsageTemplate(), "{{if .HasAvailableInheritedFlags}}", `{{if and .HasAvailableInheritedFlags (.Flags.Changed "help")}}`, 1))
 }
