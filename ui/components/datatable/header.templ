@@ -5,12 +5,12 @@ import (
 	"fmt"
 )
 
-templ dataTableHeader(path string, query Query, totalItems *int, rowCount int, hasFilter bool, filterModalID string, refresh string, refreshPeriod int) {
-	{{ filterSummary := filterSummary(query.Filters) }}
+templ dataTableHeader(state dataTableState) {
+	{{ filterSummary := filterSummary(state.Query.Filters) }}
 	<div class="card-header">
 		<div class="align-items-center flex-fill g-2 row">
 			<div class="col-md-4 d-flex justify-content-center justify-content-md-start">
-				if refresh == RefreshAuto {
+				if state.Refresh == RefreshAuto {
 					<div class="input-icon">
 						<span class="input-icon-addon">
 							<i aria-hidden="true" class="ti ti-refresh"></i>
@@ -18,11 +18,11 @@ templ dataTableHeader(path string, query Query, totalItems *int, rowCount int, h
 						<select
 							aria-label="Auto refresh"
 							class="form-select w-auto"
-							data-swr-refresh={ refresh }
+							data-swr-refresh={ state.Refresh }
 						>
 							for _, period := range RefreshPeriods {
 								<option
-									selected?={ period == refreshPeriod }
+									selected?={ period == state.RefreshPeriod }
 									value={ period }
 								>
 									{ period }s
@@ -30,22 +30,22 @@ templ dataTableHeader(path string, query Query, totalItems *int, rowCount int, h
 							}
 						</select>
 					</div>
-				} else if refresh == RefreshManual {
+				} else if state.Refresh == RefreshManual {
 					<a
 						aria-label="Refresh"
 						class="btn btn-icon btn-primary rounded-circle"
 						data-swr="true"
-						href={ queryHref(path, query, query.Page) }
+						href={ queryHref(state.Path, state.Query, state.Query.Page) }
 					>
 						<i aria-hidden="true" class="ti ti-refresh"></i>
 					</a>
 				}
-				if hasFilter {
+				if state.Filter != nil {
 					<button
 						aria-label="Filter"
 						class="btn btn-icon btn-primary rounded-circle"
 						data-filter-modal
-						data-bs-target={ "#" + filterModalID }
+						data-bs-target={ "#" + state.FilterModalID }
 						data-bs-toggle="modal"
 						type="button"
 					>
@@ -54,11 +54,11 @@ templ dataTableHeader(path string, query Query, totalItems *int, rowCount int, h
 				}
 			</div>
 			<div class="col-md-4 text-center" data-swr-region="summary">
-				<div aria-label={ recordsLabel(rowCount, totalItems) }>
-					Records: { fmt.Sprint(rowCount) }
-					if totalItems != nil {
+				<div aria-label={ recordsLabel(len(state.Rows), state.TotalItems) }>
+					Records: { fmt.Sprint(len(state.Rows)) }
+					if state.TotalItems != nil {
 						{ " / " }
-						{ fmt.Sprint(*totalItems) }
+						{ fmt.Sprint(*state.TotalItems) }
 					}
 				</div>
 				if filterSummary != "" {
@@ -71,7 +71,7 @@ templ dataTableHeader(path string, query Query, totalItems *int, rowCount int, h
 			</div>
 			<div class="col-md-4 d-flex justify-content-center justify-content-md-end">
 				<form
-					action={ queryHref(path, query, query.Page) }
+					action={ queryHref(state.Path, state.Query, state.Query.Page) }
 					data-swr-navigate
 					method="get"
 				>
@@ -85,7 +85,7 @@ templ dataTableHeader(path string, query Query, totalItems *int, rowCount int, h
 							name="search"
 							placeholder="Search"
 							type="search"
-							value={ query.Search }
+							value={ state.Query.Search }
 						/>
 					</div>
 				</form>
@@ -94,23 +94,23 @@ templ dataTableHeader(path string, query Query, totalItems *int, rowCount int, h
 	</div>
 }
 
-templ dataTableColumns(columns []dataTableColumn, path string, query Query) {
+templ dataTableColumns(state dataTableState) {
 	<tr>
-		for _, column := range columns {
+		for _, column := range state.Columns {
 			<th class="text-nowrap">
-				if column.Sortable && path != "" {
+				if column.Sortable && state.Path != "" {
 					<a
 						class="text-decoration-none text-reset"
 						data-swr="true"
-						href={ queryHref(path, sortQuery(query, column.Field), 1) }
+						href={ queryHref(state.Path, sortQuery(state.Query, column.Field), 1) }
 					>
 						{ column.Header }
-						if query.Sort == column.Field && query.Direction == "asc" {
+						if state.Query.Sort == column.Field && state.Query.Direction == "asc" {
 							<i
 								aria-label="Sorted ascending"
 								class="text-primary ti ti-arrow-up"
 							></i>
-						} else if query.Sort == column.Field && query.Direction == "desc" {
+						} else if state.Query.Sort == column.Field && state.Query.Direction == "desc" {
 							<i
 								aria-label="Sorted descending"
 								class="text-primary ti ti-arrow-down"

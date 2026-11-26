@@ -7,24 +7,27 @@ const DefaultSize = 10
 
 var Sizes = []int{5, 10, 25, 50, 100, 250, 500, 1000}
 
-templ paginationNav(path string, query Query, totalItems *int) {
+templ paginationNav(state dataTableState) {
 	{{
-		if path == "" || totalItems == nil {
+		if state.Path == "" || state.TotalItems == nil {
 			return
 		}
 	}}
-	{{ totalPages := max(1, (*totalItems+query.Size-1)/query.Size) }}
-	<div class="align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center" data-swr-region="pagination">
+	{{ totalPages := max(1, (*state.TotalItems+state.Query.Size-1)/state.Query.Size) }}
+	<div
+		class="align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center"
+		data-swr-region="pagination"
+	>
 		if totalPages > 1 {
 			<nav aria-label="Pagination">
 				<ul class="justify-content-center mb-0 pagination">
-					@paginationControl(path, query, 1, "ti-chevrons-left", "First page", query.Page > 1)
-					@paginationControl(path, query, query.Page-1, "ti-chevron-left", "Previous page", query.Page > 1)
-					for _, pageNumber := range paginationPages(query.Page, totalPages) {
-						@paginationPage(path, query, pageNumber)
+					@paginationControl(state, 1, "ti-chevrons-left", "First page", state.Query.Page > 1)
+					@paginationControl(state, state.Query.Page-1, "ti-chevron-left", "Previous page", state.Query.Page > 1)
+					for _, pageNumber := range paginationPages(state.Query.Page, totalPages) {
+						@paginationPage(state, pageNumber)
 					}
-					@paginationControl(path, query, query.Page+1, "ti-chevron-right", "Next page", query.Page < totalPages)
-					@paginationControl(path, query, totalPages, "ti-chevrons-right", "Last page", query.Page < totalPages)
+					@paginationControl(state, state.Query.Page+1, "ti-chevron-right", "Next page", state.Query.Page < totalPages)
+					@paginationControl(state, totalPages, "ti-chevrons-right", "Last page", state.Query.Page < totalPages)
 				</ul>
 			</nav>
 		}
@@ -36,7 +39,7 @@ templ paginationNav(path string, query Query, totalItems *int) {
 		>
 			for _, size := range Sizes {
 				<option
-					selected?={ query.Size == size }
+					selected?={ state.Query.Size == size }
 					value={ strconv.Itoa(size) }
 				>{ strconv.Itoa(size) }</option>
 			}
@@ -60,14 +63,14 @@ func paginationPages(page, totalPages int) []int {
 	return pages
 }
 
-templ paginationControl(path string, query Query, page int, icon, label string, enabled bool) {
+templ paginationControl(state dataTableState, page int, icon, label string, enabled bool) {
 	if enabled {
 		<li class="page-item">
 			<a
 				aria-label={ label }
 				class="page-link"
 				data-swr="true"
-				href={ queryHref(path, query, page) }
+				href={ queryHref(state.Path, state.Query, page) }
 			>
 				<i aria-hidden="true" class={ "ti", icon }></i>
 			</a>
@@ -81,13 +84,13 @@ templ paginationControl(path string, query Query, page int, icon, label string, 
 	}
 }
 
-templ paginationPage(path string, query Query, page int) {
-	if page == query.Page {
+templ paginationPage(state dataTableState, page int) {
+	if page == state.Query.Page {
 		<li class="active page-item">
 			<a
 				aria-current="page"
 				class="page-link"
-				href={ queryHref(path, query, page) }
+				href={ queryHref(state.Path, state.Query, page) }
 			>{ strconv.Itoa(page) }</a>
 		</li>
 	} else {
@@ -96,7 +99,7 @@ templ paginationPage(path string, query Query, page int) {
 				aria-label={ "Page " + strconv.Itoa(page) }
 				class="page-link"
 				data-swr="true"
-				href={ queryHref(path, query, page) }
+				href={ queryHref(state.Path, state.Query, page) }
 			>{ strconv.Itoa(page) }</a>
 		</li>
 	}

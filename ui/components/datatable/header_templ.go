@@ -13,7 +13,7 @@ import (
 	"fmt"
 )
 
-func dataTableHeader(path string, query Query, totalItems *int, rowCount int, hasFilter bool, filterModalID string, refresh string, refreshPeriod int) templ.Component {
+func dataTableHeader(state dataTableState) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -34,20 +34,20 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		filterSummary := filterSummary(query.Filters)
+		filterSummary := filterSummary(state.Query.Filters)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card-header\"><div class=\"align-items-center flex-fill g-2 row\"><div class=\"col-md-4 d-flex justify-content-center justify-content-md-start\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if refresh == RefreshAuto {
+		if state.Refresh == RefreshAuto {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"input-icon\"><span class=\"input-icon-addon\"><i aria-hidden=\"true\" class=\"ti ti-refresh\"></i></span> <select aria-label=\"Auto refresh\" class=\"form-select w-auto\" data-swr-refresh=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(refresh)
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(state.Refresh)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 21, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 21, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
@@ -62,7 +62,7 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if period == refreshPeriod {
+				if period == state.RefreshPeriod {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -103,15 +103,15 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else if refresh == RefreshManual {
+		} else if state.Refresh == RefreshManual {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<a aria-label=\"Refresh\" class=\"btn btn-icon btn-primary rounded-circle\" data-swr=\"true\" href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 templ.SafeURL
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, query, query.Page))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(state.Path, state.Query, state.Query.Page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 38, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 38, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -122,15 +122,15 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 				return templ_7745c5c3_Err
 			}
 		}
-		if hasFilter {
+		if state.Filter != nil {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<button aria-label=\"Filter\" class=\"btn btn-icon btn-primary rounded-circle\" data-filter-modal data-bs-target=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue("#" + filterModalID)
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue("#" + state.FilterModalID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 48, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 48, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -146,9 +146,9 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(recordsLabel(rowCount, totalItems))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(recordsLabel(len(state.Rows), state.TotalItems))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 57, Col: 56}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 57, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
@@ -159,9 +159,9 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(rowCount))
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(len(state.Rows)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 58, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 58, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -171,7 +171,7 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if totalItems != nil {
+		if state.TotalItems != nil {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(" / ")
 			if templ_7745c5c3_Err != nil {
@@ -186,9 +186,9 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(*totalItems))
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(*state.TotalItems))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 61, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 61, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -223,9 +223,9 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 templ.SafeURL
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, query, query.Page))
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(state.Path, state.Query, state.Query.Page))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 74, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 74, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -236,9 +236,9 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(query.Search)
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(state.Query.Search)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 88, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 88, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
@@ -252,7 +252,7 @@ func dataTableHeader(path string, query Query, totalItems *int, rowCount int, ha
 	})
 }
 
-func dataTableColumns(columns []dataTableColumn, path string, query Query) templ.Component {
+func dataTableColumns(state dataTableState) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -277,20 +277,20 @@ func dataTableColumns(columns []dataTableColumn, path string, query Query) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, column := range columns {
+		for _, column := range state.Columns {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<th class=\"text-nowrap\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if column.Sortable && path != "" {
+			if column.Sortable && state.Path != "" {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<a class=\"text-decoration-none text-reset\" data-swr=\"true\" href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 templ.SafeURL
-				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, sortQuery(query, column.Field), 1))
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(state.Path, sortQuery(state.Query, column.Field), 1))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 105, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/header.templ`, Line: 105, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -313,12 +313,12 @@ func dataTableColumns(columns []dataTableColumn, path string, query Query) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if query.Sort == column.Field && query.Direction == "asc" {
+				if state.Query.Sort == column.Field && state.Query.Direction == "asc" {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<i aria-label=\"Sorted ascending\" class=\"text-primary ti ti-arrow-up\"></i>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else if query.Sort == column.Field && query.Direction == "desc" {
+				} else if state.Query.Sort == column.Field && state.Query.Direction == "desc" {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<i aria-label=\"Sorted descending\" class=\"text-primary ti ti-arrow-down\"></i>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

@@ -15,7 +15,7 @@ const DefaultSize = 10
 
 var Sizes = []int{5, 10, 25, 50, 100, 250, 500, 1000}
 
-func paginationNav(path string, query Query, totalItems *int) templ.Component {
+func paginationNav(state dataTableState) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -36,10 +36,10 @@ func paginationNav(path string, query Query, totalItems *int) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if path == "" || totalItems == nil {
+		if state.Path == "" || state.TotalItems == nil {
 			return
 		}
-		totalPages := max(1, (*totalItems+query.Size-1)/query.Size)
+		totalPages := max(1, (*state.TotalItems+state.Query.Size-1)/state.Query.Size)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"align-items-center card-footer d-flex flex-column flex-md-row gap-2 justify-content-center\" data-swr-region=\"pagination\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -49,25 +49,25 @@ func paginationNav(path string, query Query, totalItems *int) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = paginationControl(path, query, 1, "ti-chevrons-left", "First page", query.Page > 1).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = paginationControl(state, 1, "ti-chevrons-left", "First page", state.Query.Page > 1).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = paginationControl(path, query, query.Page-1, "ti-chevron-left", "Previous page", query.Page > 1).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = paginationControl(state, state.Query.Page-1, "ti-chevron-left", "Previous page", state.Query.Page > 1).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, pageNumber := range paginationPages(query.Page, totalPages) {
-				templ_7745c5c3_Err = paginationPage(path, query, pageNumber).Render(ctx, templ_7745c5c3_Buffer)
+			for _, pageNumber := range paginationPages(state.Query.Page, totalPages) {
+				templ_7745c5c3_Err = paginationPage(state, pageNumber).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = paginationControl(path, query, query.Page+1, "ti-chevron-right", "Next page", query.Page < totalPages).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = paginationControl(state, state.Query.Page+1, "ti-chevron-right", "Next page", state.Query.Page < totalPages).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = paginationControl(path, query, totalPages, "ti-chevrons-right", "Last page", query.Page < totalPages).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = paginationControl(state, totalPages, "ti-chevrons-right", "Last page", state.Query.Page < totalPages).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -85,7 +85,7 @@ func paginationNav(path string, query Query, totalItems *int) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if query.Size == size {
+			if state.Query.Size == size {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -98,7 +98,7 @@ func paginationNav(path string, query Query, totalItems *int) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(strconv.Itoa(size))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 40, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 43, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
@@ -111,7 +111,7 @@ func paginationNav(path string, query Query, totalItems *int) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(size))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 41, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 44, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -146,7 +146,7 @@ func paginationPages(page, totalPages int) []int {
 	return pages
 }
 
-func paginationControl(path string, query Query, page int, icon, label string, enabled bool) templ.Component {
+func paginationControl(state dataTableState, page int, icon, label string, enabled bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -175,7 +175,7 @@ func paginationControl(path string, query Query, page int, icon, label string, e
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 67, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 70, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -186,9 +186,9 @@ func paginationControl(path string, query Query, page int, icon, label string, e
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 templ.SafeURL
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, query, page))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(state.Path, state.Query, page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 70, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 73, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -252,7 +252,7 @@ func paginationControl(path string, query Query, page int, icon, label string, e
 	})
 }
 
-func paginationPage(path string, query Query, page int) templ.Component {
+func paginationPage(state dataTableState, page int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -273,15 +273,15 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if page == query.Page {
+		if page == state.Query.Page {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<li class=\"active page-item\"><a aria-current=\"page\" class=\"page-link\" href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 templ.SafeURL
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, query, page))
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(state.Path, state.Query, page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 90, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 93, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -294,7 +294,7 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 91, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 94, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -312,7 +312,7 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue("Page " + strconv.Itoa(page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 96, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 99, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
@@ -323,9 +323,9 @@ func paginationPage(path string, query Query, page int) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 templ.SafeURL
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(path, query, page))
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(queryHref(state.Path, state.Query, page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 99, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 102, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -338,7 +338,7 @@ func paginationPage(path string, query Query, page int) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 100, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/components/datatable/pagination.templ`, Line: 103, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {

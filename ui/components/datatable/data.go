@@ -2,6 +2,7 @@ package datatable
 
 import (
 	"cmp"
+	"fmt"
 	"net/http"
 	"reflect"
 	"slices"
@@ -174,6 +175,67 @@ func compareFields(left, right reflect.Value, fieldName string) int {
 	default:
 		return 0
 	}
+}
+
+func buildColumns[T any](columns []Column[T]) []dataTableColumn {
+	definitions := make([]dataTableColumn, len(columns))
+	for index, column := range columns {
+		definitions[index] = dataTableColumn{
+			Class:    column.Class,
+			Field:    column.Field,
+			Header:   column.Header,
+			Sortable: column.Sortable,
+		}
+	}
+	return definitions
+}
+
+func buildRows[T any](props DataTableProps[T]) []dataTableRow {
+	value := reflect.ValueOf(props.Data)
+	rows := make([]dataTableRow, value.Len())
+	for rowIndex := 0; rowIndex < value.Len(); rowIndex++ {
+		item := value.Index(rowIndex)
+		cells := make([]dataTableCell, len(props.Columns))
+		for columnIndex, column := range props.Columns {
+			cell := dataTableCell{Class: column.Class}
+			if column.Cell != nil {
+				cell.Component = column.Cell(item.Interface().(T))
+			} else if column.Field != "" {
+				cell.Text = fieldText(item, column.Field)
+			}
+			cells[columnIndex] = cell
+		}
+		row := dataTableRow{Cells: cells}
+		if props.RowHref != nil {
+			row.Href = props.RowHref(item.Interface().(T))
+		}
+		if props.RowKey != nil {
+			row.Key = props.RowKey(item.Interface().(T))
+		}
+		rows[rowIndex] = row
+	}
+	return rows
+}
+
+func fieldText(item reflect.Value, fieldName string) string {
+	for item.Kind() == reflect.Pointer {
+		if item.IsNil() {
+			return ""
+		}
+		item = item.Elem()
+	}
+	if item.Kind() != reflect.Struct {
+		panic("data table items must contain structs")
+	}
+	typeOfItem := item.Type()
+	for index := 0; index < item.NumField(); index++ {
+		field := typeOfItem.Field(index)
+		jsonName := strings.Split(field.Tag.Get("json"), ",")[0]
+		if jsonName == fieldName {
+			return fmt.Sprint(item.Field(index).Interface())
+		}
+	}
+	panic(fmt.Sprintf("data table field %q not found in %s", fieldName, typeOfItem))
 }
 
 func fieldValue(value reflect.Value, fieldName string) reflect.Value {
