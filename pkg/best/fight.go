@@ -280,8 +280,8 @@ func applyFightAvailability(available map[string]int, options FightOptions, forc
 		}
 	}
 	for _, code := range options.With {
-		if available[code] < 1 {
-			available[code] = 1
+		if available[code] < 2 {
+			available[code] = 2
 		}
 	}
 	for code, count := range forced.counts {

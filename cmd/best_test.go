@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/br-lemes/golem/pkg/best"
+	"github.com/br-lemes/golem/pkg/schemas"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -18,19 +19,61 @@ func TestBestFlags(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read default best flags: %v", err)
 	}
-	if flags.AllowDuplicateAdeptRing {
-		t.Fatal("allow duplicate adept ring should default to false")
+	if flags.All || flags.Full || flags.Loadout || flags.AllowDuplicateAdeptRing {
+		t.Fatalf("boolean flags should default to false: %#v", flags)
 	}
-	err = command.Flags().Set("allow-duplicate-adept-ring", "true")
-	if err != nil {
-		t.Fatalf("set best flag: %v", err)
+	if len(flags.Without) != 0 || len(flags.With) != 0 {
+		t.Fatalf("item flags should default to empty: %#v", flags)
+	}
+	for name, value := range map[string]string{
+		"all":                        "true",
+		"full":                       "true",
+		"loadout":                    "true",
+		"allow-duplicate-adept-ring": "true",
+		"without":                    "iron_sword",
+		"with":                       "wooden_stick",
+	} {
+		err = command.Flags().Set(name, value)
+		if err != nil {
+			t.Fatalf("set best flag %s: %v", name, err)
+		}
 	}
 	flags, err = utils.ReadFlags[bestFlags](command)
 	if err != nil {
 		t.Fatalf("read best flags: %v", err)
 	}
-	if !flags.AllowDuplicateAdeptRing {
-		t.Fatal("allow duplicate adept ring flag was not read")
+	if !flags.All || !flags.Full || !flags.Loadout || !flags.AllowDuplicateAdeptRing {
+		t.Fatalf("boolean flags were not read: %#v", flags)
+	}
+	if len(flags.Without) != 1 || flags.Without[0] != "iron_sword" {
+		t.Fatalf("without = %#v", flags.Without)
+	}
+	if len(flags.With) != 1 || flags.With[0] != "wooden_stick" {
+		t.Fatalf("with = %#v", flags.With)
+	}
+}
+
+func TestBestPriorityLoadout(t *testing.T) {
+	loadout := bestPriorityLoadout(schemas.CharacterSchema{Level: 12}, map[string]best.BestResult{
+		"weapon":   {Code: "iron_sword"},
+		"utility1": {Code: "health_potion"},
+		"bag":      {Code: "satchel"},
+	})
+	if len(loadout) != 1 {
+		t.Fatalf("loadout length = %d", len(loadout))
+	}
+	character := loadout[0]
+	if character.Level != 12 {
+		t.Fatalf("level = %d", character.Level)
+	}
+	if character.WeaponSlot == nil || *character.WeaponSlot != "iron_sword" {
+		t.Fatalf("weapon = %v", character.WeaponSlot)
+	}
+	if character.Utility1Slot == nil || *character.Utility1Slot != "health_potion" {
+		t.Fatalf("utility1 = %v", character.Utility1Slot)
+	}
+	if character.Utility1SlotQuantity == nil || *character.Utility1SlotQuantity != bestFightUtilityQuantity {
+		t.Fatalf("utility1 quantity = %v", character.Utility1SlotQuantity)
 	}
 }
 

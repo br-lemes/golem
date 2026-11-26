@@ -22,6 +22,112 @@ func TestFindEquipmentUsesOwnedItems(t *testing.T) {
 	}
 }
 
+func TestFindEquipmentAllIncludesUnownedItems(t *testing.T) {
+	got, err := FindEquipment(schemas.CharacterSchema{Level: 50}, EquipmentOptions{
+		Owned:      map[string]int{},
+		Priorities: []string{"attack_earth"},
+		All:        true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["weapon"].Code == "" {
+		t.Fatalf("weapon = %#v, want an unowned weapon", got["weapon"])
+	}
+}
+
+func TestFindEquipmentWithIncludesUnownedItem(t *testing.T) {
+	got, err := FindEquipment(schemas.CharacterSchema{Level: 50}, EquipmentOptions{
+		Owned:      map[string]int{},
+		Priorities: []string{"attack_earth"},
+		With:       []string{"iron_sword"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["weapon"].Code != "iron_sword" {
+		t.Fatalf("weapon = %#v, want iron_sword", got["weapon"])
+	}
+}
+
+func TestFindEquipmentWithIncludesTwoCopies(t *testing.T) {
+	got, err := FindEquipment(schemas.CharacterSchema{Level: 50}, EquipmentOptions{
+		Owned:      map[string]int{},
+		Priorities: []string{"prospecting"},
+		With:       []string{"ring_of_chance"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["ring1"].Code != "ring_of_chance" || got["ring2"].Code != "ring_of_chance" {
+		t.Fatalf("rings = %#v, want two ring_of_chance", got)
+	}
+}
+
+func TestFindEquipmentWithoutExcludesOwnedItem(t *testing.T) {
+	got, err := FindEquipment(schemas.CharacterSchema{Level: 50}, EquipmentOptions{
+		Owned:      map[string]int{"iron_sword": 1, "wooden_stick": 1},
+		Priorities: []string{"attack_earth"},
+		Without:    []string{"iron_sword"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["weapon"].Code != "wooden_stick" {
+		t.Fatalf("weapon = %#v, want wooden_stick", got["weapon"])
+	}
+}
+
+func TestFindEquipmentRejectsForbiddenAndIncludedItem(t *testing.T) {
+	_, err := FindEquipment(schemas.CharacterSchema{Level: 50}, EquipmentOptions{
+		Owned:      map[string]int{},
+		Priorities: []string{"attack_earth"},
+		Without:    []string{"iron_sword"},
+		With:       []string{"iron_sword"},
+	})
+	if err == nil {
+		t.Fatal("forbidden and included item was accepted")
+	}
+}
+
+func TestFindEquipmentFullIncludesUnchangedPriorityItem(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50, WeaponSlot: "iron_sword"}
+	options := EquipmentOptions{
+		Owned:      map[string]int{"iron_sword": 1},
+		Priorities: []string{"attack_earth"},
+	}
+	got, err := FindEquipment(character, options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 0 {
+		t.Fatalf("result = %#v, want only changed slots", got)
+	}
+	options.Full = true
+	got, err = FindEquipment(character, options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["weapon"].Code != "iron_sword" {
+		t.Fatalf("full weapon = %#v, want iron_sword", got["weapon"])
+	}
+}
+
+func TestFindEquipmentFullExcludesUnrelatedEquipment(t *testing.T) {
+	character := schemas.CharacterSchema{Level: 50, WeaponSlot: "iron_sword"}
+	got, err := FindEquipment(character, EquipmentOptions{
+		Owned:      map[string]int{"iron_sword": 1},
+		Priorities: []string{"wisdom"},
+		Full:       true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["weapon"].Code != "" {
+		t.Fatalf("full weapon = %#v, want no unrelated equipment", got["weapon"])
+	}
+}
+
 func TestFindEquipmentRejectsInvalidPriorities(t *testing.T) {
 	_, err := FindEquipment(schemas.CharacterSchema{}, EquipmentOptions{
 		Owned:      map[string]int{},

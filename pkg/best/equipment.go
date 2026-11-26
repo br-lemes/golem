@@ -18,22 +18,27 @@ type BestResult struct {
 }
 
 type bestCtx struct {
+	AlreadyEquipped map[string]int
 	Character       schemas.CharacterSchema
+	Equipped        map[string]string
+	Full            bool
 	ItemValues      map[string]int
 	OwnedItems      map[string]int
-	Equipped        map[string]string
-	AlreadyEquipped map[string]int
 	Result          map[string]BestResult
 	Skill           string
+	UniqueAdeptRing bool
 	ValidItems      []schemas.ItemSchema
 	Weights         map[string]int
-	UniqueAdeptRing bool
 }
 
 type EquipmentOptions struct {
-	UniqueAdeptRing bool
+	All             bool
+	Full            bool
 	Owned           map[string]int
 	Priorities      []string
+	UniqueAdeptRing bool
+	With            []string
+	Without         []string
 }
 
 func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) (map[string]BestResult, error) {
@@ -41,6 +46,10 @@ func FindEquipment(character schemas.CharacterSchema, options EquipmentOptions) 
 }
 
 func findEquipment(d deps, character schemas.CharacterSchema, options EquipmentOptions) (map[string]BestResult, error) {
+	err := validateEquipmentOptions(options)
+	if err != nil {
+		return nil, err
+	}
 	priorities, err := NormalizePriorities(options.Priorities)
 	if err != nil {
 		return nil, err
@@ -62,14 +71,59 @@ func findEquipment(d deps, character schemas.CharacterSchema, options EquipmentO
 		Skill:           skill,
 		Weights:         weights,
 		UniqueAdeptRing: options.UniqueAdeptRing,
+		Full:            options.Full,
 	}
 	err = ctx.fetchItems(d, options.Owned)
 	if err != nil {
 		return nil, err
 	}
+	ctx.applyAvailability(options)
 	ctx.filterAndSort()
 	ctx.matchEquipment()
 	return ctx.Result, nil
+}
+
+func validateEquipmentOptions(options EquipmentOptions) error {
+	forbidden := make(map[string]bool, len(options.Without))
+	for _, code := range options.Without {
+		_, exists := catalog.Items().Get(code)
+		if !exists {
+			return fmt.Errorf("invalid item: %s", code)
+		}
+		forbidden[code] = true
+	}
+	for _, code := range options.With {
+		item, exists := catalog.Items().Get(code)
+		if !exists {
+			return fmt.Errorf("invalid item: %s", code)
+		}
+		_, equippable := catalog.EquipmentTypeToSlots[item.Type]
+		if !equippable {
+			return fmt.Errorf("item cannot be equipped: %s", code)
+		}
+		if forbidden[code] {
+			return fmt.Errorf("item cannot be forbidden and included: %s", code)
+		}
+	}
+	return nil
+}
+
+func (c *bestCtx) applyAvailability(options EquipmentOptions) {
+	if options.All {
+		for _, item := range catalog.Items().Equipments().All() {
+			if c.OwnedItems[item.Code] < 2 {
+				c.OwnedItems[item.Code] = 2
+			}
+		}
+	}
+	for _, code := range options.With {
+		if c.OwnedItems[code] < 2 {
+			c.OwnedItems[code] = 2
+		}
+	}
+	for _, code := range options.Without {
+		delete(c.OwnedItems, code)
+	}
 }
 
 func FindEquipmentSchemas(character schemas.CharacterSchema, options EquipmentOptions) ([]schemas.EquipSchema, error) {
@@ -182,8 +236,9 @@ func (c *bestCtx) matchEquipment() {
 			j++
 		}
 		chosen := c.bestGroup(slots[i:j], itemType)
-		for slot, code := range chosen {
-			if code == "" || code == c.Equipped[slot] {
+		for _, slot := range slots[i:j] {
+			code := chosen[slot]
+			if code == "" || (!c.Full && code == c.Equipped[slot]) {
 				continue
 			}
 			item, _ := catalog.Items().Get(code)

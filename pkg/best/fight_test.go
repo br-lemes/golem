@@ -587,6 +587,16 @@ func TestFindFightWithAvailableAppliesWithAndWithout(t *testing.T) {
 	}
 }
 
+func TestApplyFightAvailabilityWithProvidesTwoCopies(t *testing.T) {
+	available := map[string]int{}
+	applyFightAvailability(available, FightOptions{
+		With: []string{"ring_of_chance"},
+	}, forcedFight{})
+	if available["ring_of_chance"] != 2 {
+		t.Fatalf("ring_of_chance quantity = %d, want 2", available["ring_of_chance"])
+	}
+}
+
 func TestFindFightWithAvailableUseForcesItem(t *testing.T) {
 	err := cache.Initialize(config.Storage{Cache: t.TempDir() + "/cache.db"})
 	if err != nil {

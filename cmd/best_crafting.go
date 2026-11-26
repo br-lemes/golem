@@ -7,7 +7,6 @@ import (
 	"github.com/br-lemes/golem/pkg/best"
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/completion"
-	"github.com/br-lemes/golem/pkg/console"
 	"github.com/br-lemes/golem/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -26,6 +25,10 @@ Arguments:
 		name := args[0]
 		code := args[1]
 		flags, err := utils.ReadFlags[bestFlags](cmd)
+		if err != nil {
+			return err
+		}
+		err = bestValidateItems(flags)
 		if err != nil {
 			return err
 		}
@@ -55,17 +58,18 @@ func bestCraftingRun(name, code string, flags bestFlags) error {
 	items, err := best.FindEquipment(character, best.EquipmentOptions{
 		UniqueAdeptRing: !flags.AllowDuplicateAdeptRing,
 		Priorities:      best.CraftingPriorities(character, item),
+		All:             flags.All,
+		Without:         flags.Without,
+		With:            flags.With,
+		Full:            flags.Full || flags.Loadout,
 	})
 	if err != nil {
 		return err
 	}
-	return console.Auto(items)
+	return bestPrint(character, flags, items)
 }
 
 func init() {
 	bestCmd.AddCommand(bestCraftingCmd)
-	err := utils.RegisterFlags[bestFlags](bestCraftingCmd)
-	if err != nil {
-		panic(err)
-	}
+	registerBestFlags(bestCraftingCmd)
 }
