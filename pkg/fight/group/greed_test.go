@@ -57,7 +57,9 @@ func TestMonsterGreedUsesBoundedHPThresholds(t *testing.T) {
 }
 
 func TestMonsterGreedAwakensOnItsFirstTurnBeforeLoggingEarlyStacks(t *testing.T) {
-	fighter := Fighter{Stats: Stats{HP: 5000, AttackEarth: 600, Initiative: 100}}
+	fighter := Fighter{
+		Stats: Stats{HP: 5000, AttackEarth: 600, Initiative: 100},
+	}
 	monster := Monster{
 		Name:  "Red Dragon",
 		Stats: Stats{HP: 5000, AttackFire: 1, Initiative: 1, Greed: 20},

@@ -8,7 +8,6 @@ import (
 	"github.com/br-lemes/golem/pkg/catalog"
 	"github.com/br-lemes/golem/pkg/models"
 	"github.com/br-lemes/golem/pkg/schemas"
-	"github.com/br-lemes/golem/pkg/utils"
 )
 
 type ItemStock struct {
@@ -39,12 +38,11 @@ func Overview(stocks []models.Stock, codes []string, target bool) (map[string]It
 	}
 	quantities := itemQuantities(bankItems, characters)
 	quantities["gold"] = goldQuantity(bank.Gold, characters)
-	return Calculate(stocks, quantities, characters, codes, target)
+	return Calculate(stocks, quantities, codes, target)
 }
 
-func Calculate(stocks []models.Stock, quantities map[string]int, characters []schemas.CharacterSchema, codes []string, target bool) (map[string]ItemStock, error) {
+func Calculate(stocks []models.Stock, quantities map[string]int, codes []string, target bool) (map[string]ItemStock, error) {
 	configured := configured(stocks)
-	reachable := taskSafeties(catalog.Tasks().All(), nil, maxSkillLevels(characters))
 	err := initialize(configured, potionSafeties())
 	if err != nil {
 		return nil, err
@@ -57,32 +55,20 @@ func Calculate(stocks []models.Stock, quantities map[string]int, characters []sc
 	if err != nil {
 		return nil, err
 	}
-	return requirements(configured, quantities, characters, taskCodes(), reachable, codes, target), nil
+	return requirements(configured, quantities, codes, target), nil
 }
 
-func requirements(stocks map[string]models.Stock, quantities map[string]int, characters []schemas.CharacterSchema, taskCodes map[string]bool, reachable map[string]int, codes []string, target bool) map[string]ItemStock {
-	direct := directRequirements(stocks, quantities, characters, taskCodes, reachable, target)
-	required, needed := recipeRequirements(catalogItems(), npcOffers(), direct, quantities, characters)
+func requirements(stocks map[string]models.Stock, quantities map[string]int, codes []string, target bool) map[string]ItemStock {
+	direct := directRequirements(stocks, quantities, target)
+	required, needed := recipeRequirements(catalogItems(), npcOffers(), direct, quantities)
 	result := map[string]ItemStock{}
 	for code, stock := range stocks {
 		if !stock.Enabled || stock.Mode == "" || (len(codes) > 0 && !slices.Contains(codes, code)) {
 			continue
 		}
-		_, reachableTask := reachable[code]
-		current := quantities[code]
-		if current == 0 && !itemAvailable(code, characters) {
-			continue
-		}
-		if taskCodes[code] && !reachableTask && current == 0 {
-			continue
-		}
-		item := itemStock(stock, current)
+		item := itemStock(stock, quantities[code])
 		item.Demand = demand(stock, required[code])
 		item.Needed = needed[code]
-		if !reachableTask && taskCodes[code] && current > 0 {
-			result[code] = item
-			continue
-		}
 		if item.Needed == 0 {
 			continue
 		}
@@ -111,20 +97,13 @@ func requirements(stocks map[string]models.Stock, quantities map[string]int, cha
 	return result
 }
 
-func directRequirements(stocks map[string]models.Stock, quantities map[string]int, characters []schemas.CharacterSchema, taskCodes map[string]bool, reachable map[string]int, target bool) map[string]goal {
+func directRequirements(stocks map[string]models.Stock, quantities map[string]int, target bool) map[string]goal {
 	direct := map[string]goal{}
 	for code, stock := range stocks {
 		if !stock.Enabled || stock.Mode == "" {
 			continue
 		}
 		current := quantities[code]
-		if current == 0 && !itemAvailable(code, characters) {
-			continue
-		}
-		_, reachableTask := reachable[code]
-		if taskCodes[code] && !reachableTask && current == 0 {
-			continue
-		}
 		if stock.Mode == models.StockModeExact {
 			direct[code] = goal{
 				Quantity: stock.Quantity,
@@ -146,7 +125,7 @@ func directRequirements(stocks map[string]models.Stock, quantities map[string]in
 	return direct
 }
 
-func recipeRequirements(items map[string]*schemas.ItemSchema, offers map[string][]schemas.SimpleNPCItemSchema, direct map[string]goal, quantities map[string]int, characters []schemas.CharacterSchema) (map[string]int, map[string]int) {
+func recipeRequirements(items map[string]*schemas.ItemSchema, offers map[string][]schemas.SimpleNPCItemSchema, direct map[string]goal, quantities map[string]int) (map[string]int, map[string]int) {
 	available := map[string]int{}
 	for code, quantity := range quantities {
 		available[code] = quantity
@@ -164,18 +143,18 @@ func recipeRequirements(items map[string]*schemas.ItemSchema, offers map[string]
 		}
 	}
 	for code, quantity := range missing {
-		expandRecipe(items, offers, code, quantity, available, required, needed, characters, map[string]bool{})
+		expandRecipe(items, offers, code, quantity, available, required, needed, map[string]bool{})
 	}
 	return required, needed
 }
 
-func expandRecipe(items map[string]*schemas.ItemSchema, offers map[string][]schemas.SimpleNPCItemSchema, code string, quantity int, available, required, needed map[string]int, characters []schemas.CharacterSchema, visiting map[string]bool) {
+func expandRecipe(items map[string]*schemas.ItemSchema, offers map[string][]schemas.SimpleNPCItemSchema, code string, quantity int, available, required, needed map[string]int, visiting map[string]bool) {
 	item, exists := items[code]
 	if visiting[code] {
 		return
 	}
-	if !exists || !craftable(*item, characters) {
-		expandNPCOffer(items, offers, code, quantity, available, required, needed, characters, visiting)
+	if !exists || !craftable(*item) {
+		expandNPCOffer(items, offers, code, quantity, available, required, needed, visiting)
 		return
 	}
 	craft := *item.Craft
@@ -199,14 +178,14 @@ func expandRecipe(items map[string]*schemas.ItemSchema, offers map[string][]sche
 		if demand > used {
 			missing := demand - used
 			needed[ingredient.Code] += missing
-			expandRecipe(items, offers, ingredient.Code, missing, available, required, needed, characters, visiting)
+			expandRecipe(items, offers, ingredient.Code, missing, available, required, needed, visiting)
 		}
 	}
 	available[code] += batches*output - quantity
 	delete(visiting, code)
 }
 
-func expandNPCOffer(items map[string]*schemas.ItemSchema, offers map[string][]schemas.SimpleNPCItemSchema, code string, quantity int, available, required, needed map[string]int, characters []schemas.CharacterSchema, visiting map[string]bool) {
+func expandNPCOffer(items map[string]*schemas.ItemSchema, offers map[string][]schemas.SimpleNPCItemSchema, code string, quantity int, available, required, needed map[string]int, visiting map[string]bool) {
 	if len(offers[code]) == 0 {
 		return
 	}
@@ -225,7 +204,7 @@ func expandNPCOffer(items map[string]*schemas.ItemSchema, offers map[string][]sc
 	}
 	missing := demand - used
 	needed[item.Currency] += missing
-	expandRecipe(items, offers, item.Currency, missing, available, required, needed, characters, visiting)
+	expandRecipe(items, offers, item.Currency, missing, available, required, needed, visiting)
 }
 
 func updateReplenishing(stocks map[string]models.Stock, quantities map[string]int) error {
@@ -273,17 +252,6 @@ func initialize(stocks map[string]models.Stock, safeties map[string]int) error {
 	return nil
 }
 
-func taskSafeties(tasks []*schemas.TaskFullSchema, codes []string, maxSkillLevel map[string]int) map[string]int {
-	safeties := map[string]int{}
-	for _, task := range tasks {
-		if task.Skill == nil || task.Type != "items" || task.Level > maxSkillLevel[*task.Skill] || (len(codes) > 0 && !slices.Contains(codes, task.Code)) {
-			continue
-		}
-		safeties[task.Code] += taskSafety(task)
-	}
-	return safeties
-}
-
 func allTaskSafeties(tasks []*schemas.TaskFullSchema) map[string]int {
 	safeties := map[string]int{}
 	for _, task := range tasks {
@@ -311,66 +279,8 @@ func potionSafeties() map[string]int {
 	return safeties
 }
 
-func taskCodes() map[string]bool {
-	codes := map[string]bool{}
-	potions := map[string]bool{}
-	for _, potion := range catalog.Items().Potions().All() {
-		potions[potion.Code] = true
-	}
-	for _, code := range catalog.Tasks().Items() {
-		if potions[code] {
-			continue
-		}
-		codes[code] = true
-	}
-	return codes
-}
-
-func maxSkillLevels(characters []schemas.CharacterSchema) map[string]int {
-	maxSkillLevel := map[string]int{}
-	for _, character := range characters {
-		for _, skill := range catalog.Tasks().Skills() {
-			level, _ := utils.GetCharacterSkillLevel(character, skill)
-			maxSkillLevel[skill] = max(maxSkillLevel[skill], level)
-		}
-	}
-	return maxSkillLevel
-}
-
-func itemAvailable(code string, characters []schemas.CharacterSchema) bool {
-	item, ok := catalog.Items().Get(code)
-	if !ok {
-		return true
-	}
-	return itemUsable(*item, characters)
-}
-
-func itemUsable(item schemas.ItemSchema, characters []schemas.CharacterSchema) bool {
-	for _, character := range characters {
-		if utils.MeetsItemConditions(character, item) {
-			return true
-		}
-	}
-	return false
-}
-
-func craftable(item schemas.ItemSchema, characters []schemas.CharacterSchema) bool {
-	if item.Craft == nil || item.Craft.Items == nil {
-		return false
-	}
-	for _, character := range characters {
-		if !utils.MeetsItemConditions(character, item) {
-			continue
-		}
-		if item.Craft.Skill == nil || item.Craft.Level == nil {
-			return true
-		}
-		level, ok := utils.GetCharacterSkillLevel(character, *item.Craft.Skill)
-		if ok && level >= *item.Craft.Level {
-			return true
-		}
-	}
-	return false
+func craftable(item schemas.ItemSchema) bool {
+	return item.Craft != nil && item.Craft.Items != nil
 }
 
 func npcGoldRequired(items map[string]*schemas.ItemSchema, code string) bool {

@@ -38,7 +38,7 @@ func TestRequirementsSafetyZeroHasNoDirectRequirement(t *testing.T) {
 			Mode:    models.StockModeSafety,
 			Enabled: true,
 		},
-	}, map[string]int{"test_wood": 10}, nil, nil, nil, nil, false)
+	}, map[string]int{"test_wood": 10}, nil, false)
 	if len(result) != 0 {
 		t.Fatalf("requirements() = %#v, want no direct requirement", result)
 	}
@@ -65,8 +65,8 @@ func TestRequirements(t *testing.T) {
 			Mode:     models.StockModeSafety,
 			Enabled:  true,
 		},
-		"hidden_item": {
-			Code:     "hidden_item",
+		"empty_item": {
+			Code:     "empty_item",
 			Quantity: 100,
 			Mode:     models.StockModeSafety,
 			Enabled:  true,
@@ -77,14 +77,8 @@ func TestRequirements(t *testing.T) {
 		"test_wood":   90,
 		"future_item": 200,
 	}
-	taskCodes := map[string]bool{
-		"test_wood":   true,
-		"future_item": true,
-		"hidden_item": true,
-	}
-	reachable := map[string]int{"test_wood": 100}
 
-	result := requirements(stocks, quantities, nil, taskCodes, reachable, nil, false)
+	result := requirements(stocks, quantities, nil, false)
 	if len(result) != 3 {
 		t.Fatalf("requirements() = %#v", result)
 	}
@@ -97,12 +91,12 @@ func TestRequirements(t *testing.T) {
 	if result["test_wood"].Demand != 0 {
 		t.Fatalf("direct required = %#v", result["test_wood"])
 	}
-	if result["future_item"].Needed != 0 || result["future_item"].Target != 133 {
-		t.Fatalf("future stock = %#v", result["future_item"])
-	}
-	_, ok := result["hidden_item"]
+	_, ok := result["future_item"]
 	if ok {
-		t.Fatalf("hidden task result = %#v", result)
+		t.Fatalf("replenished stock = %#v", result)
+	}
+	if result["empty_item"].Needed != 100 || result["empty_item"].Target != 133 {
+		t.Fatalf("empty stock = %#v", result["empty_item"])
 	}
 }
 
@@ -116,10 +110,8 @@ func TestRequirementsTarget(t *testing.T) {
 		},
 	}
 	quantities := map[string]int{"ash_wood": 110}
-	taskCodes := map[string]bool{"ash_wood": true}
-	reachable := map[string]int{"ash_wood": 100}
 
-	result := requirements(stocks, quantities, nil, taskCodes, reachable, nil, false)
+	result := requirements(stocks, quantities, nil, false)
 	if len(result) != 0 {
 		t.Fatalf("default requirements() = %#v", result)
 	}
@@ -130,7 +122,7 @@ func TestRequirementsTarget(t *testing.T) {
 		Enabled:      true,
 		Replenishing: true,
 	}
-	result = requirements(stocks, quantities, nil, taskCodes, reachable, nil, false)
+	result = requirements(stocks, quantities, nil, false)
 	if result["ash_wood"].Needed != 23 {
 		t.Fatalf("target stock = %#v", result)
 	}
@@ -151,28 +143,9 @@ func TestRequirementsFiltersOutputAfterExpansion(t *testing.T) {
 			Enabled:  true,
 		},
 	}
-	characters := []schemas.CharacterSchema{{Level: 100, MiningLevel: 100}}
-
-	result := requirements(stocks, nil, characters, nil, nil, []string{"gold_ore"}, false)
+	result := requirements(stocks, nil, []string{"gold_ore"}, false)
 	if len(result) != 1 || result["gold_ore"].Needed != 10 || result["gold_ore"].Demand != 10 {
 		t.Fatalf("requirements() = %#v", result)
-	}
-}
-
-func TestStockItemUsable(t *testing.T) {
-	conditions := []schemas.ConditionSchema{{
-		Code:     "level",
-		Operator: "gt",
-		Value:    4,
-	}}
-	item := schemas.ItemSchema{Conditions: &conditions}
-	characters := []schemas.CharacterSchema{{Level: 4}}
-	if itemUsable(item, characters) {
-		t.Fatal("itemUsable() = true for an unavailable item")
-	}
-	characters[0].Level = 5
-	if !itemUsable(item, characters) {
-		t.Fatal("itemUsable() = false for an available item")
 	}
 }
 
@@ -194,16 +167,15 @@ func TestRecipeRequirementsReservesDirectTargets(t *testing.T) {
 		"ash_wood":  {Quantity: 300, Expand: true},
 	}
 	quantities := map[string]int{"ash_wood": 200}
-	characters := []schemas.CharacterSchema{{}}
 
-	required, needed := recipeRequirements(items, nil, direct, quantities, characters)
+	required, needed := recipeRequirements(items, nil, direct, quantities)
 	if required["ash_wood"] != 400 || needed["ash_wood"] != 200 || needed["ash_plank"] != 10 {
 		t.Fatalf("recipeRequirements() = required %#v, needed %#v", required, needed)
 	}
 
 	direct["ash_wood"] = goal{Quantity: 300}
 	quantities["ash_wood"] = 400
-	required, needed = recipeRequirements(items, nil, direct, quantities, characters)
+	required, needed = recipeRequirements(items, nil, direct, quantities)
 	if required["ash_wood"] != 400 || needed["ash_wood"] != 0 || needed["ash_plank"] != 10 {
 		t.Fatalf("reserved recipeRequirements() = required %#v, needed %#v", required, needed)
 	}
@@ -221,7 +193,7 @@ func TestRecipeRequirementsExpandsNPCOffer(t *testing.T) {
 	}
 	direct := map[string]goal{"corrupted_crown": {Quantity: 5, Expand: true}}
 
-	required, needed := recipeRequirements(nil, offers, direct, nil, nil)
+	required, needed := recipeRequirements(nil, offers, direct, nil)
 	if required["corrupted_gem"] != 1100 || needed["corrupted_gem"] != 1100 {
 		t.Fatalf("recipeRequirements() = required %#v, needed %#v", required, needed)
 	}
@@ -239,7 +211,7 @@ func TestRecipeRequirementsExpandsGoldOnlyForNPCExclusiveItems(t *testing.T) {
 	}
 	quantities := map[string]int{"gold": 5000}
 
-	required, needed := recipeRequirements(catalogItems(), offers, direct, quantities, nil)
+	required, needed := recipeRequirements(catalogItems(), offers, direct, quantities)
 	if required["gold"] != 30000 || needed["gold"] != 25000 {
 		t.Fatalf("gold requirements = required %#v, needed %#v", required, needed)
 	}
