@@ -7,39 +7,176 @@ import (
 	"github.com/br-lemes/golem/pkg/schemas"
 )
 
-func TestClearUtilitiesSkipsEmptySlots(t *testing.T) {
+func clearUtilitiesTestCharacter() schemas.CharacterSchema {
+	return schemas.CharacterSchema{
+		Name:              "hero",
+		X:                 4,
+		Y:                 1,
+		MapId:             334,
+		Layer:             "overworld",
+		InventoryMaxItems: 100,
+	}
+}
+
+func TestClearUtilitiesSkipsSlotsWithoutItems(t *testing.T) {
 	character := schemas.CharacterSchema{Utility2Slot: ""}
 	got, err := clearUtilities(deps{}, character, []string{
 		"utility1",
 		"utility2",
-	})
+	}, MoveOptions{})
 	if err != nil || got != character {
 		t.Fatalf("clearUtilities() = %#v, %v, want unchanged character", got, err)
 	}
 }
 
-func TestClearUtilitiesUnequipsConfiguredSlots(t *testing.T) {
-	character := schemas.CharacterSchema{
-		Name:                 "hero",
-		Utility1Slot:         "small_health_potion",
-		Utility1SlotQuantity: 4,
-		Utility2Slot:         "cooked_chicken",
-		Utility2SlotQuantity: 7,
-	}
-	called := false
+func TestClearUtilitiesUnequipsBothSlotsTogether(t *testing.T) {
+	character := clearUtilitiesTestCharacter()
+	character.Utility1Slot = "small_health_potion"
+	character.Utility1SlotQuantity = 32
+	character.Utility2Slot = "mana_potion"
+	character.Utility2SlotQuantity = 15
+	character.Inventory = &[]schemas.InventorySlotSchema{{
+		Code:     "recall_potion",
+		Quantity: 2,
+	}}
+	unequips := 0
+	deposits := 0
 	d := deps{
 		myActionUnequip: func(_ string, items []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
-			called = true
-			if len(items) != 2 || items[0].Slot != "utility1" || items[1].Slot != "utility2" {
+			unequips++
+			if len(items) != 2 {
 				t.Fatalf("unequips = %#v, want both utility slots", items)
+			}
+			if items[0].Slot != "utility1" || *items[0].Quantity != 32 {
+				t.Fatalf("first unequip = %#v, want utility1 x32", items[0])
+			}
+			if items[1].Slot != "utility2" || *items[1].Quantity != 15 {
+				t.Fatalf("second unequip = %#v, want utility2 x15", items[1])
+			}
+			character.Inventory = &[]schemas.InventorySlotSchema{
+				{Code: "recall_potion", Quantity: 2},
+				{Code: "small_health_potion", Quantity: 32},
+				{Code: "mana_potion", Quantity: 15},
 			}
 			return schemas.EquipmentTransactionSchema{Character: character}, nil
 		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionBankDepositItem: func(string, []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			deposits++
+			character.Inventory = nil
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
 	}
 
-	_, err := clearUtilities(d, character, []string{"utility1", "utility2"})
-	if err != nil || !called {
-		t.Fatalf("clearUtilities() error = %v, called = %t", err, called)
+	slots := []string{"utility1", "utility2"}
+	movement := MoveOptions{NoTeleport: true}
+	_, err := clearUtilities(d, character, slots, movement)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if unequips != 1 || deposits != 1 {
+		t.Fatalf("unequips = %d, deposits = %d, want 1 each", unequips, deposits)
+	}
+}
+
+func TestClearUtilitiesSplitsBatchesByInventorySpace(t *testing.T) {
+	character := clearUtilitiesTestCharacter()
+	character.Utility1Slot = "small_health_potion"
+	character.Utility1SlotQuantity = 100
+	character.Utility2Slot = "mana_potion"
+	character.Utility2SlotQuantity = 100
+	var batches [][]schemas.UnequipSchema
+	deposits := 0
+	d := deps{
+		myActionUnequip: func(_ string, items []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
+			total := 0
+			inventory := make([]schemas.InventorySlotSchema, 0, len(items))
+			for _, item := range items {
+				total += *item.Quantity
+				inventory = append(inventory, schemas.InventorySlotSchema{
+					Code:     item.Slot,
+					Quantity: *item.Quantity,
+				})
+			}
+			if total > InventorySpace(character) {
+				t.Fatalf("batch total = %d, space = %d", total, InventorySpace(character))
+			}
+			batches = append(batches, append([]schemas.UnequipSchema(nil), items...))
+			character.Inventory = &inventory
+			return schemas.EquipmentTransactionSchema{Character: character}, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionBankDepositItem: func(string, []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			deposits++
+			character.Inventory = nil
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+	}
+
+	slots := []string{"utility1", "utility2"}
+	movement := MoveOptions{NoTeleport: true}
+	_, err := clearUtilities(d, character, slots, movement)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(batches) != 2 || deposits != 2 {
+		t.Fatalf("batches = %d, deposits = %d, want 2 each", len(batches), deposits)
+	}
+	if len(batches[0]) != 1 || *batches[0][0].Quantity != 100 {
+		t.Fatalf("first batch = %#v, want utility1 x100", batches[0])
+	}
+	if len(batches[1]) != 1 || *batches[1][0].Quantity != 100 {
+		t.Fatalf("second batch = %#v, want utility2 x100", batches[1])
+	}
+}
+
+func TestClearUtilitiesFillsBatchAcrossSlots(t *testing.T) {
+	character := clearUtilitiesTestCharacter()
+	character.Utility1Slot = "small_health_potion"
+	character.Utility1SlotQuantity = 60
+	character.Utility2Slot = "mana_potion"
+	character.Utility2SlotQuantity = 50
+	character.Inventory = &[]schemas.InventorySlotSchema{{
+		Code:     "recall_potion",
+		Quantity: 5,
+	}}
+	var batches [][]schemas.UnequipSchema
+	d := deps{
+		myActionUnequip: func(_ string, items []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
+			batches = append(batches, append([]schemas.UnequipSchema(nil), items...))
+			character.Inventory = nil
+			return schemas.EquipmentTransactionSchema{Character: character}, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionBankDepositItem: func(string, []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			character.Inventory = nil
+			return schemas.BankItemTransactionSchema{Character: character}, nil
+		},
+	}
+
+	slots := []string{"utility1", "utility2"}
+	movement := MoveOptions{NoTeleport: true}
+	_, err := clearUtilities(d, character, slots, movement)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(batches) != 2 {
+		t.Fatalf("batches = %d, want 2", len(batches))
+	}
+	if len(batches[0]) != 2 {
+		t.Fatalf("first batch = %#v, want both slots", batches[0])
+	}
+	if *batches[0][0].Quantity != 60 || *batches[0][1].Quantity != 35 {
+		t.Fatalf("first batch = %#v, want 60 + 35", batches[0])
+	}
+	if len(batches[1]) != 1 || *batches[1][0].Quantity != 15 {
+		t.Fatalf("second batch = %#v, want utility2 x15", batches[1])
 	}
 }
 
@@ -50,9 +187,39 @@ func TestClearUtilitiesReturnsUnequipError(t *testing.T) {
 			return schemas.EquipmentTransactionSchema{}, wantErr
 		},
 	}
-	character := schemas.CharacterSchema{Utility1Slot: "small_health_potion"}
+	character := clearUtilitiesTestCharacter()
+	character.Utility1Slot = "small_health_potion"
+	character.Utility1SlotQuantity = 1
 
-	_, err := clearUtilities(d, character, []string{"utility1"})
+	_, err := clearUtilities(d, character, []string{"utility1"}, MoveOptions{})
+	if !errors.Is(err, wantErr) {
+		t.Fatalf("clearUtilities() error = %v, want %v", err, wantErr)
+	}
+}
+
+func TestClearUtilitiesReturnsDepositError(t *testing.T) {
+	wantErr := errors.New("deposit failed")
+	character := clearUtilitiesTestCharacter()
+	character.Utility1Slot = "small_health_potion"
+	character.Utility1SlotQuantity = 1
+	d := deps{
+		myActionUnequip: func(_ string, items []schemas.UnequipSchema) (schemas.EquipmentTransactionSchema, error) {
+			character.Inventory = &[]schemas.InventorySlotSchema{{
+				Code:     "small_health_potion",
+				Quantity: *items[0].Quantity,
+			}}
+			return schemas.EquipmentTransactionSchema{Character: character}, nil
+		},
+		myActionMove: func(string, int, int) (schemas.CharacterMovementDataSchema, error) {
+			return schemas.CharacterMovementDataSchema{Character: character}, nil
+		},
+		myActionBankDepositItem: func(string, []schemas.SimpleItemSchema) (schemas.BankItemTransactionSchema, error) {
+			return schemas.BankItemTransactionSchema{}, wantErr
+		},
+	}
+
+	movement := MoveOptions{NoTeleport: true}
+	_, err := clearUtilities(d, character, []string{"utility1"}, movement)
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("clearUtilities() error = %v, want %v", err, wantErr)
 	}

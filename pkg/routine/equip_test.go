@@ -105,6 +105,7 @@ func TestEquipClearsUtilitiesBeforeReturning(t *testing.T) {
 		Utility1Slot:         "small_health_potion",
 		Utility1SlotQuantity: 2,
 		Inventory:            &inventory,
+		InventoryMaxItems:    100,
 	}
 	unequipCalled := false
 	depositCalls := 0
@@ -151,14 +152,16 @@ func TestEquipClearsUtilitiesBeforeReturning(t *testing.T) {
 
 func TestEquipUtilityOptionsOnlyClearChangedSlots(t *testing.T) {
 	character := schemas.CharacterSchema{
-		Name:         "hero",
-		Level:        10,
-		X:            4,
-		Y:            1,
-		MapId:        334,
-		Layer:        "overworld",
-		Utility1Slot: "small_health_potion",
-		Utility2Slot: "mana_potion",
+		Name:                 "hero",
+		Level:                10,
+		X:                    4,
+		Y:                    1,
+		MapId:                334,
+		Layer:                "overworld",
+		Utility1Slot:         "small_health_potion",
+		Utility1SlotQuantity: 1,
+		Utility2Slot:         "mana_potion",
+		InventoryMaxItems:    100,
 	}
 	var unequipped []schemas.UnequipSchema
 	d := deps{
@@ -192,12 +195,14 @@ func TestEquipUtilityOptionsOnlyClearChangedSlots(t *testing.T) {
 func TestEquipReturnsUtilityClearError(t *testing.T) {
 	wantErr := errors.New("clear utility failed")
 	character := schemas.CharacterSchema{
-		Level:        10,
-		X:            4,
-		Y:            1,
-		MapId:        334,
-		Layer:        "overworld",
-		Utility1Slot: "small_health_potion",
+		Level:                10,
+		X:                    4,
+		Y:                    1,
+		MapId:                334,
+		Layer:                "overworld",
+		Utility1Slot:         "small_health_potion",
+		Utility1SlotQuantity: 1,
+		InventoryMaxItems:    100,
 	}
 	deps := deps{
 		characters: func(string) (schemas.CharacterSchema, error) {
@@ -236,6 +241,7 @@ func TestEquipReturnsUtilityDepositError(t *testing.T) {
 		Utility1Slot:         "small_health_potion",
 		Utility1SlotQuantity: 2,
 		Inventory:            &inventory,
+		InventoryMaxItems:    100,
 	}
 	deps := deps{
 		characters: func(string) (schemas.CharacterSchema, error) {
@@ -275,6 +281,7 @@ func TestEquipReturnsFinalDepositError(t *testing.T) {
 		Utility1Slot:         "small_health_potion",
 		Utility1SlotQuantity: 2,
 		Inventory:            &inventory,
+		InventoryMaxItems:    100,
 	}
 	depositCalls := 0
 	deps := deps{

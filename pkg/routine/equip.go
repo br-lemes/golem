@@ -79,7 +79,7 @@ func equip(d deps, name string, equipments []schemas.EquipSchema, options EquipO
 			return character, err
 		}
 		if hasUtilityChanges {
-			character, err = clearUtilities(d, character, utilitySlots)
+			character, err = clearUtilities(d, character, utilitySlots, options.Movement)
 			if err != nil {
 				return character, err
 			}

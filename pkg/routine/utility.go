@@ -17,13 +17,13 @@ type utilitySlot struct {
 	curQty  int
 }
 
-func ClearUtilities(character schemas.CharacterSchema, slots []string) (schemas.CharacterSchema, error) {
-	//+gocover:ignore:block production wrapper over tested implementation
-	return clearUtilities(defaultDeps, character, slots)
+type pendingUtility struct {
+	slot      string
+	remaining int
 }
 
-func clearUtilities(d deps, character schemas.CharacterSchema, slots []string) (schemas.CharacterSchema, error) {
-	unequips := make([]schemas.UnequipSchema, 0, 2)
+func clearUtilities(d deps, character schemas.CharacterSchema, slots []string, movement MoveOptions) (schemas.CharacterSchema, error) {
+	pending := make([]pendingUtility, 0, len(slots))
 	for _, slot := range slots {
 		code := character.Utility1Slot
 		quantity := character.Utility1SlotQuantity
@@ -31,22 +31,71 @@ func clearUtilities(d deps, character schemas.CharacterSchema, slots []string) (
 			code = character.Utility2Slot
 			quantity = character.Utility2SlotQuantity
 		}
-		if code == "" {
+		if code == "" || quantity <= 0 {
 			continue
 		}
-		unequips = append(unequips, schemas.UnequipSchema{
-			Slot:     slot,
-			Quantity: &quantity,
+		pending = append(pending, pendingUtility{
+			slot:      slot,
+			remaining: quantity,
 		})
 	}
-	if len(unequips) == 0 {
-		return character, nil
+	for {
+		total := 0
+		for _, item := range pending {
+			total += item.remaining
+		}
+		if total == 0 {
+			return character, nil
+		}
+		space := InventorySpace(character)
+		if space == 0 {
+			var err error
+			character, err = deposit(d, character, DepositOptions{
+				Movement: movement,
+			})
+			if err != nil {
+				return character, err
+			}
+			space = InventorySpace(character)
+			if space == 0 {
+				return character, fmt.Errorf("inventory has no space to clear utilities")
+			}
+		}
+		unequips := make([]schemas.UnequipSchema, 0, len(pending))
+		used := 0
+		for index := range pending {
+			if used == space {
+				break
+			}
+			if pending[index].remaining == 0 {
+				continue
+			}
+			quantity := min(pending[index].remaining, space-used)
+			unequips = append(unequips, schemas.UnequipSchema{
+				Slot:     pending[index].slot,
+				Quantity: &quantity,
+			})
+			used += quantity
+		}
+		result, err := d.myActionUnequip(character.Name, unequips)
+		if err != nil {
+			return character, err
+		}
+		character = result.Character
+		for _, unequip := range unequips {
+			for index := range pending {
+				if pending[index].slot == unequip.Slot {
+					pending[index].remaining -= *unequip.Quantity
+				}
+			}
+		}
+		character, err = deposit(d, character, DepositOptions{
+			Movement: movement,
+		})
+		if err != nil {
+			return character, err
+		}
 	}
-	result, err := d.myActionUnequip(character.Name, unequips)
-	if err != nil {
-		return character, err
-	}
-	return result.Character, nil
 }
 
 func utilitySlots(character schemas.CharacterSchema, utility1, utility2 string) []*utilitySlot {
