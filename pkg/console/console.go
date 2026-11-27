@@ -540,3 +540,7 @@ func Debugf(format string, a ...any) {
 func Errorf(format string, a ...any) {
 	_, _ = fmt.Fprintf(Stderr, format, a...)
 }
+
+func Warnf(format string, a ...any) {
+	_, _ = fmt.Fprintf(Stderr, "WARNING: "+format, a...)
+}

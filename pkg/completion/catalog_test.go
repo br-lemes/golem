@@ -12,6 +12,7 @@ func TestCatalogCompletionsReturnValues(t *testing.T) {
 		fn   func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective)
 	}{
 		{"items", Item(1).Build()},
+		{"weapons", Weapon(1).Build()},
 		{"maps", Map(1).Build()},
 		{"monsters", Monster(1).Build()},
 		{"bosses", Boss(1).Build()},

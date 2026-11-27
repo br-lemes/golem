@@ -57,4 +57,16 @@ func TestItemCatalogViews(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("weapons", func(t *testing.T) {
+		weapons := Items().Weapons().All()
+		if len(weapons) == 0 {
+			t.Fatal("weapon view is empty")
+		}
+		for _, item := range weapons {
+			if item.Type != "weapon" || item.Subtype != "" {
+				t.Fatalf("weapon view contains %q with type %q and subtype %q", item.Code, item.Type, item.Subtype)
+			}
+		}
+	})
 }

@@ -435,11 +435,15 @@ func TestInputAndDebugOutput(t *testing.T) {
 	Stderr = &bytes.Buffer{}
 	Debug = true
 	Debugf("debug %d\n", 1)
-	Errorf("error %d\n", 2)
+	Warnf("warn %d\n", 2)
+	Errorf("error %d\n", 3)
 	if !strings.Contains(Stderr.(*bytes.Buffer).String(), "DEBUG: debug 1") {
 		t.Fatal("Debugf() did not write debug output")
 	}
-	if !strings.Contains(Stderr.(*bytes.Buffer).String(), "error 2") {
+	if !strings.Contains(Stderr.(*bytes.Buffer).String(), "WARNING: warn 2") {
+		t.Fatal("Warnf() did not write warning output")
+	}
+	if !strings.Contains(Stderr.(*bytes.Buffer).String(), "error 3") {
 		t.Fatal("Errorf() did not write error output")
 	}
 	Debug = false

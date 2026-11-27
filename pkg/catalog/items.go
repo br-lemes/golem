@@ -16,6 +16,7 @@ type itemCatalog struct {
 	foods      *view[schemas.ItemSchema, string]
 	potions    *view[schemas.ItemSchema, string]
 	tradeables *view[schemas.ItemSchema, string]
+	weapons    *view[schemas.ItemSchema, string]
 }
 
 func Items() *itemCatalog {
@@ -42,6 +43,10 @@ func (c *itemCatalog) Types() []string {
 	return itemTypes()
 }
 
+func (c *itemCatalog) Weapons() *view[schemas.ItemSchema, string] {
+	return c.weapons
+}
+
 var itemsCatalog = func() *itemCatalog {
 	store := newStore(jsonLoader[schemas.ItemSchema](items), func(item *schemas.ItemSchema) string {
 		return item.Code
@@ -60,6 +65,9 @@ var itemsCatalog = func() *itemCatalog {
 		}),
 		tradeables: store.View(func(item *schemas.ItemSchema) bool {
 			return item.Tradeable
+		}),
+		weapons: store.View(func(item *schemas.ItemSchema) bool {
+			return item.Type == "weapon" && item.Subtype == ""
 		}),
 	}
 }()
